@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Union
 import pandas as pd
 from datasets import Dataset
 
+from distilabel.errors import DistilabelUserError
 from distilabel.steps.base import StepResources
 
 if TYPE_CHECKING:
@@ -62,9 +63,10 @@ def make_generator_step(
         dataset = Dataset.from_pandas(dataset, preserve_index=False)
 
     if not isinstance(dataset, Dataset):
-        raise ValueError(
+        raise DistilabelUserError(
             f"Dataset type not allowed: {type(dataset)}, must be one of: "
-            "`datasets.Dataset`, `pd.DataFrame`, `List[Dict[str, str]]`"
+            "`datasets.Dataset`, `pd.DataFrame`, `List[Dict[str, str]]`",
+            page="sections/how_to_guides/basic/pipeline/?h=make_#__tabbed_1_2",
         )
 
     loader = LoadDataFromHub(

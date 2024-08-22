@@ -18,7 +18,6 @@ import os
 import signal
 import threading
 import time
-import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
@@ -50,6 +49,7 @@ from distilabel.constants import (
     STEPS_OUTPUTS_PATH,
 )
 from distilabel.distiset import create_distiset
+from distilabel.errors import DistilabelUserError
 from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch import _Batch
@@ -131,6 +131,7 @@ _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
 
 _ATTRIBUTES_IGNORED_CACHE = ("disable_cuda_device_placement",)
+_PIPELINE_DEFAULT_NAME = "__default_pipeline_name__"
 
 
 class BasePipeline(ABC, RequirementsMixin, _Serializable):
@@ -189,7 +190,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 Defaults to `None`, but can be helpful to inform in a pipeline to be shared
                 that this requirements must be installed.
         """
-        self.name = name or f"pipeline_{str(uuid.uuid4())[:8]}"
+        self.name = name or _PIPELINE_DEFAULT_NAME
         self.description = description
         self._enable_metadata = enable_metadata
         self.dag = DAG()
@@ -235,6 +236,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Unset the global pipeline instance when exiting a pipeline context."""
         _GlobalPipelineManager.set_pipeline(None)
+        self._set_pipeline_name()
+
+    def _set_pipeline_name(self) -> None:
+        """Creates a name for the pipeline if it's the default one (if hasn't been set)."""
+        if self.name == _PIPELINE_DEFAULT_NAME:
+            self.name = f"pipeline_{'_'.join(self.dag)}"
 
     def _create_signature(self) -> str:
         """Makes a signature (hash) of a pipeline, using the step ids and the adjacency between them.
@@ -351,6 +358,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
         )
 
+        # Set the name of the pipeline if it's the default one. This should be called
+        # if the pipeline is defined within the context manager, and the run is called
+        # outside of it. Is here in the following case:
+        # with Pipeline() as pipeline:
+        #    pipeline.run()
+        self._set_pipeline_name()
+
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, etc.
         self.dag.validate()
@@ -451,10 +465,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         for step_name in self.dag:
             step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             if isinstance(step_name, GeneratorStep):
-                raise ValueError(
+                raise DistilabelUserError(
                     "There is already a `GeneratorStep` in the pipeline, you can either"
                     " pass a `dataset` to the run method, or create a `GeneratorStep` explictly."
-                    f" `GeneratorStep`: {step}"
+                    f" `GeneratorStep`: {step}",
+                    page="sections/how_to_guides/basic/step/#types-of-steps",
                 )
         loader = make_generator_step(dataset)
         self.dag.add_root_step(loader)
@@ -522,9 +537,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             return
 
         if "path" not in storage_parameters:
-            raise ValueError(
+            raise DistilabelUserError(
                 "The 'path' key must be present in the `storage_parameters` dictionary"
-                " if it's not `None`."
+                " if it's not `None`.",
+                page="sections/how_to_guides/advanced/fs_to_pass_data/",
             )
 
         path = storage_parameters.pop("path")

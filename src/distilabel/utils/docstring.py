@@ -236,9 +236,7 @@ def get_bibtex(ref: str) -> str:
     from bs4 import BeautifulSoup
 
     if not ref.startswith("https://arxiv.org"):
-        raise ValueError(
-            f"The url must start with of `https://arxiv.org`, but got: {ref}"
-        )
+        raise ValueError(f"The url must start with `https://arxiv.org`, but got: {ref}")
     response: bytes = requests.get(
         rf"https://arxiv2bibtex.org/?q={quote_plus(ref)}&format=bibtex"
     )

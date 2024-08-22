@@ -26,6 +26,7 @@ from jinja2 import Template
 from pydantic import Field, PrivateAttr, model_validator
 from typing_extensions import Self
 
+from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
@@ -75,15 +76,11 @@ class PrometheusEval(Task):
     """Critique and rank the quality of generations from an `LLM` using Prometheus 2.0.
 
     `PrometheusEval` is a task created for Prometheus 2.0, covering both the absolute and relative
-    evaluations.
-
-    - The absolute evaluation i.e. `mode="absolute"` is used to evaluate a single generation from
-        an LLM for a given instruction.
-    - The relative evaluation i.e. `mode="relative"` is used to evaluate two generations from an LLM
-        for a given instruction.
-
-    Both evaluations provide the possibility whether to use a reference answer to compare with or not
-    via the `reference` attribute, and both are based on a score rubric that critiques the generation/s
+    evaluations. The absolute evaluation i.e. `mode="absolute"` is used to evaluate a single generation from
+    an LLM for a given instruction. The relative evaluation i.e. `mode="relative"` is used to evaluate two generations from an LLM
+    for a given instruction.
+    Both evaluations provide the possibility of using a reference answer to compare with or withoug
+    the `reference` attribute, and both are based on a score rubric that critiques the generation/s
     based on the following default aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`,
     and `reasoning`, that can be overridden via `rubrics`, and the selected rubric is set via the attribute
     `rubric`.
@@ -138,7 +135,7 @@ class PrometheusEval(Task):
 
     Examples:
 
-        Critique and evaluate LLM generation quality using Prometheus 2.0:
+        Critique and evaluate LLM generation quality using Prometheus 2_0:
 
         ```python
         from distilabel.steps.tasks import PrometheusEval
@@ -320,8 +317,9 @@ class PrometheusEval(Task):
     @model_validator(mode="after")
     def validate_rubric_and_rubrics(self) -> Self:
         if not isinstance(self.rubrics, dict) or len(self.rubrics) < 1:
-            raise ValueError(
-                "Provided `rubrics` must be a Python dictionary with string keys and string values."
+            raise DistilabelUserError(
+                "Provided `rubrics` must be a Python dictionary with string keys and string values.",
+                page="components-gallery/tasks/prometheuseval/",
             )
 
         def rubric_matches_pattern(rubric: str) -> bool:
@@ -330,17 +328,19 @@ class PrometheusEval(Task):
             return bool(re.match(pattern, rubric, re.MULTILINE))
 
         if not all(rubric_matches_pattern(value) for value in self.rubrics.values()):
-            raise ValueError(
+            raise DistilabelUserError(
                 "Provided rubrics should match the format of the default rubrics, which"
                 " is as follows: `[<scoring criteria>]\nScore 1: <description>\nScore 2: <description>\n"
                 "Score 3: <description>\nScore 4: <description>\nScore 5: <description>`; replacing"
                 " `<scoring criteria>` and `<description>` with the actual criteria and description"
-                " for each or the scores, respectively."
+                " for each or the scores, respectively.",
+                page="components-gallery/tasks/prometheuseval/",
             )
 
         if self.rubric not in self.rubrics:
-            raise ValueError(
-                f"Provided rubric '{self.rubric}' is not among the available rubrics: {', '.join(self.rubrics.keys())}."
+            raise DistilabelUserError(
+                f"Provided rubric '{self.rubric}' is not among the available rubrics: {', '.join(self.rubrics.keys())}.",
+                page="components-gallery/tasks/prometheuseval/",
             )
 
         return self
@@ -393,9 +393,10 @@ class PrometheusEval(Task):
 
         if self.mode == "absolute":
             if not isinstance(input["generation"], str):
-                raise ValueError(
+                raise DistilabelUserError(
                     f"Provided `generation` is of type {type(input['generation'])} but a string"
                     " should be provided instead.",
+                    page="components-gallery/tasks/prometheuseval/",
                 )
 
             template_kwargs["generation"] = input["generation"]
@@ -412,8 +413,9 @@ class PrometheusEval(Task):
                 )
                 or len(input["generations"]) != 2
             ):
-                raise ValueError(
-                    f"Provided `generations` is of type {type(input['generations'])} but a list of strings with length 2 should be provided instead."
+                raise DistilabelUserError(
+                    f"Provided `generations` is of type {type(input['generations'])} but a list of strings with length 2 should be provided instead.",
+                    page="components-gallery/tasks/prometheuseval/",
                 )
 
             template_kwargs["generations"] = input["generations"]

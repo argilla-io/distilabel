@@ -238,6 +238,7 @@ nav:
           - "api/pipeline/index.md"
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
           - Typing: "api/pipeline/typing.md"
+          - Step Wrapper: "api/pipeline/step_wrapper.md"
           - Utils: "api/pipeline/utils.md"
       - Mixins:
           - RuntimeParametersMixin: "api/mixins/runtime_parameters.md"
