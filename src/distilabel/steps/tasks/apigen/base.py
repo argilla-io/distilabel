@@ -13,15 +13,17 @@
 # limitations under the License.
 
 import random
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import orjson
 from typing_extensions import override
 
+from distilabel.steps.base import Step, StepInput
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 # TODO: Move these to jinja2 templates
@@ -56,11 +58,26 @@ API_GEN_PROMPT: str = (
 class APIGenGenerator(Task):
     """_summary_
 
+    Input columns:
+        - instructions (`List[str]`): The list of instructions to be scored.
+
+    Output columns:
+        - scores (`List[float]`): The score for each instruction.
+        - model_name (`str`): The model name used to generate the scores.
+
+    Categories:
+        - llm
+        - text-generation
+
+    References:
+        - [APIGen: Automated Pipeline for Generating Verifiable and Diverse Function-Calling Datasets](https://arxiv.org/abs/2406.18518)
+
     Examples:
 
         Generate without structured output (original implementation):
 
         ```python
+        from distilabel.steps.tasks import ApiGenGenerator
         from distilabel.llms import InferenceEndpointsLLM
 
         llm=InferenceEndpointsLLM(
@@ -112,11 +129,12 @@ class APIGenGenerator(Task):
         Generate with structured output:
 
         ```python
+        from distilabel.steps.tasks import ApiGenGenerator
         from distilabel.llms import InferenceEndpointsLLM
 
         llm=InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
-            tokenizer="meta-llama/Meta-Llama-3.1-70B-Instruct"
+            tokenizer="meta-llama/Meta-Llama-3.1-70B-Instruct",
             generation_kwargs={
                 "temperature": 0.7,
                 "max_new_tokens": 1024,
@@ -161,7 +179,8 @@ class APIGenGenerator(Task):
     system_prompt: str = SYSTEM_PROMPT_API_GEN
     use_default_structured_output: bool = False
     is_parallel: Union[bool, List[float]] = False
-    number: Optional[int] = 1
+    number: Union[int, List[int]] = 1
+    _number: int
 
     # TODO: Move _get_parallel_queries here to avoid recomputing always on _format_input
     # def model_post_init(self, __context: Any) -> None:
@@ -172,16 +191,54 @@ class APIGenGenerator(Task):
         if isinstance(self.is_parallel, list):
             return random.choices(
                 [parallel_queries_guide, ""], weights=self.is_parallel
-            )
+            )[0]
         elif isinstance(self.is_parallel, bool):
             return parallel_queries_guide if self.is_parallel else ""
         # TODO: Update to DistilabelUserError
         raise ValueError("`is_parallel` must be a boolean or a list of floats.")
 
+    def _get_number(self) -> int:
+        # TODO: Update on the model_post_init
+        if isinstance(self.number, list):
+            self._numner = random.choice(self.number)
+        else:
+            self._number = self.number
+        return self._number
+
+    def _get_format_inst(self) -> str:
+        return (
+            (
+                "\nThe output MUST strictly adhere to the following JSON format, and NO other text MUST be included:\n"
+                "```json\n"
+                "[\n"
+                "   {\n"
+                '       "query": "The generated query.",\n'
+                '       "answers": [\n'
+                "           {\n"
+                '               "name": "api_name",\n'
+                '               "arguments": {\n'
+                '                   "arg_name": "value"\n'
+                "                   ... (more arguments as required)\n"
+                "               }\n"
+                "           },\n"
+                "           ... (more API calls as required)\n"
+                "       ]\n"
+                "   }\n"
+                "]\n"
+                "```\n"
+            )
+            if not self.use_default_structured_output
+            else ""
+        )
+
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The inputs for the task."""
-        return ["examples", "number", "func_name", "func_desc"]
+        return {
+            "examples": True,
+            "func_name": True,
+            "func_desc": True,
+        }
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType`."""
@@ -192,18 +249,16 @@ class APIGenGenerator(Task):
                 "content": API_GEN_PROMPT.format(
                     examples=input["examples"],
                     parallel_queries=self._get_parallel_queries(),
-                    number=input.get("number", self.number),
+                    number=self._get_number(),
                     func_name=input["func_name"],
                     func_desc=input["func_desc"],
-                    format_inst=f"\n{self._steer_output()}\n"
-                    if not self.use_default_structured_output
-                    else "",
+                    format_inst=self._get_format_inst(),
                 ),
             },
         ]
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The output for the task are the queries and corresponding answers."""
         return ["queries", "answers"]
 
@@ -237,28 +292,35 @@ class APIGenGenerator(Task):
             pairs = pairs["pairs"]
         return self._format_output(pairs, input)
 
-    def _steer_output(self) -> str:
-        """Steers the output to adhere to the following JSON format."""
-        return (
-            "The output MUST strictly adhere to the following JSON format, and NO other text MUST be included:\n"
-            "```json\n"
-            "[\n"
-            "   {\n"
-            '       "query": "The generated query.",\n'
-            '       "answers": [\n'
-            "           {\n"
-            '               "name": "api_name",\n'
-            '               "arguments": {\n'
-            '                   "arg_name": "value"\n'
-            "                   ... (more arguments as required)\n"
-            "               }\n"
-            "           },\n"
-            "           ... (more API calls as required)\n"
-            "       ]\n"
-            "   }\n"
-            "]\n"
-            "```"
-        )
+    def _format_output(
+        self, pairs: Dict[str, Any], input: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Parses the response, returning a dictionary with queries and answers.
+
+        Args:
+            pairs: The parsed dictionary from the LLM's output.
+            input: The input from the `LLM`.
+
+        Returns:
+            Formatted output, where the `queries` are a list of strings, and the `answers`
+            are a list of objects.
+        """
+        try:
+            result = {"queries": [], "answers": []}
+            for pair in pairs:
+                result["queries"].append(pair["query"])
+                result["answers"].append(pair["answers"])
+            return result
+        except Exception as e:
+            self._logger.error(f"Error formatting output: {e}")
+            return self._default_error(input)
+
+    def _default_error(self, input: Dict[str, Any]) -> Dict[str, Any]:
+        """Returns a default error output, to fill the responses in case of failure."""
+        return {
+            "queries": [None] * self._number,
+            "answers": [None] * self._number,
+        }
 
     @override
     def get_structured_output(self) -> Dict[str, Any]:
@@ -330,38 +392,118 @@ class APIGenGenerator(Task):
             "type": "object",
         }
 
-    def _format_output(
-        self, pairs: Dict[str, Any], input: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Parses the response, returning a dictionary with queries and answers.
+
+class APIGenTransform(Step):
+    """Helper step to transform a dataset like
+    https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k in into examples
+    for the `APIGenGenerator` task.
+
+    Given the rows in formatted as in that dataset, this step prepares the input to be
+    passed to the `APIGenGenerator` task by sampling at the batch size.
+
+    Attributes:
+        example_template: String template to format the examples, comes with a default.
+
+    Input columns:
+        - query (`str`): The query that requires an answer in tool format.
+        - answers (`str`): String formatted dict.
+        - tools (`str`): String with formatted list of dictionaries containing the available
+            tools.
+
+    Output columns:
+        - examples (`str`): Query and answer formatted as an example to be feed
+            to the prompt.
+        - func_name (`str`): Example name for a function.
+        - func_desc (`str`): Description of the function `func_name`.
+
+    Categories:
+        - text-manipulation
+
+    References:
+        - [APIGen: Automated Pipeline for Generating Verifiable and Diverse Function-Calling Datasets](https://arxiv.org/abs/2406.18518)
+
+    Examples:
+
+        Transform the data for APIGenGenerator:
+
+        ```python
+        from datasets import load_dataset
+        from distilabel.steps.tasks.apigen.base import APIGenTransform
+
+        samples = load_dataset("Salesforce/xlam-function-calling-60k", split="train").select(range(3)).to_list()
+        transform = APIGenTransform()
+        transform.load()
+        outputs = next(transform.process(samples))
+        outputs
+        # [{'examples': '## Query:\nWhat is the T3MA for \'ETH/BTC\' using a 1h interval and a time period of 14?\n## Answer:\n[{"name": "t3ma", "arguments": {"symbol": "ETH/BTC", "interval": "1h", "time_period": 14}}]',
+        # 'func_name': 'live_giveaways_by_type',
+        # 'func_desc': 'Retrieve live giveaways from the GamerPower API based on the specified type.'},
+        # {'examples': '## Query:\nWhere can I find live giveaways for beta access and games?\n## Answer:\n[{"name": "live_giveaways_by_type", "arguments": {"type": "beta"}}, {"name": "live_giveaways_by_type", "arguments": {"type": "game"}}]',
+        # 'func_name': 'web_chain_details',
+        # 'func_desc': 'python'},
+        # {'examples': '## Query:\nWhere can I find live giveaways for beta access and games?\n## Answer:\n[{"name": "live_giveaways_by_type", "arguments": {"type": "beta"}}, {"name": "live_giveaways_by_type", "arguments": {"type": "game"}}]',
+        # 'func_name': 't3ma',
+        # 'func_desc': 'Fetches the Triple Exponential Moving Average (T3MA) for a given financial instrument.'}]
+        ```
+
+    Citations:
+
+        ```
+        @misc{liu2024apigenautomatedpipelinegenerating,
+            title={APIGen: Automated Pipeline for Generating Verifiable and Diverse Function-Calling Datasets},
+            author={Zuxin Liu and Thai Hoang and Jianguo Zhang and Ming Zhu and Tian Lan and Shirley Kokane and Juntao Tan and Weiran Yao and Zhiwei Liu and Yihao Feng and Rithesh Murthy and Liangwei Yang and Silvio Savarese and Juan Carlos Niebles and Huan Wang and Shelby Heinecke and Caiming Xiong},
+            year={2024},
+            eprint={2406.18518},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2406.18518},
+        }
+        ```
+    """
+
+    example_template: str = "## Query:\n{query}\n## Answer:\n{answers}"
+
+    @property
+    def inputs(self) -> "StepColumns":
+        """The inputs for the task are those found in the original dataset."""
+        return ["query", "answers", "tools"]
+
+    @property
+    def outputs(self) -> "StepColumns":
+        """The outputs are the columns required by `APIGenGenerator` task."""
+        return ["examples", "func_name", "func_desc"]
+
+    @override
+    def process(self, inputs: StepInput) -> "StepOutput":
+        """The process prepares the data for the `APIGenGenerator` task.
+
+        If a single example is provided, it is copied to avoid raising an error.
 
         Args:
-            pairs: The parsed dictionary from the LLM's output.
-            input: The input from the `LLM`.
+            inputs: A list of dictionaries with the input data.
 
-        Returns:
-            Formatted output, where the `queries` are a list of strings, and the `answers`
-            are a list of objects.
+        Yields:
+            A list of dictionaries with the output data.
         """
-        try:
-            result = {"queries": [], "answers": []}
-            for pair in pairs:
-                result["queries"].append(pair["query"])
-                result["answers"].append(pair["answers"])
-            return result
-        except Exception as e:
-            print("Error formatting output:", e)
-            return self._default_error(input)
+        if len(inputs) < 2:
+            self._logger.warning(
+                "The batch must have at least 2 examples, copying to avoid raising an error."
+            )
+            inputs = inputs * 2
 
-    def _default_error(self, input: Dict[str, Any]) -> Dict[str, Any]:
-        """Returns a default error output, to fill the responses in case of failure."""
-        return {
-            "queries": [None] * input["number"],
-            "answers": [None] * input["number"],
-        }
-
-    # @staticmethod
-    # def prepare_example(python_function: Callable) -> str:
-    #     # TODO: We should check the transfomers version for this
-    #     from transformers.utils import get_json_schema
-    #     pass
+        outputs = []
+        for _ in range(len(inputs)):
+            # Selects 2 random examples without replacement
+            selection = random.sample(inputs, 2)
+            tools = orjson.loads(selection[1]["tools"])
+            tool = random.choice(tools)
+            outputs.append(
+                {
+                    "examples": self.example_template.format(
+                        query=selection[0]["query"], answers=selection[0]["answers"]
+                    ),
+                    "func_name": tool["name"],
+                    "func_desc": tool["description"],
+                }
+            )
+        yield outputs

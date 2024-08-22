@@ -67,3 +67,7 @@ class TestAPIGenTransform:
             "func_name": "get_breed_information",
             "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
         }
+
+
+class TestApiGenGenerator:
+    pass

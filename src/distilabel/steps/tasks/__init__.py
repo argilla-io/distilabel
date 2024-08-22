@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.steps.tasks.apigen.base import APIGenGenerator, APIGenTransform
 from distilabel.steps.tasks.base import GeneratorTask, Task
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
@@ -50,6 +51,8 @@ from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 __all__ = [
     "GeneratorTask",
     "Task",
+    "APIGenGenerator",
+    "APIGenTransform",
     "ComplexityScorer",
     "EvolInstruct",
     "EvolComplexity",
