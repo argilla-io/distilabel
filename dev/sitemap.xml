@@ -306,7 +306,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/examples/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/</loc>
          <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -352,6 +352,16 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/tutorials/GenerateSentencePair/</loc>
+         <lastmod>2024-08-22</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/tutorials/clean_existing_dataset/</loc>
+         <lastmod>2024-08-22</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/tutorials/generate_preference_dataset/</loc>
          <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>

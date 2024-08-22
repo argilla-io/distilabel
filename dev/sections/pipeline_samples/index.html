@@ -12,16 +12,16 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/examples/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/">
       
       
-        <link rel="prev" href="../../how_to_guides/advanced/scaling_with_ray/">
+        <link rel="prev" href="../how_to_guides/advanced/scaling_with_ray/">
       
       
-        <link rel="next" href="../tutorials/GenerateSentencePair/">
+        <link rel="next" href="tutorials/generate_preference_dataset/">
       
       
-      <link rel="icon" href="../../../assets/logo.svg">
+      <link rel="icon" href="../../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.32">
     
     
@@ -30,10 +30,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.3cba04c6.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.3cba04c6.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -52,17 +52,17 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-      <link rel="stylesheet" href="../../../css/ansi-colours.css">
+      <link rel="stylesheet" href="../../css/ansi-colours.css">
     
-      <link rel="stylesheet" href="../../../css/jupyter-cells.css">
+      <link rel="stylesheet" href="../../css/jupyter-cells.css">
     
-      <link rel="stylesheet" href="../../../css/pandas-dataframe.css">
+      <link rel="stylesheet" href="../../css/pandas-dataframe.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -85,7 +85,7 @@
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/examples/index.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/index.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -93,7 +93,7 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/examples/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
@@ -101,7 +101,7 @@
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/examples/index.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/index.png" >
       
     
     
@@ -142,9 +142,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Distilabel Docs" class="md-header__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
+    <a href="../.." title="Distilabel Docs" class="md-header__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
       
-  <img src="../../../assets/logo.svg" alt="logo">
+  <img src="../../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -285,7 +285,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
     
@@ -304,7 +304,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../getting_started/installation/" class="md-tabs__link">
+        <a href="../getting_started/installation/" class="md-tabs__link">
           
   
   Getting started
@@ -320,7 +320,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../how_to_guides/" class="md-tabs__link">
+      <a href="../how_to_guides/" class="md-tabs__link">
         
   
     
@@ -337,7 +337,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../components-gallery/" class="md-tabs__link">
+      <a href="../../components-gallery/" class="md-tabs__link">
         
   
     
@@ -375,7 +375,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../api/step/" class="md-tabs__link">
+        <a href="../../api/step/" class="md-tabs__link">
           
   
   API Reference
@@ -391,7 +391,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../community/" class="md-tabs__link">
+      <a href="../community/" class="md-tabs__link">
         
   
     
@@ -427,9 +427,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Distilabel Docs" class="md-nav__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
+    <a href="../.." title="Distilabel Docs" class="md-nav__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
       
-  <img src="../../../assets/logo.svg" alt="logo">
+  <img src="../../assets/logo.svg" alt="logo">
 
     </a>
     Distilabel Docs
@@ -456,7 +456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -516,7 +516,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting_started/installation/" class="md-nav__link">
+      <a href="../getting_started/installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -537,7 +537,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting_started/quickstart/" class="md-nav__link">
+      <a href="../getting_started/quickstart/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -558,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting_started/faq/" class="md-nav__link">
+      <a href="../getting_started/faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -603,7 +603,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../how_to_guides/" class="md-nav__link ">
+            <a href="../how_to_guides/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -691,7 +691,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../how_to_guides/basic/step/" class="md-nav__link ">
+            <a href="../how_to_guides/basic/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -722,7 +722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/step/generator_step/" class="md-nav__link">
+      <a href="../how_to_guides/basic/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -743,7 +743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/step/global_step/" class="md-nav__link">
+      <a href="../how_to_guides/basic/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -789,7 +789,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../how_to_guides/basic/task/" class="md-nav__link ">
+            <a href="../how_to_guides/basic/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -820,7 +820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/task/generator_task/" class="md-nav__link">
+      <a href="../how_to_guides/basic/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -849,7 +849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/llm/" class="md-nav__link">
+      <a href="../how_to_guides/basic/llm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -870,7 +870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/pipeline/" class="md-nav__link">
+      <a href="../how_to_guides/basic/pipeline/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -939,7 +939,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/distiset/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -960,7 +960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/caching/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/caching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -981,7 +981,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/argilla/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1002,7 +1002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/structured_generation/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/structured_generation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1023,7 +1023,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1044,7 +1044,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/cli/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1065,7 +1065,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1086,7 +1086,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/assigning_resources_to_step/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/assigning_resources_to_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1107,7 +1107,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/saving_step_generated_artifacts/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/saving_step_generated_artifacts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1128,7 +1128,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/serving_an_llm_for_reuse/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/serving_an_llm_for_reuse/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1149,7 +1149,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/scaling_with_ray/" class="md-nav__link">
+      <a href="../how_to_guides/advanced/scaling_with_ray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1202,7 +1202,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../components-gallery/" class="md-nav__link ">
+            <a href="../../components-gallery/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1250,7 +1250,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../components-gallery/steps/" class="md-nav__link ">
+            <a href="../../components-gallery/steps/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1281,7 +1281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/" class="md-nav__link">
+      <a href="../../components-gallery/steps/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1302,7 +1302,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/deitafiltering/" class="md-nav__link">
+      <a href="../../components-gallery/steps/deitafiltering/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1323,7 +1323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/faissnearestneighbour/" class="md-nav__link">
+      <a href="../../components-gallery/steps/faissnearestneighbour/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1344,7 +1344,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/pushtohub/" class="md-nav__link">
+      <a href="../../components-gallery/steps/pushtohub/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1365,7 +1365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/preferencetoargilla/" class="md-nav__link">
+      <a href="../../components-gallery/steps/preferencetoargilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1386,7 +1386,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/textgenerationtoargilla/" class="md-nav__link">
+      <a href="../../components-gallery/steps/textgenerationtoargilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1407,7 +1407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+      <a href="../../components-gallery/steps/expandcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1428,7 +1428,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/groupcolumns/" class="md-nav__link">
+      <a href="../../components-gallery/steps/groupcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1449,7 +1449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/combinecolumns/" class="md-nav__link">
+      <a href="../../components-gallery/steps/combinecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1470,7 +1470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/keepcolumns/" class="md-nav__link">
+      <a href="../../components-gallery/steps/keepcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1491,7 +1491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/mergecolumns/" class="md-nav__link">
+      <a href="../../components-gallery/steps/mergecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1512,7 +1512,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/embeddinggeneration/" class="md-nav__link">
+      <a href="../../components-gallery/steps/embeddinggeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1533,7 +1533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/conversationtemplate/" class="md-nav__link">
+      <a href="../../components-gallery/steps/conversationtemplate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1554,7 +1554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/formattextgenerationdpo/" class="md-nav__link">
+      <a href="../../components-gallery/steps/formattextgenerationdpo/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1575,7 +1575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/formatchatgenerationdpo/" class="md-nav__link">
+      <a href="../../components-gallery/steps/formatchatgenerationdpo/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1596,7 +1596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/formattextgenerationsft/" class="md-nav__link">
+      <a href="../../components-gallery/steps/formattextgenerationsft/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1617,7 +1617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/formatchatgenerationsft/" class="md-nav__link">
+      <a href="../../components-gallery/steps/formatchatgenerationsft/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1638,7 +1638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/rewardmodelscore/" class="md-nav__link">
+      <a href="../../components-gallery/steps/rewardmodelscore/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1659,7 +1659,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/truncatetextcolumn/" class="md-nav__link">
+      <a href="../../components-gallery/steps/truncatetextcolumn/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1680,7 +1680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
+      <a href="../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1701,7 +1701,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
+      <a href="../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1722,7 +1722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/loaddatafromfilesystem/" class="md-nav__link">
+      <a href="../../components-gallery/steps/loaddatafromfilesystem/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1743,7 +1743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/loaddatafromdisk/" class="md-nav__link">
+      <a href="../../components-gallery/steps/loaddatafromdisk/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1789,7 +1789,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../components-gallery/tasks/" class="md-nav__link ">
+            <a href="../../components-gallery/tasks/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1820,7 +1820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1841,7 +1841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/complexityscorer/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/complexityscorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1862,7 +1862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolinstruct/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/evolinstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1883,7 +1883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolcomplexity/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/evolcomplexity/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1904,7 +1904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolquality/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/evolquality/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1925,7 +1925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/genstruct/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/genstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1946,7 +1946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generatetextretrievaldata/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/generatetextretrievaldata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1967,7 +1967,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generateshorttextmatchingdata/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/generateshorttextmatchingdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1988,7 +1988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generatelongtextmatchingdata/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/generatelongtextmatchingdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2009,7 +2009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generatetextclassificationdata/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/generatetextclassificationdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2030,7 +2030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/instructionbacktranslation/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/instructionbacktranslation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2051,7 +2051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/magpie/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/magpie/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2072,7 +2072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/prometheuseval/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/prometheuseval/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2093,7 +2093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/qualityscorer/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/qualityscorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2114,7 +2114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/selfinstruct/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/selfinstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2135,7 +2135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generatesentencepair/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/generatesentencepair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2156,7 +2156,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/structuredgeneration/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/structuredgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2177,7 +2177,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/textgeneration/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/textgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2198,7 +2198,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/chatgeneration/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/chatgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2219,7 +2219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/ultrafeedback/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2240,7 +2240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/urial/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/urial/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2261,7 +2261,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolinstructgenerator/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/evolinstructgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2282,7 +2282,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolcomplexitygenerator/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/evolcomplexitygenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2303,7 +2303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/monolingualtripletgenerator/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/monolingualtripletgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2324,7 +2324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/bitextretrievalgenerator/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/bitextretrievalgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2345,7 +2345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/embeddingtaskgenerator/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/embeddingtaskgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2366,7 +2366,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/magpiegenerator/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/magpiegenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2387,7 +2387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/pairrm/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/pairrm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2408,7 +2408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generateembeddings/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/generateembeddings/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2454,7 +2454,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../components-gallery/llms/" class="md-nav__link ">
+            <a href="../../components-gallery/llms/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -2485,7 +2485,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/" class="md-nav__link">
+      <a href="../../components-gallery/llms/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2506,7 +2506,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/openaillm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/openaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2527,7 +2527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/clientvllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/clientvllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2548,7 +2548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/anyscalellm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/anyscalellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2569,7 +2569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/azureopenaillm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/azureopenaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2590,7 +2590,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/togetherllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/togetherllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2611,7 +2611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/anthropicllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/anthropicllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2632,7 +2632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/coherellm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/coherellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2653,7 +2653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/groqllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/groqllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2674,7 +2674,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/inferenceendpointsllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/inferenceendpointsllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2695,7 +2695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/litellm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/litellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2716,7 +2716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/mistralllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/mistralllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2737,7 +2737,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/mixtureofagentsllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/mixtureofagentsllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2758,7 +2758,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/ollamallm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/ollamallm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2779,7 +2779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/vertexaillm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/vertexaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2800,7 +2800,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/vllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2821,7 +2821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/transformersllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/transformersllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2842,7 +2842,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/llamacppllm/" class="md-nav__link">
+      <a href="../../components-gallery/llms/llamacppllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2974,7 +2974,49 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/GenerateSentencePair/" class="md-nav__link">
+      <a href="tutorials/generate_preference_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generate a preference dataset
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tutorials/clean_existing_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clean an existing dataset
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tutorials/GenerateSentencePair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3046,7 +3088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../papers/deepseek_prover/" class="md-nav__link">
+      <a href="papers/deepseek_prover/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3067,7 +3109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../papers/deita/" class="md-nav__link">
+      <a href="papers/deita/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3088,7 +3130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../papers/instruction_backtranslation/" class="md-nav__link">
+      <a href="papers/instruction_backtranslation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3109,7 +3151,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../papers/prometheus/" class="md-nav__link">
+      <a href="papers/prometheus/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3130,7 +3172,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../papers/ultrafeedback/" class="md-nav__link">
+      <a href="papers/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3202,7 +3244,7 @@
   
   
     <li class="md-nav__item">
-      <a href="benchmarking_with_distilabel/" class="md-nav__link">
+      <a href="examples/benchmarking_with_distilabel/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3223,7 +3265,7 @@
   
   
     <li class="md-nav__item">
-      <a href="llama_cpp_with_outlines/" class="md-nav__link">
+      <a href="examples/llama_cpp_with_outlines/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3244,7 +3286,7 @@
   
   
     <li class="md-nav__item">
-      <a href="mistralai_with_instructor/" class="md-nav__link">
+      <a href="examples/mistralai_with_instructor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3337,7 +3379,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/step/" class="md-nav__link ">
+            <a href="../../api/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3368,7 +3410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/generator_step/" class="md-nav__link">
+      <a href="../../api/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3389,7 +3431,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/global_step/" class="md-nav__link">
+      <a href="../../api/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3410,7 +3452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/decorator/" class="md-nav__link">
+      <a href="../../api/step/decorator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3431,7 +3473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/resources/" class="md-nav__link">
+      <a href="../../api/step/resources/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3492,7 +3534,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/argilla/" class="md-nav__link">
+      <a href="../../api/step_gallery/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3513,7 +3555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/hugging_face/" class="md-nav__link">
+      <a href="../../api/step_gallery/hugging_face/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3534,7 +3576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/columns/" class="md-nav__link">
+      <a href="../../api/step_gallery/columns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3555,7 +3597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/extra/" class="md-nav__link">
+      <a href="../../api/step_gallery/extra/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3609,7 +3651,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/task/" class="md-nav__link ">
+            <a href="../../api/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3640,7 +3682,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task/generator_task/" class="md-nav__link">
+      <a href="../../api/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3661,7 +3703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task_gallery/" class="md-nav__link">
+      <a href="../../api/task_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3682,7 +3724,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task/typing/" class="md-nav__link">
+      <a href="../../api/task/typing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3728,7 +3770,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/llm/" class="md-nav__link ">
+            <a href="../../api/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3799,7 +3841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/anthropic/" class="md-nav__link">
+      <a href="../../api/llm/anthropic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3820,7 +3862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/anyscale/" class="md-nav__link">
+      <a href="../../api/llm/anyscale/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3841,7 +3883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/azure/" class="md-nav__link">
+      <a href="../../api/llm/azure/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3862,7 +3904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/cohere/" class="md-nav__link">
+      <a href="../../api/llm/cohere/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3883,7 +3925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/groq/" class="md-nav__link">
+      <a href="../../api/llm/groq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3904,7 +3946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/huggingface/" class="md-nav__link">
+      <a href="../../api/llm/huggingface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3925,7 +3967,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/litellm/" class="md-nav__link">
+      <a href="../../api/llm/litellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3946,7 +3988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/llamacpp/" class="md-nav__link">
+      <a href="../../api/llm/llamacpp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3967,7 +4009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/mistral/" class="md-nav__link">
+      <a href="../../api/llm/mistral/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3988,7 +4030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/ollama/" class="md-nav__link">
+      <a href="../../api/llm/ollama/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4009,7 +4051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/openai/" class="md-nav__link">
+      <a href="../../api/llm/openai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4030,7 +4072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/together/" class="md-nav__link">
+      <a href="../../api/llm/together/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4051,7 +4093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/vertexai/" class="md-nav__link">
+      <a href="../../api/llm/vertexai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4072,7 +4114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/vllm/" class="md-nav__link">
+      <a href="../../api/llm/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4126,7 +4168,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/pipeline/" class="md-nav__link ">
+            <a href="../../api/pipeline/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4157,7 +4199,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/routing_batch_function/" class="md-nav__link">
+      <a href="../../api/pipeline/routing_batch_function/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4178,7 +4220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/typing/" class="md-nav__link">
+      <a href="../../api/pipeline/typing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4199,7 +4241,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/utils/" class="md-nav__link">
+      <a href="../../api/pipeline/utils/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4268,7 +4310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/mixins/runtime_parameters/" class="md-nav__link">
+      <a href="../../api/mixins/runtime_parameters/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4289,7 +4331,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/mixins/requirements/" class="md-nav__link">
+      <a href="../../api/mixins/requirements/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4318,7 +4360,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/distiset/" class="md-nav__link">
+      <a href="../../api/distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4339,7 +4381,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/cli/" class="md-nav__link">
+      <a href="../../api/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4384,7 +4426,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../community/" class="md-nav__link ">
+            <a href="../community/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4415,7 +4457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../community/popular_issues/" class="md-nav__link">
+      <a href="../community/popular_issues/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4506,7 +4548,7 @@
                   
 
   
-    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/pipeline_samples/examples/index.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/pipeline_samples/index.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -4524,10 +4566,22 @@
 <div class="grid cards">
 <ul>
 <li>
+<p><strong>Generate a preference dataset</strong></p>
+<hr />
+<p>Learn about synthetic data generation for ORPO and DPO.</p>
+<p><a href="tutorials/generate_preference_dataset/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Tutorial</a></p>
+</li>
+<li>
+<p><strong>Clean an existing preference dataset</strong></p>
+<hr />
+<p>Learn about how to provide AI feedback to clean an existing dataset.</p>
+<p><a href="tutorials/clean_existing_dataset/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Tutorial</a></p>
+</li>
+<li>
 <p><strong>Retrieval and reranking models</strong></p>
 <hr />
 <p>Learn about synthetic data generation for fine-tuning custom retrieval and reranking models.</p>
-<p><a href="../tutorials/GenerateSentencePair/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Tutorial</a></p>
+<p><a href="tutorials/GenerateSentencePair/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Tutorial</a></p>
 </li>
 </ul>
 </div>
@@ -4538,31 +4592,31 @@
 <p><strong>Deepseek Prover</strong></p>
 <hr />
 <p>Learn about an approach to generate mathematical proofs for theorems generated from informal math problems.</p>
-<p><a href="../papers/deepseek_prover/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Example</a></p>
+<p><a href="papers/deepseek_prover/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Example</a></p>
 </li>
 <li>
 <p><strong>DEITA</strong></p>
 <hr />
 <p>Learn about prompt, response tuning for complexity and quality and LLMs as judges for automatic data selection.</p>
-<p><a href="../papers/deita/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Paper</a></p>
+<p><a href="papers/deita/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Paper</a></p>
 </li>
 <li>
 <p><strong>Instruction Backtranslation</strong></p>
 <hr />
 <p>Learn about automatically labeling human-written text with corresponding instructions.</p>
-<p><a href="../papers/instruction_backtranslation/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Paper</a></p>
+<p><a href="papers/instruction_backtranslation/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Paper</a></p>
 </li>
 <li>
 <p><strong>Prometheus 2</strong></p>
 <hr />
 <p>Learn about using open-source models as judges for direct assessment and pair-wise ranking.</p>
-<p><a href="../papers/prometheus/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Paper</a></p>
+<p><a href="papers/prometheus/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Paper</a></p>
 </li>
 <li>
 <p><strong>UltraFeedback</strong></p>
 <hr />
 <p>Learn about a large-scale, fine-grained, diverse preference dataset, used for training powerful reward and critic models.</p>
-<p><a href="../papers/ultrafeedback/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Paper</a></p>
+<p><a href="papers/ultrafeedback/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Paper</a></p>
 </li>
 </ul>
 </div>
@@ -4573,19 +4627,19 @@
 <p><strong>Benchmarking with distilabel</strong></p>
 <hr />
 <p>Learn about reproducing the Arena Hard benchmark with disitlabel.</p>
-<p><a href="benchmarking_with_distilabel/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Example</a></p>
+<p><a href="benchmarking_with_distilabel.md"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Example</a></p>
 </li>
 <li>
 <p><strong>llama.cpp with outlines</strong></p>
 <hr />
 <p>Learn about generating RPG characters following a pydantic.BaseModel with outlines in distilabel.</p>
-<p><a href="llama_cpp_with_outlines/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Example</a></p>
+<p><a href="llama_cpp_with_outlines.md"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Example</a></p>
 </li>
 <li>
 <p><strong>MistralAI with instructor</strong></p>
 <hr />
 <p>Learn about answering instructions with knowledge graphs defined as pydantic.BaseModel objects using instructor in distilabel.</p>
-<p><a href="../papers/prometheus/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Example</a></p>
+<p><a href="papers/prometheus/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"/></svg></span> Example</a></p>
 </li>
 </ul>
 </div>
@@ -4639,7 +4693,7 @@
               
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Pipeline%20Samples+-+/sections/pipeline_samples/examples/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Pipeline%20Samples+-+/sections/pipeline_samples/" target="_blank" rel="noopener">opening a GitHub issue</a>.
             </div>
           
         </div>
@@ -4675,7 +4729,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../how_to_guides/advanced/scaling_with_ray/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Scaling and distributing a pipeline with Ray">
+          <a href="../how_to_guides/advanced/scaling_with_ray/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Scaling and distributing a pipeline with Ray">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -4692,13 +4746,13 @@
         
         
           
-          <a href="../tutorials/GenerateSentencePair/" class="md-footer__link md-footer__link--next" aria-label="Next: Synthetic data generation for fine-tuning custom retrieval and reranking models">
+          <a href="tutorials/generate_preference_dataset/" class="md-footer__link md-footer__link--next" aria-label="Next: Generate a preference dataset">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Synthetic data generation for fine-tuning custom retrieval and reranking models
+                Generate a preference dataset
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -4780,12 +4834,12 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.471ce7a9.min.js"></script>
+      <script src="../../assets/javascripts/bundle.471ce7a9.min.js"></script>
       
-        <script src="../../../javascripts/mathjax.js"></script>
+        <script src="../../javascripts/mathjax.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       

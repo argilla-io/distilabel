@@ -12,13 +12,13 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/sections/how_to_guides/basic/step/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/tutorials/clean_existing_dataset/">
       
       
-        <link rel="prev" href="../../">
+        <link rel="prev" href="../generate_preference_dataset/">
       
       
-        <link rel="next" href="generator_step/">
+        <link rel="next" href="../GenerateSentencePair/">
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Define Steps for your Pipeline - Distilabel Docs</title>
+        <title>Clean an existing dataset - Distilabel Docs</title>
       
     
     
@@ -81,11 +81,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Define Steps for your Pipeline - Distilabel Docs" >
+        <meta  property="og:title"  content="Clean an existing dataset - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/how_to_guides/basic/step/index.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/tutorials/clean_existing_dataset.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -93,15 +93,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/sections/how_to_guides/basic/step/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/tutorials/clean_existing_dataset/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Define Steps for your Pipeline - Distilabel Docs" >
+        <meta  name="twitter:title"  content="Clean an existing dataset - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/how_to_guides/basic/step/index.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/tutorials/clean_existing_dataset.png" >
       
     
     
@@ -124,7 +124,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#define-steps-for-your-pipeline" class="md-skip">
+        <a href="#clean-an-existing-preference-dataset" class="md-skip">
           Skip to content
         </a>
       
@@ -161,7 +161,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Define Steps for your Pipeline
+              Clean an existing dataset
             
           </span>
         </div>
@@ -318,11 +318,9 @@
         
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="../../" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../../how_to_guides/" class="md-tabs__link">
         
   
     
@@ -354,9 +352,11 @@
         
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../../../pipeline_samples/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../../" class="md-tabs__link">
         
   
     
@@ -581,32 +581,27 @@
       
   
   
-    
   
   
-  
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
+            <a href="../../../how_to_guides/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -617,13 +612,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             How-to guides
@@ -634,30 +629,25 @@
                 
   
   
-    
   
   
-  
     
     
     
       
       
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
         
           
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -668,7 +658,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1">
             <span class="md-nav__icon md-icon"></span>
             Basic
@@ -679,8 +669,6 @@
                 
   
   
-    
-  
   
   
     
@@ -692,16 +680,16 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_1" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_1" >
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="./" class="md-nav__link md-nav__link--active">
+            <a href="../../../how_to_guides/basic/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -712,13 +700,13 @@
             </a>
             
               
-              <label class="md-nav__link md-nav__link--active" for="__nav_3_1_1" id="__nav_3_1_1_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3_1_1" id="__nav_3_1_1_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_1">
             <span class="md-nav__icon md-icon"></span>
             Define Steps for your Pipeline
@@ -732,7 +720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="generator_step/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -753,7 +741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="global_step/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -799,7 +787,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../task/" class="md-nav__link ">
+            <a href="../../../how_to_guides/basic/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -830,7 +818,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../task/generator_task/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -859,7 +847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../llm/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/llm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -880,7 +868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pipeline/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/pipeline/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -914,20 +902,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -952,7 +937,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/distiset/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -973,7 +958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/caching/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/caching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -994,7 +979,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/argilla/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1015,7 +1000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/structured_generation/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/structured_generation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1036,7 +1021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/pipeline_requirements/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1057,7 +1042,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/cli/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1078,7 +1063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/fs_to_pass_data/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1099,7 +1084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/assigning_resources_to_step/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/assigning_resources_to_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1120,7 +1105,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/saving_step_generated_artifacts/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/saving_step_generated_artifacts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1141,7 +1126,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/serving_an_llm_for_reuse/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/serving_an_llm_for_reuse/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1162,7 +1147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced/scaling_with_ray/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/scaling_with_ray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2888,27 +2873,32 @@
       
   
   
+    
   
   
+  
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../pipeline_samples/" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -2919,13 +2909,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Pipeline Samples
@@ -2936,25 +2926,30 @@
                 
   
   
+    
   
   
+  
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
         
           
-          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -2965,7 +2960,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_1">
             <span class="md-nav__icon md-icon"></span>
             Tutorials
@@ -2979,7 +2974,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/tutorials/generate_preference_dataset/" class="md-nav__link">
+      <a href="../generate_preference_dataset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2997,10 +2992,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../pipeline_samples/tutorials/clean_existing_dataset/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Clean an existing dataset
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -3009,6 +3024,137 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-the-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install the dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-deploy-argilla" class="md-nav__link">
+    <span class="md-ellipsis">
+      (optional) Deploy Argilla
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-the-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load the dataset
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#define-the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Define the pipeline
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Define the pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load-the-dataset_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load the dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluate-the-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluate the responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keep-only-the-required-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keep only the required columns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-further-data-curation" class="md-nav__link">
+    <span class="md-ellipsis">
+      (Optional) Further data curation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run the pipeline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -3021,7 +3167,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/tutorials/GenerateSentencePair/" class="md-nav__link">
+      <a href="../GenerateSentencePair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3055,17 +3201,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -3090,7 +3239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/papers/deepseek_prover/" class="md-nav__link">
+      <a href="../../papers/deepseek_prover/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3111,7 +3260,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/papers/deita/" class="md-nav__link">
+      <a href="../../papers/deita/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3132,7 +3281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/papers/instruction_backtranslation/" class="md-nav__link">
+      <a href="../../papers/instruction_backtranslation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3153,7 +3302,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/papers/prometheus/" class="md-nav__link">
+      <a href="../../papers/prometheus/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3174,7 +3323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/papers/ultrafeedback/" class="md-nav__link">
+      <a href="../../papers/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3208,17 +3357,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -3243,7 +3395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/examples/benchmarking_with_distilabel/" class="md-nav__link">
+      <a href="../../examples/benchmarking_with_distilabel/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3264,7 +3416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/examples/llama_cpp_with_outlines/" class="md-nav__link">
+      <a href="../../examples/llama_cpp_with_outlines/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3285,7 +3437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pipeline_samples/examples/mistralai_with_instructor/" class="md-nav__link">
+      <a href="../../examples/mistralai_with_instructor/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4504,28 +4656,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#working-with-steps" class="md-nav__link">
+  <a href="#getting-started" class="md-nav__link">
     <span class="md-ellipsis">
-      Working with Steps
+      Getting Started
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Working with Steps">
+    <nav class="md-nav" aria-label="Getting Started">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#arguments" class="md-nav__link">
+  <a href="#install-the-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
-      Arguments
+      Install the dependencies
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#runtime-parameters" class="md-nav__link">
+  <a href="#optional-deploy-argilla" class="md-nav__link">
     <span class="md-ellipsis">
-      Runtime parameters
+      (optional) Deploy Argilla
     </span>
   </a>
   
@@ -4537,18 +4689,78 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#types-of-steps" class="md-nav__link">
+  <a href="#load-the-dataset" class="md-nav__link">
     <span class="md-ellipsis">
-      Types of Steps
+      Load the dataset
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-custom-steps" class="md-nav__link">
+  <a href="#define-the-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
-      Defining custom Steps
+      Define the pipeline
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Define the pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load-the-dataset_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load the dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluate-the-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluate the responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keep-only-the-required-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keep only the required columns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-further-data-curation" class="md-nav__link">
+    <span class="md-ellipsis">
+      (Optional) Further data curation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run the pipeline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusions
     </span>
   </a>
   
@@ -4569,7 +4781,7 @@
                   
 
   
-    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/how_to_guides/basic/step/index.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/pipeline_samples/tutorials/clean_existing_dataset.ipynb" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -4577,146 +4789,568 @@
   
 
 
-<h1 id="define-steps-for-your-pipeline">Define Steps for your Pipeline<a class="headerlink" href="#define-steps-for-your-pipeline" title="Permanent link">&para;</a></h1>
-<h2 id="working-with-steps">Working with Steps<a class="headerlink" href="#working-with-steps" title="Permanent link">&para;</a></h2>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> is intended to be used within the scope of a <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>, which will orchestrate the different steps defined but can also be used standalone.</p>
-<p>Assuming that we have a <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> already defined as it follows:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">StepInput</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="kn">from</span> <span class="nn">distilabel.steps.typing</span> <span class="kn">import</span> <span class="n">StepColumns</span><span class="p">,</span> <span class="n">StepOutput</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">class</span> <span class="nc">MyStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;input_field&quot;</span><span class="p">]</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;output_field&quot;</span><span class="p">]</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepOutput&quot;</span><span class="p">:</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>            <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;output_field&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;input_field&quot;</span><span class="p">]</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="k">yield</span> <span class="n">inputs</span>
-</span></code></pre></div>
-<p>Then we can use it as follows:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">step</span> <span class="o">=</span> <span class="n">MyStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-step&quot;</span><span class="p">)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">step</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nb">next</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">process</span><span class="p">([{</span><span class="s2">&quot;input_field&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">}]))</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># [{&#39;input_field&#39;: &#39;value&#39;, &#39;output_field&#39;: &#39;value&#39;}]</span>
-</span></code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code>Step.load()</code> always needs to be executed when being used as a standalone. Within a pipeline, this will be done automatically during pipeline execution.</p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script>
+(function() {
+  function addWidgetsRenderer() {
+    var requireJsScript = document.createElement('script');
+    requireJsScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js';
+
+    var mimeElement = document.querySelector('script[type="application/vnd.jupyter.widget-view+json"]');
+    var jupyterWidgetsScript = document.createElement('script');
+    var widgetRendererSrc = 'https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js';
+    var widgetState;
+
+    // Fallback for older version:
+    try {
+      widgetState = mimeElement && JSON.parse(mimeElement.innerHTML);
+
+      if (widgetState && (widgetState.version_major < 2 || !widgetState.version_major)) {
+        widgetRendererSrc = 'jupyter-js-widgets@*/dist/embed.js';
+      }
+    } catch(e) {}
+
+    jupyterWidgetsScript.src = widgetRendererSrc;
+
+    document.body.appendChild(requireJsScript);
+    document.body.appendChild(jupyterWidgetsScript);
+  }
+
+  document.addEventListener('DOMContentLoaded', addWidgetsRenderer);
+}());
+</script>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="clean-an-existing-preference-dataset">Clean an existing preference dataset<a class="headerlink" href="#clean-an-existing-preference-dataset" title="Permanent link">&para;</a></h1>
 </div>
-<h3 id="arguments">Arguments<a class="headerlink" href="#arguments" title="Permanent link">&para;</a></h3>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <ul>
-<li>
-<p><code>input_mappings</code>, is a dictionary that maps keys from the input dictionaries to the keys expected by the step. For example, if <code>input_mappings={"instruction": "prompt"}</code>, means that the input key <code>prompt</code> will be used as the key <code>instruction</code> for current step.</p>
-</li>
-<li>
-<p><code>output_mappings</code>, is a dictionary that can be used to map the outputs of the step to other names. For example, if <code>output_mappings={"conversation": "prompt"}</code>, means that output key <code>conversation</code> will be renamed to <code>prompt</code> for the next step.</p>
-</li>
-<li>
-<p><code>input_batch_size</code> (by default set to 50), is independent for every step and will determine how many input dictionaries will process at once.</p>
-</li>
+<li><strong>Goal</strong>: Clean an existing preference dataset by providing AI feedback on the quality of the data.</li>
+<li><strong>Libraries</strong>: <a href="https://github.com/argilla-io/argilla">argilla</a>, <a href="https://github.com/huggingface/huggingface_hub">hf-inference-endpoints</a></li>
+<li><strong>Components</strong>: <a href="https://distilabel.argilla.io/dev/components-gallery/steps/loaddatafromdicts/">LoadDataFromDicts</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/tasks/ultrafeedback/">UltraFeedback</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/steps/groupcolumns/">KeepColumns</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/steps/textgenerationtoargilla/">PreferenceToArgilla</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/llms/inferenceendpointsllm/">InferenceEndpointsLLM</a>, <a href="../../../how_to_guides/basic/step/global_step/">GlobalStep</a></li>
 </ul>
-<h3 id="runtime-parameters">Runtime parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
-<p><code>Step</code>s can also have <code>RuntimeParameter</code>, which are parameters that can only used after the pipeline initialisation when calling the <code>Pipeline.run</code>.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.mixins.runtime_parameters</span> <span class="kn">import</span> <span class="n">RuntimeParameter</span>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="install-the-dependencies">Install the dependencies<a class="headerlink" href="#install-the-dependencies" title="Permanent link">&para;</a></h3>
+<p>To complete this tutorial, you need to install the distilabel SDK and a few third-party libraries via pip. We will be using <strong>the free but rate-limited Hugging Face serverless Inference API</strong> for this tutorial, so we need to install this as an extra distilabel dependency. You can install them by running the following command:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;distilabel[hf-inference-endpoints]&quot;</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;transformers&amp;gt;=4.0,&amp;lt;5.0&quot;</span> <span class="s2">&quot;torch&amp;gt;=2.0,&amp;lt;3.0&quot;</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's make the required imports:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span> <span class="nn">random</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">class</span> <span class="nc">Step</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">input_batch_size</span><span class="p">:</span> <span class="n">RuntimeParameter</span><span class="p">[</span><span class="n">PositiveInt</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_INPUT_BATCH_SIZE</span><span class="p">,</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of rows that will contain the batches processed by the&quot;</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="s2">&quot; step.&quot;</span><span class="p">,</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="p">)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">KeepColumns</span><span class="p">,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">LoadDataFromDicts</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">PreferenceToArgilla</span><span class="p">,</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">)</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">UltraFeedback</span>
 </span></code></pre></div>
-<h2 id="types-of-steps">Types of Steps<a class="headerlink" href="#types-of-steps" title="Permanent link">&para;</a></h2>
-<p>There are two special types of <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> in <code>distilabel</code>:</p>
-<ul>
-<li>
-<p><a class="autorefs autorefs-internal" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a>: is a step that only generates data, and it doesn't need any input data from previous steps and normally is the first node in a <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>. More information: <a href="generator_step/">Components -&gt; Step - GeneratorStep</a>.</p>
-</li>
-<li>
-<p><a class="autorefs autorefs-internal" href="../../../../api/step/global_step/#distilabel.steps.base.GlobalStep"><code>GlobalStep</code></a>: is a step with the standard interface i.e. receives inputs and generates outputs, but it processes all the data at once, and often is the final step in the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>. The fact that a <a class="autorefs autorefs-internal" href="../../../../api/step/global_step/#distilabel.steps.base.GlobalStep"><code>GlobalStep</code></a> requires the previous steps  to finish before being able to start. More information: <a href="global_step/">Components - Step - GlobalStep</a>.</p>
-</li>
-<li>
-<p><a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a>, is essentially the same as a default <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>, but it relies on an <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.LLM"><code>LLM</code></a> as an attribute, and the <code>process</code> method will be in charge of calling that LLM. More information: <a href="../task/">Components - Task</a>.</p>
-</li>
-</ul>
-<h2 id="defining-custom-steps">Defining custom Steps<a class="headerlink" href="#defining-custom-steps" title="Permanent link">&para;</a></h2>
-<p>We can define a custom step by creating a new subclass of the <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> and defining the following:</p>
-<ul>
-<li>
-<p><code>inputs</code>: is a property that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.</p>
-</li>
-<li>
-<p><code>outputs</code>: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.</p>
-</li>
-<li>
-<p><code>process</code>: is a method that receives the input data and returns the output data, and it should be a generator, meaning that it should <code>yield</code> the output data.</p>
-</li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The default signature for the <code>process</code> method is <code>process(self, *inputs: StepInput) -&gt; StepOutput</code>. The argument <code>inputs</code> should be respected, no more arguments can be provided, and the type-hints and return type-hints should be respected too because it should be able to receive any number of inputs by default i.e. more than one <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> at a time could be connected to the current one.</p>
+
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>For the custom <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses to work properly with <code>distilabel</code> and with the validation and serialization performed by default over each <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> in the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>, the type-hint for both <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.StepInput"><code>StepInput</code></a> and <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/extra/#distilabel.steps.typing.StepOutput"><code>StepOutput</code></a> should be used and not surrounded with double-quotes or imported under <code>typing.TYPE_CHECKING</code>, otherwise, the validation and/or serialization will fail.</p>
 </div>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Inherit from <code>Step</code></label><label for="__tabbed_1_2">Using the <code>@step</code> decorator</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>We can inherit from the <code>Step</code> class and define the <code>inputs</code>, <code>outputs</code>, and <code>process</code> methods as follows:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">StepInput</span>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You'll need an <code>HF_TOKEN</code> to use the HF Inference Endpoints. Login to use it directly within this notebook.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">login</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="kn">from</span> <span class="nn">distilabel.steps.typing</span> <span class="kn">import</span> <span class="n">StepColumns</span><span class="p">,</span> <span class="n">StepOutput</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">class</span> <span class="nc">CustomStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="nd">@property</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="o">...</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="nd">@property</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="o">...</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepOutput&quot;</span><span class="p">:</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>        <span class="k">for</span> <span class="n">upstream_step_inputs</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>            <span class="o">...</span>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>            <span class="k">yield</span> <span class="n">item</span>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>    <span class="c1"># When overridden (ideally under the `typing_extensions.override` decorator)</span>
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>    <span class="c1"># @typing_extensions.override</span>
-</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>    <span class="c1"># def process(self, inputs: StepInput) -&gt; StepOutput:</span>
-</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>    <span class="c1">#     for input in inputs:</span>
-</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>    <span class="c1">#         ...</span>
-</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>    <span class="c1">#     yield inputs</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">login</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">),</span> <span class="n">add_to_git_credential</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span></code></pre></div>
+
 </div>
-<div class="tabbed-block">
-<p>The <code>@step</code> decorator will take care of the boilerplate code, and will allow to define the <code>inputs</code>, <code>outputs</code>, and <code>process</code> methods in a more straightforward way. One downside is that it won't let you access the <code>self</code> attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclass.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">StepInput</span><span class="p">,</span> <span class="n">step</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="kn">from</span> <span class="nn">distilabel.steps.typing</span> <span class="kn">import</span> <span class="n">StepOutput</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nd">@step</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">def</span> <span class="nf">CustomStep</span><span class="p">(</span><span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepOutput&quot;</span><span class="p">:</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="o">...</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="k">yield</span> <span class="n">inputs</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">step</span> <span class="o">=</span> <span class="n">CustomStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-step&quot;</span><span class="p">)</span>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="optional-deploy-argilla">(optional) Deploy Argilla<a class="headerlink" href="#optional-deploy-argilla" title="Permanent link">&para;</a></h3>
+<p>You can skip this step or replace it with any other data evaluation tool, but the quality of your model will suffer from a lack of data quality, so we do recommend looking at your data. If you already have deployed Argilla, you can skip this step. Otherwise, you can quickly deploy Argilla following <a href="https://docs.argilla.io/latest/getting_started/quickstart/">this guide</a>. </p>
+<p>Along with that, you will need to install argilla as distilabel extra.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;distilabel[argilla, hf-inference-endpoints]&quot;</span>
 </span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="load-the-dataset">Load the dataset<a class="headerlink" href="#load-the-dataset" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this case, we will clean a preference dataset, so we will use the <code>Intel/orca_dpo_pairs</code> dataset from the <a href="https://huggingface.co/datasets/Intel/orca_dpo_pairs">Hugging Face Hub</a>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/Intel/orca_dpo_pairs/embed/viewer/default/train" width="100%"></iframe>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;Intel/orca_dpo_pairs&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train[:20]&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next, we will shuffle the <code>chosen</code> and <code>rejected</code> columns to avoid any bias in the dataset.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span> <span class="nf">shuffle_and_track</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">rejected</span><span class="p">):</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">pair</span> <span class="o">=</span> <span class="p">[</span><span class="n">chosen</span><span class="p">,</span> <span class="n">rejected</span><span class="p">]</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;chosen&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">chosen</span> <span class="k">else</span> <span class="s2">&quot;rejected&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">]</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">pair</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="n">order</span><span class="p">}</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">shuffle_and_track</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;chosen&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;rejected&quot;</span><span class="p">]))</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<details class="tip">
+<summary>As a custom step</summary>
+<p>You can also <a href="../../../how_to_guides/basic/step/global_step/">create a custom step</a> in a separate module, import it and add it to the pipeline after loading the <code>orca_dpo_pairs</code> dataset using the <code>LoadDataFromHub</code> step.</p>
+<div class="language-python highlight"><span class="filename">shuffle_step.py</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">List</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GlobalStep</span><span class="p">,</span> <span class="n">StepInput</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="kn">from</span> <span class="nn">distilabel.steps.typing</span> <span class="kn">import</span> <span class="n">StepOutput</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="kn">import</span> <span class="nn">random</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">class</span> <span class="nc">ShuffleStep</span><span class="p">(</span><span class="n">GlobalStep</span><span class="p">):</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="nd">@property</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">,</span> <span class="s2">&quot;chosen&quot;</span><span class="p">,</span> <span class="s2">&quot;rejected&quot;</span><span class="p">]</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    <span class="nd">@property</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">,</span> <span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">]</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="s2">&quot;StepOutput&quot;</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>            <span class="n">chosen</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;chosen&quot;</span><span class="p">]</span>
+</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>            <span class="n">rejected</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;rejected&quot;</span><span class="p">]</span>
+</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>            <span class="n">pair</span> <span class="o">=</span> <span class="p">[</span><span class="n">chosen</span><span class="p">,</span> <span class="n">rejected</span><span class="p">]</span>
+</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>            <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>            <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;chosen&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">chosen</span> <span class="k">else</span> <span class="s2">&quot;rejected&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">]</span>
+</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>
+</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">pair</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="n">order</span><span class="p">})</span>
+</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>
+</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>        <span class="k">yield</span> <span class="n">outputs</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span> <span class="nn">shuffle_step</span> <span class="kn">import</span> <span class="n">ShuffleStep</span>
+</span></code></pre></div>
+</details>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="define-the-pipeline">Define the pipeline<a class="headerlink" href="#define-the-pipeline" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To clean an existing preference dataset, we will need to define a <code>Pipeline</code> with all the necessary steps. However, a similar workflow can be used to clean a SFT dataset. Below, we will go over each step in detail.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="load-the-dataset_1">Load the dataset<a class="headerlink" href="#load-the-dataset_1" title="Permanent link">&para;</a></h3>
+<p>We will use the dataset we just shuffled as source data.</p>
+<ul>
+<li>Component: <code>LoadDataFromDicts</code></li>
+<li>Input columns: <code>system</code>, <code>question</code>, <code>chosen</code>, <code>rejected</code>, <code>generations</code> and <code>order</code>, the same keys as in the loaded list of dictionaries.</li>
+<li>Output columns: <code>system</code>, <code>instruction</code>, <code>chosen</code>, <code>rejected</code>, <code>generations</code> and <code>order</code>. We will use <code>output_mappings</code> to rename the columns.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="n">data</span><span class="o">=</span><span class="n">dataset</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">},</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;showcase-pipeline&quot;</span><span class="p">),</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">)</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">load_dataset</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nb">next</span><span class="p">(</span><span class="n">load_dataset</span><span class="o">.</span><span class="n">process</span><span class="p">())</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>([{'system': '',
+   'question': "You will be given a definition of a task first, then some input of the task.\nThis task is about using the specified sentence and converting the sentence to Resource Description Framework (RDF) triplets of the form (subject, predicate object). The RDF triplets generated must be such that the triplets accurately capture the structure and semantics of the input sentence. The input is a sentence and the output is a list of triplets of the form [subject, predicate, object] that capture the relationships present in the sentence. When a sentence has more than 1 RDF triplet possible, the output must contain all of them.\n\nAFC Ajax (amateurs)'s ground is Sportpark De Toekomst where Ajax Youth Academy also play.\nOutput:",
+   'chosen': '[\n  ["AFC Ajax (amateurs)", "has ground", "Sportpark De Toekomst"],\n  ["Ajax Youth Academy", "plays at", "Sportpark De Toekomst"]\n]',
+   'rejected': " Sure, I'd be happy to help! Here are the RDF triplets for the input sentence:\n\n[AFC Ajax (amateurs), hasGround, Sportpark De Toekomst]\n[Ajax Youth Academy, playsAt, Sportpark De Toekomst]\n\nExplanation:\n\n* AFC Ajax (amateurs) is the subject of the first triplet, and hasGround is the predicate that describes the relationship between AFC Ajax (amateurs) and Sportpark De Toekomst.\n* Ajax Youth Academy is the subject of the second triplet, and playsAt is the predicate that describes the relationship between Ajax Youth Academy and Sportpark De Toekomst.\n\nNote that there may be other possible RDF triplets that could be derived from the input sentence, but the above triplets capture the main relationships present in the sentence.",
+   'generations': [" Sure, I'd be happy to help! Here are the RDF triplets for the input sentence:\n\n[AFC Ajax (amateurs), hasGround, Sportpark De Toekomst]\n[Ajax Youth Academy, playsAt, Sportpark De Toekomst]\n\nExplanation:\n\n* AFC Ajax (amateurs) is the subject of the first triplet, and hasGround is the predicate that describes the relationship between AFC Ajax (amateurs) and Sportpark De Toekomst.\n* Ajax Youth Academy is the subject of the second triplet, and playsAt is the predicate that describes the relationship between Ajax Youth Academy and Sportpark De Toekomst.\n\nNote that there may be other possible RDF triplets that could be derived from the input sentence, but the above triplets capture the main relationships present in the sentence.",
+    '[\n  ["AFC Ajax (amateurs)", "has ground", "Sportpark De Toekomst"],\n  ["Ajax Youth Academy", "plays at", "Sportpark De Toekomst"]\n]'],
+   'order': ['rejected', 'chosen']}],
+ True)</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="evaluate-the-responses">Evaluate the responses<a class="headerlink" href="#evaluate-the-responses" title="Permanent link">&para;</a></h3>
+<p>To evaluate the quality of the responses, we will use <a href="https://huggingface.co/meta-llama/Meta-Llama-3.1-70B-Instruct"><code>meta-llama/Meta-Llama-3.1-70B-Instruct</code></a>, applying the <code>UltraFeedback</code> task that judges the responses according to different dimensions (helpfulness, honesty, instruction-following, truthfulness). For an SFT dataset, you can use <a href="../../papers/prometheus/"><code>PrometheusEval</code></a> instead.</p>
+<ul>
+<li>Component: <code>UltraFeedback</code> task with LLMs using <code>InferenceEndpointsLLM</code></li>
+<li>Input columns: <code>instruction</code>, <code>generations</code></li>
+<li>Output columns: <code>ratings</code>, <code>rationales</code>, <code>distilabel_metadata</code>, <code>model_name</code></li>
+</ul>
+<p>For your use case and to improve the results, you can use any <a href="https://distilabel.argilla.io/latest/components-gallery/llms/">other LLM of your choice</a>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">evaluate_responses</span> <span class="o">=</span> <span class="n">UltraFeedback</span><span class="p">(</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;overall-rating&quot;</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="p">),</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;showcase-pipeline&quot;</span><span class="p">),</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="p">)</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="n">evaluate_responses</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    <span class="n">evaluate_responses</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>        <span class="p">[</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>            <span class="p">{</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>                <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">,</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>                <span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Madrid&quot;</span><span class="p">,</span> <span class="s2">&quot;Barcelona&quot;</span><span class="p">],</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>            <span class="p">}</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>        <span class="p">]</span>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>    <span class="p">)</span>
+</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>[{'instruction': "What's the capital of Spain?",
+  'generations': ['Madrid', 'Barcelona'],
+  'ratings': [5, 1],
+  'rationales': ["The answer is correct, directly addressing the question, and is free of hallucinations or unnecessary details. It confidently provides the accurate information, aligning perfectly with the user's intent.",
+   "The answer is incorrect as Barcelona is not the capital of Spain. This introduces a significant inaccuracy, failing to provide helpful information and deviating entirely from the user's intent."],
+  'distilabel_metadata': {'raw_output_ultra_feedback_0': "#### Output for Text 1\nRating: 5 (Excellent)\nRationale: The answer is correct, directly addressing the question, and is free of hallucinations or unnecessary details. It confidently provides the accurate information, aligning perfectly with the user's intent.\n\n#### Output for Text 2\nRating: 1 (Low Quality)\nRationale: The answer is incorrect as Barcelona is not the capital of Spain. This introduces a significant inaccuracy, failing to provide helpful information and deviating entirely from the user's intent."},
+  'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="keep-only-the-required-columns">Keep only the required columns<a class="headerlink" href="#keep-only-the-required-columns" title="Permanent link">&para;</a></h3>
+<p>We will get rid of the unneeded columns.</p>
+<ul>
+<li>Component: <code>KeepColumns</code></li>
+<li>Input columns: <code>system</code>, <code>instruction</code>, <code>chosen</code>, <code>rejected</code>, <code>generations</code>, <code>ratings</code>, <code>rationales</code>, <code>distilabel_metadata</code> and <code>model_name</code></li>
+<li>Output columns: <code>instruction</code>, <code>chosen</code>, <code>rejected</code>, <code>generations</code> and <code>order</code></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">keep_columns</span> <span class="o">=</span> <span class="n">KeepColumns</span><span class="p">(</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>        <span class="s2">&quot;instruction&quot;</span><span class="p">,</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>        <span class="s2">&quot;generations&quot;</span><span class="p">,</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        <span class="s2">&quot;order&quot;</span><span class="p">,</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>        <span class="s2">&quot;ratings&quot;</span><span class="p">,</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>        <span class="s2">&quot;rationales&quot;</span><span class="p">,</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        <span class="s2">&quot;model_name&quot;</span><span class="p">,</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    <span class="p">],</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    <span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;showcase-pipeline&quot;</span><span class="p">),</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="p">)</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="n">keep_columns</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>    <span class="n">keep_columns</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>        <span class="p">[</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>            <span class="p">{</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>                <span class="s2">&quot;system&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>                <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">,</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>                <span class="s2">&quot;chosen&quot;</span><span class="p">:</span> <span class="s2">&quot;Madrid&quot;</span><span class="p">,</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>                <span class="s2">&quot;rejected&quot;</span><span class="p">:</span> <span class="s2">&quot;Barcelona&quot;</span><span class="p">,</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>                <span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Madrid&quot;</span><span class="p">,</span> <span class="s2">&quot;Barcelona&quot;</span><span class="p">],</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>                <span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chosen&quot;</span><span class="p">,</span> <span class="s2">&quot;rejected&quot;</span><span class="p">],</span>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>                <span class="s2">&quot;ratings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>                <span class="s2">&quot;rationales&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">],</span>
+</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>                <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a>            <span class="p">}</span>
+</span><span id="__span-12-27"><a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>        <span class="p">]</span>
+</span><span id="__span-12-28"><a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>    <span class="p">)</span>
+</span><span id="__span-12-29"><a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>[{'instruction': "What's the capital of Spain?",
+  'generations': ['Madrid', 'Barcelona'],
+  'order': ['chosen', 'rejected'],
+  'ratings': [5, 1],
+  'rationales': ['', ''],
+  'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="optional-further-data-curation">(Optional) Further data curation<a class="headerlink" href="#optional-further-data-curation" title="Permanent link">&para;</a></h3>
+<p>You can use Argilla to further curate your data.</p>
+<ul>
+<li>Component: <code>PreferenceToArgilla</code> step</li>
+<li>Input columns: <code>instruction</code>, <code>generations</code>, <code>generation_models</code>, <code>ratings</code></li>
+<li>Output columns: <code>instruction</code>, <code>generations</code>, <code>generation_models</code>, <code>ratings</code></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">to_argilla</span> <span class="o">=</span> <span class="n">PreferenceToArgilla</span><span class="p">(</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;cleaned-dataset&quot;</span><span class="p">,</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">dataset_workspace</span><span class="o">=</span><span class="s2">&quot;argilla&quot;</span><span class="p">,</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://[your-owner-name]-[your-space-name].hf.space&quot;</span><span class="p">,</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;[your-api-key]&quot;</span><span class="p">,</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="run-the-pipeline">Run the pipeline<a class="headerlink" href="#run-the-pipeline" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Below, you can see the full pipeline definition:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;clean-dataset&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>        <span class="n">data</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">}</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="p">)</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="n">evaluate_responses</span> <span class="o">=</span> <span class="n">UltraFeedback</span><span class="p">(</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>        <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;overall-rating&quot;</span><span class="p">,</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>            <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>        <span class="p">),</span>
+</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>    <span class="p">)</span>
+</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>
+</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>    <span class="n">keep_columns</span> <span class="o">=</span> <span class="n">KeepColumns</span><span class="p">(</span>
+</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>            <span class="s2">&quot;instruction&quot;</span><span class="p">,</span>
+</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>            <span class="s2">&quot;generations&quot;</span><span class="p">,</span>
+</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>            <span class="s2">&quot;order&quot;</span><span class="p">,</span>
+</span><span id="__span-14-21"><a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>            <span class="s2">&quot;ratings&quot;</span><span class="p">,</span>
+</span><span id="__span-14-22"><a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>            <span class="s2">&quot;rationales&quot;</span><span class="p">,</span>
+</span><span id="__span-14-23"><a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>            <span class="s2">&quot;model_name&quot;</span><span class="p">,</span>
+</span><span id="__span-14-24"><a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a>        <span class="p">]</span>
+</span><span id="__span-14-25"><a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a>    <span class="p">)</span>
+</span><span id="__span-14-26"><a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a>
+</span><span id="__span-14-27"><a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>    <span class="n">to_argilla</span> <span class="o">=</span> <span class="n">PreferenceToArgilla</span><span class="p">(</span>
+</span><span id="__span-14-28"><a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a>        <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;cleaned-dataset&quot;</span><span class="p">,</span>
+</span><span id="__span-14-29"><a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a>        <span class="n">dataset_workspace</span><span class="o">=</span><span class="s2">&quot;argilla&quot;</span><span class="p">,</span>
+</span><span id="__span-14-30"><a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a>        <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://[your-owner-name]-[your-space-name].hf.space&quot;</span><span class="p">,</span>
+</span><span id="__span-14-31"><a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a>        <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;[your-api-key]&quot;</span><span class="p">,</span>
+</span><span id="__span-14-32"><a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a>        <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-14-33"><a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a>    <span class="p">)</span>
+</span><span id="__span-14-34"><a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a>
+</span><span id="__span-14-35"><a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>    <span class="n">load_dataset</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">evaluate_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">keep_columns</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">to_argilla</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's now run the pipeline and clean our preference dataset.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's check it! If you have loaded the data to Argilla, you can <a href="https://docs.argilla.io/latest/how_to_guides/annotate/">start annotating in the Argilla UI</a>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can push the dataset to the Hub for sharing with the community and <a href="https://huggingface.co/docs/hub/datasets-viewer-embed">embed it to explore the data</a>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;[your-owner-name]/example-cleaned-preference-dataset&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/distilabel-internal-testing/example-cleaned-preference-dataset/embed/viewer/default/train" width="100%"></iframe>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="conclusions">Conclusions<a class="headerlink" href="#conclusions" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this tutorial, we showcased the detailed steps to build a pipeline for cleaning a preference dataset using distilabel. However, you can customize this pipeline for your own use cases, such as cleaning an SFT dataset or adding custom steps.</p>
+<p>We used a preference dataset as our starting point and shuffled the data to avoid any bias. Next, we evaluated the responses using a model through the serverless Hugging Face Inference API, following the UltraFeedback standards. Finally, we kept the needed columns and used Argilla for further curation.</p>
 </div>
 </div>
 </div>
@@ -4768,7 +5402,7 @@
               
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Define%20Steps%20for%20your%20Pipeline+-+/sections/how_to_guides/basic/step/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Clean%20an%20existing%20dataset+-+/sections/pipeline_samples/tutorials/clean_existing_dataset/" target="_blank" rel="noopener">opening a GitHub issue</a>.
             </div>
           
         </div>
@@ -4802,7 +5436,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../" class="md-footer__link md-footer__link--prev" aria-label="Previous: How-to guides">
+          <a href="../generate_preference_dataset/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Generate a preference dataset">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -4812,20 +5446,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                How-to guides
+                Generate a preference dataset
               </div>
             </div>
           </a>
         
         
           
-          <a href="generator_step/" class="md-footer__link md-footer__link--next" aria-label="Next: GeneratorStep">
+          <a href="../GenerateSentencePair/" class="md-footer__link md-footer__link--next" aria-label="Next: Synthetic data generation for fine-tuning custom retrieval and reranking models">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                GeneratorStep
+                Synthetic data generation for fine-tuning custom retrieval and reranking models
               </div>
             </div>
             <div class="md-footer__button md-icon">
