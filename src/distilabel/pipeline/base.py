@@ -18,7 +18,6 @@ import os
 import signal
 import threading
 import time
-import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
@@ -131,6 +130,7 @@ _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
 
 _ATTRIBUTES_IGNORED_CACHE = ("disable_cuda_device_placement",)
+_PIPELINE_DEFAULT_NAME = "__default_pipeline_name__"
 
 
 class BasePipeline(ABC, RequirementsMixin, _Serializable):
@@ -189,7 +189,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 Defaults to `None`, but can be helpful to inform in a pipeline to be shared
                 that this requirements must be installed.
         """
-        self.name = name or f"pipeline_{str(uuid.uuid4())[:8]}"
+        self.name = name or _PIPELINE_DEFAULT_NAME
         self.description = description
         self._enable_metadata = enable_metadata
         self.dag = DAG()
@@ -235,6 +235,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Unset the global pipeline instance when exiting a pipeline context."""
         _GlobalPipelineManager.set_pipeline(None)
+        self._set_pipeline_name()
+
+    def _set_pipeline_name(self) -> None:
+        """Creates a name for the pipeline if it's the default one (if hasn't been set)."""
+        if self.name == _PIPELINE_DEFAULT_NAME:
+            self.name = f"pipeline_{'_'.join(self.dag)}"
 
     def _create_signature(self) -> str:
         """Makes a signature (hash) of a pipeline, using the step ids and the adjacency between them.
@@ -350,6 +356,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         setup_logging(
             log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
         )
+
+        # Set the name of the pipeline if it's the default one. This should be called
+        # if the pipeline is defined within the context manager, and the run is called
+        # outside of it. Is here in the following case:
+        # with Pipeline() as pipeline:
+        #    pipeline.run()
+        self._set_pipeline_name()
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, etc.
