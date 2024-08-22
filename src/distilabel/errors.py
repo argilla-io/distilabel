@@ -46,7 +46,7 @@ class DistilabelErrorMixin:
         if self.page is None:
             return self.message
         else:
-            return f"{self.message}\n\nFor further information visit {DISTILABEL_DOCS_URL}{self.page}"
+            return f"{self.message}\n\nFor further information visit '{DISTILABEL_DOCS_URL}{self.page}'"
 
 
 class DistilabelUserError(DistilabelErrorMixin, ValueError):
