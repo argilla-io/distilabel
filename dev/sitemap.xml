@@ -720,4 +720,9 @@
          <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/embeddings/vllmembeddings/</loc>
+         <lastmod>2024-08-22</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
 </urlset>
