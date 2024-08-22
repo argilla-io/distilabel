@@ -23,5 +23,5 @@ def test_distilabel_user_error() -> None:
     )
     assert (
         str(msg)
-        == "This is an error message.\n\nFor further information visit https://distilabel.argilla.io/latest/sections/getting_started/faq/"
+        == "This is an error message.\n\nFor further information visit 'https://distilabel.argilla.io/latest/sections/getting_started/faq/'"
     )

@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Final, Optional
+from typing import Optional
 
-DISTILABEL_DOCS_URL: Final[str] = "https://distilabel.argilla.io/latest/"
+from distilabel.constants import DISTILABEL_DOCS_URL
+
 # The sitemap can be visited for the full list of pages:
 # SITEMAP_URL: Final[str] = "https://distilabel.argilla.io/latest/sitemap.xml"
 
 
-class DistilabelErrorMixin:
+class DistilabelError:
     """A mixin class for common functionality shared by all Distilabel-specific errors.
 
     Attributes:
@@ -34,7 +35,7 @@ class DistilabelErrorMixin:
 
         raise DistilabelUserError("This is an error message.", page="sections/getting_started/faq/")
         This is an error message.
-        For further information visit https://distilabel.argilla.io/latest/sections/getting_started/faq/
+        For further information visit 'https://distilabel.argilla.io/latest/sections/getting_started/faq/'
         ```
     """
 
@@ -49,13 +50,13 @@ class DistilabelErrorMixin:
             return f"{self.message}\n\nFor further information visit '{DISTILABEL_DOCS_URL}{self.page}'"
 
 
-class DistilabelUserError(DistilabelErrorMixin, ValueError):
+class DistilabelUserError(DistilabelError, ValueError):
     """ValueError that we can redirect to a given page in the documentation."""
 
     pass
 
 
-class DistilabelTypeError(DistilabelErrorMixin, TypeError):
+class DistilabelTypeError(DistilabelError, TypeError):
     """TypeError that we can redirect to a given page in the documentation."""
 
     pass
