@@ -242,6 +242,7 @@ nav:
           - RequirementsMixin: "api/mixins/requirements.md"
       - Distiset: "api/distiset.md"
       - CLI: "api/cli.md"
+      - Telemetry: "api/telemetry.md"
   - Community:
       - sections/community/index.md
       - Issue dashboard: sections/community/popular_issues.md
