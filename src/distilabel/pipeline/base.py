@@ -555,8 +555,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         self.dag.add_step(step)
 
-        get_telemetry_client().track_add_step_data(pipeline=self, step=step)
-
     def _add_edge(self, from_step: str, to_step: str) -> None:
         """Add an edge between two steps in the pipeline.
 
@@ -574,10 +572,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             name=to_step,
             attr=RECEIVES_ROUTED_BATCHES_ATTR_NAME,
             value=routing_batch_function is not None,
-        )
-
-        get_telemetry_client().track_add_edge_data(
-            pipeline=self, from_step=from_step, to_step=to_step
         )
 
     def _is_convergence_step(self, step_name: str) -> None:

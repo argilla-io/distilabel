@@ -90,7 +90,4 @@ def test_pipeline_telemetry(mock_telemetry) -> None:
         }
     )
 
-    mock_telemetry.track_add_step_data.assert_called()
-    mock_telemetry.track_add_edge_data.assert_called()
-    mock_telemetry.track_process_batch_data.assert_called()
     mock_telemetry.track_run_data.assert_called()
