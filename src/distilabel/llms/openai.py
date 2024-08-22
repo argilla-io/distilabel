@@ -14,11 +14,12 @@
 
 import io
 import os
-from typing import TYPE_CHECKING, Any, Generator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, Union
 
 import orjson
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
+from distilabel.exceptions import DistilabelBatchGenerationNotFinishedException
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -28,6 +29,8 @@ if TYPE_CHECKING:
     from openai import AsyncOpenAI, OpenAI
     from openai.types import Batch as OpenAIBatch
     from openai.types import FileObject as OpenAIFileObject
+    from openai.types.chat import ChatCompletion as OpenAIChatCompletion
+    from pydantic import BaseModel
 
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
@@ -154,7 +157,7 @@ class OpenAILLM(AsyncLLM):
         super().load()
 
         try:
-            from openai import AsyncOpenAI
+            from openai import AsyncOpenAI, OpenAI
         except ImportError as ie:
             raise ImportError(
                 "OpenAI Python client is not installed. Please install it using"
@@ -241,11 +244,11 @@ class OpenAILLM(AsyncLLM):
         if isinstance(input, tuple):
             input, structured_output = input
             result = self._prepare_structured_output(
-                structured_output=structured_output,
+                structured_output=structured_output,  # type: ignore
                 client=self._aclient,
                 framework="openai",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
 
         if structured_output is None and self.structured_output is not None:
             structured_output = self.structured_output
@@ -275,15 +278,41 @@ class OpenAILLM(AsyncLLM):
             kwargs["response_format"] = response_format
 
         if structured_output:
-            kwargs = self._prepare_kwargs(kwargs, structured_output)
+            kwargs = self._prepare_kwargs(kwargs, structured_output)  # type: ignore
 
-        generations = []
         completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
 
         if structured_output:
-            generations.append(completion.model_dump_json())
-            return generations
+            return self._generations_from_structured_output(completion)
 
+        return self._generations_from_openai_completion(completion)
+
+    def _generations_from_structured_output(
+        self, completion: "BaseModel"
+    ) -> "GenerateOutput":
+        """Get the generations from the structured output object.
+
+        Args:
+            completion: an instance of `pydantic.BaseModel` with the content of the structuted
+                output.
+
+        Returns:
+            A list with the content of the structured output.
+        """
+        return [completion.model_dump_json()]
+
+    def _generations_from_openai_completion(
+        self, completion: "OpenAIChatCompletion"
+    ) -> "GenerateOutput":
+        """Get the generations from the OpenAI Chat Completion object.
+
+        Args:
+            completion: the completion object to get the generations from.
+
+        Returns:
+            A list of strings containing the generated responses for the input.
+        """
+        generations = []
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(  # type: ignore
@@ -295,9 +324,9 @@ class OpenAILLM(AsyncLLM):
 
     def offline_batch_generate(
         self,
-        inputs: List["FormattedInput"],
+        inputs: Union[List["FormattedInput"], None] = None,
         num_generations: int = 1,
-        jobs_ids: Union[List[str], None] = None,
+        jobs_ids: Union[Tuple[str], None] = None,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -306,7 +335,7 @@ class OpenAILLM(AsyncLLM):
         stop: Optional[Union[str, List[str]]] = None,
         response_format: Optional[str] = None,
         **kwargs: Any,
-    ) -> List["GenerateOutput"]:
+    ) -> Union[List["GenerateOutput"], Tuple[str]]:
         """Uses the OpenAI batch API to generate `num_generations` responses for the given
         inputs.
 
@@ -319,46 +348,172 @@ class OpenAILLM(AsyncLLM):
 
         Returns:
             A list of lists of strings containing the generated responses for each input
-            in `inputs`.
+            in `inputs`, or a tuple containing the job ID to retrieve the results from the
+            OpenAI Batch API.
         """
-        # if job_id and (batch := self._get_openai_batch(job_id)):
-        #     if batch.status == "completed":
-        #         self._retrieve_batch_results(batch)
+        if jobs_ids:
+            return self._check_and_get_batch_results(jobs_ids)
 
-        #     if batch.status in ("failed", "expired", "cancelled", "cancelling"):
-        #         self._logger.error(  # type: ignore
-        #             f"Batch '{job_id}' failed with status '{batch.status}'."
-        #         )
-        #         # raise something here
-        #         return []
+        if inputs:
+            kwargs = {
+                "model": self.model,
+                "max_tokens": max_new_tokens,
+                "n": num_generations,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+                "temperature": temperature,
+                "top_p": top_p,
+                "stop": stop,
+            }
+            return self._create_jobs(inputs=inputs, **kwargs)
 
-        #     if batch.status in ("validating", "in_progress", "finalizing"):
-        #         # raise happy exception here
-        #         pass
+        raise ValueError("Either `inputs` or `jobs_ids` must be provided.")
 
-        generation_kwargs = {
-            "model": self.model,
-            "max_tokens": max_new_tokens,
-            "n": num_generations,
-            "frequency_penalty": frequency_penalty,
-            "presence_penalty": presence_penalty,
-            "temperature": temperature,
-            "top_p": top_p,
-            "stop": stop,
-        }
+    def _check_and_get_batch_results(
+        self, jobs_ids: Tuple[str]
+    ) -> List["GenerateOutput"]:
+        """Checks the status of the batch jobs and retrieves the results from the OpenAI
+        Batch API.
 
-        _batch_input_files = self._create_batch_files(
-            inputs=inputs, **generation_kwargs
+        Args:
+            jobs_ids: the job IDs to retrieve the results from.
+
+        Returns:
+            A list of lists of strings containing the generated responses for each input.
+        """
+        outputs = []
+        for batch_id in jobs_ids:
+            batch = self._get_openai_batch(batch_id)
+
+            if batch.status in ("validating", "in_progress", "finalizing"):
+                raise DistilabelBatchGenerationNotFinishedException(jobs_ids=jobs_ids)
+
+            if batch.status in ("failed", "expired", "cancelled", "cancelling"):
+                self._logger.warning(  # type: ignore
+                    f"Batch '{batch_id}' failed with status '{batch.status}'."
+                )
+                continue
+
+            outputs.extend(self._retrieve_batch_results(batch))
+
+        # sort by `custom_id` to return the results in the same order as the inputs
+        outputs = sorted(outputs, key=lambda x: int(x["custom_id"]))
+        return [self._parse_output(output) for output in outputs]
+
+    def _parse_output(self, output: Dict[str, Any]) -> "GenerateOutput":
+        """Parses the output from the OpenAI Batch API into a list of strings.
+
+        Args:
+            output: the output to parse.
+
+        Returns:
+            A list of strings containing the generated responses for the input.
+        """
+        from openai.types.chat import ChatCompletion as OpenAIChatCompletion
+
+        if "response" not in output:
+            return []
+
+        if output["response"]["status_code"] != 200:
+            return []
+
+        return self._generations_from_openai_completion(
+            OpenAIChatCompletion(**output["response"]["body"])
         )
 
-    def _get_openai_batch(self, batch_id: str) -> Union["OpenAIBatch", None]:
-        batch = None
+    def _get_openai_batch(self, batch_id: str) -> "OpenAIBatch":
+        """Gets a batch from the OpenAI Batch API.
+
+        Args:
+            batch_id: the ID of the batch to retrieve.
+
+        Returns:
+            The batch retrieved from the OpenAI Batch API.
+
+        Raises:
+            Exception: if there was an error while retrieving the batch.
+        """
+        import openai
+
         try:
-            batch = self._client.batches.retrieve(batch_id)
-        except Exception as e:
+            return self._client.batches.retrieve(batch_id)
+        except openai.OpenAIError as e:
             self._logger.error(  # type: ignore
                 f"Error while retrieving batch '{batch_id}' from OpenAI: {e}"
             )
+            raise Exception("Error while retrieving batch") from e  # TODO: update this
+
+    def _retrieve_batch_results(self, batch: "OpenAIBatch") -> List[Dict[str, Any]]:
+        """Retrieves the results of a batch from its output file, parsing the JSONL content
+        into a list of dictionaries.
+
+        Args:
+            batch: the batch to retrieve the results from.
+
+        Returns:
+            A list of dictionaries containing the results of the batch.
+
+        Raises:
+            AssertionError: if no output file ID was found in the batch.
+        """
+        import openai
+
+        assert batch.output_file_id, "No output file ID was found in the batch."
+
+        try:
+            file_response = self._client.files.content(batch.output_file_id)
+            return [orjson.loads(line) for line in file_response.text.splitlines()]
+        except openai.OpenAIError as e:
+            self._logger.error(  # type: ignore
+                f"Error while retrieving batch results from file '{batch.output_file_id}': {e}"
+            )
+            return []
+
+    def _create_jobs(self, inputs: List["FormattedInput"], **kwargs: Any) -> Tuple[str]:
+        """Creates jobs in the OpenAI Batch API to generate responses for the given inputs.
+
+        Args:
+            inputs: a list of inputs in chat format to generate responses for.
+            kwargs: the keyword arguments to use for the generation.
+
+        Returns:
+            A list of job IDs created in the OpenAI Batch API.
+        """
+        batch_input_files = self._create_batch_files(inputs=inputs, **kwargs)
+        jobs = []
+        for batch_input_file in batch_input_files:
+            if batch := self._create_batch_api_job(batch_input_file):
+                jobs.append(batch.id)
+        return tuple(jobs)
+
+    def _create_batch_api_job(
+        self, batch_input_file: "OpenAIFileObject"
+    ) -> Union["OpenAIBatch", None]:
+        """Creates a job in the OpenAI Batch API to generate responses for the given input
+        file.
+
+        Args:
+            batch_input_file: the input file to generate responses for.
+
+        Returns:
+            The batch job created in the OpenAI Batch API.
+        """
+        import openai
+
+        batch = None
+        try:
+            batch = self._client.batches.create(
+                input_file_id=batch_input_file.id,
+                endpoint="/v1/chat/completions",
+                completion_window="24h",
+                metadata={"description": "distilabel"},
+            )
+        except openai.OpenAIError as e:
+            self._logger.error(  # type: ignore
+                f"Error while creating OpenAI Batch API job for file with ID"
+                f" '{batch_input_file.id}': {e}."
+            )
+            # TODO: stop generation? i guess
         return batch
 
     def _create_batch_files(
@@ -414,7 +569,7 @@ class OpenAILLM(AsyncLLM):
         for i, input in enumerate(inputs):
             # We create the smallest `custom_id` so we don't  increase the size of the file
             # to much, but we can still sort the results with the order of the inputs.
-            row = self._create_jsonl_row(input=input, custom_id=str(i))
+            row = self._create_jsonl_row(input=input, custom_id=str(i), **kwargs)
             row_size = len(row)
             if row_size + buffer_current_size > _OPENAI_BATCH_API_MAX_FILE_SIZE:
                 buffer.seek(0)
@@ -423,6 +578,10 @@ class OpenAILLM(AsyncLLM):
                 buffer_current_size = 0
             buffer.write(row)
             buffer_current_size += row_size
+
+        if buffer_current_size > 0:
+            buffer.seek(0)
+            yield buffer
 
     def _create_jsonl_row(
         self, input: "FormattedInput", custom_id: str, **kwargs: Any
@@ -442,12 +601,8 @@ class OpenAILLM(AsyncLLM):
         row = {
             "custom_id": custom_id,
             "method": "POST",
-            "path": "/v1/chat/completions",
+            "url": "/v1/chat/completions",
             "body": {"messages": input, **kwargs},
         }
         json_row = orjson.dumps(row)
         return json_row + b"\n"
-
-    def _retrieve_batch_results(self, batch: "OpenAIBatch"):
-        assert batch.output_file_id, "No output file ID was found in the batch."
-        _file_response = self._client.files.content(batch.output_file_id)

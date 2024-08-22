@@ -19,7 +19,7 @@ import logging
 import sys
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
@@ -248,11 +248,11 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
     def offline_batch_generate(
         self,
-        inputs: List["FormattedInput"],
+        inputs: Union[List["FormattedInput"], None] = None,
         num_generations: int = 1,
-        jobs_ids: Union[List[str], None] = None,
+        jobs_ids: Union[Tuple[str], None] = None,
         **kwargs: Any,
-    ) -> List["GenerateOutput"]:
+    ) -> Union[List["GenerateOutput"], Tuple[str]]:
         raise NotImplementedError(
             f"`offline_batch_generate` is not implemented for `{self.__class__.__name__}`"
         )
