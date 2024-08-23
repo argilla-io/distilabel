@@ -61,8 +61,8 @@ class APIGenGenerator(Task):
         - func_desc (`str`): Description of what the function should do.
 
     Output columns:
-        - scores (`List[float]`): The score for each instruction.
-        - model_name (`str`): The model name used to generate the scores.
+        - queries (`List[str]`): The list of queries.
+        - answers (`List[str]`): The list of answers.
 
     Categories:
         - llm
