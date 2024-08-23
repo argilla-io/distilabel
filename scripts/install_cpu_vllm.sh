@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 echo "Updating system and installing build dependencies..."
 sudo apt-get update -y
