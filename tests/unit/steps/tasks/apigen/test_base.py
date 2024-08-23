@@ -13,8 +13,12 @@
 # limitations under the License.
 
 import random
+from typing import List, Union
 
-from distilabel.steps.tasks.apigen.base import APIGenTransform
+import pytest
+from distilabel.steps.tasks.apigen.base import APIGenGenerator, APIGenTransform
+
+from tests.unit.conftest import DummySyncLLM
 
 # Example of 3 rows from Salesforce/xlam-function-calling-60k
 SAMPLE_DATA = [
@@ -70,4 +74,51 @@ class TestAPIGenTransform:
 
 
 class TestApiGenGenerator:
-    pass
+    @pytest.mark.parametrize("is_parallel", [True, False, 1.0, 0.0])
+    @pytest.mark.parametrize("number", [1, 2, [3]])
+    @pytest.mark.parametrize("use_default_structured_output", [True, False])
+    def test_format_input(
+        self,
+        is_parallel: Union[bool, List[float]],
+        number: Union[int, List[int]],
+        use_default_structured_output: bool,
+    ) -> None:
+        random.seed(42)
+        task = APIGenGenerator(
+            llm=DummySyncLLM(),
+            is_parallel=is_parallel,
+            number=number,
+            use_default_structured_output=use_default_structured_output,
+        )
+        task.load()
+        formatted = task.format_input(
+            input={
+                "examples": '## Query:\nWhat information can be obtained about the Maine Coon cat breed?\n## Answer:\n[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
+                "func_name": "get_breed_information",
+                "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
+            }
+        )
+
+        assert isinstance(formatted, list)
+        # Check only the user prompt, the system one should be fixed
+        formatted_prompt = formatted[1]["content"]
+
+        if isinstance(number, list):
+            # Fix the number for the tests for simplicity
+            number = 3
+        assert f"Now please generate {number} diverse" in formatted_prompt
+
+        default_structured_output_check = "The output MUST strictly adhere to the following JSON format, and NO other text MUST be included:"
+        if use_default_structured_output:
+            assert default_structured_output_check not in formatted_prompt
+        else:
+            assert default_structured_output_check in formatted_prompt
+
+        is_parallel_check = "It can contain multiple parallel queries in natural language for the given functions. They could use either the same function with different arguments or different functions."
+        if is_parallel:
+            assert is_parallel_check in formatted_prompt
+        else:
+            assert is_parallel_check not in formatted_prompt
+
+    def test_format_output(self) -> None:
+        pass
