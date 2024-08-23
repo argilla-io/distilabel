@@ -181,7 +181,7 @@ class APIGenGenerator(Task):
 
     _number: Union[int, None] = PrivateAttr(None)
     _fn_parallel_queries: Union[Callable[[], str], None] = PrivateAttr(None)
-    _fn_format_inst: Union[Callable[[], str], None] = PrivateAttr(None)
+    _format_inst: Union[str, None] = PrivateAttr(None)
 
     def load(self) -> None:
         """Loads the template for the generator prompt."""
@@ -194,14 +194,9 @@ class APIGenGenerator(Task):
             / "apigen"
             / "generator.jinja2"
         )
-
         self._template = Template(open(_path).read())
-
-    def model_post_init(self, __context: Any) -> None:
         self._fn_parallel_queries = self._set_parallel_queries()
-        self._fn_format_inst = self._set_format_inst()
-
-        return super().model_post_init(__context)
+        self._format_inst = self._set_format_inst()
 
     def _set_parallel_queries(self) -> Callable[[], str]:
         """Prepares the function to generate update the parallel queries guide in the prompt.
@@ -248,7 +243,7 @@ class APIGenGenerator(Task):
             self._number = self.number
         return self._number
 
-    def _set_format_inst(self) -> Callable[[], str]:
+    def _set_format_inst(self) -> str:
         """Prepares the function to generate the formatted instructions for the prompt.
 
         If the default structured output is used, returns an empty string because nothing
@@ -256,34 +251,27 @@ class APIGenGenerator(Task):
         to generate a formatted JSON.
         """
         if self.use_default_structured_output:
-
-            def fn_format_inst() -> str:
-                return ""
-        else:
-
-            def fn_format_inst() -> str:
-                return (
-                    "\nThe output MUST strictly adhere to the following JSON format, and NO other text MUST be included:\n"
-                    "```json\n"
-                    "[\n"
-                    "   {\n"
-                    '       "query": "The generated query.",\n'
-                    '       "answers": [\n'
-                    "           {\n"
-                    '               "name": "api_name",\n'
-                    '               "arguments": {\n'
-                    '                   "arg_name": "value"\n'
-                    "                   ... (more arguments as required)\n"
-                    "               }\n"
-                    "           },\n"
-                    "           ... (more API calls as required)\n"
-                    "       ]\n"
-                    "   }\n"
-                    "]\n"
-                    "```\n"
-                )
-
-        return fn_format_inst
+            return ""
+        return (
+            "\nThe output MUST strictly adhere to the following JSON format, and NO other text MUST be included:\n"
+            "```json\n"
+            "[\n"
+            "   {\n"
+            '       "query": "The generated query.",\n'
+            '       "answers": [\n'
+            "           {\n"
+            '               "name": "api_name",\n'
+            '               "arguments": {\n'
+            '                   "arg_name": "value"\n'
+            "                   ... (more arguments as required)\n"
+            "               }\n"
+            "           },\n"
+            "           ... (more API calls as required)\n"
+            "       ]\n"
+            "   }\n"
+            "]\n"
+            "```\n"
+        )
 
     @property
     def inputs(self) -> "StepColumns":
@@ -306,7 +294,7 @@ class APIGenGenerator(Task):
                     number=self._get_number(),
                     func_name=input["func_name"],
                     func_desc=input["func_desc"],
-                    format_inst=self._fn_format_inst(),
+                    format_inst=self._format_inst,
                 ),
             },
         ]
