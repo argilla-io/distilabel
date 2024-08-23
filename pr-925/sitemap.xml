@@ -506,6 +506,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-925/components-gallery/tasks/apigensemanticchecker/</loc>
+         <lastmod>2024-08-23</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-925/components-gallery/tasks/complexityscorer/</loc>
          <lastmod>2024-08-23</lastmod>
          <changefreq>daily</changefreq>

@@ -30,14 +30,14 @@ graph TD
 			ICOL2[func_desc]
 		end
 		subgraph New columns
-			OCOL0[scores]
-			OCOL1[model_name]
+			OCOL0[queries]
+			OCOL1[answers]
 		end
 	end
 
 	subgraph APIGenGenerator
 		StepInput[Input Columns: examples, func_name, func_desc]
-		StepOutput[Output Columns: scores, model_name]
+		StepOutput[Output Columns: queries, answers]
 	end
 
 	ICOL0 --> StepInput
@@ -65,9 +65,9 @@ graph TD
 #### Outputs
 
 
-- **scores** (`List[float]`): The score for each instruction.
+- **queries** (`List[str]`): The list of queries.
 
-- **model_name** (`str`): The model name used to generate the scores.
+- **answers** (`List[str]`): The list of answers.
 
 
 

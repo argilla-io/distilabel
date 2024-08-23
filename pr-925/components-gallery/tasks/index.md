@@ -18,6 +18,14 @@ hide:
 
     [:octicons-arrow-right-24: APIGenGenerator](apigengenerator.md){ .bottom }
 
+-   :material-check-outline:{ .lg .middle } __APIGenSemanticChecker__
+
+    ---
+
+    Generate queries and answers for the given functions in JSON format.
+
+    [:octicons-arrow-right-24: APIGenSemanticChecker](apigensemanticchecker.md){ .bottom }
+
 -   :octicons-number-16:{ .lg .middle } __ComplexityScorer__
 
     ---

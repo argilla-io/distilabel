@@ -12,7 +12,7 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-925/components-gallery/tasks/apigengenerator/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-925/components-gallery/tasks/apigensemanticchecker/">
       
       
       
@@ -22,7 +22,7 @@
     
     
       
-        <title>APIGenGenerator - Distilabel Docs</title>
+        <title>APIGenSemanticChecker - Distilabel Docs</title>
       
     
     
@@ -77,11 +77,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="APIGenGenerator - Distilabel Docs" >
+        <meta  property="og:title"  content="APIGenSemanticChecker - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-925/assets/images/social/components-gallery/tasks/apigengenerator.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-925/assets/images/social/components-gallery/tasks/apigensemanticchecker.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -89,15 +89,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-925/components-gallery/tasks/apigengenerator/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-925/components-gallery/tasks/apigensemanticchecker/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="APIGenGenerator - Distilabel Docs" >
+        <meta  name="twitter:title"  content="APIGenSemanticChecker - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-925/assets/images/social/components-gallery/tasks/apigengenerator.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-925/assets/images/social/components-gallery/tasks/apigensemanticchecker.png" >
       
     
     
@@ -120,7 +120,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#apigengenerator" class="md-skip">
+        <a href="#apigensemanticchecker" class="md-skip">
           Skip to content
         </a>
       
@@ -157,7 +157,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              APIGenGenerator
+              APIGenSemanticChecker
             
           </span>
         </div>
@@ -1856,7 +1856,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./" class="md-nav__link">
+      <a href="../apigengenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1877,7 +1877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../apigensemanticchecker/" class="md-nav__link">
+      <a href="./" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4604,30 +4604,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Examples
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Examples">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#generate-with-structured-output" class="md-nav__link">
-    <span class="md-ellipsis">
-      Generate with structured output
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#references" class="md-nav__link">
     <span class="md-ellipsis">
       References
@@ -4651,7 +4627,7 @@
                   
 
 
-<h1 id="apigengenerator">APIGenGenerator<a class="headerlink" href="#apigengenerator" title="Permanent link">&para;</a></h1>
+<h1 id="apigensemanticchecker">APIGenSemanticChecker<a class="headerlink" href="#apigensemanticchecker" title="Permanent link">&para;</a></h1>
 <p>Generate queries and answers for the given functions in JSON format.</p>
 <p>The <code>APIGenGenerator</code> is inspired by the APIGen pipeline, which was designed to generate
     verifiable and diverse function-calling datasets. The task generates a set of diverse queries
@@ -4660,24 +4636,26 @@
 <pre class="mermaid"><code>graph TD
     subgraph Dataset
         subgraph Columns
-            ICOL0[examples]
-            ICOL1[func_name]
-            ICOL2[func_desc]
+            ICOL0[func_desc]
+            ICOL1[query]
+            ICOL2[func_call]
+            ICOL3[execution_result]
         end
         subgraph New columns
-            OCOL0[queries]
-            OCOL1[answers]
+            OCOL0[thought]
+            OCOL1[passes]
         end
     end
 
-    subgraph APIGenGenerator
-        StepInput[Input Columns: examples, func_name, func_desc]
-        StepOutput[Output Columns: queries, answers]
+    subgraph APIGenSemanticChecker
+        StepInput[Input Columns: func_desc, query, func_call, execution_result]
+        StepOutput[Output Columns: thought, passes]
     end
 
     ICOL0 --&gt; StepInput
     ICOL1 --&gt; StepInput
     ICOL2 --&gt; StepInput
+    ICOL3 --&gt; StepInput
     StepOutput --&gt; OCOL0
     StepOutput --&gt; OCOL1
     StepInput --&gt; StepOutput
@@ -4685,122 +4663,27 @@
 <h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
-<p><strong>examples</strong> (<code>str</code>): Examples used as few shots to guide the model.</p>
-</li>
-<li>
-<p><strong>func_name</strong> (<code>str</code>): Name for the function to generate.</p>
-</li>
-<li>
 <p><strong>func_desc</strong> (<code>str</code>): Description of what the function should do.</p>
+</li>
+<li>
+<p><strong>query</strong> (<code>str</code>): Instruction from the user.</p>
+</li>
+<li>
+<p><strong>func_call</strong> (<code>str</code>): JSON encoded list with arguments to be passed to the function/API.</p>
+</li>
+<li>
+<p><strong>execution_result</strong> (<code>str</code>): Result of the function/API executed.</p>
 </li>
 </ul>
 <h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
-<p><strong>queries</strong> (<code>List[str]</code>): The list of queries.</p>
+<p><strong>thought</strong> (<code>str</code>): Reasoning for the output in "passes".</p>
 </li>
 <li>
-<p><strong>answers</strong> (<code>List[str]</code>): The list of answers.</p>
+<p><strong>passes</strong> (<code>str</code>): "yes" or "no".</p>
 </li>
 </ul>
-<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<h4 id="generate-with-structured-output">Generate with structured output<a class="headerlink" href="#generate-with-structured-output" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">ApiGenGenerator</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">tokenizer</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="p">},</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">)</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">apigen</span> <span class="o">=</span> <span class="n">ApiGenGenerator</span><span class="p">(</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">use_default_structured_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">)</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">apigen</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="n">res_struct</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">apigen</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="p">[</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>            <span class="p">{</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>                <span class="s2">&quot;examples&quot;</span><span class="p">:</span> <span class="s1">&#39;QUERY:</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="n">What</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">binary</span> <span class="nb">sum</span> <span class="n">of</span> <span class="mi">10010</span> <span class="ow">and</span> <span class="mi">11101</span><span class="err">?</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="n">ANSWER</span><span class="p">:</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;binary_addition&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="s2">&quot;10010&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="s2">&quot;11101&quot;</span><span class="p">}}]</span><span class="s1">&#39;,</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>                <span class="s2">&quot;func_name&quot;</span><span class="p">:</span> <span class="s2">&quot;getrandommovie&quot;</span><span class="p">,</span>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>                <span class="s2">&quot;func_desc&quot;</span><span class="p">:</span> <span class="s2">&quot;Returns a list of random movies from a database by calling an external API.&quot;</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>            <span class="p">}</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        <span class="p">]</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="p">)</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="p">)</span>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="n">res_struct</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="c1"># [{&#39;examples&#39;: &#39;QUERY:</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="n">What</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">binary</span> <span class="nb">sum</span> <span class="n">of</span> <span class="mi">10010</span> <span class="ow">and</span> <span class="mi">11101</span><span class="err">?</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="n">ANSWER</span><span class="p">:</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;binary_addition&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="s2">&quot;10010&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="s2">&quot;11101&quot;</span><span class="p">}}]</span><span class="s1">&#39;,</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="c1"># &#39;number&#39;: 1,</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="c1"># &#39;func_name&#39;: &#39;getrandommovie&#39;,</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="c1"># &#39;func_desc&#39;: &#39;Returns a list of random movies from a database by calling an external API.&#39;,</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="c1"># &#39;queries&#39;: [&quot;I&#39;m bored and want to watch a movie. Can you suggest some movies?&quot;,</span>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="c1"># &quot;My family and I are planning a movie night. We can&#39;t decide on what to watch. Can you suggest some random movie titles?&quot;],</span>
-</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="c1"># &#39;answers&#39;: [[{&#39;arguments&#39;: {}, &#39;name&#39;: &#39;getrandommovie&#39;}],</span>
-</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="c1"># [{&#39;arguments&#39;: {}, &#39;name&#39;: &#39;getrandommovie&#39;}]],</span>
-</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="c1"># &#39;distilabel_metadata&#39;: {&#39;raw_output_api_gen_generator_0&#39;: &#39;{ </span>
-</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>  <span class="s2">&quot;pairs&quot;</span><span class="p">:</span> <span class="p">[</span>
-</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>    <span class="p">{</span>
-</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>      <span class="s2">&quot;answers&quot;</span><span class="p">:</span> <span class="p">[</span>
-</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="p">{</span>
-</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>  <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{},</span>
-</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;getrandommovie&quot;</span>
-</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="p">}</span>
-</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>      <span class="p">],</span>
-</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>      <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;I&#39;m bored and want to watch a movie. Can you suggest some movies?&quot;</span>
-</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>    <span class="p">},</span>
-</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>    <span class="p">{</span>
-</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>      <span class="s2">&quot;answers&quot;</span><span class="p">:</span> <span class="p">[</span>
-</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a><span class="p">{</span>
-</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>  <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{},</span>
-</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;getrandommovie&quot;</span>
-</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="p">}</span>
-</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>      <span class="p">],</span>
-</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>      <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;My family and I are planning a movie night. We can&#39;t decide on what to watch. Can you suggest some random movie titles?&quot;</span>
-</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>    <span class="p">}</span>
-</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>  <span class="p">]</span>
-</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a><span class="p">}</span><span class="s1">&#39;,</span>
-</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a><span class="c1"># &#39;raw_input_api_gen_generator_0&#39;: [{&#39;role&#39;: &#39;system&#39;,</span>
-</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a><span class="c1">#     &#39;content&#39;: &quot;You are a data labeler. Your responsibility is to generate a set of diverse queries and corresponding answers for the given functions in JSON format.</span>
-</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a>
-</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69" href="#__codelineno-0-69"></a><span class="n">Construct</span> <span class="n">queries</span> <span class="ow">and</span> <span class="n">answers</span> <span class="n">that</span> <span class="n">exemplify</span> <span class="n">how</span> <span class="n">to</span> <span class="n">use</span> <span class="n">these</span> <span class="n">functions</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">practical</span> <span class="n">scenario</span><span class="o">.</span> <span class="n">Include</span> <span class="ow">in</span> <span class="n">each</span> <span class="n">query</span> <span class="n">specific</span><span class="p">,</span> <span class="n">plausible</span> <span class="n">values</span> <span class="k">for</span> <span class="n">each</span> <span class="n">parameter</span><span class="o">.</span> <span class="n">For</span> <span class="n">instance</span><span class="p">,</span> <span class="k">if</span> <span class="n">the</span> <span class="n">function</span> <span class="n">requires</span> <span class="n">a</span> <span class="n">date</span><span class="p">,</span> <span class="n">use</span> <span class="n">a</span> <span class="n">typical</span> <span class="ow">and</span> <span class="n">reasonable</span> <span class="n">date</span><span class="o">.</span>
-</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70" href="#__codelineno-0-70"></a>
-</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71" href="#__codelineno-0-71"></a><span class="n">Ensure</span> <span class="n">the</span> <span class="n">query</span><span class="p">:</span>
-</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72" href="#__codelineno-0-72"></a><span class="o">-</span> <span class="n">Is</span> <span class="n">clear</span> <span class="ow">and</span> <span class="n">concise</span>
-</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73" href="#__codelineno-0-73"></a><span class="o">-</span> <span class="n">Demonstrates</span> <span class="n">typical</span> <span class="n">use</span> <span class="n">cases</span>
-</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74" href="#__codelineno-0-74"></a><span class="o">-</span> <span class="n">Includes</span> <span class="nb">all</span> <span class="n">necessary</span> <span class="n">parameters</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">meaningful</span> <span class="n">way</span><span class="o">.</span> <span class="n">For</span> <span class="n">numerical</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">it</span> <span class="n">could</span> <span class="n">be</span> <span class="n">either</span> <span class="n">numbers</span> <span class="ow">or</span> <span class="n">words</span>
-</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75" href="#__codelineno-0-75"></a><span class="o">-</span> <span class="n">Across</span> <span class="n">a</span> <span class="n">variety</span> <span class="n">level</span> <span class="n">of</span> <span class="n">difficulties</span><span class="p">,</span> <span class="n">ranging</span> <span class="kn">from</span> <span class="nn">beginner</span> <span class="ow">and</span> <span class="n">advanced</span> <span class="n">use</span> <span class="n">cases</span>
-</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76" href="#__codelineno-0-76"></a><span class="o">-</span> <span class="n">The</span> <span class="n">corresponding</span> <span class="n">result</span><span class="s1">&#39;s parameter types and ranges match with the function&#39;</span><span class="n">s</span> <span class="n">descriptions</span>
-</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77" href="#__codelineno-0-77"></a>
-</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78" href="#__codelineno-0-78"></a><span class="n">Ensure</span> <span class="n">the</span> <span class="n">answer</span><span class="p">:</span>
-</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79" href="#__codelineno-0-79"></a><span class="o">-</span> <span class="n">Is</span> <span class="n">a</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">function</span> <span class="n">calls</span> <span class="ow">in</span> <span class="n">JSON</span> <span class="nb">format</span>
-</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80" href="#__codelineno-0-80"></a><span class="o">-</span> <span class="n">The</span> <span class="n">length</span> <span class="n">of</span> <span class="n">the</span> <span class="n">answer</span> <span class="nb">list</span> <span class="n">should</span> <span class="n">be</span> <span class="n">equal</span> <span class="n">to</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">requests</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">query</span>
-</span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81" href="#__codelineno-0-81"></a><span class="o">-</span> <span class="n">Can</span> <span class="n">solve</span> <span class="nb">all</span> <span class="n">the</span> <span class="n">requests</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">query</span> <span class="n">effectively</span><span class="s2">&quot;},</span>
-</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82" href="#__codelineno-0-82"></a><span class="c1">#     {&#39;role&#39;: &#39;user&#39;,</span>
-</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83" href="#__codelineno-0-83"></a><span class="c1">#     &#39;content&#39;: &#39;Here are examples of queries and the corresponding answers for similar functions:</span>
-</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84" href="#__codelineno-0-84"></a><span class="n">QUERY</span><span class="p">:</span>
-</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85" href="#__codelineno-0-85"></a><span class="n">What</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">binary</span> <span class="nb">sum</span> <span class="n">of</span> <span class="mi">10010</span> <span class="ow">and</span> <span class="mi">11101</span><span class="err">?</span>
-</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86" href="#__codelineno-0-86"></a><span class="n">ANSWER</span><span class="p">:</span>
-</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87" href="#__codelineno-0-87"></a><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;binary_addition&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="s2">&quot;10010&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="s2">&quot;11101&quot;</span><span class="p">}}]</span>
-</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88" href="#__codelineno-0-88"></a>
-</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89" href="#__codelineno-0-89"></a><span class="n">Note</span> <span class="n">that</span> <span class="n">the</span> <span class="n">query</span> <span class="n">could</span> <span class="n">be</span> <span class="n">interpreted</span> <span class="k">as</span> <span class="n">a</span> <span class="n">combination</span> <span class="n">of</span> <span class="n">several</span> <span class="n">independent</span> <span class="n">requests</span><span class="o">.</span>
-</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90" href="#__codelineno-0-90"></a><span class="n">Based</span> <span class="n">on</span> <span class="n">these</span> <span class="n">examples</span><span class="p">,</span> <span class="n">generate</span> <span class="mi">2</span> <span class="n">diverse</span> <span class="n">query</span> <span class="ow">and</span> <span class="n">answer</span> <span class="n">pairs</span> <span class="k">for</span> <span class="n">the</span> <span class="n">function</span> <span class="err">`</span><span class="n">getrandommovie</span><span class="err">`</span>
-</span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91" href="#__codelineno-0-91"></a><span class="n">The</span> <span class="n">detailed</span> <span class="n">function</span> <span class="n">description</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">following</span><span class="p">:</span>
-</span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92" href="#__codelineno-0-92"></a><span class="n">Returns</span> <span class="n">a</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">random</span> <span class="n">movies</span> <span class="kn">from</span> <span class="nn">a</span> <span class="n">database</span> <span class="n">by</span> <span class="n">calling</span> <span class="n">an</span> <span class="n">external</span> <span class="n">API</span><span class="o">.</span>
-</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93" href="#__codelineno-0-93"></a>
-</span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94" href="#__codelineno-0-94"></a><span class="n">Now</span> <span class="n">please</span> <span class="n">generate</span> <span class="mi">2</span> <span class="n">diverse</span> <span class="n">query</span> <span class="ow">and</span> <span class="n">answer</span> <span class="n">pairs</span> <span class="n">following</span> <span class="n">the</span> <span class="n">above</span> <span class="nb">format</span><span class="o">.</span><span class="s1">&#39;}]},</span>
-</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95" href="#__codelineno-0-95"></a><span class="c1"># &#39;model_name&#39;: &#39;meta-llama/Meta-Llama-3.1-70B-Instruct&#39;}]</span>
-</span></code></pre></div>
 <h3 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
@@ -4860,7 +4743,7 @@
               
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+APIGenGenerator+-+/components-gallery/tasks/apigengenerator/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+APIGenSemanticChecker+-+/components-gallery/tasks/apigensemanticchecker/" target="_blank" rel="noopener">opening a GitHub issue</a>.
             </div>
           
         </div>
