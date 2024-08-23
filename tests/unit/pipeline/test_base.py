@@ -21,6 +21,10 @@ from typing import Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
+from fsspec.implementations.local import LocalFileSystem
+from pydantic import Field
+from upath import UPath
+
 from distilabel.constants import (
     INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
@@ -44,9 +48,6 @@ from distilabel.steps.base import Step, StepInput, StepResources, _Step
 from distilabel.steps.typing import StepOutput
 from distilabel.utils.requirements import requirements
 from distilabel.utils.serialization import TYPE_INFO_KEY
-from fsspec.implementations.local import LocalFileSystem
-from pydantic import Field
-from upath import UPath
 
 from .utils import (
     DummyGeneratorStep,
@@ -1296,7 +1297,6 @@ class TestPipelineSerialization:
         # Maybe not the best place for this test, but does the work for now
         from distilabel.pipeline.local import Pipeline
         from distilabel.pipeline.routing_batch_function import sample_n_steps
-
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         sample_two_steps = sample_n_steps(2)
@@ -1321,7 +1321,6 @@ class TestPipelineSerialization:
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.
         from distilabel.pipeline.local import Pipeline
-
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
@@ -1348,7 +1347,6 @@ class TestPipelineSerialization:
     def test_binary_rshift_operator_with_list(self) -> None:
         # Tests the steps can be connected using the >> operator when using a list.
         from distilabel.pipeline.local import Pipeline
-
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
@@ -1378,7 +1376,6 @@ class TestPipelineSerialization:
         # instead of the Step.
 
         from distilabel.pipeline.local import Pipeline
-
         from tests.unit.pipeline.utils import DummyGlobalStep, DummyStep1, DummyStep2
 
         with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
@@ -1405,7 +1402,6 @@ class TestPipelineSerialization:
         # Tests the steps can be connected with the binary operators,
         # the general case of step1 >> [step2, step3] >> step4
         from distilabel.pipeline.local import Pipeline
-
         from tests.unit.pipeline.utils import (
             DummyGeneratorStep,
             DummyGlobalStep,

@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.utils.serialization import _extra_serializable_fields, _Serializable
 from pydantic import BaseModel
+
+from distilabel.utils.serialization import _extra_serializable_fields, _Serializable
 
 
 def test_extra_serializable_fields() -> None:

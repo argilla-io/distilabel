@@ -18,13 +18,15 @@ from typing import Any, Dict, List, Optional, Type, Union
 from pydantic import BaseModel, Field, create_model
 
 
-def schema_as_dict(schema: Union[str, Type[BaseModel]]) -> Dict[str, Any]:
+def schema_as_dict(
+    schema: Union[str, Type[BaseModel], Dict[str, Any]],
+) -> Dict[str, Any]:
     """Helper function to obtain the schema and simplify serialization."""
-    if type(schema) == type(BaseModel):
+    if type(schema) is type(BaseModel):
         return schema.model_json_schema()
     elif isinstance(schema, str):
         return json.loads(schema)
-    return schema
+    return schema  # type: ignore
 
 
 # NOTE: The following functions were copied from:

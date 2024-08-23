@@ -20,13 +20,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
 from huggingface_hub import (
     ChatCompletionOutput,
     ChatCompletionOutputComplete,
     ChatCompletionOutputMessage,
     ChatCompletionOutputUsage,
 )
+
+from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
 
 
 @pytest.fixture(autouse=True)
