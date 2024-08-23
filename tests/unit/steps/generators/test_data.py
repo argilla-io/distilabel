@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import pytest
+from pydantic import ValidationError
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.generators.data import LoadDataFromDicts
-from pydantic import ValidationError
 
 
 class TestLoadDataFromDicts:

@@ -17,6 +17,7 @@ import urllib.request
 from typing import Any, Dict, Generator
 
 import pytest
+
 from distilabel.llms.llamacpp import LlamaCppLLM
 
 from .utils import DummyUserDetail

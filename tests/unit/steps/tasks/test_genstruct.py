@@ -15,9 +15,9 @@
 from typing import Any, Dict, Union
 
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.genstruct import Genstruct
-
 from tests.unit.conftest import DummyLLM
 
 

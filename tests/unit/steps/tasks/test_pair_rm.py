@@ -15,6 +15,7 @@
 from unittest.mock import MagicMock, patch
 
 import numpy as np
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.pair_rm import PairRM
 

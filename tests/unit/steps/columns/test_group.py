@@ -14,6 +14,7 @@
 
 
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.columns.group import CombineColumns, GroupColumns
 
@@ -53,7 +54,8 @@ def test_CombineColumns_deprecation_warning():
             name="combine_columns",
             columns=["generation", "model_name"],
         )
-    import distilabel
     from packaging.version import Version
+
+    import distilabel
 
     assert Version(distilabel.__version__) <= Version("1.5.0")
