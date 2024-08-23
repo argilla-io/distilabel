@@ -157,11 +157,16 @@
     "aliases": []
   },
   {
-    "version": "1.3.1",
-    "title": "1.3.1",
+    "version": "1.3.2",
+    "title": "1.3.2",
     "aliases": [
       "latest"
     ]
+  },
+  {
+    "version": "1.3.1",
+    "title": "1.3.1",
+    "aliases": []
   },
   {
     "version": "1.3.0",
