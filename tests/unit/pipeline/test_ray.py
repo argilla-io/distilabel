@@ -15,8 +15,6 @@
 from typing import Generator
 
 import pytest
-import ray
-from ray.cluster_utils import Cluster
 
 from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.ray import RayPipeline
@@ -27,6 +25,9 @@ from distilabel.utils.serialization import TYPE_INFO_KEY
 
 @pytest.fixture
 def ray_test_cluster() -> Generator[None, None, None]:
+    import ray
+    from ray.cluster_utils import Cluster
+
     cluster = Cluster(
         initialize_head=True,
         head_node_args={
@@ -43,6 +44,7 @@ def ray_test_cluster() -> Generator[None, None, None]:
     ray.shutdown()
 
 
+@pytest.mark.skip_python_versions(["3.12"])
 @pytest.mark.usefixtures("ray_test_cluster")
 class TestRayPipeline:
     def test_dump(self) -> None:

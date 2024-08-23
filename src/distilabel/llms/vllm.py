@@ -37,7 +37,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
-    from openai import OpenAI
+    from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
 
