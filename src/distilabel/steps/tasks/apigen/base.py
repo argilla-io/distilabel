@@ -14,7 +14,7 @@
 
 import importlib.resources as importlib_resources
 import random
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Union
 
 import orjson
 from jinja2 import Template
@@ -29,20 +29,23 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepColumns, StepOutput
 
 
-SYSTEM_PROMPT_API_GEN: str = (
-    "You are a data labeler. Your responsibility is to generate a set of diverse queries and corresponding answers for the given functions in JSON format.\n\n"
-    "Construct queries and answers that exemplify how to use these functions in a practical scenario. Include in each query specific, plausible values for each parameter. For instance, if the function requires a date, use a typical and reasonable date.\n\n"
-    "Ensure the query:\n"
-    "- Is clear and concise\n"
-    "- Demonstrates typical use cases\n"
-    "- Includes all necessary parameters in a meaningful way. For numerical parameters, it could be either numbers or words\n"
-    "- Across a variety level of difficulties, ranging from beginner and advanced use cases\n"
-    "- The corresponding result's parameter types and ranges match with the function's descriptions\n\n"
-    "Ensure the answer:\n"
-    "- Is a list of function calls in JSON format\n"
-    "- The length of the answer list should be equal to the number of requests in the query\n"
-    "- Can solve all the requests in the query effectively"
-)
+SYSTEM_PROMPT_API_GEN: Final[str] = """\
+You are a data labeler. Your responsibility is to generate a set of diverse queries and corresponding answers for the given functions in JSON format.
+
+Construct queries and answers that exemplify how to use these functions in a practical scenario. Include in each query specific, plausible values for each parameter. For instance, if the function requires a date, use a typical and reasonable date.
+
+Ensure the query:
+- Is clear and concise
+- Demonstrates typical use cases
+- Includes all necessary parameters in a meaningful way. For numerical parameters, it could be either numbers or words
+- Across a variety level of difficulties, ranging from beginner and advanced use cases
+- The corresponding result's parameter types and ranges match with the function's descriptions
+
+Ensure the answer:
+- Is a list of function calls in JSON format
+- The length of the answer list should be equal to the number of requests in the query
+- Can solve all the requests in the query effectively
+"""
 
 
 class APIGenGenerator(Task):
