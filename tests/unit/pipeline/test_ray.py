@@ -16,12 +16,13 @@ from typing import Generator
 
 import pytest
 import ray
+from ray.cluster_utils import Cluster
+
 from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.ray import RayPipeline
 from distilabel.steps.base import StepResources
 from distilabel.steps.tasks.text_generation import TextGeneration
 from distilabel.utils.serialization import TYPE_INFO_KEY
-from ray.cluster_utils import Cluster
 
 
 @pytest.fixture

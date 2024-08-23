@@ -18,6 +18,7 @@ from unittest.mock import patch
 
 import argilla as rg
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 

@@ -15,6 +15,7 @@
 from typing import Any
 
 import pytest
+
 from distilabel.utils.chat import is_openai_format
 
 

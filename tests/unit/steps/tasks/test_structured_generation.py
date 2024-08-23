@@ -15,12 +15,13 @@
 import json
 from typing import Any, List
 
+from typing_extensions import override
+
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.structured_generation import StructuredGeneration
 from distilabel.steps.tasks.typing import StructuredInput
-from typing_extensions import override
 
 
 class DummyStructuredLLM(LLM):

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from distilabel.llms.moa import MOA_SYSTEM_PROMPT, MixtureOfAgentsLLM
-
 from tests.unit.conftest import DummyLLM
 
 

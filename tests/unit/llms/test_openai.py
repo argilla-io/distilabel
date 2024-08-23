@@ -20,6 +20,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
+
 from distilabel.llms.openai import OpenAILLM
 
 from .utils import DummyUserDetail
