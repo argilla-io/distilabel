@@ -44,6 +44,7 @@ def ray_test_cluster() -> Generator[None, None, None]:
     ray.shutdown()
 
 
+@pytest.mark.skip_python_versions(["3.12"])
 @pytest.mark.usefixtures("ray_test_cluster")
 class TestRayPipeline:
     def test_dump(self) -> None:
@@ -55,13 +56,11 @@ class TestRayPipeline:
             "name": "Pipeline",
         }
 
-    @pytest.mark.skip_python_versions(["3.12"])
     def test_get_ray_gpus_per_node(self) -> None:
         pipeline = RayPipeline(name="unit-test")
         pipeline._init_ray()
         assert list(pipeline._ray_node_ids.values()) == [8, 8, 8, 8]
 
-    @pytest.mark.skip_python_versions(["3.12"])
     def test_create_vllm_placement_group(self) -> None:
         with RayPipeline(name="unit-test") as pipeline:
             step_1 = TextGeneration(
@@ -131,7 +130,6 @@ class TestRayPipeline:
         pipeline._create_vllm_placement_group(step_5)
         assert sum(pipeline._ray_node_ids.values()) == num_gpus - allocated_gpus
 
-    @pytest.mark.skip_python_versions(["3.12"])
     def test_create_vllm_placement_group_raise_valueerror(self) -> None:
         with RayPipeline(name="unit-test") as pipeline:
             step = TextGeneration(
