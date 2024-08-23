@@ -179,13 +179,19 @@ ip_head=$head_node_ip:$port
 export ip_head
 echo "IP Head: $ip_head"
 
+# Generate a unique Ray tmp dir for the head node (just in case the default one is not writable)
+head_tmp_dir="/tmp/ray_tmp_${SLURM_JOB_ID}_head"
+
 echo "Starting HEAD at $head_node"
-srun --nodes=1 --ntasks=1 -w "$head_node" \
+OUTLINES_CACHE_DIR="/tmp/.outlines" srun --nodes=1 --ntasks=1 -w "$head_node" \ # (4)
     ray start --head --node-ip-address="$head_node_ip" --port=$port \
     --dashboard-host=0.0.0.0 \
+    --dashboard-port=8265 \
+    --temp-dir="$head_tmp_dir" \
     --block &
 
 # Give some time to head node to start...
+echo "Waiting a bit before starting worker nodes..."
 sleep 10
 
 # Start Ray worker nodes
@@ -194,20 +200,27 @@ worker_num=$((SLURM_JOB_NUM_NODES - 1))
 # Start from 1 (0 is head node)
 for ((i = 1; i <= worker_num; i++)); do
     node_i=${nodes_array[$i]}
+    worker_tmp_dir="/tmp/ray_tmp_${SLURM_JOB_ID}_worker_$i"
     echo "Starting WORKER $i at $node_i"
-    srun --nodes=1 --ntasks=1 -w "$node_i" \
+    OUTLINES_CACHE_DIR="/tmp/.outlines" srun --nodes=1 --ntasks=1 -w "$node_i" \
         ray start --address "$ip_head" \
+        --temp-dir="$worker_tmp_dir" \
         --block &
     sleep 5
 done
+
+# Give some time to the Ray cluster to gather info
+echo "Waiting a bit before submitting the job..."
+sleep 60
 
 # Finally submit the job to the cluster
 ray job submit --address http://localhost:8265 --working-dir ray-pipeline -- python -u pipeline.py
 ```
 
-1. In this case, we just want two nodes: one to run the Ray head node and one to run a worker. 
+1. In this case, we just want two nodes: one to run the Ray head node and one to run a worker.
 2. We just want to run a task per node i.e. the Ray command that starts the head/worker node.
 3. We have selected 1 GPU per node, but we could have selected more depending on the pipeline.
+4. We need to set the environment variable `OUTLINES_CACHE_DIR` to `/tmp/.outlines` to avoid issues with the nodes trying to read/write the same `outlines` cache files, which is not possible.
 
 ## `vLLM` and `tensor_parallel_size`
 

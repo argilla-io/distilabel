@@ -21,8 +21,9 @@ from typing import Any, Dict, Optional
 import pytest
 import yaml
 from datasets import Dataset, DatasetDict
-from distilabel.distiset import Distiset
 from upath import UPath
+
+from distilabel.distiset import Distiset
 
 
 @pytest.fixture(scope="function")

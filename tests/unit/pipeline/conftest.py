@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 
 from .utils import DummyGeneratorStep, DummyGlobalStep, DummyStep1, DummyStep2

@@ -16,9 +16,9 @@ import random
 from unittest import mock
 
 import pytest
+
 from distilabel.llms.openai import OpenAILLM
 from distilabel.steps.tasks.magpie.base import MAGPIE_MULTI_TURN_SYSTEM_PROMPT, Magpie
-
 from tests.unit.conftest import DummyMagpieLLM
 
 

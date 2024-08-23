@@ -15,6 +15,7 @@
 from typing import TYPE_CHECKING, Any, List
 
 import pytest
+
 from distilabel.llms.base import LLM, AsyncLLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 

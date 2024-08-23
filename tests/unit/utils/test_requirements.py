@@ -15,6 +15,7 @@
 from typing import List
 
 import pytest
+
 from distilabel.pipeline import Pipeline
 from distilabel.steps import Step
 from distilabel.steps.base import StepInput

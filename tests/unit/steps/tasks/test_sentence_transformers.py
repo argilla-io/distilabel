@@ -15,6 +15,7 @@
 from typing import Any, Dict
 
 import pytest
+
 from distilabel.steps.tasks.sentence_transformers import (
     CONTEXT_INTRO,
     NEGATIVE_STYLE,
@@ -23,7 +24,6 @@ from distilabel.steps.tasks.sentence_transformers import (
     GenerateSentencePair,
     GenerationAction,
 )
-
 from tests.unit.conftest import DummyLLM
 
 
