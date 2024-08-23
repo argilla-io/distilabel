@@ -98,8 +98,8 @@ result = next(
             {
                 "instruction": "Create an RPG character",
                 "structured_output": {
-                    "type": "json",
-                    "value": {
+                    "format": "json",
+                    "schema": {
                         "properties": {
                             "name": {
                                 "title": "Name",
@@ -128,36 +128,6 @@ result = next(
                         "type": "object"
                     }
                 },
-            }
-        ]
-    )
-)
-```
-
-#### Generate structured output from a regex pattern
-```python
-from distilabel.steps.tasks import StructuredGeneration
-from distilabel.llms import InferenceEndpointsLLM
-
-structured_gen = StructuredGeneration(
-    llm=InferenceEndpointsLLM(
-        model_id="meta-llama/Meta-Llama-3-70B-Instruct",
-        tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
-    ),
-)
-
-structured_gen.load()
-
-result = next(
-    structured_gen.process(
-        [
-            {
-                "instruction": "What's the weather like today in Seattle in Celsius degrees?",
-                "structured_output": {
-                    "type": "regex",
-                    "value": r"(\d{1,2})°C"
-                },
-
             }
         ]
     )

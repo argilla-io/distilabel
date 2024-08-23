@@ -4392,6 +4392,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../api/pipeline/step_wrapper/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Step Wrapper
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../api/pipeline/utils/" class="md-nav__link">
         
   
@@ -4913,8 +4934,8 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="optional-deploy-argilla">(optional) Deploy Argilla<a class="headerlink" href="#optional-deploy-argilla" title="Permanent link">&para;</a></h3>
-<p>You can skip this step or replace it with any other data evaluation tool, but the quality of your model will suffer from a lack of data quality, so we do recommend looking at your data. If you already have deployed Argilla, you can skip this step. Otherwise, you can quickly deploy Argilla following <a href="https://docs.argilla.io/latest/getting_started/quickstart/">this guide</a>. </p>
-<p>Along with that, you will need to install argilla as distilabel extra.</p>
+<p>You can skip this step or replace it with any other data evaluation tool, but the quality of your model will suffer from a lack of data quality, so we do recommend looking at your data. If you already deployed Argilla, you can skip this step. Otherwise, you can quickly deploy Argilla following <a href="https://docs.argilla.io/latest/getting_started/quickstart/">this guide</a>. </p>
+<p>Along with that, you will need to install Argilla as a distilabel extra.</p>
 </div>
 </div>
 </div>
@@ -4944,7 +4965,7 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="load-the-dataset">Load the dataset<a class="headerlink" href="#load-the-dataset" title="Permanent link">&para;</a></h3>
-<p>We will use as source data the <code>argilla/10Kprompts-mini</code> dataset from the <a href="https://huggingface.co/datasets/argilla/10Kprompts-mini">Hugging Face Hub</a>.</p>
+<p>We will use as source data the <a href="https://huggingface.co/datasets/argilla/10Kprompts-mini"><code>argilla/10Kprompts-mini</code></a> dataset from the Hugging Face Hub.</p>
 <iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/argilla/10Kprompts-mini/embed/viewer/default/train" width="100%"></iframe>
 <ul>
 <li>Component: <code>LoadDataFromHub</code></li>
@@ -4985,7 +5006,7 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="generate-responses">Generate responses<a class="headerlink" href="#generate-responses" title="Permanent link">&para;</a></h3>
-<p>We need to generate the responses for the given instructions. We will use two different models available in the Hugging Face Hub through the Serverless Inference API: <a href="https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"><code>meta-llama/Meta-Llama-3-8B-Instruct</code></a> and <a href="https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1"><code>mistralai/Mixtral-8x7B-Instruct-v0.1</code></a>. We will also indicate the generation parameters for each model.</p>
+<p>We need to generate the responses for the given instructions. We will use two different models available on the Hugging Face Hub through the Serverless Inference API: <a href="https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"><code>meta-llama/Meta-Llama-3-8B-Instruct</code></a> and <a href="https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1"><code>mistralai/Mixtral-8x7B-Instruct-v0.1</code></a>. We will also indicate the generation parameters for each model.</p>
 <ul>
 <li>Component: <code>TextGeneration</code> task with LLMs using <code>InferenceEndpointsLLM</code></li>
 <li>Input columns: <code>instruction</code></li>
