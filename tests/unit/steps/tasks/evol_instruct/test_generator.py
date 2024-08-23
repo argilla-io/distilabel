@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import pytest
+from pydantic import ValidationError
+
 from distilabel.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.evol_instruct.generator import (
@@ -21,7 +23,6 @@ from distilabel.steps.tasks.evol_instruct.generator import (
 from distilabel.steps.tasks.evol_instruct.utils import (
     GENERATION_MUTATION_TEMPLATES,
 )
-from pydantic import ValidationError
 
 
 class TestEvolInstructGenerator:

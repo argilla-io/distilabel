@@ -38,14 +38,11 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
-    from openai import OpenAI
+    from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
 
     from distilabel.steps.tasks.typing import StandardInput
-
-
-SamplingParams = None
 
 
 class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
@@ -177,10 +174,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         try:
             from vllm import LLM as _vLLM
-            from vllm import SamplingParams as _SamplingParams
-
-            global SamplingParams
-            SamplingParams = _SamplingParams
         except ImportError as ie:
             raise ImportError(
                 "vLLM is not installed. Please install it using `pip install vllm`."
@@ -319,6 +312,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        from vllm import SamplingParams
 
         if extra_sampling_params is None:
             extra_sampling_params = {}

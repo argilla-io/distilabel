@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import pytest
-from distilabel.llms.mixins.magpie import MAGPIE_PRE_QUERY_TEMPLATES
 
+from distilabel.llms.mixins.magpie import MAGPIE_PRE_QUERY_TEMPLATES
 from tests.unit.conftest import DummyMagpieLLM
 
 

@@ -19,6 +19,7 @@ from typing import Generator, Union
 
 import pytest
 from datasets import Dataset, IterableDataset
+
 from distilabel.distiset import Distiset
 from distilabel.pipeline import Pipeline
 from distilabel.steps.generators.huggingface import (
@@ -26,7 +27,6 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromFileSystem,
     LoadDataFromHub,
 )
-
 from tests.unit.pipeline.utils import DummyStep1
 
 DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)

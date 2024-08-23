@@ -17,11 +17,11 @@ from dataclasses import field
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import pytest
+from pydantic import ValidationError
+
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.base import Task
-from pydantic import ValidationError
-
 from tests.unit.conftest import DummyLLM
 
 if TYPE_CHECKING:

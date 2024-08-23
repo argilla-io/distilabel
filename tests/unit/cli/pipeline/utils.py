@@ -15,6 +15,7 @@
 from unittest import mock
 
 import pytest
+
 from distilabel.cli.pipeline.utils import (
     get_config_from_url,
     parse_runtime_parameters,

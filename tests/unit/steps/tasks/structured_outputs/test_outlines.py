@@ -15,13 +15,14 @@
 from typing import Any, Dict, Literal, Type, Union
 
 import pytest
+from pydantic import BaseModel
+
 from distilabel.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
     # StructuredOutputType,
     model_to_schema,
 )
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
-from pydantic import BaseModel
 
 
 class DummyUserTest(BaseModel):

@@ -281,7 +281,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             self._model_name = client.repository
 
         self._aclient = AsyncInferenceClient(
-            model=self.base_url,
+            base_url=self.base_url,
             token=self.api_key.get_secret_value(),
         )
 
