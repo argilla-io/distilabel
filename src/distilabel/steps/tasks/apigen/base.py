@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib.resources as importlib_resources
 import random
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 import orjson
+from jinja2 import Template
+from pydantic import PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.base import Step, StepInput
@@ -26,7 +29,6 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepColumns, StepOutput
 
 
-# TODO: Move these to jinja2 templates
 SYSTEM_PROMPT_API_GEN: str = (
     "You are a data labeler. Your responsibility is to generate a set of diverse queries and corresponding answers for the given functions in JSON format.\n\n"
     "Construct queries and answers that exemplify how to use these functions in a practical scenario. Include in each query specific, plausible values for each parameter. For instance, if the function requires a date, use a typical and reasonable date.\n\n"
@@ -42,24 +44,18 @@ SYSTEM_PROMPT_API_GEN: str = (
     "- Can solve all the requests in the query effectively"
 )
 
-API_GEN_PROMPT: str = (
-    "Here are examples of queries and the corresponding answers for similar functions:\n"
-    "{examples}\n\n"
-    "Note that the query could be interpreted as a combination of several independent requests.\n"
-    "{parallel_queries}"
-    "Based on these examples, generate {number} diverse query and answer pairs for the function `{func_name}`\n"
-    "The detailed function description is the following:\n"
-    "{func_desc}\n"
-    "{format_inst}\n"
-    "Now please generate {number} diverse query and answer pairs following the above format."
-)
-
 
 class APIGenGenerator(Task):
-    """_summary_
+    """Generate queries and answers for the given functions in JSON format.
+
+    The `APIGenGenerator` is inspired by the APIGen pipeline, which was designed to generate
+    verifiable and diverse function-calling datasets. The task generates a set of diverse queries
+    and corresponding answers for the given functions in JSON format.
 
     Input columns:
-        - instructions (`List[str]`): The list of instructions to be scored.
+        - examples (`str`): Examples used as few shots to guide the model.
+        - func_name (`str`): Name for the function to generate.
+        - func_desc (`str`): Description of what the function should do.
 
     Output columns:
         - scores (`List[float]`): The score for each instruction.
@@ -71,6 +67,7 @@ class APIGenGenerator(Task):
 
     References:
         - [APIGen: Automated Pipeline for Generating Verifiable and Diverse Function-Calling Datasets](https://arxiv.org/abs/2406.18518)
+        - [Salesforce/xlam-function-calling-60k](https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k)
 
     Examples:
 
@@ -98,7 +95,6 @@ class APIGenGenerator(Task):
                 [
                     {
                         "examples": 'QUERY:\nWhat is the binary sum of 10010 and 11101?\nANSWER:\n[{"name": "binary_addition", "arguments": {"a": "10010", "b": "11101"}}]',
-                        "number": 2,
                         "func_name": "getrandommovie",
                         "func_desc": "Returns a list of random movies from a database by calling an external API."
                     }
@@ -107,7 +103,7 @@ class APIGenGenerator(Task):
         )
         res
         # [{'examples': 'QUERY:\nWhat is the binary sum of 10010 and 11101?\nANSWER:\n[{"name": "binary_addition", "arguments": {"a": "10010", "b": "11101"}}]',
-        # 'number': 2,
+        # 'number': 1,
         # 'func_name': 'getrandommovie',
         # 'func_desc': 'Returns a list of random movies from a database by calling an external API.',
         # 'queries': ['I want to watch a movie tonight, can you recommend a random one from your database?',
@@ -151,7 +147,6 @@ class APIGenGenerator(Task):
                 [
                     {
                         "examples": 'QUERY:\nWhat is the binary sum of 10010 and 11101?\nANSWER:\n[{"name": "binary_addition", "arguments": {"a": "10010", "b": "11101"}}]',
-                        "number": 2,
                         "func_name": "getrandommovie",
                         "func_desc": "Returns a list of random movies from a database by calling an external API."
                     }
@@ -160,7 +155,7 @@ class APIGenGenerator(Task):
         )
         res_struct
         # [{'examples': 'QUERY:\nWhat is the binary sum of 10010 and 11101?\nANSWER:\n[{"name": "binary_addition", "arguments": {"a": "10010", "b": "11101"}}]',
-        # 'number': 2,
+        # 'number': 1,
         # 'func_name': 'getrandommovie',
         # 'func_desc': 'Returns a list of random movies from a database by calling an external API.',
         # 'queries': ["I'm bored and want to watch a movie. Can you suggest some movies?",
@@ -178,58 +173,114 @@ class APIGenGenerator(Task):
 
     system_prompt: str = SYSTEM_PROMPT_API_GEN
     use_default_structured_output: bool = False
-    is_parallel: Union[bool, List[float]] = False
+    is_parallel: Union[bool, float] = False
     number: Union[int, List[int]] = 1
-    _number: int
 
-    # TODO: Move _get_parallel_queries here to avoid recomputing always on _format_input
-    # def model_post_init(self, __context: Any) -> None:
-    #     return super().model_post_init(__context)
+    _number: Union[int, None] = PrivateAttr(None)
+    _fn_parallel_queries: Union[Callable[[], str], None] = PrivateAttr(None)
+    _fn_format_inst: Union[Callable[[], str], None] = PrivateAttr(None)
 
-    def _get_parallel_queries(self) -> str:
-        parallel_queries_guide = "It can contain multiple parallel queries in natural language for the given functions. They could use either the same function with different arguments or different functions.\n"
-        if isinstance(self.is_parallel, list):
-            return random.choices(
-                [parallel_queries_guide, ""], weights=self.is_parallel
-            )[0]
+    def load(self) -> None:
+        """Loads the template for the generator prompt."""
+        super().load()
+        _path = str(
+            importlib_resources.files("distilabel")
+            / "steps"
+            / "tasks"
+            / "templates"
+            / "apigen"
+            / "generator.jinja2"
+        )
+
+        self._template = Template(open(_path).read())
+
+    def model_post_init(self, __context: Any) -> None:
+        self._fn_parallel_queries = self._set_parallel_queries()
+        self._fn_format_inst = self._set_format_inst()
+
+        return super().model_post_init(__context)
+
+    def _set_parallel_queries(self) -> Callable[[], str]:
+        """Prepares the function to generate update the parallel queries guide in the prompt.
+
+        Raises:
+            ValueError: if `is_parallel` is not a boolean or a list of floats.
+
+        Returns:
+            The function to generate the parallel queries guide.
+        """
+        parallel_queries_guide: str = (
+            "It can contain multiple parallel queries in natural language for the given functions. "
+            "They could use either the same function with different arguments or different functions.\n"
+        )
+        if isinstance(self.is_parallel, float):
+
+            def fn_parallel_queries() -> str:
+                return random.choices(
+                    [parallel_queries_guide, ""],
+                    weights=[self.is_parallel, 1 - self.is_parallel],
+                )[0]
         elif isinstance(self.is_parallel, bool):
-            return parallel_queries_guide if self.is_parallel else ""
-        # TODO: Update to DistilabelUserError
-        raise ValueError("`is_parallel` must be a boolean or a list of floats.")
+            if self.is_parallel:
+
+                def fn_parallel_queries() -> str:
+                    return parallel_queries_guide
+            else:
+
+                def fn_parallel_queries() -> str:
+                    return ""
+        else:
+            # TODO: Update to DistilabelUserError
+            raise ValueError("`is_parallel` must be a boolean or a list of floats.")
+        return fn_parallel_queries
 
     def _get_number(self) -> int:
-        # TODO: Update on the model_post_init
+        """Generates the number of queries to generate in a single call.
+        The number must be set to `_number` to avoid changing the original value
+        when calling `_default_error`.
+        """
         if isinstance(self.number, list):
-            self._numner = random.choice(self.number)
+            self._number = random.choice(self.number)
         else:
             self._number = self.number
         return self._number
 
-    def _get_format_inst(self) -> str:
-        return (
-            (
-                "\nThe output MUST strictly adhere to the following JSON format, and NO other text MUST be included:\n"
-                "```json\n"
-                "[\n"
-                "   {\n"
-                '       "query": "The generated query.",\n'
-                '       "answers": [\n'
-                "           {\n"
-                '               "name": "api_name",\n'
-                '               "arguments": {\n'
-                '                   "arg_name": "value"\n'
-                "                   ... (more arguments as required)\n"
-                "               }\n"
-                "           },\n"
-                "           ... (more API calls as required)\n"
-                "       ]\n"
-                "   }\n"
-                "]\n"
-                "```\n"
-            )
-            if not self.use_default_structured_output
-            else ""
-        )
+    def _set_format_inst(self) -> Callable[[], str]:
+        """Prepares the function to generate the formatted instructions for the prompt.
+
+        If the default structured output is used, returns an empty string because nothing
+        else is needed, otherwise, returns the original addition to the prompt to guide the model
+        to generate a formatted JSON.
+        """
+        if self.use_default_structured_output:
+
+            def fn_format_inst() -> str:
+                return ""
+        else:
+
+            def fn_format_inst() -> str:
+                return (
+                    "\nThe output MUST strictly adhere to the following JSON format, and NO other text MUST be included:\n"
+                    "```json\n"
+                    "[\n"
+                    "   {\n"
+                    '       "query": "The generated query.",\n'
+                    '       "answers": [\n'
+                    "           {\n"
+                    '               "name": "api_name",\n'
+                    '               "arguments": {\n'
+                    '                   "arg_name": "value"\n'
+                    "                   ... (more arguments as required)\n"
+                    "               }\n"
+                    "           },\n"
+                    "           ... (more API calls as required)\n"
+                    "       ]\n"
+                    "   }\n"
+                    "]\n"
+                    "```\n"
+                )
+
+        return fn_format_inst
 
     @property
     def inputs(self) -> "StepColumns":
@@ -246,13 +297,13 @@ class APIGenGenerator(Task):
             {"role": "system", "content": self.system_prompt},
             {
                 "role": "user",
-                "content": API_GEN_PROMPT.format(
+                "content": self._template.render(
                     examples=input["examples"],
-                    parallel_queries=self._get_parallel_queries(),
+                    parallel_queries=self._fn_parallel_queries(),
                     number=self._get_number(),
                     func_name=input["func_name"],
                     func_desc=input["func_desc"],
-                    format_inst=self._get_format_inst(),
+                    format_inst=self._fn_format_inst(),
                 ),
             },
         ]
@@ -281,12 +332,12 @@ class APIGenGenerator(Task):
             value is the corresponding value.
         """
         if output is None:
-            return self._default_error(input)
+            return self._default_error()
 
         try:
             pairs = orjson.loads(output)
         except orjson.JSONDecodeError:
-            return self._default_error(input)
+            return self._default_error()
 
         if self.use_default_structured_output:
             pairs = pairs["pairs"]
@@ -313,9 +364,9 @@ class APIGenGenerator(Task):
             return result
         except Exception as e:
             self._logger.error(f"Error formatting output: {e}")
-            return self._default_error(input)
+            return self._default_error()
 
-    def _default_error(self, input: Dict[str, Any]) -> Dict[str, Any]:
+    def _default_error(self) -> Dict[str, Any]:
         """Returns a default error output, to fill the responses in case of failure."""
         return {
             "queries": [None] * self._number,
@@ -421,6 +472,7 @@ class APIGenTransform(Step):
 
     References:
         - [APIGen: Automated Pipeline for Generating Verifiable and Diverse Function-Calling Datasets](https://arxiv.org/abs/2406.18518)
+        - [Salesforce/xlam-function-calling-60k](https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k)
 
     Examples:
 
