@@ -12,12 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 from typing import Final
 
 # Steps related constants
 DISTILABEL_METADATA_KEY: Final[str] = "distilabel_metadata"
 
-# Pipeline related constants
+# Pipeline cache
+BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
+
+# Pipeline dag related constants
 STEP_ATTR_NAME: Final[str] = "step"
 INPUT_QUEUE_ATTR_NAME: Final[str] = "input_queue"
 RECEIVES_ROUTED_BATCHES_ATTR_NAME: Final[str] = "receives_routed_batches"

@@ -39,6 +39,7 @@ from upath import UPath
 
 from distilabel import __version__
 from distilabel.constants import (
+    BASE_CACHE_DIR,
     CONVERGENCE_STEP_ATTR_NAME,
     INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
@@ -93,9 +94,6 @@ if TYPE_CHECKING:
         batch_input_data: Path
         log_file: Path
         stages_file: Path
-
-
-BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 
 
 class _GlobalPipelineManager:
