@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
 import tblib
 
 from distilabel.distiset import create_distiset
+from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
 from distilabel.pipeline.base import (
     BasePipeline,
 )
@@ -288,9 +289,20 @@ class Pipeline(BasePipeline):
             self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
             return
 
-        # Global step with successors failed
-        self._logger.error(f"An error occurred in global step '{step_name}'")
-        self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
+        if isinstance(
+            e.subprocess_exception, DistilabelOfflineBatchGenerationNotFinishedException
+        ):
+            self._logger.info(
+                f"⏹️ '{e.step.name}' task used an `LLM` with the offline batch generation"
+                " feature and it has stopped the pipeline until the results are ready."
+                " Execute the pipeline again (with the cache enabled) to check if the"
+                " results are ready and continue the pipeline execution."
+            )
+            self._set_step_for_recovering_offline_batch_generation(e.step)
+        else:
+            # Global step with successors failed
+            self._logger.error(f"An error occurred in global step '{step_name}'")
+            self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
 
         self._stop()
 

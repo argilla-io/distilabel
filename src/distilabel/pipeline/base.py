@@ -128,7 +128,7 @@ class _GlobalPipelineManager:
 _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
 
-_ATTRIBUTES_IGNORED_CACHE = ("disable_cuda_device_placement",)
+_ATTRIBUTES_IGNORED_CACHE = ("disable_cuda_device_placement", "jobs_ids")
 _PIPELINE_DEFAULT_NAME = "__default_pipeline_name__"
 
 
@@ -211,6 +211,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._stop_called = False
         self._stop_called_lock = threading.Lock()
         self._stop_calls = 0
+
+        self._recover_offline_batch_generate_for_step = None
 
         self._fs: Optional[fsspec.AbstractFileSystem] = None
         self._storage_base_path: Optional[str] = None
@@ -348,6 +350,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # They are used to generate the signature of the pipeline that is used to hit the
         # cache when the pipeline is run, so it's important to do it first.
         self._set_runtime_parameters(parameters or {})
+
+        self._refresh_pipeline_from_cache()
 
         if dataset is not None:
             self._add_dataset_generator_step(dataset)
@@ -717,6 +721,16 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 [] for _ in range(len(self.dag.get_steps_load_stages()[0]))
             ]
 
+    def _refresh_pipeline_from_cache(self) -> None:
+        """Refresh the DAG (and its steps) from the cache file. This is useful as some
+        `Step`s can update and change their state during the pipeline execution, and this
+        method will make sure the pipeline is up-to-date with the latest changes when
+        the pipeline is reloaded from cache.
+        """
+        # TODO: handle secret runtime parameters suck api keys
+        if self._cache_location["pipeline"].exists():
+            self.dag.G = self.from_yaml(self._cache_location["pipeline"]).dag.G
+
     def _load_batch_manager(self, use_cache: bool = True) -> None:
         """Will try to load the `_BatchManager` from the cache dir if found. Otherwise,
         it will create one from scratch.
@@ -834,7 +848,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             )
             batch.read_batch_data_from_fs()
 
+        print("batch", batch)
         if batch.step_name in self.dag.leaf_steps:
+            print(batch)
             self._write_buffer.add_batch(batch)  # type: ignore
 
         if batch.last_batch:
@@ -847,6 +863,29 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 for step_name in self.dag.get_step_predecessors(batch.step_name):
                     if self._is_step_running(step_name):
                         self._send_last_batch_flag_to_step(step_name)
+
+    def _set_step_for_recovering_offline_batch_generation(self, step: "_Step") -> None:
+        # Replace step so the attribute `jobs_ids` of the `LLM` is not lost, as it was
+        # updated in the child process but not in the main process.
+        step_name: str = step.name  # type: ignore
+        self.dag.set_step_attr(name=step_name, attr=STEP_ATTR_NAME, value=step)
+        self._recover_offline_batch_generate_for_step = step_name
+
+    def _add_batch_for_recovering_offline_batch_generation(self) -> None:
+        """Adds a dummy `_Batch` to the specified step name (it's a `Task` that used an
+        `LLM` with offline batch generation) to recover the pipeline state for offline
+        batch generation in next pipeline executions."""
+        assert self._batch_manager, "Batch manager is not set"
+
+        if self._recover_offline_batch_generate_for_step is None:
+            return
+
+        step_name = self._recover_offline_batch_generate_for_step
+        self._logger.debug(
+            f"Adding batch to '{step_name}' step to recover pipeline execution for offline"
+            " batch generation..."
+        )
+        self._batch_manager.add_batch_to_recover_offline_batch_generation(step_name)
 
     def _register_stages_last_batch(self, batch: "_Batch") -> None:
         """Registers the last batch received from a step in the `_stages_last_batch`
@@ -894,6 +933,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         if required, caching the data and ensuring that all the steps finish its execution."""
         if self._stop_called:
             self._handle_stop()
+
+        self._add_batch_for_recovering_offline_batch_generation()
 
         self._cache()
 

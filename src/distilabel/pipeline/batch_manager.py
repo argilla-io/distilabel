@@ -746,6 +746,14 @@ class _BatchManager(_Serializable):
         step = self._steps[to_step]
         step.add_batch(batch, prepend)
 
+    def add_batch_to_recover_offline_batch_generation(self, to_step: str) -> None:
+        self.add_batch(
+            to_step=to_step,
+            batch=_Batch(seq_no=0, step_name=to_step, last_batch=True, data=[[]]),
+            prepend=True,
+        )
+        self._last_batch_received[to_step] = None
+
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.
 

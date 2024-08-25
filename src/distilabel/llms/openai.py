@@ -421,6 +421,7 @@ class OpenAILLM(AsyncLLM):
                     jobs_ids=self.jobs_ids
                 )
 
+            # TODO: if only one batch job and it failed, then we need to do something else
             if batch.status in ("failed", "expired", "cancelled", "cancelling"):
                 self._logger.warning(  # type: ignore
                     f"Batch '{batch_id}' failed with status '{batch.status}'."
