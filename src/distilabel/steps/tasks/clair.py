@@ -69,10 +69,7 @@ class CLAIR(Task):
                 "max_new_tokens": 4096,
             },
         )
-        clair_task = CLAIR(
-            llm=llm,
-            use_default_structured_output=False,
-        )
+        clair_task = CLAIR(llm=llm)
 
         clair_task.load()
 
