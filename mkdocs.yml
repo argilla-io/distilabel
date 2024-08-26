@@ -136,6 +136,8 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
+          setup_commands:
+            - import sys; sys.path.insert(0, 'src') # API references are built from source
           options:
             show_inheritance_diagram: false
             show_source: true # include source code
@@ -148,7 +150,7 @@ plugins:
             show_symbol_type_heading: true
             show_symbol_type_toc: true
             # Members
-            inherited_members: true # allow looking up inherited methods
+            inherited_members: false # allow looking up inherited methods
             members_order: source # order methods according to their order of definition in the source code, not alphabetical order
             show_labels : true
             # Docstring
