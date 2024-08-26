@@ -17,6 +17,7 @@ import inspect
 import json
 import logging
 import sys
+import time
 from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
@@ -212,8 +213,12 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                     **kwargs,
                 )
             except DistilabelOfflineBatchGenerationNotFinishedException as e:
-                self._logger.info(f"Waiting for the batch generation to finish: {e}")
-                continue
+                self._logger.info(
+                    f"Waiting for the offline batch generation to finish: {e}. Sleeping"
+                    f" for {self.offline_batch_generation_block_until_done} seconds before"
+                    " trying to get the results again."
+                )
+                time.sleep(self.offline_batch_generation_block_until_done)  # type: ignore
 
     @property
     def generate_parameters(self) -> List["inspect.Parameter"]:
