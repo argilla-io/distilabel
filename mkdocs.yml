@@ -222,6 +222,7 @@ nav:
               - Hugging Face: "api/step_gallery/hugging_face.md"
               - Columns: "api/step_gallery/columns.md"
               - Extra: "api/step_gallery/extra.md"
+          - Typing: "api/step/typing.md"
       - Task:
           - "api/task/index.md"
           - GeneratorTask: "api/task/generator_task.md"
