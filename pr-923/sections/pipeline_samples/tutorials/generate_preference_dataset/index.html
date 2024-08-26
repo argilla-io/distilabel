@@ -3150,7 +3150,7 @@
         
   
   <span class="md-ellipsis">
-    Clean an existing dataset
+    Clean an existing preference dataset
   </span>
   
 
@@ -4884,7 +4884,7 @@
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;transformers&amp;gt;=4.0,&amp;lt;5.0&quot;</span> <span class="s2">&quot;torch&amp;gt;=2.0,&amp;lt;3.0&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;transformers~=4.0&quot;</span> <span class="s2">&quot;torch~=2.0&quot;</span>
 </span></code></pre></div>
 
 </div>
@@ -4934,8 +4934,8 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="optional-deploy-argilla">(optional) Deploy Argilla<a class="headerlink" href="#optional-deploy-argilla" title="Permanent link">&para;</a></h3>
-<p>You can skip this step or replace it with any other data evaluation tool, but the quality of your model will suffer from a lack of data quality, so we do recommend looking at your data. If you already have deployed Argilla, you can skip this step. Otherwise, you can quickly deploy Argilla following <a href="https://docs.argilla.io/latest/getting_started/quickstart/">this guide</a>. </p>
-<p>Along with that, you will need to install argilla as distilabel extra.</p>
+<p>You can skip this step or replace it with any other data evaluation tool, but the quality of your model will suffer from a lack of data quality, so we do recommend looking at your data. If you already deployed Argilla, you can skip this step. Otherwise, you can quickly deploy Argilla following <a href="https://docs.argilla.io/latest/getting_started/quickstart/">this guide</a>. </p>
+<p>Along with that, you will need to install Argilla as a distilabel extra.</p>
 </div>
 </div>
 </div>
@@ -4965,7 +4965,8 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="load-the-dataset">Load the dataset<a class="headerlink" href="#load-the-dataset" title="Permanent link">&para;</a></h3>
-<p>We will use as source data the <code>argilla/10Kprompts-mini</code> dataset from the <a href="https://huggingface.co/datasets/argilla/10Kprompts-mini">Hugging Face Hub</a>.</p>
+<p>We will use as source data the <a href="https://huggingface.co/datasets/argilla/10Kprompts-mini"><code>argilla/10Kprompts-mini</code></a> dataset from the Hugging Face Hub.</p>
+<iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/argilla/10Kprompts-mini/embed/viewer/default/train" width="100%"></iframe>
 <ul>
 <li>Component: <code>LoadDataFromHub</code></li>
 <li>Input columns: <code>instruction</code> and <code>topic</code>, the same as in the loaded dataset</li>
@@ -5005,7 +5006,7 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="generate-responses">Generate responses<a class="headerlink" href="#generate-responses" title="Permanent link">&para;</a></h3>
-<p>We need to generate the responses for the given instructions. We will use two different models available in the Hugging Face Hub through the Serverless Inference API: <a href="https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"><code>meta-llama/Meta-Llama-3-8B-Instruct</code></a> and <a href="https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1"><code>mistralai/Mixtral-8x7B-Instruct-v0.1</code></a>. We will also indicate the generation parameters for each model.</p>
+<p>We need to generate the responses for the given instructions. We will use two different models available on the Hugging Face Hub through the Serverless Inference API: <a href="https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"><code>meta-llama/Meta-Llama-3-8B-Instruct</code></a> and <a href="https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1"><code>mistralai/Mixtral-8x7B-Instruct-v0.1</code></a>. We will also indicate the generation parameters for each model.</p>
 <ul>
 <li>Component: <code>TextGeneration</code> task with LLMs using <code>InferenceEndpointsLLM</code></li>
 <li>Input columns: <code>instruction</code></li>
@@ -5322,7 +5323,11 @@
 </span><span id="__span-11-43"><a id="__codelineno-11-43" name="__codelineno-11-43" href="#__codelineno-11-43"></a>        <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span>
 </span><span id="__span-11-44"><a id="__codelineno-11-44" name="__codelineno-11-44" href="#__codelineno-11-44"></a>    <span class="p">)</span>
 </span><span id="__span-11-45"><a id="__codelineno-11-45" name="__codelineno-11-45" href="#__codelineno-11-45"></a>
-</span><span id="__span-11-46"><a id="__codelineno-11-46" name="__codelineno-11-46" href="#__codelineno-11-46"></a>    <span class="n">load_dataset</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">generate_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">group_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">evaluate_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">[</span><span class="n">format_dpo</span><span class="p">,</span> <span class="n">to_argilla</span><span class="p">]</span>
+</span><span id="__span-11-46"><a id="__codelineno-11-46" name="__codelineno-11-46" href="#__codelineno-11-46"></a>    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">generate_responses</span><span class="p">:</span>
+</span><span id="__span-11-47"><a id="__codelineno-11-47" name="__codelineno-11-47" href="#__codelineno-11-47"></a>        <span class="n">load_dataset</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-11-48"><a id="__codelineno-11-48" name="__codelineno-11-48" href="#__codelineno-11-48"></a>        <span class="n">task</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">group_responses</span><span class="p">)</span>
+</span><span id="__span-11-49"><a id="__codelineno-11-49" name="__codelineno-11-49" href="#__codelineno-11-49"></a>    <span class="n">group_responses</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">evaluate_responses</span><span class="p">)</span>
+</span><span id="__span-11-50"><a id="__codelineno-11-50" name="__codelineno-11-50" href="#__codelineno-11-50"></a>    <span class="n">evaluate_responses</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">format_dpo</span><span class="p">,</span> <span class="n">to_argilla</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -5485,13 +5490,13 @@
         
         
           
-          <a href="../clean_existing_dataset/" class="md-footer__link md-footer__link--next" aria-label="Next: Clean an existing dataset">
+          <a href="../clean_existing_dataset/" class="md-footer__link md-footer__link--next" aria-label="Next: Clean an existing preference dataset">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Clean an existing dataset
+                Clean an existing preference dataset
               </div>
             </div>
             <div class="md-footer__button md-icon">

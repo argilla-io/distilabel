@@ -26,7 +26,7 @@
     
     
       
-        <title>Clean an existing dataset - Distilabel Docs</title>
+        <title>Clean an existing preference dataset - Distilabel Docs</title>
       
     
     
@@ -81,7 +81,7 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Clean an existing dataset - Distilabel Docs" >
+        <meta  property="og:title"  content="Clean an existing preference dataset - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
@@ -97,7 +97,7 @@
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Clean an existing dataset - Distilabel Docs" >
+        <meta  name="twitter:title"  content="Clean an existing preference dataset - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
@@ -161,7 +161,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Clean an existing dataset
+              Clean an existing preference dataset
             
           </span>
         </div>
@@ -3008,7 +3008,7 @@
           
   
   <span class="md-ellipsis">
-    Clean an existing dataset
+    Clean an existing preference dataset
   </span>
   
 
@@ -3019,7 +3019,7 @@
         
   
   <span class="md-ellipsis">
-    Clean an existing dataset
+    Clean an existing preference dataset
   </span>
   
 
@@ -3074,9 +3074,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#load-the-dataset" class="md-nav__link">
+  <a href="#the-dataset" class="md-nav__link">
     <span class="md-ellipsis">
-      Load the dataset
+      The dataset
     </span>
   </a>
   
@@ -3093,7 +3093,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#load-the-dataset_1" class="md-nav__link">
+  <a href="#load-the-dataset" class="md-nav__link">
     <span class="md-ellipsis">
       Load the dataset
     </span>
@@ -4710,9 +4710,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#load-the-dataset" class="md-nav__link">
+  <a href="#the-dataset" class="md-nav__link">
     <span class="md-ellipsis">
-      Load the dataset
+      The dataset
     </span>
   </a>
   
@@ -4729,7 +4729,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#load-the-dataset_1" class="md-nav__link">
+  <a href="#load-the-dataset" class="md-nav__link">
     <span class="md-ellipsis">
       Load the dataset
     </span>
@@ -4884,7 +4884,7 @@
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;transformers&amp;gt;=4.0,&amp;lt;5.0&quot;</span> <span class="s2">&quot;torch&amp;gt;=2.0,&amp;lt;3.0&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;transformers~=4.0&quot;</span> <span class="s2">&quot;torch~=2.0&quot;</span>
 </span></code></pre></div>
 
 </div>
@@ -4937,8 +4937,8 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="optional-deploy-argilla">(optional) Deploy Argilla<a class="headerlink" href="#optional-deploy-argilla" title="Permanent link">&para;</a></h3>
-<p>You can skip this step or replace it with any other data evaluation tool, but the quality of your model will suffer from a lack of data quality, so we do recommend looking at your data. If you already have deployed Argilla, you can skip this step. Otherwise, you can quickly deploy Argilla following <a href="https://docs.argilla.io/latest/getting_started/quickstart/">this guide</a>. </p>
-<p>Along with that, you will need to install argilla as distilabel extra.</p>
+<p>You can skip this step or replace it with any other data evaluation tool, but the quality of your model will suffer from a lack of data quality, so we do recommend looking at your data. If you already deployed Argilla, you can skip this step. Otherwise, you can quickly deploy Argilla following <a href="https://docs.argilla.io/latest/getting_started/quickstart/">this guide</a>. </p>
+<p>Along with that, you will need to install Argilla as a distilabel extra.</p>
 </div>
 </div>
 </div>
@@ -4953,14 +4953,14 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="load-the-dataset">Load the dataset<a class="headerlink" href="#load-the-dataset" title="Permanent link">&para;</a></h2>
+<h2 id="the-dataset">The dataset<a class="headerlink" href="#the-dataset" title="Permanent link">&para;</a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In this case, we will clean a preference dataset, so we will use the <code>Intel/orca_dpo_pairs</code> dataset from the <a href="https://huggingface.co/datasets/Intel/orca_dpo_pairs">Hugging Face Hub</a>.</p>
+<p>In this case, we will clean a preference dataset, so we will use the <a href="https://huggingface.co/datasets/Intel/orca_dpo_pairs"><code>Intel/orca_dpo_pairs</code></a> dataset from the Hugging Face Hub.</p>
 </div>
 </div>
 </div>
@@ -5024,26 +5024,29 @@
 </span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
 </span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">class</span> <span class="nc">ShuffleStep</span><span class="p">(</span><span class="n">GlobalStep</span><span class="p">):</span>
 </span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="nd">@property</span>
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">,</span> <span class="s2">&quot;chosen&quot;</span><span class="p">,</span> <span class="s2">&quot;rejected&quot;</span><span class="p">]</span>
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    <span class="nd">@property</span>
-</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">,</span> <span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">]</span>
-</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>
-</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="s2">&quot;StepOutput&quot;</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
-</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>
-</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
-</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>            <span class="n">chosen</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;chosen&quot;</span><span class="p">]</span>
-</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>            <span class="n">rejected</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;rejected&quot;</span><span class="p">]</span>
-</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>            <span class="n">pair</span> <span class="o">=</span> <span class="p">[</span><span class="n">chosen</span><span class="p">,</span> <span class="n">rejected</span><span class="p">]</span>
-</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>            <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
-</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>            <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;chosen&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">chosen</span> <span class="k">else</span> <span class="s2">&quot;rejected&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">]</span>
-</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>
-</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">pair</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="n">order</span><span class="p">})</span>
-</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>
-</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>        <span class="k">yield</span> <span class="n">outputs</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns List[str]: The inputs of the step.&quot;&quot;&quot;</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">,</span> <span class="s2">&quot;chosen&quot;</span><span class="p">,</span> <span class="s2">&quot;rejected&quot;</span><span class="p">]</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="nd">@property</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns List[str]: The outputs of the step.&quot;&quot;&quot;</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">,</span> <span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">]</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">):</span>
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns StepOutput: The outputs of the step.&quot;&quot;&quot;</span>
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>
+</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>            <span class="n">chosen</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;chosen&quot;</span><span class="p">]</span>
+</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>            <span class="n">rejected</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;rejected&quot;</span><span class="p">]</span>
+</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>            <span class="n">pair</span> <span class="o">=</span> <span class="p">[</span><span class="n">chosen</span><span class="p">,</span> <span class="n">rejected</span><span class="p">]</span>
+</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>            <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>            <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;chosen&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">chosen</span> <span class="k">else</span> <span class="s2">&quot;rejected&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">]</span>
+</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>
+</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">pair</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="n">order</span><span class="p">})</span>
+</span><span id="__span-8-32"><a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>
+</span><span id="__span-8-33"><a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a>        <span class="k">yield</span> <span class="n">outputs</span>
 </span></code></pre></div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span> <span class="nn">shuffle_step</span> <span class="kn">import</span> <span class="n">ShuffleStep</span>
 </span></code></pre></div>
@@ -5068,7 +5071,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="load-the-dataset_1">Load the dataset<a class="headerlink" href="#load-the-dataset_1" title="Permanent link">&para;</a></h3>
+<h3 id="load-the-dataset">Load the dataset<a class="headerlink" href="#load-the-dataset" title="Permanent link">&para;</a></h3>
 <p>We will use the dataset we just shuffled as source data.</p>
 <ul>
 <li>Component: <code>LoadDataFromDicts</code></li>
@@ -5311,7 +5314,9 @@
 </span><span id="__span-14-32"><a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a>        <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 </span><span id="__span-14-33"><a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a>    <span class="p">)</span>
 </span><span id="__span-14-34"><a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a>
-</span><span id="__span-14-35"><a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>    <span class="n">load_dataset</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">evaluate_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">keep_columns</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">to_argilla</span>
+</span><span id="__span-14-35"><a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>    <span class="n">load_dataset</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">evaluate_responses</span><span class="p">)</span>
+</span><span id="__span-14-36"><a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a>    <span class="n">evaluate_responses</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">keep_columns</span><span class="p">)</span>
+</span><span id="__span-14-37"><a id="__codelineno-14-37" name="__codelineno-14-37" href="#__codelineno-14-37"></a>    <span class="n">keep_columns</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">to_argilla</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -5423,7 +5428,7 @@
               
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Clean%20an%20existing%20dataset+-+/sections/pipeline_samples/tutorials/clean_existing_dataset/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Clean%20an%20existing%20preference%20dataset+-+/sections/pipeline_samples/tutorials/clean_existing_dataset/" target="_blank" rel="noopener">opening a GitHub issue</a>.
             </div>
           
         </div>
