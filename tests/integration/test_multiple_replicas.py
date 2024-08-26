@@ -17,6 +17,7 @@ import time
 from typing import TYPE_CHECKING
 
 import pytest
+
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts, StepInput, StepResources, step
 
