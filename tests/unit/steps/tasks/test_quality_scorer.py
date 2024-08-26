@@ -18,14 +18,14 @@ import pytest
 
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.quality_scorer import QualityScorer
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import DummyAsyncLLM
 
 
 class TestQualityScorer:
     def test_format_input(self) -> None:
         task = QualityScorer(
             name="quality_scorer",
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -81,7 +81,8 @@ class TestQualityScorer:
         expected: Dict[str, Any],
     ) -> None:
         task = QualityScorer(
-            llm=DummyLLM(), use_default_structured_output=use_default_structured_output
+            llm=DummyAsyncLLM(),
+            use_default_structured_output=use_default_structured_output,
         )
         task.load()
 

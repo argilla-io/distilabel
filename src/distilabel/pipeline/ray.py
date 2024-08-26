@@ -15,8 +15,9 @@
 import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
-from distilabel.constants import INPUT_QUEUE_ATTR_NAME
+from distilabel.constants import INPUT_QUEUE_ATTR_NAME, STEP_ATTR_NAME
 from distilabel.distiset import create_distiset
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.base import BasePipeline
 from distilabel.pipeline.step_wrapper import _StepWrapper
@@ -110,6 +111,8 @@ class RayPipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
+        self._check_no_llms_using_offline_batch_generation()
+
         self._init_ray()
 
         self._log_queue = self.QueueClass(
@@ -159,6 +162,21 @@ class RayPipeline(BasePipeline):
         stop_logging()
 
         return distiset
+
+    def _check_no_llms_using_offline_batch_generation(self) -> None:
+        """Checks if there are any `LLM` steps using the `offline_batch_generate` method
+        and raises an exception if so. This method is not supported in the Ray pipeline."""
+        for step_name in self.dag:
+            step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+            if not hasattr(step, "llm"):
+                continue
+            if step.llm.use_offline_batch_generation:  # type: ignore
+                raise DistilabelUserError(
+                    f"Step '{step_name}' uses an `LLM` with offline batch generation because"
+                    "`use_offline_batch_generation=True`. `LLM`s using this method are not"
+                    " supported in the Ray pipeline.",
+                    page="sections/how_to_guides/advanced/offline-batch-generation",
+                )
 
     def _init_ray(self) -> None:
         """Inits or connects to a Ray cluster."""

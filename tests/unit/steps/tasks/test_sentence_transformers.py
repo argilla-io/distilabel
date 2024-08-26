@@ -24,7 +24,7 @@ from distilabel.steps.tasks.sentence_transformers import (
     GenerateSentencePair,
     GenerationAction,
 )
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import DummyAsyncLLM
 
 # from distilabel.llms.base import LLM, AsyncLLM
 
@@ -172,7 +172,10 @@ class TestGenerateSentencePair:
         system_prompt: str,
     ) -> None:
         task = GenerateSentencePair(
-            llm=DummyLLM(), action=action, triplet=triplet, hard_negative=hard_negative
+            llm=DummyAsyncLLM(),
+            action=action,
+            triplet=triplet,
+            hard_negative=hard_negative,
         )
         task.load()
         content = "## Anchor\n\nThis is a unit test\n"
@@ -307,7 +310,7 @@ class TestGenerateSentencePair:
     ) -> None:
         context = "This is your context."
         task = GenerateSentencePair(
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             action=action,
             triplet=triplet,
             context=context,
@@ -391,7 +394,7 @@ class TestGenerateSentencePair:
         expected: Dict[str, Any],
     ) -> None:
         task = GenerateSentencePair(
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             action="paraphrase",
             triplet=triplet,
             use_default_structured_output=use_default_structured_output,

@@ -16,11 +16,13 @@ from typing import Generator
 
 import pytest
 
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.ray import RayPipeline
 from distilabel.steps.base import StepResources
 from distilabel.steps.tasks.text_generation import TextGeneration
 from distilabel.utils.serialization import TYPE_INFO_KEY
+from tests.unit.conftest import DummyAsyncLLM, DummyTaskOfflineBatchGeneration
 
 
 @pytest.fixture
@@ -55,6 +57,18 @@ class TestRayPipeline:
             "module": "distilabel.pipeline.local",
             "name": "Pipeline",
         }
+
+    def test_check_no_llms_using_offline_batch_generation(self) -> None:
+        with RayPipeline(name="unit-test") as pipeline:
+            DummyTaskOfflineBatchGeneration(
+                name="unit-test", llm=DummyAsyncLLM(use_offline_batch_generation=True)
+            )
+
+        with pytest.raises(
+            DistilabelUserError,
+            match="Step 'unit-test' uses an `LLM` with offline batch generation",
+        ):
+            pipeline._check_no_llms_using_offline_batch_generation()
 
     def test_get_ray_gpus_per_node(self) -> None:
         pipeline = RayPipeline(name="unit-test")

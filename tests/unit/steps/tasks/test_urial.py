@@ -15,12 +15,12 @@
 import pytest
 
 from distilabel.steps.tasks.urial import URIAL
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import DummyAsyncLLM
 
 
 class TestURIAL:
     def test_format_input(self) -> None:
-        task = URIAL(llm=DummyLLM())
+        task = URIAL(llm=DummyAsyncLLM())
         task.load()
         assert task.format_input({"instruction": "test"}) == [
             {
@@ -30,7 +30,7 @@ class TestURIAL:
         ]
 
     def test_format_input_with_conversation(self) -> None:
-        task = URIAL(llm=DummyLLM())
+        task = URIAL(llm=DummyAsyncLLM())
         task.load()
         assert task.format_input(
             {
@@ -48,7 +48,7 @@ class TestURIAL:
         ]
 
     def test_format_input_raise_valueerror(self) -> None:
-        task = URIAL(llm=DummyLLM())
+        task = URIAL(llm=DummyAsyncLLM())
         task.load()
 
         with pytest.raises(ValueError, match="The last message must be from the user."):
@@ -62,7 +62,7 @@ class TestURIAL:
             )
 
     def test_format_output(self) -> None:
-        task = URIAL(llm=DummyLLM())
+        task = URIAL(llm=DummyAsyncLLM())
         task.load()
 
         assert task.format_output(

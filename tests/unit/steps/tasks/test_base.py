@@ -14,7 +14,7 @@
 
 import sys
 from dataclasses import field
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import pytest
 from pydantic import ValidationError
@@ -22,38 +22,17 @@ from pydantic import ValidationError
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.base import Task
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import (
+    DummyAsyncLLM,
+    DummyTask,
+    DummyTaskOfflineBatchGeneration,
+)
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    pass
 
 
-class DummyTask(Task):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction", "additional_info"]
-
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        return [
-            {"role": "system", "content": ""},
-            {"role": "user", "content": input["instruction"]},
-        ]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["output", "info_from_input"]
-
-    def format_output(
-        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
-    ) -> Dict[str, Any]:
-        return {"output": output, "info_from_input": input["additional_info"]}  # type: ignore
-
-
-class DummyTaskOfflineBatchGeneration(DummyTask):
-    _can_be_used_with_offline_batch_generation = True
-
-
-class DummyRuntimeLLM(DummyLLM):
+class DummyRuntimeLLM(DummyAsyncLLM):
     runtime_parameter: RuntimeParameter[int]
     runtime_parameter_optional: Optional[RuntimeParameter[int]] = field(default=None)
 
@@ -61,17 +40,17 @@ class DummyRuntimeLLM(DummyLLM):
 class TestTask:
     def test_model_post_init_raise_valuerror_use_offline_batch_generation(self) -> None:
         with pytest.raises(ValueError, match="`DummyTask` task cannot be used"):
-            DummyTask(llm=DummyLLM(use_offline_batch_generation=True))
+            DummyTask(llm=DummyAsyncLLM(use_offline_batch_generation=True))
 
     def test_is_global_with_offline_batch_generation(self) -> None:
         task = DummyTaskOfflineBatchGeneration(
-            llm=DummyLLM(use_offline_batch_generation=True)
+            llm=DummyAsyncLLM(use_offline_batch_generation=True)
         )
         assert task.is_global is True
 
     def test_passing_pipeline(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.name == "task"
         assert task.llm is llm
@@ -81,14 +60,14 @@ class TestTask:
 
     def test_within_pipeline_context(self) -> None:
         with Pipeline(name="unit-test-pipeline") as pipeline:
-            llm = DummyLLM()
+            llm = DummyAsyncLLM()
             task = DummyTask(name="task", llm=llm, pipeline=pipeline)
             assert task.name == "task"
             assert task.llm is llm
         assert task.pipeline == pipeline
 
     def test_with_errors(self, caplog: pytest.LogCaptureFixture) -> None:
-        DummyTask(name="task", llm=DummyLLM())
+        DummyTask(name="task", llm=DummyAsyncLLM())
         assert "Step 'task' hasn't received a pipeline" in caplog.text
 
         with pytest.raises(
@@ -102,7 +81,7 @@ class TestTask:
             if sys.version_info < (3, 12)
             else "Can't instantiate abstract class Task without an implementation for abstract methods 'format_input', 'format_output'",
         ):
-            Task(name="task", llm=DummyLLM())  # type: ignore
+            Task(name="task", llm=DummyAsyncLLM())  # type: ignore
 
     @pytest.mark.parametrize(
         "input, group_generations, expected",
@@ -421,7 +400,7 @@ class TestTask:
         expected: List[Dict[str, Any]],
     ) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = DummyTask(
             name="task",
             llm=llm,
@@ -485,7 +464,7 @@ class TestTask:
 
     def test_serialization(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.dump() == {
             "name": "task",
@@ -605,7 +584,7 @@ class TestTask:
         self, add_raw_output: bool, add_raw_input: bool
     ) -> None:
         task = DummyTask(
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             add_raw_output=add_raw_output,
             add_raw_input=add_raw_input,
         )

@@ -27,7 +27,7 @@ from pydantic import ValidationError
 
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.prometheus_eval import _DEFAULT_RUBRICS, PrometheusEval
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import DummyAsyncLLM
 
 
 def load_template(template: str) -> Template:
@@ -131,7 +131,7 @@ class TestPrometheusAbsEval:
             mode=mode,  # type: ignore
             rubric=rubric,  # type: ignore
             reference=reference,
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -150,7 +150,7 @@ class TestPrometheusAbsEval:
             mode="absolute",
             rubric="helpfulness",
             reference=True,
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -164,7 +164,7 @@ class TestPrometheusAbsEval:
             mode="absolute",
             rubric="helpfulness",
             reference=False,
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -181,7 +181,7 @@ class TestPrometheusAbsEval:
             mode="relative",
             rubric="helpfulness",
             reference=False,
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -258,7 +258,7 @@ class TestPrometheusAbsEval:
             mode=mode,  # type: ignore
             rubric="factual-validity",
             reference=False,
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -278,7 +278,7 @@ class TestPrometheusAbsEval:
                 "custom": "[A]\nScore 1: A\nScore 2: B\nScore 3: C\nScore 4: D\nScore 5: E"
             },
             reference=False,
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
 
@@ -294,7 +294,7 @@ class TestPrometheusAbsEval:
                 rubric="custom",
                 rubrics={},
                 reference=False,
-                llm=DummyLLM(),
+                llm=DummyAsyncLLM(),
                 pipeline=Pipeline(name="unit-test-pipeline"),
             )
         with pytest.raises(
@@ -307,7 +307,7 @@ class TestPrometheusAbsEval:
                 rubric="custom",
                 rubrics={"custom": 1},
                 reference=False,
-                llm=DummyLLM(),
+                llm=DummyAsyncLLM(),
                 pipeline=Pipeline(name="unit-test-pipeline"),
             )
         # 2. `rubrics` is not compliant with the pre-defined schema
@@ -321,7 +321,7 @@ class TestPrometheusAbsEval:
                 rubric="custom",
                 rubrics={"custom": "wrong schema"},
                 reference=False,
-                llm=DummyLLM(),
+                llm=DummyAsyncLLM(),
                 pipeline=Pipeline(name="unit-test-pipeline"),
             )
         # 3. `rubric` is not available in `rubrics`
@@ -337,6 +337,6 @@ class TestPrometheusAbsEval:
                     "custom": "[A]\nScore 1: A\nScore 2: B\nScore 3: C\nScore 4: D\nScore 5: E"
                 },
                 reference=False,
-                llm=DummyLLM(),
+                llm=DummyAsyncLLM(),
                 pipeline=Pipeline(name="unit-test-pipeline"),
             )

@@ -14,14 +14,14 @@
 
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.self_instruct import SelfInstruct
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import DummyAsyncLLM
 
 
 class TestSelfInstruct:
     def test_format_input(self) -> None:
         task = SelfInstruct(
             name="self_instruct",
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -37,7 +37,7 @@ class TestSelfInstruct:
     def test_format_output(self) -> None:
         task = SelfInstruct(
             name="self_instruct",
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
