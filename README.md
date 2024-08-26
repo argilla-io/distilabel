@@ -94,16 +94,16 @@ In addition, the following extras are available:
 
 ### Example
 
-To run the following example you must install `distilabel` with both `openai` extra:
+To run the following example you must install `distilabel` with the `hf-inference-endpoints` extra:
 
 ```sh
-pip install "distilabel[openai]" --upgrade
+pip install "distilabel[hf-inference-endpoints]" --upgrade
 ```
 
 Then run:
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.llms import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
@@ -114,9 +114,14 @@ with Pipeline(
 ) as pipeline:
     load_dataset = LoadDataFromHub(output_mappings={"prompt": "instruction"})
 
-    generate_with_openai = TextGeneration(llm=OpenAILLM(model="gpt-3.5-turbo"))
+    text_generation = TextGeneration(
+        llm=InferenceEndpointsLLM(
+            model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+            tokenizer_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+        ),
+    )
 
-    load_dataset >> generate_with_openai
+    load_dataset >> text_generation
 
 if __name__ == "__main__":
     distiset = pipeline.run(
@@ -125,7 +130,7 @@ if __name__ == "__main__":
                 "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
                 "split": "test",
             },
-            generate_with_openai.name: {
+            text_generation.name: {
                 "llm": {
                     "generation_kwargs": {
                         "temperature": 0.7,
@@ -135,6 +140,7 @@ if __name__ == "__main__":
             },
         },
     )
+    distiset.push_to_hub(repo_id="distilabel-example")
 ```
 
 ## Badges
