@@ -15,6 +15,7 @@
 from typing import Optional
 
 import pytest
+
 from distilabel.steps.truncate import TruncateTextColumn
 
 

@@ -15,6 +15,7 @@
 from typing import Any, Dict, List, Union
 
 import pytest
+
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.steps.tasks.typing import ChatType
