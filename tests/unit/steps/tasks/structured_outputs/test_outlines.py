@@ -35,6 +35,9 @@ DUMP_JSON = {
     "cuda_devices": "auto",
     "generation_kwargs": {},
     "magpie_pre_query_template": None,
+    "jobs_ids": None,
+    "offline_batch_generation_block_until_done": None,
+    "use_offline_batch_generation": False,
     "structured_output": {
         "format": "json",
         "schema": {
@@ -71,6 +74,9 @@ DUMP_REGEX = {
     "cuda_devices": "auto",
     "generation_kwargs": {},
     "magpie_pre_query_template": None,
+    "jobs_ids": None,
+    "offline_batch_generation_block_until_done": None,
+    "use_offline_batch_generation": False,
     "structured_output": {
         "format": "regex",
         "schema": "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)",

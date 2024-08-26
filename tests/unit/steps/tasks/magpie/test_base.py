@@ -399,6 +399,9 @@ class TestMagpie:
                 "use_magpie_template": True,
                 "magpie_pre_query_template": "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n",
                 "generation_kwargs": {},
+                "jobs_ids": None,
+                "offline_batch_generation_block_until_done": None,
+                "use_offline_batch_generation": False,
                 "type_info": {
                     "module": "tests.unit.conftest",
                     "name": "DummyMagpieLLM",
@@ -433,7 +436,21 @@ class TestMagpie:
                             "name": "generation_kwargs",
                             "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
                             "keys": [{"name": "kwargs", "optional": False}],
-                        }
+                        },
+                        {
+                            "description": "Whether to use the `offline_batch_generate` method to "
+                            "generate the responses.",
+                            "name": "use_offline_batch_generation",
+                            "optional": True,
+                        },
+                        {
+                            "description": "If provided, then polling will be done until the "
+                            "`ofline_batch_generate` method is able to retrieve the "
+                            "results. The value indicate the time to wait between each "
+                            "polling.",
+                            "name": "offline_batch_generation_block_until_done",
+                            "optional": True,
+                        },
                     ],
                 },
                 {
