@@ -144,7 +144,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="absolute",
             rubric="factual-validity"
@@ -181,7 +181,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="relative",
             rubric="honesty"
@@ -218,12 +218,12 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="absolute",
             rubric="custom",
             rubrics={
-                "custom": "[A]\nScore 1: A\nScore 2: B\nScore 3: C\nScore 4: D\nScore 5: E"
+                "custom": "[A]\\nScore 1: A\\nScore 2: B\\nScore 3: C\\nScore 4: D\\nScore 5: E"
             }
         )
 
@@ -258,7 +258,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="absolute",
             rubric="helpfulness",
