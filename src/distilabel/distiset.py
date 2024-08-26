@@ -379,17 +379,17 @@ class Distiset(dict):
         Examples:
             ```python
             # Save your distiset in a local folder:
-            >>> distiset.save_to_disk(distiset_path="my-distiset")
+            distiset.save_to_disk(distiset_path="my-distiset")
             # Save your distiset in a remote storage:
-            >>> storage_options = {
-            ...     "key": os.environ["S3_ACCESS_KEY"],
-            ...     "secret": os.environ["S3_SECRET_KEY"],
-            ...     "client_kwargs": {
-            ...         "endpoint_url": os.environ["S3_ENDPOINT_URL"],
-            ...         "region_name": os.environ["S3_REGION"],
-            ...     },
-            ... }
-            >>> distiset.save_to_disk(distiset_path="my-distiset", storage_options=storage_options)
+            storage_options = {
+                "key": os.environ["S3_ACCESS_KEY"],
+                "secret": os.environ["S3_SECRET_KEY"],
+                "client_kwargs": {
+                    "endpoint_url": os.environ["S3_ENDPOINT_URL"],
+                    "region_name": os.environ["S3_REGION"],
+                },
+            }
+            distiset.save_to_disk(distiset_path="my-distiset", storage_options=storage_options)
             ```
         """
         distiset_path = str(distiset_path)
@@ -606,10 +606,9 @@ def create_distiset(  # noqa: C901
         correspond to different configurations of the dataset.
 
     Examples:
-
         ```python
-        >>> from pathlib import Path
-        >>> distiset = create_distiset(Path.home() / ".cache/distilabel/pipelines/path-to-pipe-hashname")
+        from pathlib import Path
+        distiset = create_distiset(Path.home() / ".cache/distilabel/pipelines/path-to-pipe-hashname")
         ```
     """
     from distilabel.constants import DISTILABEL_METADATA_KEY
