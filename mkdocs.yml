@@ -22,8 +22,8 @@ extra:
     - icon: fontawesome/brands/discord
       link: http://hf.co/join/discord
   analytics:
-    provider: google
-    property: G-PPKL7LMWCE
+    provider: plausible
+    domain: distilabel.argilla.io
     feedback:
       title: Was this page helpful?
       ratings:
@@ -151,6 +151,7 @@ plugins:
             heading_level: 4
   - social
   - mknotebooks
+  - material-plausible
   - distilabel/components-gallery:
       add_after_page: How-to guides
 
