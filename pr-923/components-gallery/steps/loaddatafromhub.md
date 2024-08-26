@@ -36,6 +36,8 @@ Loads a dataset from the Hugging Face Hub.
 
 - **config**: The configuration of the dataset to load. This is optional and only  needed if the dataset has multiple configurations.
 
+- **revision**: The revision of the dataset to load. Defaults to the latest revision.
+
 - **streaming**: Whether to load the dataset in streaming mode or not. Defaults to  `False`.
 
 - **num_examples**: The number of examples to load from the dataset.  By default will load all examples.
