@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
-from distilabel.errors import DistilabelUserError
+from distilabel.errors import DistilabelNotImplementedError, DistilabelUserError
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
@@ -107,7 +107,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         " each polling.",
     )
 
-    jobs_ids: Union[Tuple[str], None] = Field(default=None)
+    jobs_ids: Union[Tuple[str, ...], None] = Field(default=None)
     _logger: "Logger" = PrivateAttr(None)
 
     def load(self) -> None:
@@ -307,6 +307,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             A list containing the last hidden state for each sequence using a NumPy array
                 with shape [num_tokens, hidden_size].
         """
+        # TODO: update to use `DistilabelNotImplementedError`
         raise NotImplementedError(
             f"Method `get_last_hidden_states` is not implemented for `{self.__class__.__name__}`"
         )
@@ -325,6 +326,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         Returns:
             The structure to be used for the guided generation.
         """
+        # TODO: update to use `DistilabelNotImplementedError`
         raise NotImplementedError(
             f"Guided generation is not implemented for `{type(self).__name__}`"
         )
@@ -341,7 +343,9 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         This method should create jobs the first time is called and store the job ids, so
         the second and subsequent calls can retrieve the results of the batch generation.
         If subsequent calls are made before the batch generation is finished, then the method
-        should raise a `DistilabelOfflineBatchGenerationNotFinishedException`.
+        should raise a `DistilabelOfflineBatchGenerationNotFinishedException`. This exception
+        will be handled automatically by the `Pipeline` which will store all the required
+        information for recovering the pipeline execution when the batch generation is finished.
 
         Args:
             inputs: the list of inputs to generate responses for.
@@ -351,8 +355,9 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         Returns:
             A list containing the generations for each input.
         """
-        raise NotImplementedError(
-            f"`offline_batch_generate` is not implemented for `{self.__class__.__name__}`"
+        raise DistilabelNotImplementedError(
+            f"`offline_batch_generate` is not implemented for `{self.__class__.__name__}`",
+            page="sections/how_to_guides/advanced/offline-batch-generation/",
         )
 
 

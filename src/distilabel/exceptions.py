@@ -33,7 +33,7 @@ class DistilabelOfflineBatchGenerationNotFinishedException(
 ):
     """Exception raised when a batch generation is not finished."""
 
-    jobs_ids: Tuple[str]
+    jobs_ids: Tuple[str, ...]
 
     def __init__(self, jobs_ids: Tuple[str]) -> None:
         self.jobs_ids = jobs_ids

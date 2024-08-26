@@ -389,6 +389,7 @@ class OpenAILLM(AsyncLLM):
                     "temperature": temperature,
                     "top_p": top_p,
                     "stop": stop,
+                    "response_format": response_format,
                 },
             )
             raise DistilabelOfflineBatchGenerationNotFinishedException(
@@ -408,6 +409,7 @@ class OpenAILLM(AsyncLLM):
             ValueError: if no job IDs were found to retrieve the results from.
             DistilabelOfflineBatchGenerationNotFinishedException: if the batch generation
                 is not finished yet.
+            RuntimeError: if the only batch job found failed.
         """
         if not self.jobs_ids:
             raise ValueError("No job IDs were found to retrieve the results from.")
@@ -421,11 +423,16 @@ class OpenAILLM(AsyncLLM):
                     jobs_ids=self.jobs_ids
                 )
 
-            # TODO: if only one batch job and it failed, then we need to do something else
             if batch.status in ("failed", "expired", "cancelled", "cancelling"):
-                self._logger.warning(  # type: ignore
-                    f"Batch '{batch_id}' failed with status '{batch.status}'."
+                self._logger.error(  # type: ignore
+                    f"OpenAI API batch with ID '{batch_id}' failed with status '{batch.status}'."
                 )
+                if len(self.jobs_ids) == 1:
+                    raise RuntimeError(
+                        f"The only OpenAI API Batch that was created with ID '{batch_id}'"
+                        f" failed with status '{batch.status}'."
+                    )
+
                 continue
 
             outputs.extend(self._retrieve_batch_results(batch))
@@ -465,7 +472,8 @@ class OpenAILLM(AsyncLLM):
             The batch retrieved from the OpenAI Batch API.
 
         Raises:
-            Exception: if there was an error while retrieving the batch.
+            openai.OpenAIError: if there was an error while retrieving the batch from the
+                OpenAI Batch API.
         """
         import openai
 
@@ -475,7 +483,7 @@ class OpenAILLM(AsyncLLM):
             self._logger.error(  # type: ignore
                 f"Error while retrieving batch '{batch_id}' from OpenAI: {e}"
             )
-            raise Exception("Error while retrieving batch") from e  # TODO: update this
+            raise e
 
     def _retrieve_batch_results(self, batch: "OpenAIBatch") -> List[Dict[str, Any]]:
         """Retrieves the results of a batch from its output file, parsing the JSONL content
@@ -540,6 +548,7 @@ class OpenAILLM(AsyncLLM):
                 input_file_id=batch_input_file.id,
                 endpoint="/v1/chat/completions",
                 completion_window="24h",
+                # TODO: add distilabel pipeline name and id
                 metadata={"description": "distilabel"},
             )
         except openai.OpenAIError as e:
@@ -547,7 +556,7 @@ class OpenAILLM(AsyncLLM):
                 f"Error while creating OpenAI Batch API job for file with ID"
                 f" '{batch_input_file.id}': {e}."
             )
-            # TODO: stop generation? i guess
+            raise e
         return batch
 
     def _create_batch_files(
@@ -566,21 +575,26 @@ class OpenAILLM(AsyncLLM):
 
         Returns:
             The list of file objects created for the OpenAI Batch API.
+
+        Raises:
+            openai.OpenAIError: if there was an error while creating the batch input file
+                in the OpenAI Batch API.
         """
         import openai
 
         files = []
         for buffer in self._create_jsonl_buffers(inputs=inputs, **kwargs):
             try:
+                # TODO: add distilabel pipeline name and id
                 batch_input_file = self._client.files.create(
                     file=buffer, purpose="batch"
                 )
                 files.append(batch_input_file)
             except openai.OpenAIError as e:
                 self._logger.error(  # type: ignore
-                    f"Error while creating batch input file: {e}"
+                    f"Error while creating OpenAI batch input file: {e}"
                 )
-                # TODO: stop batch generation? i guess
+                raise e
         return files
 
     def _create_jsonl_buffers(

@@ -20,6 +20,7 @@ from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.constants import DISTILABEL_METADATA_KEY
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
@@ -82,9 +83,10 @@ class _Task(_Step, ABC):
             and not self._can_be_used_with_offline_batch_generation
         ):
             # TODO: update to DistilabelUserError
-            raise ValueError(
+            raise DistilabelUserError(
                 f"`{self.__class__.__name__}` task cannot be used with offline batch generation"
-                " feature."
+                " feature.",
+                page="sections/how_to_guides/advanced/offline-batch-generation",
             )
 
         super().model_post_init(__context)
