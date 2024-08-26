@@ -217,7 +217,6 @@ def get_bibtex(ref: str) -> str:
         The bibtex style citation.
 
     Examples:
-
         ```python
         cite = get_bibtex(r"https://arxiv.org/abs/2406.18518")
         @misc{other,

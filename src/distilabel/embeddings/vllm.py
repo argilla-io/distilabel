@@ -46,7 +46,6 @@ class vLLMEmbeddings(Embeddings, CudaDevicePlacementMixin):
         - [Offline inference embeddings](https://docs.vllm.ai/en/latest/getting_started/examples/offline_inference_embedding.html)
 
     Examples:
-
         Generating sentence embeddings:
 
         ```python
