@@ -298,7 +298,7 @@ class Pipeline(BasePipeline):
                 " Execute the pipeline again (with the cache enabled) to check if the"
                 " results are ready and continue the pipeline execution."
             )
-            self._set_step_for_recovering_offline_batch_generation(e.step)
+            self._set_step_for_recovering_offline_batch_generation(e.step, e.data)  # type: ignore
         else:
             # Global step with successors failed
             self._logger.error(f"An error occurred in global step '{step_name}'")

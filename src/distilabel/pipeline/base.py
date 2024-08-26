@@ -212,7 +212,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._stop_called_lock = threading.Lock()
         self._stop_calls = 0
 
-        self._recover_offline_batch_generate_for_step = None
+        self._recover_offline_batch_generate_for_step: Union[
+            Tuple[str, List[List[Dict[str, Any]]]], None
+        ] = None
 
         self._fs: Optional[fsspec.AbstractFileSystem] = None
         self._storage_base_path: Optional[str] = None
@@ -848,9 +850,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             )
             batch.read_batch_data_from_fs()
 
-        print("batch", batch)
         if batch.step_name in self.dag.leaf_steps:
-            print(batch)
             self._write_buffer.add_batch(batch)  # type: ignore
 
         if batch.last_batch:
@@ -864,12 +864,21 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     if self._is_step_running(step_name):
                         self._send_last_batch_flag_to_step(step_name)
 
-    def _set_step_for_recovering_offline_batch_generation(self, step: "_Step") -> None:
+    def _set_step_for_recovering_offline_batch_generation(
+        self, step: "_Step", data: List[List[Dict[str, Any]]]
+    ) -> None:
+        """Sets the required information to recover a pipeline execution from a `_Step`
+        that used an `LLM` with offline batch generation.
+
+        Args:
+            step: The `_Step` that used an `LLM` with offline batch generation.
+            data: The data that was used to generate the batches for the step.
+        """
         # Replace step so the attribute `jobs_ids` of the `LLM` is not lost, as it was
         # updated in the child process but not in the main process.
         step_name: str = step.name  # type: ignore
         self.dag.set_step_attr(name=step_name, attr=STEP_ATTR_NAME, value=step)
-        self._recover_offline_batch_generate_for_step = step_name
+        self._recover_offline_batch_generate_for_step = (step_name, data)
 
     def _add_batch_for_recovering_offline_batch_generation(self) -> None:
         """Adds a dummy `_Batch` to the specified step name (it's a `Task` that used an
@@ -880,12 +889,15 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         if self._recover_offline_batch_generate_for_step is None:
             return
 
-        step_name = self._recover_offline_batch_generate_for_step
+        step_name, data = self._recover_offline_batch_generate_for_step
         self._logger.debug(
             f"Adding batch to '{step_name}' step to recover pipeline execution for offline"
             " batch generation..."
         )
-        self._batch_manager.add_batch_to_recover_offline_batch_generation(step_name)
+        self._batch_manager.add_batch_to_recover_offline_batch_generation(
+            to_step=step_name,
+            data=data,
+        )
 
     def _register_stages_last_batch(self, batch: "_Batch") -> None:
         """Registers the last batch received from a step in the `_stages_last_batch`
