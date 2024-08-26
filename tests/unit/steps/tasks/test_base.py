@@ -19,7 +19,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 import pytest
 from pydantic import ValidationError
 
-from distilabel.errors import DistilabelUserError
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.base import Task
@@ -41,7 +40,7 @@ class DummyRuntimeLLM(DummyAsyncLLM):
 class TestTask:
     def test_model_post_init_raise_valuerror_use_offline_batch_generation(self) -> None:
         with pytest.raises(
-            DistilabelUserError,
+            ValidationError,
             match="`DummyTask` task cannot be used with offline batch generation",
         ):
             DummyTask(llm=DummyAsyncLLM(use_offline_batch_generation=True))

@@ -82,7 +82,6 @@ class _Task(_Step, ABC):
             self.llm.use_offline_batch_generation
             and not self._can_be_used_with_offline_batch_generation
         ):
-            # TODO: update to DistilabelUserError
             raise DistilabelUserError(
                 f"`{self.__class__.__name__}` task cannot be used with offline batch generation"
                 " feature.",
