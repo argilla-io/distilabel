@@ -284,7 +284,6 @@ class EmbeddingTaskGenerator(GeneratorTask):
         ```
 
     Citations:
-
         ```
         @misc{wang2024improvingtextembeddingslarge,
             title={Improving Text Embeddings with Large Language Models},

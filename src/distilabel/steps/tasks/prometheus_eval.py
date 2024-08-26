@@ -292,7 +292,6 @@ class PrometheusEval(Task):
         ```
 
     Citations:
-
         ```
         @misc{kim2024prometheus2opensource,
             title={Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models},

@@ -81,7 +81,6 @@ class PairRM(Step):
         ```
 
     Citations:
-
         ```
         @misc{jiang2023llmblenderensemblinglargelanguage,
             title={LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion},

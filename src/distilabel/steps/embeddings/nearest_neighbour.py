@@ -110,7 +110,6 @@ class FaissNearestNeighbour(GlobalStep):
         ```
 
     Citations:
-
         ```
         @misc{douze2024faisslibrary,
             title={The Faiss library},

@@ -104,7 +104,6 @@ class Genstruct(Task):
         ```
 
     Citations:
-
         ```
         @misc{cui2023adainstructadaptinginstructiongenerators,
             title={Ada-Instruct: Adapting Instruction Generators for Complex Reasoning},

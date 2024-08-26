@@ -150,7 +150,6 @@ class EvolInstruct(Task):
         ```
 
     Citations:
-
         ```
         @misc{xu2023wizardlmempoweringlargelanguage,
             title={WizardLM: Empowering Large Language Models to Follow Complex Instructions},

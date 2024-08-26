@@ -174,7 +174,6 @@ class UltraFeedback(Task):
         ```
 
     Citations:
-
         ```
         @misc{cui2024ultrafeedbackboostinglanguagemodels,
             title={UltraFeedback: Boosting Language Models with Scaled AI Feedback},

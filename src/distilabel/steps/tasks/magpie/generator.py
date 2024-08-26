@@ -204,7 +204,6 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         ```
 
     Citations:
-
         ```
         @misc{xu2024magpiealignmentdatasynthesis,
             title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},

@@ -89,7 +89,6 @@ class SelfInstruct(Task):
         ```
 
     Citations:
-
         ```
         @misc{wang2023selfinstructaligninglanguagemodels,
             title={Self-Instruct: Aligning Language Models with Self-Generated Instructions},

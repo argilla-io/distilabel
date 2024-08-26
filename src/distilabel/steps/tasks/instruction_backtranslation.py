@@ -51,7 +51,6 @@ class InstructionBacktranslation(Task):
         - [`Self-Alignment with Instruction Backtranslation`](https://arxiv.org/abs/2308.06259)
 
     Citations:
-
         ```
         @misc{li2024selfalignmentinstructionbacktranslation,
             title={Self-Alignment with Instruction Backtranslation},
