@@ -226,11 +226,14 @@ nav:
       - Task:
           - "api/task/index.md"
           - GeneratorTask: "api/task/generator_task.md"
-          - Task Gallery: "api/task_gallery/index.md"
+          - Task Gallery: "api/task/task_gallery.md"
           - Typing: "api/task/typing.md"
       - LLM:
           - "api/llm/index.md"
-          - LLM Gallery: "api/llm_gallery/index.md"
+          - LLM Gallery: "api/llm/llm_gallery.md"
+      - Embedding:
+          - "api/embedding/index.md"
+          - Embedding Gallery: "api/embedding/embedding_gallery.md"
       - Pipeline:
           - "api/pipeline/index.md"
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
