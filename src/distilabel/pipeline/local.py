@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
+    from distilabel.pipeline.typing import InputDataset
     from distilabel.steps.base import _Step
 
 
@@ -125,6 +126,7 @@ class Pipeline(BasePipeline):
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
+        dataset: Optional["InputDataset"] = None,
     ) -> "Distiset":
         """Runs the pipeline.
 
@@ -144,6 +146,9 @@ class Pipeline(BasePipeline):
                 the `_Batch`es between the steps. Even if this parameter is `False`, the
                 `Batch`es received by `GlobalStep`s will always use the file system to
                 pass the data. Defaults to `False`.
+            dataset: If given, it will be used to create a `GeneratorStep` and put it as the
+                root step. Convenient method when you have already processed the dataset in
+                your script and just want to pass it already processed. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -158,12 +163,17 @@ class Pipeline(BasePipeline):
                 use_cache=use_cache,
                 storage_parameters=storage_parameters,
                 use_fs_to_pass_data=use_fs_to_pass_data,
+                dataset=dataset,
             )
 
         self._log_queue = cast("Queue[Any]", mp.Queue())
 
         if distiset := super().run(
-            parameters, use_cache, storage_parameters, use_fs_to_pass_data
+            parameters,
+            use_cache,
+            storage_parameters,
+            use_fs_to_pass_data,
+            dataset=dataset,
         ):
             return distiset
 
@@ -199,6 +209,7 @@ class Pipeline(BasePipeline):
             pipeline_path=self._cache_location["pipeline"],
             log_filename_path=self._cache_location["log_file"],
             enable_metadata=self._enable_metadata,
+            dag=self.dag,
         )
 
         stop_logging()
@@ -233,6 +244,7 @@ class Pipeline(BasePipeline):
             output_queue=self._output_queue,
             load_queue=self._load_queue,
             dry_run=self._dry_run,
+            ray_pipeline=False,
         )
 
         self._pool.apply_async(step_wrapper.run, error_callback=self._error_callback)

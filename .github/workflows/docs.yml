@@ -8,7 +8,9 @@ on:
     tags:
       - "**"
 
-concurrency: distilabel-docs
+concurrency:
+  group: distilabel-docs
+  cancel-in-progress: false
 
 jobs:
   publish:

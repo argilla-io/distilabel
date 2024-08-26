@@ -15,9 +15,10 @@
 from enum import Enum
 from typing import List
 
-from distilabel.steps.tasks.structured_outputs.utils import json_schema_to_model
 from pydantic import BaseModel, Field, StringConstraints, conint
 from typing_extensions import Annotated
+
+from distilabel.steps.tasks.structured_outputs.utils import json_schema_to_model
 
 
 class Node(BaseModel):
@@ -62,14 +63,14 @@ class Character(BaseModel):
 
 
 def test_json_schema_to_model():
-    assert type(json_schema_to_model(Node.model_json_schema())) == type(Node)
+    assert type(json_schema_to_model(Node.model_json_schema())) is type(Node)
 
 
 def test_json_schema_to_model_with_enum():
-    assert type(json_schema_to_model(Character.model_json_schema())) == type(Character)
+    assert type(json_schema_to_model(Character.model_json_schema())) is type(Character)
 
 
 def test_json_schema_to_model_nested():
-    assert type(json_schema_to_model(KnowledgeGraph.model_json_schema())) == type(
+    assert type(json_schema_to_model(KnowledgeGraph.model_json_schema())) is type(
         KnowledgeGraph
     )

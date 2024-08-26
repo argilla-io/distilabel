@@ -19,7 +19,7 @@ from typing_extensions import override
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class KeepColumns(Step):
@@ -69,12 +69,12 @@ class KeepColumns(Step):
     columns: List[str]
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The inputs for the task are the column names in `columns`."""
         return self.columns
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The outputs for the task are the column names in `columns`."""
         return self.columns
 

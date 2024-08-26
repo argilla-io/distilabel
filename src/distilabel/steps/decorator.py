@@ -37,7 +37,7 @@ from distilabel.utils.typing_ import is_parameter_annotated_with
 
 if TYPE_CHECKING:
     from distilabel.steps.base import _Step
-    from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
 
 _STEP_MAPPING = {
     "normal": Step,
@@ -50,16 +50,16 @@ ProcessingFunc = Callable[..., Union["StepOutput", "GeneratorStepOutput"]]
 
 @overload
 def step(
-    inputs: Union[List[str], None] = None,
-    outputs: Union[List[str], None] = None,
+    inputs: Union["StepColumns", None] = None,
+    outputs: Union["StepColumns", None] = None,
     step_type: Literal["normal"] = "normal",
 ) -> Callable[..., Type["Step"]]: ...
 
 
 @overload
 def step(
-    inputs: Union[List[str], None] = None,
-    outputs: Union[List[str], None] = None,
+    inputs: Union["StepColumns", None] = None,
+    outputs: Union["StepColumns", None] = None,
     step_type: Literal["global"] = "global",
 ) -> Callable[..., Type["GlobalStep"]]: ...
 
@@ -67,26 +67,29 @@ def step(
 @overload
 def step(
     inputs: None = None,
-    outputs: Union[List[str], None] = None,
+    outputs: Union["StepColumns", None] = None,
     step_type: Literal["generator"] = "generator",
 ) -> Callable[..., Type["GeneratorStep"]]: ...
 
 
 def step(
-    inputs: Union[List[str], None] = None,
-    outputs: Union[List[str], None] = None,
+    inputs: Union["StepColumns", None] = None,
+    outputs: Union["StepColumns", None] = None,
     step_type: Literal["normal", "global", "generator"] = "normal",
 ) -> Callable[..., Type["_Step"]]:
     """Creates an `Step` from a processing function.
 
     Args:
-        inputs: a list containing the name of the inputs columns/keys expected by this step.
-            If not provided the default will be an empty list `[]` and it will be assumed
-            that the step doesn't need any specific columns. Defaults to `None`.
-        outputs: a list containing the name of the outputs columns/keys that the step
-            will generate. If not provided the default will be an empty list `[]` and it
-            will be assumed that the step doesn't need any specific columns. Defaults to
-            `None`.
+        inputs: a list containing the name of the inputs columns/keys or a dictionary
+            where the keys are the columns and the values are booleans indicating whether
+            the column is required or not, that are required by the step. If not provided
+            the default will be an empty list `[]` and it will be assumed that the step
+            doesn't need any specific columns. Defaults to `None`.
+        outputs: a list containing the name of the outputs columns/keys or a dictionary
+            where the keys are the columns and the values are booleans indicating whether
+            the column will be generated or not. If not provided the default will be an
+            empty list `[]` and it will be assumed that the step doesn't need any specific
+            columns. Defaults to `None`.
         step_type: the kind of step to create. Valid choices are: "normal" (`Step`),
             "global" (`GlobalStep`) or "generator" (`GeneratorStep`). Defaults to
             `"normal"`.

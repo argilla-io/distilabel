@@ -98,6 +98,20 @@ class EvolInstructGenerator(GeneratorTask):
         # result
         # [{'instruction': 'generated instruction', 'model_name': 'test'}]
         ```
+
+    Citations:
+
+        ```
+        @misc{xu2023wizardlmempoweringlargelanguage,
+            title={WizardLM: Empowering Large Language Models to Follow Complex Instructions},
+            author={Can Xu and Qingfeng Sun and Kai Zheng and Xiubo Geng and Pu Zhao and Jiazhan Feng and Chongyang Tao and Daxin Jiang},
+            year={2023},
+            eprint={2304.12244},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2304.12244},
+        }
+        ```
     """
 
     num_instructions: int

@@ -15,10 +15,10 @@
 import tempfile
 from pathlib import Path
 
+from distilabel.constants import STEPS_OUTPUTS_PATH
 from distilabel.distiset import Distiset, create_distiset
 from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.write_buffer import _WriteBuffer
-
 from tests.unit.pipeline.utils import (
     DummyGeneratorStep,
     DummyStep1,
@@ -30,7 +30,8 @@ from tests.unit.pipeline.utils import (
 class TestWriteBuffer:
     def test_create(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdirname:
-            folder = Path(tmpdirname) / "data"
+            folder = Path(tmpdirname) / "data" / STEPS_OUTPUTS_PATH
+            steps_outputs = folder / STEPS_OUTPUTS_PATH
             with Pipeline(name="unit-test-pipeline") as pipeline:
                 dummy_generator_1 = DummyGeneratorStep(name="dummy_generator_step_1")
                 dummy_generator_2 = DummyGeneratorStep(name="dummy_generator_step_2")
@@ -43,7 +44,9 @@ class TestWriteBuffer:
                 dummy_step_1.connect(dummy_step_2)
                 dummy_step_1.connect(dummy_step_3)
 
-            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
+            write_buffer = _WriteBuffer(
+                path=steps_outputs, leaf_steps=pipeline.dag.leaf_steps
+            )
 
             assert write_buffer._buffers == {"dummy_step_2": [], "dummy_step_3": []}
             assert write_buffer._buffers_dump_batch_size == {
@@ -59,6 +62,7 @@ class TestWriteBuffer:
     def test_write_buffer_one_leaf_step_and_create_dataset(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdirname:
             folder = Path(tmpdirname) / "data"
+            steps_outputs = folder / STEPS_OUTPUTS_PATH
             with Pipeline(name="unit-test-pipeline") as pipeline:
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
@@ -67,7 +71,9 @@ class TestWriteBuffer:
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
 
-            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
+            write_buffer = _WriteBuffer(
+                path=steps_outputs, leaf_steps=pipeline.dag.leaf_steps
+            )
 
             # Add one batch with 5 rows, shouldn't write anything 5 < 50
             batch = batch_gen(dummy_step_2.name)  # type: ignore
@@ -78,14 +84,14 @@ class TestWriteBuffer:
                 batch = batch_gen(dummy_step_2.name)  # type: ignore
                 write_buffer.add_batch(batch)
 
-            assert Path(folder, "dummy_step_2", "00001.parquet").exists()
+            assert Path(steps_outputs, "dummy_step_2", "00001.parquet").exists()
 
             # Add 50 more rows, we should have a new file
             for _ in range(10):
                 batch = batch_gen(dummy_step_2.name)  # type: ignore
                 write_buffer.add_batch(batch)
 
-            assert Path(folder, "dummy_step_2", "00002.parquet").exists()
+            assert Path(steps_outputs, "dummy_step_2", "00002.parquet").exists()
 
             # Add more rows and close the write buffer, we should have a new file
             for _ in range(5):
@@ -94,9 +100,9 @@ class TestWriteBuffer:
 
             write_buffer.close()
 
-            assert Path(folder, "dummy_step_2", "00003.parquet").exists()
+            assert Path(steps_outputs, "dummy_step_2", "00003.parquet").exists()
 
-            ds = create_distiset(write_buffer._path)
+            ds = create_distiset(folder)
             assert isinstance(ds, Distiset)
             assert len(ds.keys()) == 1
             assert len(ds["default"]["train"]) == 125
@@ -104,6 +110,7 @@ class TestWriteBuffer:
     def test_write_buffer_multiple_leaf_steps_and_create_dataset(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdirname:
             folder = Path(tmpdirname) / "data"
+            steps_outputs = folder / STEPS_OUTPUTS_PATH
             with Pipeline(name="unit-test-pipeline") as pipeline:
                 dummy_generator_1 = DummyGeneratorStep(name="dummy_generator_step_1")
                 dummy_generator_2 = DummyGeneratorStep(name="dummy_generator_step_2")
@@ -116,19 +123,21 @@ class TestWriteBuffer:
                 dummy_step_1.connect(dummy_step_2)
                 dummy_step_1.connect(dummy_step_3)
 
-            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
+            write_buffer = _WriteBuffer(
+                path=steps_outputs, leaf_steps=pipeline.dag.leaf_steps
+            )
 
             for _ in range(10):
                 batch = batch_gen(dummy_step_2.name)  # type: ignore
                 write_buffer.add_batch(batch)
 
-            assert Path(folder, "dummy_step_2", "00001.parquet").exists()
+            assert Path(steps_outputs, "dummy_step_2", "00001.parquet").exists()
 
             for _ in range(10):
                 batch = batch_gen(dummy_step_3.name)  # type: ignore
                 write_buffer.add_batch(batch)
 
-            assert Path(folder, "dummy_step_3", "00001.parquet").exists()
+            assert Path(steps_outputs, "dummy_step_3", "00001.parquet").exists()
 
             for _ in range(5):
                 batch = batch_gen(dummy_step_2.name)  # type: ignore
@@ -140,10 +149,10 @@ class TestWriteBuffer:
 
             write_buffer.close()
 
-            assert Path(folder, "dummy_step_2", "00002.parquet").exists()
-            assert Path(folder, "dummy_step_3", "00002.parquet").exists()
+            assert Path(steps_outputs, "dummy_step_2", "00002.parquet").exists()
+            assert Path(steps_outputs, "dummy_step_3", "00002.parquet").exists()
 
-            ds = create_distiset(write_buffer._path)
+            ds = create_distiset(folder)
             assert isinstance(ds, Distiset)
             assert len(ds.keys()) == 2
             assert len(ds["dummy_step_2"]["train"]) == 75

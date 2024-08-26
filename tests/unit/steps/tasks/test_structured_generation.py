@@ -15,12 +15,13 @@
 import json
 from typing import Any, List
 
+from typing_extensions import override
+
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.structured_generation import StructuredGeneration
 from distilabel.steps.tasks.typing import StructuredInput
-from typing_extensions import override
 
 
 class DummyStructuredLLM(LLM):
@@ -86,7 +87,9 @@ class TestStructuredGeneration:
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyStructuredLLM()
-        task = StructuredGeneration(name="task", llm=llm, pipeline=pipeline)
+        task = StructuredGeneration(
+            name="task", llm=llm, pipeline=pipeline, add_raw_input=False
+        )
         assert next(
             task.process(
                 [

@@ -37,10 +37,7 @@ from distilabel.steps.tasks.typing import (
     StandardInput,
     StructuredOutputType,
 )
-from distilabel.utils.huggingface import (
-    _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME,
-    get_hf_token,
-)
+from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR, get_hf_token
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
@@ -162,7 +159,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         description="The base URL to use for the Inference Endpoints API requests.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default=os.getenv(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME),
+        default_factory=lambda: os.getenv(HF_TOKEN_ENV_VAR),
         description="The API key to authenticate the requests to the Inference Endpoints API.",
     )
 
@@ -178,7 +175,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
     _model_name: Optional[str] = PrivateAttr(default=None)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
-    _api_key_env_var: str = PrivateAttr(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME)
+    _api_key_env_var: str = PrivateAttr(HF_TOKEN_ENV_VAR)
     _aclient: Optional["AsyncInferenceClient"] = PrivateAttr(...)
 
     @model_validator(mode="after")  # type: ignore
@@ -284,7 +281,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             self._model_name = client.repository
 
         self._aclient = AsyncInferenceClient(
-            model=self.base_url,
+            base_url=self.base_url,
             token=self.api_key.get_secret_value(),
         )
 

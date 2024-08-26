@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import numpy as np
 
@@ -20,7 +20,7 @@ from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Step
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class PairRM(Step):
@@ -80,6 +80,20 @@ class PairRM(Step):
         #     }
         # ]
         ```
+
+    Citations:
+
+        ```
+        @misc{jiang2023llmblenderensemblinglargelanguage,
+            title={LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion},
+            author={Dongfu Jiang and Xiang Ren and Bill Yuchen Lin},
+            year={2023},
+            eprint={2306.02561},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2306.02561},
+        }
+        ```
     """
 
     model: str = "llm-blender/PairRM"
@@ -100,13 +114,13 @@ class PairRM(Step):
         self._blender.loadranker(self.model)
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The input columns correspond to the two required arguments from `Blender.rank`:
         `inputs` and `candidates`."""
         return ["input", "candidates"]
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The outputs will include the `ranks` and the `ranked_candidates`."""
         return ["ranks", "ranked_candidates", "model_name"]
 

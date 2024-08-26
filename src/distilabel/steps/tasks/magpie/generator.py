@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 from pydantic import Field
 
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.magpie.base import MagpieBase
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepColumns
 
 
 class MagpieGenerator(GeneratorTask, MagpieBase):
@@ -49,10 +50,12 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             conversation. Defaults to `False`.
         only_instruction: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        system_prompt: an optional system prompt that can be used to steer the LLM to generate
-            content of certain topic, guide the style, etc. If the provided inputs contains
-            a `system_prompt` column, then this runtime parameter will be ignored and the
-            one from the column will be used. Defaults to `None`.
+        system_prompt: an optional system prompt or list of system prompts that can
+            be used to steer the LLM to generate content of certain topic, guide the style,
+            etc. If it's a list of system prompts, then a random system prompt will be chosen
+            per input/output batch. If the provided inputs contains a `system_prompt` column,
+            then this runtime parameter will be ignored and the one from the column will
+            be used. Defaults to `None`.
         num_rows: the number of rows to be generated.
 
     Runtime parameters:
@@ -64,16 +67,19 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             conversation. Defaults to `False`.
         - `only_instruction`: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        - `system_prompt`: an optional system prompt that can be used to steer the LLM to
-            generate content of certain topic, guide the style, etc. If the provided inputs
-            contains a `system_prompt` column, then this runtime parameter will be ignored
-            and the one from the column will be used. Defaults to `None`.
+        - `system_prompt`: an optional system prompt or list of system prompts that can
+            be used to steer the LLM to generate content of certain topic, guide the style,
+            etc. If it's a list of system prompts, then a random system prompt will be chosen
+            per input/output batch. If the provided inputs contains a `system_prompt` column,
+            then this runtime parameter will be ignored and the one from the column will
+            be used. Defaults to `None`.
         - `num_rows`: the number of rows to be generated.
 
     Output columns:
         - conversation (`ChatType`): the generated conversation which is a list of chat
             items with a role and a message.
         - instruction (`str`): the generated instructions if `only_instruction=True`.
+        - response (`str`): the generated response if `n_turns==1`.
         - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
 
     Categories:
@@ -197,6 +203,20 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         #     True
         # )
         ```
+
+    Citations:
+
+        ```
+        @misc{xu2024magpiealignmentdatasynthesis,
+            title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+            author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+            year={2024},
+            eprint={2406.08464},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2406.08464},
+        }
+        ```
     """
 
     # TODO: move this to `GeneratorTask`
@@ -209,9 +229,10 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         super().model_post_init(__context)
 
         if not isinstance(self.llm, MagpieChatTemplateMixin):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"`Magpie` task can only be used with an `LLM` that uses the `MagpieChatTemplateMixin`."
-                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin."
+                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin.",
+                page="components-gallery/tasks/magpiegenerator/",
             )
 
         self.llm.use_magpie_template = True
@@ -225,10 +246,12 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         return {}
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
             return ["instruction", "model_name"]
+        if self.n_turns == 1:
+            return ["instruction", "response", "model_name"]
         return ["conversation", "model_name"]
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":

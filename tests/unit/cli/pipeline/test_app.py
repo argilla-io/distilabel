@@ -14,9 +14,9 @@
 
 from unittest import mock
 
-from distilabel.cli.app import app
 from typer.testing import CliRunner
 
+from distilabel.cli.app import app
 from tests.unit.cli.utils import TEST_PIPELINE_PATH
 
 runner = CliRunner()

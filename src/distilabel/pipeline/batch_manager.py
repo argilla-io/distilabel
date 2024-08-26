@@ -17,12 +17,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple, Union
 
-from distilabel.pipeline._dag import DAG
-from distilabel.pipeline.batch import _Batch
-from distilabel.pipeline.constants import (
+from distilabel.constants import (
     RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     STEP_ATTR_NAME,
 )
+from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.batch import _Batch
 from distilabel.steps.base import _Step
 from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.serialization import (

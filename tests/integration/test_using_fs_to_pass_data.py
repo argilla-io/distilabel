@@ -15,6 +15,7 @@
 from typing import TYPE_CHECKING, List
 
 import numpy as np
+
 from distilabel.pipeline import Pipeline
 from distilabel.steps import GeneratorStep, StepInput, step
 

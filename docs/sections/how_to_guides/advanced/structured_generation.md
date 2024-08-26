@@ -111,7 +111,7 @@ These were some simple examples, but one can see the options this opens.
 
 !!! Tip
     A full pipeline example can be seen in the following script:
-    [`examples/structured_generation_with_outlines.py`](../../pipeline_samples/examples/index.md#llamacpp-with-outlines)
+    [`examples/structured_generation_with_outlines.py`](../../pipeline_samples/examples/llama_cpp_with_outlines.md)
 
 [^1]:
     You can check the variable type by importing it from:
@@ -189,7 +189,7 @@ We get back a Python dictionary (formatted as a string) that we can parse using 
 
 !!! Tip
     A full pipeline example can be seen in the following script:
-    [`examples/structured_generation_with_instructor.py`](../../pipeline_samples/examples/index.md#mistralai-with-instructor)
+    [`examples/structured_generation_with_instructor.py`](../../pipeline_samples/examples/mistralai_with_instructor.md)
 
 ## OpenAI JSON
 

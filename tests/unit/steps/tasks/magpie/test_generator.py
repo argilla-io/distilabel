@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import pytest
+
 from distilabel.llms.openai import OpenAILLM
 from distilabel.steps.tasks.magpie.generator import MagpieGenerator
-
 from tests.unit.conftest import DummyMagpieLLM
 
 
@@ -28,7 +28,15 @@ class TestMagpieGenerator:
             MagpieGenerator(llm=OpenAILLM(model="gpt-4", api_key="fake"))  # type: ignore
 
     def test_outputs(self) -> None:
-        task = MagpieGenerator(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"))
+        task = MagpieGenerator(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=1
+        )
+
+        assert task.outputs == ["instruction", "response", "model_name"]
+
+        task = MagpieGenerator(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2
+        )
 
         assert task.outputs == ["conversation", "model_name"]
 
@@ -70,8 +78,10 @@ class TestMagpieGenerator:
             "batch_size": 50,
             "group_generations": False,
             "add_raw_output": True,
+            "add_raw_input": True,
             "num_generations": 1,
             "num_rows": None,
+            "use_default_structured_output": False,
             "runtime_parameters_info": [
                 {
                     "name": "llm",
@@ -106,7 +116,7 @@ class TestMagpieGenerator:
                 {
                     "name": "system_prompt",
                     "optional": True,
-                    "description": "An optional system prompt that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
+                    "description": "An optional system prompt or list of system prompts that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
                 },
                 {
                     "name": "resources",
@@ -147,6 +157,11 @@ class TestMagpieGenerator:
                     "name": "add_raw_output",
                     "optional": True,
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
+                },
+                {
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                    "name": "add_raw_input",
+                    "optional": True,
                 },
                 {
                     "name": "num_generations",

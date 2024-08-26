@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Final
+from distilabel.embeddings.base import Embeddings
+from distilabel.embeddings.sentence_transformers import SentenceTransformerEmbeddings
+from distilabel.embeddings.vllm import vLLMEmbeddings
 
-DISTILABEL_METADATA_KEY: Final[str] = "distilabel_metadata"
+__all__ = [
+    "Embeddings",
+    "SentenceTransformerEmbeddings",
+    "vLLMEmbeddings",
+]

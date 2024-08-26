@@ -21,12 +21,14 @@ from typing import Any, Dict, Optional
 import pytest
 import yaml
 from datasets import Dataset, DatasetDict
-from distilabel.distiset import Distiset
 from upath import UPath
+
+from distilabel.distiset import Distiset
+from distilabel.utils.serialization import write_json
 
 
 @pytest.fixture(scope="function")
-def distiset():
+def distiset() -> Distiset:
     return Distiset(
         {
             "leaf_step_1": Dataset.from_dict({"a": [1, 2, 3]}),
@@ -42,14 +44,32 @@ def make_fake_file(filename: Path) -> None:
 
 
 def add_config_to_distiset(distiset: Distiset, folder: Path) -> Distiset:
-    from distilabel.distiset import DISTISET_CONFIG_FOLDER
+    from distilabel.constants import DISTISET_CONFIG_FOLDER
 
     pipeline_yaml = folder / DISTISET_CONFIG_FOLDER / "pipeline.yaml"
     pipeline_log = folder / DISTISET_CONFIG_FOLDER / "pipeline.log"
     make_fake_file(pipeline_yaml)
     make_fake_file(pipeline_log)
     distiset.pipeline_path = pipeline_yaml
-    distiset.pipeline_log_path = pipeline_log
+    distiset.log_filename_path = pipeline_log
+    return distiset
+
+
+def add_artifacts_to_distiset(distiset: Distiset, folder: Path) -> Distiset:
+    from distilabel.constants import DISTISET_ARTIFACTS_FOLDER
+
+    artifacts_folder = folder / DISTISET_ARTIFACTS_FOLDER
+
+    for step in ("leaf_step_1", "leaf_step_2"):
+        step_artifacts_folder = artifacts_folder / step
+        step_artifacts_folder.mkdir(parents=True)
+        artifact_folder = step_artifacts_folder / "artifact"
+        artifact_folder.mkdir()
+        metadata_file = artifact_folder / "metadata.json"
+        write_json(metadata_file, {})
+
+    distiset.artifacts_path = artifacts_folder
+
     return distiset
 
 
@@ -63,54 +83,77 @@ class TestDistiset:
 
     @pytest.mark.parametrize("storage_options", [None, {"test": "option"}])
     @pytest.mark.parametrize("with_config", [False, True])
+    @pytest.mark.parametrize("with_artifacts", [False, True])
     def test_save_to_disk(
         self,
         distiset: Distiset,
         with_config: bool,
+        with_artifacts: bool,
         storage_options: Optional[Dict[str, Any]],
     ) -> None:
         full_distiset = copy.deepcopy(distiset)
         # Distiset with Distiset
         with tempfile.TemporaryDirectory() as tmpdirname:
             folder = Path(tmpdirname) / "distiset_folder"
+            another_folder = Path(tmpdirname) / "another_distiset_folder"
+
             if with_config:
                 full_distiset = add_config_to_distiset(full_distiset, folder)
 
+            if with_artifacts:
+                full_distiset = add_artifacts_to_distiset(full_distiset, folder)
+
             full_distiset.save_to_disk(
-                folder,
+                another_folder,
                 save_card=with_config,
                 save_pipeline_config=with_config,
                 save_pipeline_log=with_config,
                 storage_options=storage_options,
             )
-            assert folder.is_dir()
-            assert len(list(folder.iterdir())) == 3
+            assert another_folder.is_dir()
+
+            if with_artifacts:
+                assert len(list(another_folder.iterdir())) == 4
+            else:
+                assert len(list(another_folder.iterdir())) == 3
 
         full_distiset = copy.deepcopy(distiset)
         # Distiset with DatasetDict
         distiset_with_dict = full_distiset.train_test_split(0.8)
         with tempfile.TemporaryDirectory() as tmpdirname:
             folder = Path(tmpdirname) / "distiset_folder"
+            another_folder = Path(tmpdirname) / "another_distiset_folder"
+
             if with_config:
                 distiset_with_dict = add_config_to_distiset(distiset_with_dict, folder)
 
+            if with_artifacts:
+                distiset_with_dict = add_artifacts_to_distiset(
+                    distiset_with_dict, folder
+                )
+
             distiset_with_dict.save_to_disk(
-                folder,
+                another_folder,
                 save_card=with_config,
                 save_pipeline_config=with_config,
                 save_pipeline_log=with_config,
             )
 
-            assert folder.is_dir()
-            assert len(list(folder.iterdir())) == 3
+            assert another_folder.is_dir()
+            if with_artifacts:
+                assert len(list(another_folder.iterdir())) == 4
+            else:
+                assert len(list(another_folder.iterdir())) == 3
 
     @pytest.mark.parametrize("pathlib_implementation", [Path, UPath])
     @pytest.mark.parametrize("storage_options", [None, {"project": "experiments"}])
     @pytest.mark.parametrize("with_config", [False, True])
+    @pytest.mark.parametrize("with_artifacts", [False, True])
     def test_load_from_disk(
         self,
         distiset: Distiset,
         with_config: bool,
+        with_artifacts: bool,
         storage_options: Optional[Dict[str, Any]],
         pathlib_implementation: type,
     ) -> None:
@@ -120,17 +163,25 @@ class TestDistiset:
             # This way we can test also we work with UPath, using FilePath protocol, as it should
             # do the same as S3Path, GCSPath, etc.
             folder = pathlib_implementation(tmpdirname) / "distiset_folder"
+            another_folder = (
+                pathlib_implementation(tmpdirname) / "another_distiset_folder"
+            )
+
             if with_config:
                 full_distiset = add_config_to_distiset(full_distiset, folder)
+
+            if with_artifacts:
+                full_distiset = add_artifacts_to_distiset(full_distiset, folder)
+
             full_distiset.save_to_disk(
-                folder,
+                another_folder,
                 save_card=with_config,
                 save_pipeline_config=with_config,
                 save_pipeline_log=with_config,
                 storage_options=storage_options,
             )
             ds = Distiset.load_from_disk(
-                folder,
+                another_folder,
                 storage_options=storage_options,
             )
             assert isinstance(ds, Distiset)
@@ -140,23 +191,40 @@ class TestDistiset:
                 assert ds.pipeline_path.exists()
                 assert ds.log_filename_path.exists()
 
+            if with_artifacts:
+                assert ds.artifacts_path.exists()
+
         full_distiset = copy.deepcopy(distiset)
         # Distiset with DatasetDict
         distiset_with_dict = full_distiset.train_test_split(0.8)
         with tempfile.TemporaryDirectory() as tmpdirname:
             folder = pathlib_implementation(tmpdirname) / "distiset_folder"
+            another_folder = (
+                pathlib_implementation(tmpdirname) / "another_distiset_folder"
+            )
+
             if with_config:
                 distiset_with_dict = add_config_to_distiset(distiset_with_dict, folder)
 
-            distiset_with_dict.save_to_disk(folder)
-            ds = Distiset.load_from_disk(folder, storage_options=storage_options)
+            if with_artifacts:
+                distiset_with_dict = add_artifacts_to_distiset(
+                    distiset_with_dict, folder
+                )
 
-            assert folder.is_dir()
+            distiset_with_dict.save_to_disk(another_folder)
+            ds = Distiset.load_from_disk(
+                another_folder, storage_options=storage_options
+            )
+
+            assert another_folder.is_dir()
             assert isinstance(ds["leaf_step_1"], DatasetDict)
 
             if with_config:
                 assert ds.pipeline_path.exists()
                 assert ds.log_filename_path.exists()
+
+            if with_artifacts:
+                assert ds.artifacts_path.exists()
 
     def test_dataset_card(self, distiset: Distiset) -> None:
         # Test the the metadata we generate by default without extracting the already generated content from the HF hub.

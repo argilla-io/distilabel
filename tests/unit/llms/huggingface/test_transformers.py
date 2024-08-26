@@ -15,6 +15,7 @@
 from typing import Generator
 
 import pytest
+
 from distilabel.llms.huggingface.transformers import TransformersLLM
 
 
@@ -22,9 +23,10 @@ from distilabel.llms.huggingface.transformers import TransformersLLM
 @pytest.fixture(scope="module")
 def transformers_llm() -> Generator[TransformersLLM, None, None]:
     llm = TransformersLLM(
-        model="sentence-transformers/all-MiniLM-L6-v2",
+        model="distilabel-internal-testing/tiny-random-mistral",
         model_kwargs={"is_decoder": True},
         cuda_devices=[],
+        torch_dtype="float16",
     )
     llm.load()
 
@@ -33,7 +35,10 @@ def transformers_llm() -> Generator[TransformersLLM, None, None]:
 
 class TestTransformersLLM:
     def test_model_name(self, transformers_llm: TransformersLLM) -> None:
-        assert transformers_llm.model_name == "sentence-transformers/all-MiniLM-L6-v2"
+        assert (
+            transformers_llm.model_name
+            == "distilabel-internal-testing/tiny-random-mistral"
+        )
 
     def test_generate(self, transformers_llm: TransformersLLM) -> None:
         responses = transformers_llm.generate(
@@ -59,5 +64,5 @@ class TestTransformersLLM:
         ]
         last_hidden_states = transformers_llm.get_last_hidden_states(inputs)  # type: ignore
 
-        assert last_hidden_states[0].shape == (31, 384)
-        assert last_hidden_states[1].shape == (34, 384)
+        assert last_hidden_states[0].shape == (7, 128)
+        assert last_hidden_states[1].shape == (10, 128)

@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import pytest
+from pydantic import ValidationError
+
 from distilabel.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.evol_instruct.generator import (
@@ -21,7 +23,6 @@ from distilabel.steps.tasks.evol_instruct.generator import (
 from distilabel.steps.tasks.evol_instruct.utils import (
     GENERATION_MUTATION_TEMPLATES,
 )
-from pydantic import ValidationError
 
 
 class TestEvolInstructGenerator:
@@ -117,12 +118,14 @@ class TestEvolInstructGenerator:
             "name": "task",
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
                 "type_info": {
                     "module": task.llm.__class__.__module__,
                     "name": task.llm.__class__.__name__,
                 },
             },
             "add_raw_output": True,
+            "add_raw_input": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
             "resources": {
@@ -148,6 +151,7 @@ class TestEvolInstructGenerator:
             "min_length": task.min_length,
             "max_length": task.max_length,
             "seed": task.seed,
+            "use_default_structured_output": False,
             "runtime_parameters_info": [
                 {
                     "name": "resources",
@@ -197,6 +201,11 @@ class TestEvolInstructGenerator:
                 {
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
                     "name": "add_raw_output",
+                    "optional": True,
+                },
+                {
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                    "name": "add_raw_input",
                     "optional": True,
                 },
                 {
