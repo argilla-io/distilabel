@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import pytest
-from distilabel.steps.tasks.urial import URIAL
 
+from distilabel.steps.tasks.urial import URIAL
 from tests.unit.conftest import DummyLLM
 
 
