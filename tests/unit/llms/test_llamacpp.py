@@ -72,6 +72,9 @@ class TestLlamaCppLLM:
                     "seed": 4294967295,
                     "generation_kwargs": {},
                     "structured_output": None,
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.llamacpp",
                         "name": "LlamaCppLLM",
@@ -96,6 +99,9 @@ class TestLlamaCppLLM:
                         "schema": DummyUserDetail.model_json_schema(),
                         "format": "json",
                     },
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.llamacpp",
                         "name": "LlamaCppLLM",

@@ -149,6 +149,9 @@ class TestOpenAILLM:
                     "base_url": "https://api.openai.com/v1",
                     "timeout": 120,
                     "structured_output": None,
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.openai",
                         "name": "OpenAILLM",
@@ -172,6 +175,9 @@ class TestOpenAILLM:
                         "mode": "tool_call",
                         "max_retries": 1,
                     },
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.openai",
                         "name": "OpenAILLM",

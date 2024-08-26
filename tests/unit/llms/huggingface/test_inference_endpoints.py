@@ -311,6 +311,9 @@ class TestInferenceEndpointsLLM:
             "structured_output": None,
             "model_display_name": None,
             "use_magpie_template": False,
+            "jobs_ids": None,
+            "offline_batch_generation_block_until_done": None,
+            "use_offline_batch_generation": False,
             "type_info": {
                 "module": "distilabel.llms.huggingface.inference_endpoints",
                 "name": "InferenceEndpointsLLM",

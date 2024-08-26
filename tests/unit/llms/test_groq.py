@@ -119,6 +119,9 @@ class TestGroqLLM:
                     "max_retries": 2,
                     "timeout": 120,
                     "structured_output": None,
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.groq",
                         "name": "GroqLLM",
@@ -142,6 +145,9 @@ class TestGroqLLM:
                         "mode": "tool_call",
                         "max_retries": 1,
                     },
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.groq",
                         "name": "GroqLLM",

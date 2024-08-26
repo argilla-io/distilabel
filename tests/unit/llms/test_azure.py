@@ -74,6 +74,9 @@ class TestAzureOpenAILLM:
                     "base_url": "https://example-resource.azure.openai.com/",
                     "timeout": 120,
                     "structured_output": None,
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.azure",
                         "name": "AzureOpenAILLM",
@@ -98,6 +101,9 @@ class TestAzureOpenAILLM:
                         "mode": "tool_call",
                         "max_retries": 1,
                     },
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.azure",
                         "name": "AzureOpenAILLM",

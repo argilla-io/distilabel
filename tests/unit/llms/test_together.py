@@ -49,6 +49,9 @@ class TestTogetherLLM:
             "base_url": "https://api.together.xyz/v1",
             "timeout": 120,
             "structured_output": None,
+            "jobs_ids": None,
+            "offline_batch_generation_block_until_done": None,
+            "use_offline_batch_generation": False,
             "type_info": {
                 "module": "distilabel.llms.together",
                 "name": "TogetherLLM",

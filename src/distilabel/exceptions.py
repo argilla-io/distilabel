@@ -37,4 +37,4 @@ class DistilabelOfflineBatchGenerationNotFinishedException(
 
     def __init__(self, jobs_ids: Tuple[str]) -> None:
         self.jobs_ids = jobs_ids
-        super().__init__(f"Batch generation with jobs_ids={jobs_ids} is not finished.")
+        super().__init__(f"Batch generation with jobs_ids={jobs_ids} is not finished")
