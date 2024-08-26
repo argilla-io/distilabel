@@ -247,4 +247,5 @@ nav:
       - CLI: "api/cli.md"
   - Community:
       - sections/community/index.md
+      - How to contribute?: sections/community/contributor.md
       - Issue dashboard: sections/community/popular_issues.md
