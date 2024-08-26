@@ -6,9 +6,6 @@ hide:
 
 # Installation
 
-!!! NOTE
-    Since `distilabel` v1.0.0 was recently released, we refactored most of the stuff, so the installation below only applies to `distilabel` v1.0.0 and above.
-
 You will need to have at least Python 3.9 or higher, up to Python 3.12, since support for the latter is still a work in progress.
 
 To install the latest release of the package from PyPI you can use the following command:
@@ -60,7 +57,7 @@ Additionally, as part of `distilabel` some extra dependencies are available, mai
 
 The [`mistralai`](https://github.com/mistralai/client-python) dependency requires Python 3.9 or higher, so if you're willing to use the `distilabel.llms.MistralLLM` implementation, you will need to have Python 3.9 or higher.
 
-In some cases like [`transformers`](https://github.com/huggingface/transformers) and [`vllm`](https://github.com/vllm-project/vllm) the installation of [`flash-attn`](https://github.com/Dao-AILab/flash-attention) is recommended if you are using a GPU accelerator, since it will speed up the inference process, but the installation needs to be done separately, as it's not included in the `distilabel` dependencies.
+In some cases like [`transformers`](https://github.com/huggingface/transformers) and [`vllm`](https://github.com/vllm-project/vllm), the installation of [`flash-attn`](https://github.com/Dao-AILab/flash-attention) is recommended if you are using a GPU accelerator since it will speed up the inference process, but the installation needs to be done separately, as it's not included in the `distilabel` dependencies.
 
 ```sh
 pip install flash-attn --no-build-isolation

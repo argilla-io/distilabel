@@ -1,7 +1,7 @@
 ---
 hide: toc
 ---
-# [MistralAI with `instructor`](#mistralai-with-instructor)
+# MistralAI with `instructor`
 
 Answer instructions with knowledge graphs defined as `pydantic.BaseModel` objects using `instructor` in `distilabel`.
 
