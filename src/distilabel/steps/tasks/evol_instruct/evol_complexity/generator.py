@@ -61,7 +61,6 @@ class EvolComplexityGenerator(EvolInstructGenerator):
         - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)
 
     Examples:
-
         Generate evolved instructions without initial instructions:
 
         ```python

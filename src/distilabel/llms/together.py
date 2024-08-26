@@ -39,7 +39,6 @@ class TogetherLLM(OpenAILLM):
             is meant to be used internally.
 
     Examples:
-
         Generate text:
 
         ```python

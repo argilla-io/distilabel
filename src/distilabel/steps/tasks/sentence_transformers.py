@@ -104,7 +104,6 @@ class GenerateSentencePair(Task):
         - embedding
 
     Examples:
-
         Paraphrasing:
 
         ```python
@@ -358,9 +357,11 @@ class GenerateSentencePair(Task):
         if self.triplet:
             return {
                 "positive": groups[0].strip(),
-                "negative": groups[1].strip()
-                if len(groups) > 1 and groups[1] is not None
-                else None,
+                "negative": (
+                    groups[1].strip()
+                    if len(groups) > 1 and groups[1] is not None
+                    else None
+                ),
             }
 
         return {"positive": groups[0].strip()}

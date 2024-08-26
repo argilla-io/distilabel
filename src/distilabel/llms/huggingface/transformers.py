@@ -76,7 +76,6 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         `:hugging:`
 
     Examples:
-
         Generate text:
 
         ```python

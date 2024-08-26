@@ -265,7 +265,6 @@ class EmbeddingTaskGenerator(GeneratorTask):
         - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
 
     Examples:
-
         Generate embedding tasks for text retrieval:
 
         ```python
@@ -445,7 +444,6 @@ class GenerateTextRetrievalData(_EmbeddingDataGeneration):
         - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
 
     Examples:
-
         Generate synthetic text retrieval data for training embedding models:
 
         ```python
@@ -568,7 +566,6 @@ class GenerateShortTextMatchingData(_EmbeddingDataGeneration):
         - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
 
     Examples:
-
         Generate synthetic short text matching data for training embedding models:
 
         ```python
@@ -658,7 +655,6 @@ class GenerateLongTextMatchingData(_EmbeddingDataGeneration):
         - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
 
     Examples:
-
         Generate synthetic long text matching data for training embedding models:
 
         ```python
@@ -752,7 +748,6 @@ class GenerateTextClassificationData(_EmbeddingDataGeneration):
         - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
 
     Examples:
-
         Generate synthetic text classification data for training embedding models:
 
         ```python
@@ -851,7 +846,6 @@ class MonolingualTripletGenerator(_EmbeddingDataGenerator):
         - model_name (`str`): the name of the model used to generate the monolingual triplets.
 
     Examples:
-
         Generate monolingual triplets for training embedding models:
 
         ```python
@@ -943,7 +937,6 @@ class BitextRetrievalGenerator(_EmbeddingDataGenerator):
             data.
 
     Examples:
-
         Generate bitext retrieval data for training embedding models:
 
         ```python

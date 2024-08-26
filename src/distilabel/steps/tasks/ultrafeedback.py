@@ -59,7 +59,6 @@ class UltraFeedback(Task):
         - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
 
     Examples:
-
         Rate generations from different LLMs based on the selected aspect:
 
         ```python
@@ -313,9 +312,11 @@ class UltraFeedback(Task):
 
             formatted_outputs.append(
                 {
-                    "ratings": int(re.findall(r"\b\d+\b", matches.group(1))[0])
-                    if matches.group(1) not in ["None", "N/A"]
-                    else None,
+                    "ratings": (
+                        int(re.findall(r"\b\d+\b", matches.group(1))[0])
+                        if matches.group(1) not in ["None", "N/A"]
+                        else None
+                    ),
                     "rationales": matches.group(2),
                 }
             )
@@ -358,13 +359,17 @@ class UltraFeedback(Task):
 
             formatted_outputs.append(
                 {
-                    "types": int(re.findall(r"\b\d+\b", matches.group(1))[0])
-                    if matches.group(1) not in ["None", "N/A"]
-                    else None,
+                    "types": (
+                        int(re.findall(r"\b\d+\b", matches.group(1))[0])
+                        if matches.group(1) not in ["None", "N/A"]
+                        else None
+                    ),
                     "rationales": matches.group(2),
-                    "ratings": int(re.findall(r"\b\d+\b", matches.group(3))[0])
-                    if matches.group(3) not in ["None", "N/A"]
-                    else None,
+                    "ratings": (
+                        int(re.findall(r"\b\d+\b", matches.group(3))[0])
+                        if matches.group(3) not in ["None", "N/A"]
+                        else None
+                    ),
                     "rationales-for-ratings": matches.group(4),
                 }
             )

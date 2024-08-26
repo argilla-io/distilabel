@@ -77,7 +77,6 @@ class FaissNearestNeighbour(GlobalStep):
         - [`The Faiss library`](https://arxiv.org/abs/2401.08281)
 
     Examples:
-
         Generating embeddings and getting the nearest neighbours:
 
         ```python

@@ -134,7 +134,6 @@ class PrometheusEval(Task):
         - [prometheus-eval: Evaluate your LLM's response with Prometheus 💯](https://github.com/prometheus-eval/prometheus-eval)
 
     Examples:
-
         Critique and evaluate LLM generation quality using Prometheus 2_0:
 
         ```python

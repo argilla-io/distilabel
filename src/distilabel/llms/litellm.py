@@ -41,7 +41,6 @@ class LiteLLM(AsyncLLM):
         - `verbose`: whether to log the LiteLLM client's logs. Defaults to `False`.
 
     Examples:
-
         Generate text:
 
         ```python

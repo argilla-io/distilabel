@@ -328,7 +328,6 @@ class Magpie(Task, MagpieBase):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
 
     Examples:
-
         Generating instructions with Llama 3 8B Instruct and TransformersLLM:
 
         ```python

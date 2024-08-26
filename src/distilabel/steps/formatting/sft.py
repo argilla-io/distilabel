@@ -50,7 +50,6 @@ class FormatTextGenerationSFT(Step):
         - generation
 
     Examples:
-
         Format your dataset for SFT fine tuning:
 
         ```python
@@ -172,7 +171,6 @@ class FormatChatGenerationSFT(Step):
         - generation
 
     Examples:
-
         Format your dataset for Supervised Fine Tuning (SFT):
 
         ```python

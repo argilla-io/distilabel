@@ -77,7 +77,6 @@ class EvolInstructGenerator(GeneratorTask):
         - [GitHub: h2oai/h2o-wizardlm](https://github.com/h2oai/h2o-wizardlm)
 
     Examples:
-
         Generate evolved instructions without initial instructions:
 
         ```python

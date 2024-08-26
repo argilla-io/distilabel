@@ -68,7 +68,6 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
         - scorer
 
     Examples:
-
         Assigning an score for an instruction-response pair:
 
         ```python

@@ -62,7 +62,6 @@ class MistralLLM(AsyncLLM):
             Defaults to `64`.
 
     Examples:
-
         Generate text:
 
         ```python

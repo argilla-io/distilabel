@@ -71,7 +71,6 @@ class PreferenceToArgilla(ArgillaBase):
             generated rationales won't be pushed to Argilla.
 
     Examples:
-
         Push a preference dataset to an Argilla instance:
 
         ```python

@@ -70,7 +70,6 @@ class CohereLLM(AsyncLLM):
             `"distilabel"`.
 
     Examples:
-
         Generate text:
 
         ```python

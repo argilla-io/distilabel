@@ -40,7 +40,6 @@ class AnyscaleLLM(OpenAILLM):
             It is meant to be used internally.
 
     Examples:
-
         Generate text:
 
         ```python

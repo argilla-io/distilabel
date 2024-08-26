@@ -89,7 +89,6 @@ class LoadDataFromHub(GeneratorStep):
         - load
 
     Examples:
-
         Load data from a dataset in Hugging Face Hub:
 
         ```python
@@ -289,7 +288,6 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         - load
 
     Examples:
-
         Load data from a Hugging Face dataset in your file system:
 
         ```python
@@ -484,7 +482,6 @@ class LoadDataFromDisk(LoadDataFromHub):
         - load
 
     Examples:
-
         Load data from a Hugging Face Dataset:
 
         ```python

@@ -48,7 +48,6 @@ class StructuredGeneration(Task):
         - structured-generation
 
     Examples:
-
         Generate structured output from a JSON schema:
 
         ```python

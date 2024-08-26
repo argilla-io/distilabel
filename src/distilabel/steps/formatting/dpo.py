@@ -65,7 +65,6 @@ class FormatTextGenerationDPO(Step):
         - generations
 
     Examples:
-
         Format your dataset for DPO fine tuning:
 
         ```python
@@ -239,7 +238,6 @@ class FormatChatGenerationDPO(Step):
         - generations
 
     Examples:
-
         Format your dataset for DPO fine tuning:
 
         ```python

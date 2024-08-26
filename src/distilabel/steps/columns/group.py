@@ -44,7 +44,6 @@ class GroupColumns(Step):
             that were grouped.
 
     Examples:
-
         Combine columns of a dataset:
 
         ```python

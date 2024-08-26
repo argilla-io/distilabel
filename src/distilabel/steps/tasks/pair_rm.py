@@ -51,7 +51,6 @@ class PairRM(Step):
         currently, and we will use a specific `LLM`.
 
     Examples:
-
         Rank LLM candidates:
 
         ```python

@@ -50,7 +50,6 @@ class GenerateEmbeddings(Step):
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)
 
     Examples:
-
         Rank LLM candidates:
 
         ```python
