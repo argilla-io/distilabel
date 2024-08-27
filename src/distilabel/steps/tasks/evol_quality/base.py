@@ -273,3 +273,7 @@ class EvolQuality(Task):
         yield inputs
 
         self._logger.info(f"🎉 Finished evolving {len(responses)} instructions!")
+
+    @override
+    def _sample_inputs(self) -> Dict[str, Any]:
+        return self.format_input("<PLACEHOLDER_INSTRUCTION>")

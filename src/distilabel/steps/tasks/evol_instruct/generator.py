@@ -349,3 +349,7 @@ class EvolInstructGenerator(GeneratorTask):
                 ],
                 True,
             )
+
+    @override
+    def _sample_inputs(self) -> Dict[str, Any]:
+        return self._apply_random_mutation(iter_no=0)[0]

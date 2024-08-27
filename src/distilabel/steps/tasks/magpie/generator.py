@@ -15,6 +15,7 @@
 from typing import TYPE_CHECKING, Any, Dict, Union
 
 from pydantic import Field
+from typing_extensions import override
 
 from distilabel.errors import DistilabelUserError
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
@@ -274,3 +275,7 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             )
             generated += rows_to_generate  # type: ignore
             yield (conversations, generated == self.num_rows)
+
+    @override
+    def _sample_inputs(self) -> Dict[str, Any]:
+        return self._generate_with_pre_query_template(inputs=[{}])

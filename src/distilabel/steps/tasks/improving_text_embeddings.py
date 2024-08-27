@@ -232,6 +232,10 @@ class _EmbeddingDataGenerator(_JSONFormatter, GeneratorTask, ABC):
                 )
         yield task_outputs, True
 
+    @override
+    def _sample_inputs(self) -> Dict[str, Any]:
+        return self.prompt
+
 
 # IMPLEMENTED TASKS
 class EmbeddingTaskGenerator(GeneratorTask):
@@ -402,6 +406,10 @@ class EmbeddingTaskGenerator(GeneratorTask):
         except Exception:
             pass
         return {"tasks": output}
+
+    @override
+    def _sample_inputs(self) -> Dict[str, Any]:
+        return self.prompt
 
 
 class GenerateTextRetrievalData(_EmbeddingDataGeneration):

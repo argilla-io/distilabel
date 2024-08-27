@@ -390,3 +390,9 @@ class EvolInstruct(Task):
             ):
                 input.update(self.format_output(instruction, answers[idx]))
             yield inputs
+
+    @override
+    def _sample_inputs(self) -> Dict[str, Any]:
+        return self.format_input(
+            self._apply_random_mutation("<PLACEHOLDER_INSTRUCTION>")
+        )
