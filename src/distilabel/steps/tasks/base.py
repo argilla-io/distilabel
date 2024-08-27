@@ -221,6 +221,47 @@ class _Task(_Step, ABC):
         """
         return None
 
+    def _sample_inputs(self) -> Dict[str, Any]:
+        """Returns a sample input to be used in the `print` method.
+        Tasks that don't adhere to a format input that returns a map of the type
+        str -> str should override this method to return a sample input.
+        """
+        return self.format_input(
+            {input: f"<PLACEHOLDER_{input.upper()}>" for input in self.inputs}
+        )
+
+    def print(self) -> None:
+        """Prints a sample input to the console using the `rich` library.
+        Helper method to visualize the prompt of the task.
+        The variables variables that will be replaced in the final prompt will be named
+        <PLACEHOLDER_VARIABLE_NAME>.
+        """
+        from rich.console import Console, Group
+        from rich.panel import Panel
+        from rich.text import Text
+
+        console = Console()
+
+        panels = []
+        for item in self._sample_inputs():
+            content = Text.assemble((item.get("content", ""),))
+            panel = Panel(
+                content,
+                title=f"[bold][magenta]{item.get('role', '').capitalize()} Message[/magenta][/bold]",
+                border_style="light_cyan3",
+            )
+            panels.append(panel)
+
+        # Create a group of panels
+        # Wrap the group in an outer panel
+        outer_panel = Panel(
+            Group(*panels),
+            title=f"[bold][magenta]Prompt: {type(self).__name__} [/magenta][/bold]",
+            border_style="light_cyan3",
+            expand=False,
+        )
+        console.print(outer_panel)
+
 
 class Task(_Task, Step):
     """Task is a class that implements the `_Task` abstract class and adds the `Step`
