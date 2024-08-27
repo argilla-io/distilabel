@@ -57,14 +57,18 @@ class TestMinHash:
 
 
 class TestMinHashLSH:
-    @pytest.mark.parametrize("threshold, duplicates", [(0.1, 4), (0.9, 1)])
-    def test_process(self, threshold: float, duplicates: int) -> None:
+    @pytest.mark.parametrize(
+        "threshold, duplicates, storage",
+        [(0.1, 4, "dict"), (0.9, 1, "dict"), (0.9, 1, "disk")],
+    )
+    def test_process(self, threshold: float, duplicates: int, storage: str) -> None:
         hasher = MinHash()
         hasher.load()
         results_with_hashes = next(hasher.process([{"text": t} for t in texts]))
 
-        minhash_lsh = MinHashLSH(threshold=threshold, seed=hasher.seed)
+        minhash_lsh = MinHashLSH(threshold=threshold, seed=hasher.seed, storage=storage)
         minhash_lsh.load()
         result = next(minhash_lsh.process(results_with_hashes))
         duplicated = [r["minhash_duplicate"] for r in result]
         assert sum(duplicated) == duplicates
+        minhash_lsh.unload()
