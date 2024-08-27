@@ -295,7 +295,7 @@ class _StepWrapperException(Exception):
         message: The error message.
         step: The `Step` that raised the error.
         code: The error code.
-        subprocess_exception: The exception raised by the subprocess. Defaults to `None`.
+        subprocess_exception: The exception raised by the subprocess.
         data: The data that caused the error. Defaults to `None`.
     """
 
@@ -304,15 +304,19 @@ class _StepWrapperException(Exception):
         message: str,
         step: "_Step",
         code: int,
-        subprocess_exception: Optional[Exception] = None,
+        subprocess_exception: Exception,
         data: Optional[List[List[Dict[str, Any]]]] = None,
     ) -> None:
-        self.message = f"{message}\n\nFor further information visit {DISTILABEL_DOCS_URL}api/pipeline/step_wrapper"
+        self.message = f"{message}\n\nFor further information visit '{DISTILABEL_DOCS_URL}api/pipeline/step_wrapper'"
         self.step = step
         self.code = code
         self.subprocess_exception = subprocess_exception
         self.formatted_traceback = "".join(
-            traceback.format_exception(subprocess_exception)
+            traceback.format_exception(
+                type(subprocess_exception),
+                subprocess_exception,
+                subprocess_exception.__traceback__,
+            )
         )
         self.data = data
 
