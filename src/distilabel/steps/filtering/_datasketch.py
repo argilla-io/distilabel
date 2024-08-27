@@ -36,11 +36,19 @@ SHELVE_SET_NAME: Final[str] = ".shelve_set_storage"
 
 
 class ShelveListStorage(OrderedStorage):
+    """Key/Value storage using shelve to store the hash tables in disk.
+    It mimics the behaviour of `datasketch.DictListStorage`.
+    The only difference is the storage in disk.
+    The functionality is on purpose to avoid unnecessary errors.
+    """
+
     def __init__(self, config) -> None:
         path = config.get("path", self._get_db_name())
-        if Path(path).exists():
-            Path(path).unlink()
+        # Read about writeback here: https://docs.python.org/3/library/shelve.html#shelve.open
         writeback = config.get("writeback", True)
+        # The flag is set to "n" to recreate the file always, we assume
+        # every pipeline works on it's own and recomputes it instead of trusting
+        # the cache.
         self._db = shelve.open(path, writeback=writeback, flag="n")
 
     def _get_db_name(self):
@@ -79,6 +87,12 @@ class ShelveListStorage(OrderedStorage):
 
 
 class ShelveSetStorage(UnorderedStorage, ShelveListStorage):
+    """Key/Value storage using shelve to store the hash tables in disk.
+    It mimics the behaviour of `datasketch.DictSetStorage`.
+    The only difference is the storage in disk.
+    The functionality is on purpose to avoid unnecessary errors.
+    """
+
     def _get_db_name(self):
         return str(SHELVE_DIR / SHELVE_SET_NAME)
 
@@ -93,6 +107,7 @@ class ShelveSetStorage(UnorderedStorage, ShelveListStorage):
 
 
 def ordered_storage(config, name=None):
+    """Copy of `datasketch.storage.ordered_storage` with the addition of `ShelveListStorage`."""
     tp = config["type"]
     if tp == "disk":
         return ShelveListStorage(config)
@@ -100,6 +115,7 @@ def ordered_storage(config, name=None):
 
 
 def unordered_storage(config, name=None):
+    """Copy of `datasketch.storage.ordered_storage` with the addition of `ShelveSetStorage`."""
     tp = config["type"]
     if tp == "disk":
         return ShelveSetStorage(config)
@@ -107,6 +123,14 @@ def unordered_storage(config, name=None):
 
 
 class MinHashLSH(_MinHashLSH):
+    """Custom implementation of `datasketch.MinHashLSH` to allow passing a custom
+    storage configuration to store the hash tables in disk.
+
+    This could be merged in the original repository, the only changes
+    to the __init__ are the additional `close` method, and the use
+    of our custom `ordered_storage` and `unordered_storage` functions.
+    """
+
     def __init__(
         self,
         threshold: float = 0.9,
@@ -168,6 +192,7 @@ class MinHashLSH(_MinHashLSH):
         self.keys = ordered_storage(storage_config, name=b"".join([basename, b"_keys"]))
 
     def close(self):
+        """Closes the shelve objects."""
         if isinstance(self.hashtables[0], ShelveListStorage):
             for ht in self.hashtables:
                 ht.close()
