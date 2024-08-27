@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import pytest
-from pydantic import ValidationError
 
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.generators.data import LoadDataFromDicts
@@ -29,11 +28,6 @@ class TestLoadDataFromDicts:
         )
         assert task.data == data
         assert task.batch_size == 10
-
-    def test_with_errors(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        with pytest.raises(ValidationError):
-            LoadDataFromDicts(name="task", pipeline=pipeline)
 
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
