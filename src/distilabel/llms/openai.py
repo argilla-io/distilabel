@@ -511,7 +511,9 @@ class OpenAILLM(AsyncLLM):
             )
             return []
 
-    def _create_jobs(self, inputs: List["FormattedInput"], **kwargs: Any) -> Tuple[str]:
+    def _create_jobs(
+        self, inputs: List["FormattedInput"], **kwargs: Any
+    ) -> Tuple[str, ...]:
         """Creates jobs in the OpenAI Batch API to generate responses for the given inputs.
 
         Args:
