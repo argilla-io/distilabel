@@ -34,6 +34,7 @@ from typing import (
 )
 
 import fsspec
+from pydantic import BaseModel
 from typing_extensions import Self
 from upath import UPath
 
@@ -64,10 +65,16 @@ from distilabel.utils.serialization import (
     _Serializable,
     read_json,
 )
+from distilabel.utils.typing_ import (
+    extract_annotation_inner_type,
+    is_type_pydantic_secret_field,
+)
 
 if TYPE_CHECKING:
     from os import PathLike
     from queue import Queue
+
+    from pydantic import BaseModel
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
@@ -729,9 +736,41 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         method will make sure the pipeline is up-to-date with the latest changes when
         the pipeline is reloaded from cache.
         """
-        # TODO: handle secret runtime parameters suck api keys
+
+        def recursively_handle_secrets_and_excluded_attributes(
+            cached_model: "BaseModel", model: "BaseModel"
+        ) -> None:
+            """Recursively handle the secrets and excluded attributes of a `BaseModel`,
+            setting the values of the cached model to the values of the model.
+
+            Args:
+                cached_model: The cached model that will be updated as it doesn't contain
+                    the secrets and excluded attributes (not serialized).
+                model: The model that contains the secrets and excluded attributes because
+                    it comes from pipeline instantiation.
+            """
+            for field_name, field_info in step.model_fields.items():
+                if field_name in ("pipeline"):
+                    continue
+
+                inner_type = extract_annotation_inner_type(field_info.annotation)
+                if is_type_pydantic_secret_field(inner_type) or field_info.exclude:
+                    setattr(cached_model, field_name, getattr(model, field_name))
+                elif issubclass(inner_type, BaseModel):
+                    recursively_handle_secrets_and_excluded_attributes(
+                        getattr(cached_model, field_name),
+                        getattr(model, field_name),
+                    )
+
         if self._cache_location["pipeline"].exists():
-            self.dag.G = self.from_yaml(self._cache_location["pipeline"]).dag.G
+            cached_dag = self.from_yaml(self._cache_location["pipeline"]).dag
+
+            for step_name in cached_dag:
+                step_cached: "_Step" = cached_dag.get_step(step_name)[STEP_ATTR_NAME]
+                step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+                recursively_handle_secrets_and_excluded_attributes(step_cached, step)
+
+            self.dag = cached_dag
 
     def _load_batch_manager(self, use_cache: bool = True) -> None:
         """Will try to load the `_BatchManager` from the cache dir if found. Otherwise,
