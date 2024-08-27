@@ -14,10 +14,12 @@
 
 import importlib
 import uuid
+from functools import partial
 from itertools import tee
 from typing import (
     TYPE_CHECKING,
     Callable,
+    Final,
     Iterable,
     List,
     Literal,
@@ -36,6 +38,9 @@ if TYPE_CHECKING:
     from datasketch import LeanMinHash, MinHash, MinHashLSH
 
     from distilabel.steps.typing import StepOutput
+
+
+_DUPLICATE_COLUMN: Final[str] = "minhash_duplicate"
 
 
 # Copied from: https://github.com/huggingface/datatrove/blob/main/src/datatrove/utils/text.py#L89C1-L95C65
@@ -84,13 +89,38 @@ def tokenize_on_ngrams(texts: Iterable[str], n: int = 1) -> List[Set[bytes]]:
 # Also, instead of returning the values, we could be saving them as artifacts,
 # This still needs to be studied.
 class MinHash(Step):
-    """
+    """Creates the components for a `MinHash` object to deduplicate texts.
+
+    From `datasketch` documentation:
+    Estimates the Jaccard similarity (resemblance) between sets of arbitrary sizes in linear
+    time using a small and fixed memory space.
+
+    Note:
+        We only keep the hashvalues, as using those values together with the seed
+        we can reproduce the `MinHash` objects. The `MinHashLSH` will recreate those internally.
+
     Attributes:
         column: the column to deduplicate. Defaults to `text`.
         num_perm: the number of permutations to use. Defaults to `128`.
         seed: the seed to use for the MinHash. Defaults to `1`.
-        tokenizer: the tokenizer to use. Defaults to `ngrams`.
-        n: the size of the ngrams to use. Only relevant if `tokenizer="ngrams"`, Defaults to `1`.
+        tokenizer: the tokenizer to use. Available ones are `words` or `ngrams`.
+            If `words` is selected, it tokenize the text into words using nltk's
+            word tokenizer. `ngram` estimates the ngrams (together with the size
+            `n`) using. Defaults to `ngrams`.
+        n: the size of the ngrams to use. Only relevant if `tokenizer="ngrams"`. Defaults to `1`.
+
+    Input columns:
+        - text (`str`): the texts to obtain the hashes for.
+
+    Output columns:
+        - hashvalues (`List[int]`): hash values obtained for the algorithm.
+
+    Categories:
+        - filtering
+
+    References:
+        - [`datasketch documentation`](https://ekzhu.com/datasketch/minhash.html#minhash)
+        - [Identifying and Filtering Near-Duplicate Documents](https://cs.brown.edu/courses/cs253/papers/nearduplicate.pdf)
 
     Examples:
 
@@ -105,7 +135,7 @@ class MinHash(Step):
             "This is another unique document."
         ]
         from distilabel.steps import MinHash
-        minhasher = MinHash(tokenizer="words")
+        minhasher = MinHash(tokenizer="ngrams", n=3)
         minhasher.load()
         result = next(hasher.process([{"text": t} for t in texts]))
         ```
@@ -129,8 +159,6 @@ class MinHash(Step):
         from datasketch import MinHash
 
         self._hasher = MinHash.bulk
-        from functools import partial
-
         self._tokenizer = (
             tokenized_on_words
             if self.tokenizer == "words"
@@ -161,36 +189,72 @@ class MinHash(Step):
 
 
 class MinHashLSH(GlobalStep):
-    """
-    This class must be used together with MinHash. It creates hashes internally.
+    """Creates a `MinHashLSH` index to deduplicate texts using MinHash.
+
+    This class must be used together with `MinHash` step. It will work with the previous hashes
+    to detect duplicate texts, and inform whether a given row can be removed.
 
     Attributes:
-        seed: the seed to use for the MinHash. Defaults to `1`.
+        seed: the seed to use for the MinHash. This seed must be the same
+            used for `MinHash`, keep in mind when both steps are created. Defaults to `1`.
         num_perm: the number of permutations to use. Defaults to `128`.
-        threshold: the threshold to consider two MinHashes as duplicates. Defaults to `0.9`.
+        threshold: the threshold to consider two MinHashes as duplicates.
+            Values closer to 0 detect more duplicates. Defaults to `0.9`.
+        drop_hashvalues: whether to drop the hashvalues after processing. Defaults to `False`.
+        storage: the storage to use for the LSH. Can be `dict` to store the index
+            in memory, or `disk`, which uses a custom `shelve` backend. Defaults to `dict`.
+
+    Input columns:
+        - text (`str`): the texts to be filtered.
+        - hashvalues (`List[int]`): hash values obtained from `MinHash` step.
+
+    Output columns:
+        - minhash_duplicate (`bool`): boolean indicating if the piece of text is a
+            duplicate or not, so the user can decide afterwards whether to remove it
+            or not.
+
+    Categories:
+        - filtering
+
+    References:
+        - [`datasketch documentation`](https://ekzhu.github.io/datasketch/lsh.html)
 
     Examples:
 
         Deduplicate a list of texts using MinHash and MinHashLSH:
 
         ```python
+        from distilabel.pipeline import Pipeline
         from distilabel.steps import MinHash, MinHashLSH
 
-        texts: List[str] = [
-            "This is a test document.",
-            "This document is a test.",
-            "Test document for duplication.",
-            "Document for duplication test.",
-            "This is another unique document."
-        ]
+        with Pipeline() as pipeline:
+            ds_size = 1000
+            batch_size = 500  # Bigger batch sizes work better for this step
+            data = LoadDataFromDicts(
+                data=[
+                    {"text": "This is a test document."},
+                    {"text": "This document is a test."},
+                    {"text": "Test document for duplication."},
+                    {"text": "Document for duplication test."},
+                    {"text": "This is another unique document."},
+                ]
+                * (ds_size // 5),
+                batch_size=batch_size,
+            )
+            minhash = MinHash(tokenizer="ngrams", n=1, input_batch_size=batch_size)
+            minhash_lsh = MinHashLSH(
+                threshold=0.9,         # lower values will increase the number of duplicates
+                seed=minhash.seed,     # we need to keep the same seed for the LSH
+                drop_hashvalues=True,  # the hashvalues are not needed anymore
+                storage="dict",        # or "disk" for bigger datasets
+            )
+            data >> minhash >> minhash_lsh
 
-        minhasher = MinHash(tokenizer="words")
-        minhasher.load()
-        results_with_hashes = next(minhasher.process([{"text": t} for t in texts]))
-
-        minhash_lsh = MinHashLSH(threshold=09, seed=hasher.seed)
-        minhash_lsh.load()
-        result = next(minhash_lsh.process(results_with_hashes))
+        if __name__ == "__main__":
+            distiset = pipeline.run(use_cache=False)
+            ds = distiset["default"]["train"]
+            # Filter out the duplicates
+            ds_dedup = ds.filter(lambda x: x["minhash_duplicate"] is False)
         ```
     """
 
@@ -198,6 +262,7 @@ class MinHashLSH(GlobalStep):
     num_perm: int = 128
     threshold: float = 0.9
     drop_hashvalues: bool = False
+    storage: Literal["dict", "disk"] = "dict"
     _lhs: Union["MinHashLSH", None] = PrivateAttr(None)
     _minhasher: Union["LeanMinHash", None] = PrivateAttr(None)
 
@@ -208,12 +273,22 @@ class MinHashLSH(GlobalStep):
                 "`datasketch` is needed to deduplicate with MinHash, but is not installed. "
                 "Please install it using `pip install datasketch`."
             )
-        from datasketch import LeanMinHash, MinHashLSH
+        from datasketch import LeanMinHash
 
-        self._lsh = MinHashLSH(num_perm=self.num_perm, threshold=self.threshold)
-        from functools import partial
+        from distilabel.steps.filtering._datasketch import MinHashLSH
 
+        self._lsh = MinHashLSH(
+            num_perm=self.num_perm,
+            threshold=self.threshold,
+            storage_config={"type": self.storage},
+        )
         self._minhasher = partial(LeanMinHash, seed=self.seed)
+
+    def unload(self) -> None:
+        super().unload()
+        # In case of LSH being stored in disk, we need to close the file.
+        if self.storage == "disk":
+            self._lsh.close()
 
     @property
     def inputs(self) -> List[str]:
@@ -221,17 +296,17 @@ class MinHashLSH(GlobalStep):
 
     @property
     def outputs(self) -> List[str]:
-        return ["minhash_duplicate"]
+        return [_DUPLICATE_COLUMN]
 
     def process(self, inputs: StepInput) -> "StepOutput":
         for input in inputs:
             minhash = self._minhasher(hashvalues=input["hashvalues"])
             # Check if the text is already in the LSH index
             if self._lsh.query(minhash):
-                input["minhash_duplicate"] = True
+                input[_DUPLICATE_COLUMN] = True
             else:
                 self._lsh.insert(str(uuid.uuid4()), minhash)
-                input["minhash_duplicate"] = False
+                input[_DUPLICATE_COLUMN] = False
             if self.drop_hashvalues:
                 del input["hashvalues"]
 
