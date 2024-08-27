@@ -230,6 +230,15 @@ class TestBasePipeline:
 
         assert not pipeline._should_continue_processing()
 
+    def test_set_step_for_recovering_offline_batch_generation(self) -> None:
+        with DummyPipeline() as pipeline:
+            step = DummyStep1()
+
+        data = [[{"a": 0}, {"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]]
+        pipeline._set_step_for_recovering_offline_batch_generation(step=step, data=data)
+
+        assert pipeline._recover_offline_batch_generate_for_step == (step.name, data)
+
     def test_should_load_next_stage(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
             generator = DummyGeneratorStep()
