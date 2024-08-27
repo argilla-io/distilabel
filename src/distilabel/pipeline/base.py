@@ -19,6 +19,7 @@ import signal
 import threading
 import time
 from abc import ABC, abstractmethod
+from inspect import isclass
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -749,14 +750,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 model: The model that contains the secrets and excluded attributes because
                     it comes from pipeline instantiation.
             """
-            for field_name, field_info in step.model_fields.items():
+            for field_name, field_info in cached_model.model_fields.items():
                 if field_name in ("pipeline"):
                     continue
 
                 inner_type = extract_annotation_inner_type(field_info.annotation)
                 if is_type_pydantic_secret_field(inner_type) or field_info.exclude:
                     setattr(cached_model, field_name, getattr(model, field_name))
-                elif issubclass(inner_type, BaseModel):
+                elif isclass(inner_type) and issubclass(inner_type, BaseModel):
                     recursively_handle_secrets_and_excluded_attributes(
                         getattr(cached_model, field_name),
                         getattr(model, field_name),
