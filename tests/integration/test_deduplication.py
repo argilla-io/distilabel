@@ -18,6 +18,8 @@ from distilabel.steps import LoadDataFromDicts, MinHash, MinHashLSH
 
 def test_minhash_deduplication():
     with Pipeline() as pipeline:
+        ds_size = 1000
+        batch_size = 500
         data = LoadDataFromDicts(
             data=[
                 {"text": "This is a test document."},
@@ -26,9 +28,17 @@ def test_minhash_deduplication():
                 {"text": "Document for duplication test."},
                 {"text": "This is another unique document."},
             ]
+            * (ds_size // 5),
+            batch_size=batch_size,
         )
-        minhash = MinHash(tokenizer="ngrams", n=1)
-        minhash_lsh = MinHashLSH(threshold=0.9, seed=minhash.seed, drop_hashvalues=True)
+        minhash = MinHash(tokenizer="ngrams", n=1, input_batch_size=batch_size)
+        minhash_lsh = MinHashLSH(
+            threshold=0.9,
+            seed=minhash.seed,
+            drop_hashvalues=True,
+            # storage="dict"
+            storage="disk",
+        )
         data >> minhash >> minhash_lsh
 
     distiset = pipeline.run(use_cache=False)
