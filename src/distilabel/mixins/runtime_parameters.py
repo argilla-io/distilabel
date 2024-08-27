@@ -13,12 +13,15 @@
 # limitations under the License.
 
 import difflib
-import inspect
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
-from pydantic.types import _SecretField
 from typing_extensions import Annotated, get_args, get_origin
+
+from distilabel.utils.typing_ import (
+    extract_annotation_inner_type,
+    is_type_pydantic_secret_field,
+)
 
 if TYPE_CHECKING:
     from pydantic.fields import FieldInfo
@@ -73,8 +76,12 @@ class RuntimeParametersMixin(BaseModel):
             if isinstance(attr, RuntimeParametersMixin):
                 runtime_parameters[name] = attr.runtime_parameters_names
 
-            # `field: List[RuntiemParametersMixin]`
-            if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
+            # `field: List[RuntimeParametersMixin]`
+            if (
+                isinstance(attr, list)
+                and attr
+                and isinstance(attr[0], RuntimeParametersMixin)
+            ):
                 runtime_parameters[name] = {
                     str(i): item.runtime_parameters_names for i, item in enumerate(attr)
                 }
@@ -170,8 +177,8 @@ class RuntimeParametersMixin(BaseModel):
 
             # Handle settings values for `_SecretField`
             field_info = self.model_fields[name]
-            inner_type = _extract_runtime_parameter_inner_type(field_info.annotation)
-            if inspect.isclass(inner_type) and issubclass(inner_type, _SecretField):
+            inner_type = extract_annotation_inner_type(field_info.annotation)
+            if is_type_pydantic_secret_field(inner_type):
                 value = inner_type(value)
 
             # Set the value of the runtime parameter
@@ -211,22 +218,3 @@ def _is_runtime_parameter(field: "FieldInfo") -> Tuple[bool, bool]:
             return True, is_optional
 
     return False, False
-
-
-def _extract_runtime_parameter_inner_type(type_hint: Any) -> Any:
-    """Extracts the inner type of a `RuntimeParameter` type hint.
-
-    Args:
-        type_hint: The type hint to extract the inner type from.
-
-    Returns:
-        The inner type of the `RuntimeParameter` type hint.
-    """
-    type_hint_args = get_args(type_hint)
-    if get_origin(type_hint) is Annotated:
-        return _extract_runtime_parameter_inner_type(type_hint_args[0])
-
-    if get_origin(type_hint) is Union and type(None) in type_hint_args:
-        return _extract_runtime_parameter_inner_type(type_hint_args[0])
-
-    return type_hint
