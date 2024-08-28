@@ -19,13 +19,13 @@ from itertools import tee
 from typing import (
     TYPE_CHECKING,
     Callable,
-    Final,
     Iterable,
     Iterator,
     List,
     Literal,
     Optional,
     Set,
+    Tuple,
     Union,
 )
 
@@ -39,9 +39,6 @@ if TYPE_CHECKING:
     from datasketch import LeanMinHash, MinHash, MinHashLSH
 
     from distilabel.steps.typing import StepOutput
-
-
-_DUPLICATE_COLUMN: Final[str] = "minhash_duplicate"
 
 
 # Copied from: https://github.com/huggingface/datatrove/blob/main/src/datatrove/utils/text.py#L89C1-L95C65
@@ -101,13 +98,12 @@ class MinHash(Step):
         we can reproduce the `MinHash` objects. The `MinHashLSH` will recreate those internally.
 
     Attributes:
-        column: the column to deduplicate. Defaults to `text`.
         num_perm: the number of permutations to use. Defaults to `128`.
         seed: the seed to use for the MinHash. Defaults to `1`.
         tokenizer: the tokenizer to use. Available ones are `words` or `ngrams`.
             If `words` is selected, it tokenize the text into words using nltk's
             word tokenizer. `ngram` estimates the ngrams (together with the size
-            `n`) using. Defaults to `ngrams`.
+            `n`) using. Defaults to `words`.
         n: the size of the ngrams to use. Only relevant if `tokenizer="ngrams"`. Defaults to `1`.
 
     Input columns:
@@ -142,10 +138,9 @@ class MinHash(Step):
         ```
     """
 
-    column: str = "text"
     num_perm: int = 128
     seed: int = 1
-    tokenizer: Literal["words", "ngrams"] = "ngrams"
+    tokenizer: Literal["words", "ngrams"] = "words"
     n: Optional[int] = 1
     _hasher: Union["MinHash", None] = PrivateAttr(None)
     _tokenizer: Union[Callable, None] = PrivateAttr(None)
@@ -168,7 +163,7 @@ class MinHash(Step):
 
     @property
     def inputs(self) -> List[str]:
-        return [self.column]
+        return ["text"]
 
     @property
     def outputs(self) -> List[str]:
@@ -297,17 +292,17 @@ class MinHashLSH(GlobalStep):
 
     @property
     def outputs(self) -> List[str]:
-        return [_DUPLICATE_COLUMN]
+        return ["keep_row_after_minhash_filtering"]
 
     def process(self, inputs: StepInput) -> "StepOutput":
         for input in inputs:
             minhash = self._minhasher(hashvalues=input["hashvalues"])
             # Check if the text is already in the LSH index
             if self._lsh.query(minhash):
-                input[_DUPLICATE_COLUMN] = True
+                input["keep_row_after_minhash_filtering"] = False
             else:
                 self._lsh.insert(str(uuid.uuid4()), minhash)
-                input[_DUPLICATE_COLUMN] = False
+                input["keep_row_after_minhash_filtering"] = True
             if self.drop_hashvalues:
                 del input["hashvalues"]
 
