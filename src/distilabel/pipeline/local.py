@@ -309,7 +309,7 @@ class Pipeline(BasePipeline):
             self._set_step_for_recovering_offline_batch_generation(e.step, e.data)  # type: ignore
             with self._stop_called_lock:
                 if not self._stop_called:
-                    self._stop()
+                    self._stop(acquire_lock=False)
             return
 
         # Global step with successors failed
@@ -348,38 +348,45 @@ class Pipeline(BasePipeline):
         )
         self._exception.__cause__ = _SUBPROCESS_EXCEPTION
 
-    def _stop(self) -> None:
+    def _stop(self, acquire_lock: bool = True) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
         of all the steps and then wait until the output queue is empty i.e. all the steps
         finished processing the batches that were sent before the stop flag. Then it will
-        send `None` to the output queue to notify the pipeline to stop."""
+        send `None` to the output queue to notify the pipeline to stop.
 
-        with self._stop_called_lock:
-            if self._stop_called:
-                self._stop_calls += 1
-                if self._stop_calls == 1:
-                    self._logger.warning(
-                        "🛑 Press again to force the pipeline to stop."
-                    )
-                elif self._stop_calls > 1:
-                    self._logger.warning("🛑 Forcing pipeline interruption.")
+        Args:
+            acquire_lock: Whether to acquire the lock to access the `_stop_called` attribute.
+        """
 
-                    if self._pool:
-                        self._pool.terminate()
-                        self._pool.join()
-                        self._pool = None
+        if acquire_lock:
+            self._stop_called_lock.acquire()
 
-                    if self._manager:
-                        self._manager.shutdown()
-                        self._manager.join()
-                        self._manager = None
+        if self._stop_called:
+            self._stop_calls += 1
+            if self._stop_calls == 1:
+                self._logger.warning("🛑 Press again to force the pipeline to stop.")
+            elif self._stop_calls > 1:
+                self._logger.warning("🛑 Forcing pipeline interruption.")
 
-                    stop_logging()
+                if self._pool:
+                    self._pool.terminate()
+                    self._pool.join()
+                    self._pool = None
 
-                    sys.exit(1)
+                if self._manager:
+                    self._manager.shutdown()
+                    self._manager.join()
+                    self._manager = None
 
-                return
-            self._stop_called = True
+                stop_logging()
+
+                sys.exit(1)
+
+            return
+        self._stop_called = True
+
+        if acquire_lock:
+            self._stop_called_lock.release()
 
         self._logger.debug(
             f"Steps loaded before calling `stop`: {self._steps_load_status}"
