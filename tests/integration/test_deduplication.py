@@ -36,8 +36,8 @@ def test_minhash_deduplication() -> None:
             threshold=0.9,
             seed=minhash.seed,
             drop_hashvalues=True,
-            # storage="dict"
-            storage="disk",
+            storage="dict",
+            # storage="disk",
         )
         data >> minhash >> minhash_lsh
 
