@@ -198,7 +198,8 @@ class MinHashLSH(GlobalStep):
             Values closer to 0 detect more duplicates. Defaults to `0.9`.
         drop_hashvalues: whether to drop the hashvalues after processing. Defaults to `False`.
         storage: the storage to use for the LSH. Can be `dict` to store the index
-            in memory, or `disk`, which uses a custom `shelve` backend. Defaults to `dict`.
+            in memory, or `disk`, which uses a custom `shelve` backend. Note the `disk`
+            is an experimetal feature that may cause issues. Defaults to `dict`.
 
     Input columns:
         - text (`str`): the texts to be filtered.
