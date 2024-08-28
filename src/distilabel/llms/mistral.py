@@ -94,7 +94,7 @@ class MistralLLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
         ```
     """
 

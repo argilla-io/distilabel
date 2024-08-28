@@ -81,7 +81,7 @@ class CohereLLM(AsyncLLM):
         llm.load()
 
         # Call the model
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
 
         Generate structured data:
 
@@ -102,7 +102,7 @@ class CohereLLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
         ```
     """
 

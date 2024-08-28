@@ -107,7 +107,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         llm.load()
 
         # Call the model
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Generate structured data:
@@ -129,7 +129,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         llm.load()
 
         # Call the model
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
         ```
     """
 
@@ -428,7 +428,7 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        results = llm.generate(
+        results = llm.generate_outputs(
             inputs=[[{"role": "user", "content": "Hello, how are you?"}]],
             temperature=0.7,
             top_p=1.0,

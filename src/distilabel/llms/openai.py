@@ -80,7 +80,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Generate text from a custom endpoint following the OpenAI API:
@@ -95,7 +95,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Generate structured data:
@@ -117,7 +117,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
         ```
 
         Generate with Batch API (offline batch generation):
@@ -133,7 +133,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         # [['Hello! How can I assist you today?']]
         ```
     """
