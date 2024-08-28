@@ -205,4 +205,4 @@ To create custom LLMs, subclass either [`LLM`][distilabel.llms.LLM] for synchron
 
 ## Available LLMs
 
-[Our LLM gallery](/distilabel/components-gallery/llms/) shows a list of the available LLMs that can be used within the `distilabel` library.
+[Our LLM gallery](../../../../components-gallery/llms/index.md) shows a list of the available LLMs that can be used within the `distilabel` library.

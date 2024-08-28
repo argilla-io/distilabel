@@ -95,7 +95,7 @@ hide: toc
 
     Learn about reproducing the Arena Hard benchmark with disitlabel.
 
-    [:octicons-arrow-right-24: Example](benchmarking_with_distilabel.md)
+    [:octicons-arrow-right-24: Example](examples/benchmarking_with_distilabel.md)
 
 -   __llama.cpp with outlines__
 
@@ -103,7 +103,7 @@ hide: toc
 
     Learn about generating RPG characters following a pydantic.BaseModel with outlines in distilabel.
 
-    [:octicons-arrow-right-24: Example](llama_cpp_with_outlines.md)
+    [:octicons-arrow-right-24: Example](examples/llama_cpp_with_outlines.md)
 
 -   __MistralAI with instructor__
 
