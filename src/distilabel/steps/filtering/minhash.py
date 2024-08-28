@@ -73,7 +73,7 @@ def tokenize_on_ngrams(texts: Iterable[str], n: int = 1) -> List[Set[bytes]]:
         n: The size of the ngrams, defaults to 1 (single letters).
 
     Returns:
-        Iterable[Set[bytes]]: List with the set of tokens for each document.
+        List with the set of tokens for each document.
     """
 
     return [
