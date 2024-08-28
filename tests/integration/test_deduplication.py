@@ -43,7 +43,7 @@ def test_minhash_deduplication() -> None:
 
     distiset = pipeline.run(use_cache=False)
     ds = distiset["default"]["train"]
-    ds_dedup = ds.filter(lambda x: x["minhash_duplicate"] is False)
+    ds_dedup = ds.filter(lambda x: x["keep_row_after_minhash_filtering"])
     assert len(ds_dedup) == 4
 
 
