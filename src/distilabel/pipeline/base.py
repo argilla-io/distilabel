@@ -835,9 +835,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # we need to handle the stop of the pipeline and break the loop to avoid
             # propagating the batches through the pipeline and making the stop process
             # slower.
-            if self._stop_called:
-                self._handle_batch_on_stop(batch)
-                break
+            with self._stop_called_lock:
+                if self._stop_called:
+                    self._handle_batch_on_stop(batch)
+                    break
 
             # If there is another load stage and all the `last_batch`es from the stage
             # have been received, then load the next stage.
@@ -874,7 +875,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             `True` if should continue consuming batches, `False` otherwise and the pipeline
             should stop.
         """
-        return self._batch_manager.can_generate() and not self._stop_called  # type: ignore
+        with self._stop_called_lock:
+            return self._batch_manager.can_generate() and not self._stop_called  # type: ignore
 
     def _process_batch(
         self, batch: "_Batch", send_last_batch_flag: bool = True
@@ -992,15 +994,16 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 self._logger.debug(f"Waiting for step '{step_name}' to finish...")
                 time.sleep(0.5)
 
-        if self._stop_called:
-            self._handle_stop()
+        with self._stop_called_lock:
+            if self._stop_called:
+                self._handle_stop()
+
+            # Reset flag state
+            self._stop_called = False
 
         self._add_batch_for_recovering_offline_batch_generation()
 
         self._cache()
-
-        # Reset flag state
-        self._stop_called = False
 
     def _run_load_queue_loop_in_thread(self) -> threading.Thread:
         """Runs a background thread that reads from the `load_queue` to update the status
@@ -1070,46 +1073,47 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # Wait for them to be ready
         self._logger.info(f"⏳ Waiting for all the steps of stage {stage} to load...")
         previous_message = None
-        while not self._stop_called:
-            with self._steps_load_status_lock:
-                filtered_steps_load_status = {
-                    step_name: replicas
-                    for step_name, replicas in self._steps_load_status.items()
-                    if step_name in steps
-                }
-                self._logger.debug(
-                    f"Steps from stage {stage} loaded: {filtered_steps_load_status}"
-                )
-
-                if any(
-                    replicas_loaded == _STEP_LOAD_FAILED_CODE
-                    for replicas_loaded in filtered_steps_load_status.values()
-                ):
-                    self._logger.error(
-                        f"❌ Failed to load all the steps of stage {stage}"
+        with self._stop_called_lock:
+            while not self._stop_called:
+                with self._steps_load_status_lock:
+                    filtered_steps_load_status = {
+                        step_name: replicas
+                        for step_name, replicas in self._steps_load_status.items()
+                        if step_name in steps
+                    }
+                    self._logger.debug(
+                        f"Steps from stage {stage} loaded: {filtered_steps_load_status}"
                     )
-                    return False
 
-                num_steps_loaded = 0
-                replicas_message = ""
-                for step_name, replicas in filtered_steps_load_status.items():
-                    step_replica_count = self.dag.get_step_replica_count(step_name)
-                    if replicas == step_replica_count:
-                        num_steps_loaded += 1
-                    replicas_message += f"\n * '{step_name}' replicas: {max(0, replicas)}/{step_replica_count}"
+                    if any(
+                        replicas_loaded == _STEP_LOAD_FAILED_CODE
+                        for replicas_loaded in filtered_steps_load_status.values()
+                    ):
+                        self._logger.error(
+                            f"❌ Failed to load all the steps of stage {stage}"
+                        )
+                        return False
 
-                message = f"⏳ Steps from stage {stage} loaded: {num_steps_loaded}/{len(filtered_steps_load_status)}{replicas_message}"
-                if num_steps_loaded > 0 and message != previous_message:
-                    self._logger.info(message)
-                    previous_message = message
+                    num_steps_loaded = 0
+                    replicas_message = ""
+                    for step_name, replicas in filtered_steps_load_status.items():
+                        step_replica_count = self.dag.get_step_replica_count(step_name)
+                        if replicas == step_replica_count:
+                            num_steps_loaded += 1
+                        replicas_message += f"\n * '{step_name}' replicas: {max(0, replicas)}/{step_replica_count}"
 
-                if num_steps_loaded == len(filtered_steps_load_status):
-                    self._logger.info(
-                        f"✅ All the steps from stage {stage} have been loaded!"
-                    )
-                    return True
+                    message = f"⏳ Steps from stage {stage} loaded: {num_steps_loaded}/{len(filtered_steps_load_status)}{replicas_message}"
+                    if num_steps_loaded > 0 and message != previous_message:
+                        self._logger.info(message)
+                        previous_message = message
 
-            time.sleep(2.5)
+                    if num_steps_loaded == len(filtered_steps_load_status):
+                        self._logger.info(
+                            f"✅ All the steps from stage {stage} have been loaded!"
+                        )
+                        return True
+
+                time.sleep(2.5)
 
         return not self._stop_called
 
