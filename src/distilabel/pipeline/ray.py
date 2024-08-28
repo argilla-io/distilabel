@@ -417,7 +417,6 @@ class RayPipeline(BasePipeline):
             "🛑 Stopping pipeline. Waiting for steps to finish processing batches..."
         )
 
-        self._stop_load_queue_loop()
         self._stop_output_queue_loop()
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:

@@ -428,6 +428,7 @@ class OpenAILLM(AsyncLLM):
                     f"OpenAI API batch with ID '{batch_id}' failed with status '{batch.status}'."
                 )
                 if len(self.jobs_ids) == 1:
+                    self.jobs_ids = None
                     raise RuntimeError(
                         f"The only OpenAI API Batch that was created with ID '{batch_id}'"
                         f" failed with status '{batch.status}'."

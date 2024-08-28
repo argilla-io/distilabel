@@ -41,10 +41,10 @@ from upath import UPath
 
 from distilabel import __version__
 from distilabel.constants import (
-    BASE_CACHE_DIR,
     CONVERGENCE_STEP_ATTR_NAME,
     INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
+    PIPELINES_CACHE_DIR,
     RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
@@ -206,7 +206,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         elif env_cache_dir := os.getenv("DISTILABEL_CACHE_DIR"):
             self._cache_dir = Path(env_cache_dir)
         else:
-            self._cache_dir = BASE_CACHE_DIR
+            self._cache_dir = PIPELINES_CACHE_DIR
 
         self._logger = logging.getLogger("distilabel.pipeline")
 
@@ -983,15 +983,21 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _finalize_pipeline_execution(self) -> None:
         """Finalizes the pipeline execution handling the prematurely stop of the pipeline
         if required, caching the data and ensuring that all the steps finish its execution."""
+
+        # Send `None` to steps `input_queue`s just in case some step is still waiting
+        self._notify_steps_to_stop()
+
+        for step_name in self.dag:
+            while self._is_step_running(step_name):
+                self._logger.debug(f"Waiting for step '{step_name}' to finish...")
+                time.sleep(0.5)
+
         if self._stop_called:
             self._handle_stop()
 
         self._add_batch_for_recovering_offline_batch_generation()
 
         self._cache()
-
-        # Send `None` to steps `input_queue`s just in case some step is still waiting
-        self._notify_steps_to_stop()
 
         # Reset flag state
         self._stop_called = False

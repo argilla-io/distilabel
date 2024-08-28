@@ -16,6 +16,7 @@ import asyncio
 import inspect
 import json
 import logging
+import os
 import sys
 import time
 from abc import ABC, abstractmethod
@@ -24,6 +25,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
+from distilabel.constants import SIGINT_HANDLER_CALLED_ENV_NAME
 from distilabel.errors import DistilabelNotImplementedError, DistilabelUserError
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
 from distilabel.mixins.runtime_parameters import (
@@ -218,7 +220,26 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                     f" for {self.offline_batch_generation_block_until_done} seconds before"
                     " trying to get the results again."
                 )
+                # When running a `Step` in a child process, SIGINT is overriden so the child
+                # process doesn't stop when the parent process receives a SIGINT signal.
+                # The new handler sets an environment variable that is checked here to stop
+                # the polling.
+                if os.getenv(SIGINT_HANDLER_CALLED_ENV_NAME) is not None:
+                    self._logger.info(
+                        "Received a KeyboardInterrupt. Stopping polling for checking if the"
+                        " offline batch generation is finished..."
+                    )
+                    raise e
                 time.sleep(self.offline_batch_generation_block_until_done)  # type: ignore
+            except KeyboardInterrupt as e:
+                # This is for the case the `LLM` is being executed outside a pipeline
+                self._logger.info(
+                    "Received a KeyboardInterrupt. Stopping polling for checking if the"
+                    " offline batch generation is finished..."
+                )
+                raise DistilabelOfflineBatchGenerationNotFinishedException(
+                    jobs_ids=self.jobs_ids  # type: ignore
+                ) from e
 
     @property
     def generate_parameters(self) -> List["inspect.Parameter"]:

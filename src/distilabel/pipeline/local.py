@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
 
 import tblib
 
+from distilabel.constants import SIGINT_HANDLER_CALLED_ENV_NAME
 from distilabel.distiset import create_distiset
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
 from distilabel.pipeline.base import (
@@ -47,7 +48,13 @@ def _init_worker(log_queue: "Queue[Any]") -> None:
     Args:
         log_queue: The queue to send the logs to the main process.
     """
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+    def signal_handler(sig: int, frame: Any) -> None:
+        import os
+
+        os.environ[SIGINT_HANDLER_CALLED_ENV_NAME] = "1"
+
+    signal.signal(signal.SIGINT, signal_handler)
     setup_logging(log_queue)
 
 
@@ -289,6 +296,7 @@ class Pipeline(BasePipeline):
             self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
             return
 
+        # Handle tasks using an `LLM` using offline batch generation
         if isinstance(
             e.subprocess_exception, DistilabelOfflineBatchGenerationNotFinishedException
         ):
@@ -299,10 +307,14 @@ class Pipeline(BasePipeline):
                 " results are ready and continue the pipeline execution."
             )
             self._set_step_for_recovering_offline_batch_generation(e.step, e.data)  # type: ignore
-        else:
-            # Global step with successors failed
-            self._logger.error(f"An error occurred in global step '{step_name}'")
-            self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
+            with self._stop_called_lock:
+                if not self._stop_called:
+                    self._stop()
+            return
+
+        # Global step with successors failed
+        self._logger.error(f"An error occurred in global step '{step_name}'")
+        self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
 
         self._stop()
 
@@ -376,5 +388,4 @@ class Pipeline(BasePipeline):
             "🛑 Stopping pipeline. Waiting for steps to finish processing batches..."
         )
 
-        self._stop_load_queue_loop()
         self._stop_output_queue_loop()
