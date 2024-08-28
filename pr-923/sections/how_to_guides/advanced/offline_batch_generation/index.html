@@ -12,13 +12,9 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-923/sections/how_to_guides/advanced/scaling_with_ray/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-923/sections/how_to_guides/advanced/offline_batch_generation/">
       
       
-        <link rel="prev" href="../serving_an_llm_for_reuse/">
-      
-      
-        <link rel="next" href="../../../pipeline_samples/">
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
@@ -26,7 +22,7 @@
     
     
       
-        <title>Scaling and distributing a pipeline with Ray - Distilabel Docs</title>
+        <title>Offline batch generation - Distilabel Docs</title>
       
     
     
@@ -123,11 +119,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Scaling and distributing a pipeline with Ray - Distilabel Docs" >
+        <meta  property="og:title"  content="Offline batch generation - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-923/assets/images/social/sections/how_to_guides/advanced/scaling_with_ray.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-923/assets/images/social/sections/how_to_guides/advanced/offline_batch_generation.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -135,15 +131,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-923/sections/how_to_guides/advanced/scaling_with_ray/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-923/sections/how_to_guides/advanced/offline_batch_generation/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Scaling and distributing a pipeline with Ray - Distilabel Docs" >
+        <meta  name="twitter:title"  content="Offline batch generation - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-923/assets/images/social/sections/how_to_guides/advanced/scaling_with_ray.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-923/assets/images/social/sections/how_to_guides/advanced/offline_batch_generation.png" >
       
     
     
@@ -164,11 +160,6 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#scaling-and-distributing-a-pipeline-with-ray" class="md-skip">
-          Skip to content
-        </a>
       
     </div>
     <div data-md-component="announce">
@@ -203,7 +194,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Scaling and distributing a pipeline with Ray
+              Offline batch generation
             
           </span>
         </div>
@@ -360,10 +351,8 @@
         
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
+    <li class="md-tabs__item">
       <a href="../../" class="md-tabs__link">
         
   
@@ -623,27 +612,22 @@
       
   
   
-    
   
   
-  
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           
@@ -659,13 +643,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             How-to guides
@@ -684,20 +668,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
         
           
-          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -944,30 +925,25 @@
                 
   
   
-    
   
   
-  
     
     
     
       
       
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -978,7 +954,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Advanced
@@ -1199,30 +1175,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Scaling and distributing a pipeline with Ray
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../scaling_with_ray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1231,86 +1187,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#relation-between-distilabel-steps-and-ray-actors" class="md-nav__link">
-    <span class="md-ellipsis">
-      Relation between distilabel steps and Ray Actors
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#executing-a-pipeline-with-ray" class="md-nav__link">
-    <span class="md-ellipsis">
-      Executing a pipeline with Ray
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Executing a pipeline with Ray">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#using-ray-jobs-api" class="md-nav__link">
-    <span class="md-ellipsis">
-      Using Ray Jobs API
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#file-system-requirements" class="md-nav__link">
-    <span class="md-ellipsis">
-      File system requirements
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#executing-a-raypipeline-in-a-cluster-with-slurm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Executing a RayPipeline in a cluster with Slurm
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#vllm-and-tensor_parallel_size" class="md-nav__link">
-    <span class="md-ellipsis">
-      vLLM and tensor_parallel_size
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -4697,76 +4573,6 @@
   
   
   
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#relation-between-distilabel-steps-and-ray-actors" class="md-nav__link">
-    <span class="md-ellipsis">
-      Relation between distilabel steps and Ray Actors
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#executing-a-pipeline-with-ray" class="md-nav__link">
-    <span class="md-ellipsis">
-      Executing a pipeline with Ray
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Executing a pipeline with Ray">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#using-ray-jobs-api" class="md-nav__link">
-    <span class="md-ellipsis">
-      Using Ray Jobs API
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#file-system-requirements" class="md-nav__link">
-    <span class="md-ellipsis">
-      File system requirements
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#executing-a-raypipeline-in-a-cluster-with-slurm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Executing a RayPipeline in a cluster with Slurm
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#vllm-and-tensor_parallel_size" class="md-nav__link">
-    <span class="md-ellipsis">
-      vLLM and tensor_parallel_size
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -4781,7 +4587,7 @@
                   
 
   
-    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/how_to_guides/advanced/scaling_with_ray.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/how_to_guides/advanced/offline_batch_generation.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -4789,214 +4595,9 @@
   
 
 
-<h1 id="scaling-and-distributing-a-pipeline-with-ray">Scaling and distributing a pipeline with Ray<a class="headerlink" href="#scaling-and-distributing-a-pipeline-with-ray" title="Permanent link">&para;</a></h1>
-<p>Although the local <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline">Pipeline</a> based on <a href="https://docs.python.org/3/library/multiprocessing.html"><code>multiprocessing</code></a> + <a href="../serving_an_llm_for_reuse/">serving LLMs with an external service</a> is enough for executing most of the pipelines used to create SFT and preference datasets, there are scenarios where you might need to scale your pipeline across multiple machines. In such cases, distilabel leverages <a href="https://www.ray.io/">Ray</a> to distribute the workload efficiently. This allows you to generate larger datasets, reduce execution time, and maximize resource utilization across a cluster of machines, without needing to change a single line of code.</p>
-<h2 id="relation-between-distilabel-steps-and-ray-actors">Relation between distilabel steps and Ray Actors<a class="headerlink" href="#relation-between-distilabel-steps-and-ray-actors" title="Permanent link">&para;</a></h2>
-<p>A <code>distilabel</code> pipeline consist of several <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>s. An <code>Step</code> is a class that defines a basic life-cycle:</p>
-<ol>
-<li>It will load or create the resources (LLMs, clients, etc) required to run its logic.</li>
-<li>It will run a loop waiting for incoming batches received using a queue. Once it receives one batch, it will process it and put the processed batch into an output queue.</li>
-<li>When it finish a batch that is the final one or receives a special signal, the loop will finish and the unload logic will be executed.</li>
-</ol>
-<p>So an <code>Step</code> needs to maintain a minimum state and the best way to do that with Ray is using <a href="https://docs.ray.io/en/latest/ray-core/actors.html">actors</a>.</p>
-<pre class="mermaid"><code>graph TD
-    A[Step] --&gt;|has| B[Multiple Replicas]
-    B --&gt;|wrapped in| C[Ray Actor]
-    C --&gt;|maintains| D[Step Replica State]
-    C --&gt;|executes| E[Step Lifecycle]
-    E --&gt;|1. Load/Create Resources| F[LLMs, Clients, etc.]
-    E --&gt;|2. Process batches from| G[Input Queue]
-    E --&gt;|3. Processed batches are put in| H[Output Queue]
-    E --&gt;|4. Unload| I[Cleanup]
-</code></pre>
-<h2 id="executing-a-pipeline-with-ray">Executing a pipeline with Ray<a class="headerlink" href="#executing-a-pipeline-with-ray" title="Permanent link">&para;</a></h2>
-<p>The recommended way to execute a <code>distilabel</code> pipeline using Ray is using the <a href="https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-api">Ray Jobs API</a>.</p>
-<p>Before jumping on the explanation, let's first install the prerequisites:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>distilabel<span class="o">[</span>ray<span class="o">]</span>
-</span></code></pre></div></p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>It's recommended to create a virtual environment.</p>
-</div>
-<p>For the purpose of explaining how to execute a pipeline with Ray, we'll use the following pipeline throughout the examples:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">vLLM</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;text-generation-ray-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">load_data_from_hub</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">})</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">text_generation</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">vLLM</span><span class="p">(</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>            <span class="n">tokenizer</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="p">)</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="p">)</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">load_data_from_hub</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>            <span class="n">load_data_from_hub</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                <span class="s2">&quot;repo_id&quot;</span><span class="p">:</span> <span class="s2">&quot;HuggingFaceH4/instruction-dataset&quot;</span><span class="p">,</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>            <span class="p">},</span>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>            <span class="n">text_generation</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">4096</span><span class="p">,</span>
-</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>                    <span class="p">}</span>
-</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>                <span class="p">},</span>
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>                <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;gpus&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="c1"># (1)</span>
-</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>            <span class="p">},</span>
-</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="p">}</span>
-</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>    <span class="p">)</span>
-</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>
-</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span>
-</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>        <span class="s2">&quot;&lt;YOUR_HF_USERNAME_OR_ORGANIZATION&gt;/text-generation-distilabel-ray&quot;</span> <span class="c1"># (2)</span>
-</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>    <span class="p">)</span>
-</span></code></pre></div>
-<ol>
-<li>We're setting <a href="../assigning_resources_to_step/">resources</a> for the <code>text_generation</code> step and defining that we want two replicas and one GPU per replica. <code>distilabel</code> will create two replicas of the step i.e. two actors in the Ray cluster, and each actor will request to be allocated in a node of the cluster that have at least one GPU. You can read more about how Ray manages the resources <a href="https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#resources">here</a>.</li>
-<li>You should modify this and add your user or organization on the Hugging Face Hub.</li>
-</ol>
-<p>It's a basic pipeline with just two steps: one to load a dataset from the Hub with an <code>instruction</code> column and one to generate a <code>response</code> for that instruction using Llama 3 8B Instruct with <a href="../../../../components-gallery/llms/vllm/">vLLM</a>. Simple but enough to demonstrate how to distribute and scale the workload using a Ray cluster!</p>
-<h3 id="using-ray-jobs-api">Using Ray Jobs API<a class="headerlink" href="#using-ray-jobs-api" title="Permanent link">&para;</a></h3>
-<p>If you don't know the Ray Jobs API then it's recommended to read <a href="https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-overview">Ray Jobs Overview</a>. Quick summary: Ray Jobs is the recommended way to execute a job in a Ray cluster as it will handle packaging, deploying and managing the Ray application.</p>
-<p>To execute the pipeline above, we first need to create a directory (kind of a package) with the pipeline script (or scripts)
-that we will submit to the Ray cluster:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mkdir<span class="w"> </span>ray-pipeline
-</span></code></pre></div>
-<p>The content of the directory <code>ray-pipeline</code> should be:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ray-pipeline/
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── pipeline.py
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>└── runtime_env.yaml
-</span></code></pre></div>
-<p>The first file contains the code of the pipeline, while the second one (<code>runtime_env.yaml</code>) is a specific Ray file containing the <a href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#environment-dependencies">environment dependencies</a> required to run the job:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">pip</span><span class="p">:</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">distilabel[ray,vllm] &gt;= 1.3.0</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nt">env_vars</span><span class="p">:</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">HF_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;YOUR_HF_TOKEN&gt;</span>
-</span></code></pre></div>
-<p>With this file we're basically informing to the Ray cluster that it will have to install <code>distilabel</code> with the <code>vllm</code> and <code>ray</code> extra dependencies to be able to run the job. In addition, we're defining the <code>HF_TOKEN</code> environment variable that will be used (by the <code>push_to_hub</code> method) to upload the resulting dataset to the Hugging Face Hub. </p>
-<p>After that, we can proceed to execute the <code>ray</code> command that will submit the job to the Ray cluster:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ray<span class="w"> </span>job<span class="w"> </span>submit<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span>--address<span class="w"> </span>http://localhost:8265<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span>--working-dir<span class="w"> </span>ray-pipeline<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span>--runtime-env<span class="w"> </span>ray-pipeline/runtime_env.yaml<span class="w"> </span>--<span class="w"> </span>python<span class="w"> </span>pipeline.py
-</span></code></pre></div></p>
-<p>What this will do, it's to basically upload the <code>--working-dir</code> to the Ray cluster, install the dependencies and then execute the <code>python pipeline.py</code> command from the head node.</p>
-<h2 id="file-system-requirements">File system requirements<a class="headerlink" href="#file-system-requirements" title="Permanent link">&para;</a></h2>
-<p>As described in <a href="../fs_to_pass_data/">Using a file system to pass data to steps</a>, <code>distilabel</code> relies on the file system to pass the data to the <code>GlobalStep</code>s, so if the pipeline to be executed in the Ray cluster have any <code>GlobalStep</code> or do you want to set the <code>use_fs_to_pass_data=True</code> of the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline.run">run</a> method, then you will need to setup a file system to which all the nodes of the Ray cluster have access:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="o">...</span><span class="p">},</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="n">storage_parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;file:///mnt/data&quot;</span><span class="p">},</span> <span class="c1"># (1)</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="n">use_fs_to_pass_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="p">)</span>
-</span></code></pre></div>
-<ol>
-<li>All the nodes of the Ray cluster should have access to <code>/mnt/data</code>.</li>
-</ol>
-<h2 id="executing-a-raypipeline-in-a-cluster-with-slurm">Executing a <code>RayPipeline</code> in a cluster with Slurm<a class="headerlink" href="#executing-a-raypipeline-in-a-cluster-with-slurm" title="Permanent link">&para;</a></h2>
-<p>If you have access to an HPC, then you're probably also a user of <a href="https://slurm.schedmd.com/">Slurm</a>, a workload manager typically used on HPCs. We can create Slurm job that takes some nodes and deploy a Ray cluster to run a distributed <code>distilabel</code> pipeline:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="ch">#!/bin/bash</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1">#SBATCH --job-name=distilabel-ray-text-generation</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1">#SBATCH --partition=your-partition</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1">#SBATCH --qos=normal</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1">#SBATCH --nodes=2 # (1)</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1">#SBATCH --exclusive</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1">#SBATCH --ntasks-per-node=1 # (2)</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1">#SBATCH --gpus-per-node=1 # (3)</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="c1">#SBATCH --time=0:30:00</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="nb">set</span><span class="w"> </span>-ex
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
-</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SLURM_JOB_ID: </span><span class="nv">$SLURM_JOB_ID</span><span class="s2">&quot;</span>
-</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SLURM_JOB_NODELIST: </span><span class="nv">$SLURM_JOB_NODELIST</span><span class="s2">&quot;</span>
-</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
-</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="c1"># Activate virtual environment</span>
-</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="nb">source</span><span class="w"> </span>/path/to/virtualenv/.venv/bin/activate
-</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>
-</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="c1"># Getting the node names</span>
-</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="nv">nodes</span><span class="o">=</span><span class="k">$(</span>scontrol<span class="w"> </span>show<span class="w"> </span>hostnames<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SLURM_JOB_NODELIST</span><span class="s2">&quot;</span><span class="k">)</span>
-</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="nv">nodes_array</span><span class="o">=(</span><span class="nv">$nodes</span><span class="o">)</span>
-</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>
-</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="c1"># Get the IP address of the head node</span>
-</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="nv">head_node</span><span class="o">=</span><span class="si">${</span><span class="nv">nodes_array</span><span class="p">[0]</span><span class="si">}</span>
-</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="nv">head_node_ip</span><span class="o">=</span><span class="k">$(</span>srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$head_node</span><span class="s2">&quot;</span><span class="w"> </span>hostname<span class="w"> </span>--ip-address<span class="k">)</span>
-</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>
-</span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a><span class="c1"># Start Ray head node</span>
-</span><span id="__span-7-28"><a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="nv">port</span><span class="o">=</span><span class="m">6379</span>
-</span><span id="__span-7-29"><a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a><span class="nv">ip_head</span><span class="o">=</span><span class="nv">$head_node_ip</span>:<span class="nv">$port</span>
-</span><span id="__span-7-30"><a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a><span class="nb">export</span><span class="w"> </span>ip_head
-</span><span id="__span-7-31"><a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;IP Head: </span><span class="nv">$ip_head</span><span class="s2">&quot;</span>
-</span><span id="__span-7-32"><a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>
-</span><span id="__span-7-33"><a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a><span class="c1"># Generate a unique Ray tmp dir for the head node (just in case the default one is not writable)</span>
-</span><span id="__span-7-34"><a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a><span class="nv">head_tmp_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/ray_tmp_</span><span class="si">${</span><span class="nv">SLURM_JOB_ID</span><span class="si">}</span><span class="s2">_head&quot;</span>
-</span><span id="__span-7-35"><a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a>
-</span><span id="__span-7-36"><a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting HEAD at </span><span class="nv">$head_node</span><span class="s2">&quot;</span>
-</span><span id="__span-7-37"><a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a><span class="nv">OUTLINES_CACHE_DIR</span><span class="o">=</span><span class="s2">&quot;/tmp/.outlines&quot;</span><span class="w"> </span>srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$head_node</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\ </span><span class="c1"># (4)</span>
-</span><span id="__span-7-38"><a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a><span class="w">    </span>ray<span class="w"> </span>start<span class="w"> </span>--head<span class="w"> </span>--node-ip-address<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$head_node_ip</span><span class="s2">&quot;</span><span class="w"> </span>--port<span class="o">=</span><span class="nv">$port</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-39"><a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a><span class="w">    </span>--dashboard-host<span class="o">=</span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-40"><a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a><span class="w">    </span>--dashboard-port<span class="o">=</span><span class="m">8265</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-41"><a id="__codelineno-7-41" name="__codelineno-7-41" href="#__codelineno-7-41"></a><span class="w">    </span>--temp-dir<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$head_tmp_dir</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-42"><a id="__codelineno-7-42" name="__codelineno-7-42" href="#__codelineno-7-42"></a><span class="w">    </span>--block<span class="w"> </span><span class="p">&amp;</span>
-</span><span id="__span-7-43"><a id="__codelineno-7-43" name="__codelineno-7-43" href="#__codelineno-7-43"></a>
-</span><span id="__span-7-44"><a id="__codelineno-7-44" name="__codelineno-7-44" href="#__codelineno-7-44"></a><span class="c1"># Give some time to head node to start...</span>
-</span><span id="__span-7-45"><a id="__codelineno-7-45" name="__codelineno-7-45" href="#__codelineno-7-45"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Waiting a bit before starting worker nodes...&quot;</span>
-</span><span id="__span-7-46"><a id="__codelineno-7-46" name="__codelineno-7-46" href="#__codelineno-7-46"></a>sleep<span class="w"> </span><span class="m">10</span>
-</span><span id="__span-7-47"><a id="__codelineno-7-47" name="__codelineno-7-47" href="#__codelineno-7-47"></a>
-</span><span id="__span-7-48"><a id="__codelineno-7-48" name="__codelineno-7-48" href="#__codelineno-7-48"></a><span class="c1"># Start Ray worker nodes</span>
-</span><span id="__span-7-49"><a id="__codelineno-7-49" name="__codelineno-7-49" href="#__codelineno-7-49"></a><span class="nv">worker_num</span><span class="o">=</span><span class="k">$((</span><span class="nv">SLURM_JOB_NUM_NODES</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="k">))</span>
-</span><span id="__span-7-50"><a id="__codelineno-7-50" name="__codelineno-7-50" href="#__codelineno-7-50"></a>
-</span><span id="__span-7-51"><a id="__codelineno-7-51" name="__codelineno-7-51" href="#__codelineno-7-51"></a><span class="c1"># Start from 1 (0 is head node)</span>
-</span><span id="__span-7-52"><a id="__codelineno-7-52" name="__codelineno-7-52" href="#__codelineno-7-52"></a><span class="k">for</span><span class="w"> </span><span class="o">((</span><span class="nv">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span>i<span class="w"> </span>&lt;<span class="o">=</span><span class="w"> </span>worker_num<span class="p">;</span><span class="w"> </span>i++<span class="o">))</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-7-53"><a id="__codelineno-7-53" name="__codelineno-7-53" href="#__codelineno-7-53"></a><span class="w">    </span><span class="nv">node_i</span><span class="o">=</span><span class="si">${</span><span class="nv">nodes_array</span><span class="p">[</span><span class="nv">$i</span><span class="p">]</span><span class="si">}</span>
-</span><span id="__span-7-54"><a id="__codelineno-7-54" name="__codelineno-7-54" href="#__codelineno-7-54"></a><span class="w">    </span><span class="nv">worker_tmp_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/ray_tmp_</span><span class="si">${</span><span class="nv">SLURM_JOB_ID</span><span class="si">}</span><span class="s2">_worker_</span><span class="nv">$i</span><span class="s2">&quot;</span>
-</span><span id="__span-7-55"><a id="__codelineno-7-55" name="__codelineno-7-55" href="#__codelineno-7-55"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting WORKER </span><span class="nv">$i</span><span class="s2"> at </span><span class="nv">$node_i</span><span class="s2">&quot;</span>
-</span><span id="__span-7-56"><a id="__codelineno-7-56" name="__codelineno-7-56" href="#__codelineno-7-56"></a><span class="w">    </span><span class="nv">OUTLINES_CACHE_DIR</span><span class="o">=</span><span class="s2">&quot;/tmp/.outlines&quot;</span><span class="w"> </span>srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$node_i</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-57"><a id="__codelineno-7-57" name="__codelineno-7-57" href="#__codelineno-7-57"></a><span class="w">        </span>ray<span class="w"> </span>start<span class="w"> </span>--address<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ip_head</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-58"><a id="__codelineno-7-58" name="__codelineno-7-58" href="#__codelineno-7-58"></a><span class="w">        </span>--temp-dir<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$worker_tmp_dir</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-59"><a id="__codelineno-7-59" name="__codelineno-7-59" href="#__codelineno-7-59"></a><span class="w">        </span>--block<span class="w"> </span><span class="p">&amp;</span>
-</span><span id="__span-7-60"><a id="__codelineno-7-60" name="__codelineno-7-60" href="#__codelineno-7-60"></a><span class="w">    </span>sleep<span class="w"> </span><span class="m">5</span>
-</span><span id="__span-7-61"><a id="__codelineno-7-61" name="__codelineno-7-61" href="#__codelineno-7-61"></a><span class="k">done</span>
-</span><span id="__span-7-62"><a id="__codelineno-7-62" name="__codelineno-7-62" href="#__codelineno-7-62"></a>
-</span><span id="__span-7-63"><a id="__codelineno-7-63" name="__codelineno-7-63" href="#__codelineno-7-63"></a><span class="c1"># Give some time to the Ray cluster to gather info</span>
-</span><span id="__span-7-64"><a id="__codelineno-7-64" name="__codelineno-7-64" href="#__codelineno-7-64"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Waiting a bit before submitting the job...&quot;</span>
-</span><span id="__span-7-65"><a id="__codelineno-7-65" name="__codelineno-7-65" href="#__codelineno-7-65"></a>sleep<span class="w"> </span><span class="m">60</span>
-</span><span id="__span-7-66"><a id="__codelineno-7-66" name="__codelineno-7-66" href="#__codelineno-7-66"></a>
-</span><span id="__span-7-67"><a id="__codelineno-7-67" name="__codelineno-7-67" href="#__codelineno-7-67"></a><span class="c1"># Finally submit the job to the cluster</span>
-</span><span id="__span-7-68"><a id="__codelineno-7-68" name="__codelineno-7-68" href="#__codelineno-7-68"></a>ray<span class="w"> </span>job<span class="w"> </span>submit<span class="w"> </span>--address<span class="w"> </span>http://localhost:8265<span class="w"> </span>--working-dir<span class="w"> </span>ray-pipeline<span class="w"> </span>--<span class="w"> </span>python<span class="w"> </span>-u<span class="w"> </span>pipeline.py
-</span></code></pre></div>
-<ol>
-<li>In this case, we just want two nodes: one to run the Ray head node and one to run a worker.</li>
-<li>We just want to run a task per node i.e. the Ray command that starts the head/worker node.</li>
-<li>We have selected 1 GPU per node, but we could have selected more depending on the pipeline.</li>
-<li>We need to set the environment variable <code>OUTLINES_CACHE_DIR</code> to <code>/tmp/.outlines</code> to avoid issues with the nodes trying to read/write the same <code>outlines</code> cache files, which is not possible.</li>
-</ol>
-<h2 id="vllm-and-tensor_parallel_size"><code>vLLM</code> and <code>tensor_parallel_size</code><a class="headerlink" href="#vllm-and-tensor_parallel_size" title="Permanent link">&para;</a></h2>
-<p>In order to use <code>vLLM</code> multi-GPU and multi-node capabilities with <code>ray</code>, we need to do a few changes in the example pipeline from above. The first change needed is to specify a value for <code>tensor_parallel_size</code> aka "In how many GPUs do I want you to load the model", and the second one is to define <code>ray</code> as the <code>distributed_executor_backend</code> as the default one in <code>vLLM</code> is to use <code>multiprocessing</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;text-generation-ray-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">load_data_from_hub</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">})</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">text_generation</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">vLLM</span><span class="p">(</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>            <span class="n">tokenizer</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>            <span class="n">extra_kwargs</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>                <span class="s2">&quot;tensor_parallel_size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>                <span class="s2">&quot;distributed_executor_backend&quot;</span><span class="p">:</span> <span class="s2">&quot;ray&quot;</span><span class="p">,</span>
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>            <span class="p">}</span>
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>        <span class="p">)</span>
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    <span class="p">)</span>
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
-</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="n">load_data_from_hub</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span>
-</span></code></pre></div>
-<p>More information about distributed inference with <code>vLLM</code> can be found here: <a href="https://docs.vllm.ai/en/latest/serving/distributed_serving.html">vLLM - Distributed Serving</a></p>
+  <h1>Offline batch generation</h1>
+
+
 
 
 
@@ -5045,7 +4646,7 @@ that we will submit to the Ray cluster:</p>
               
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Scaling%20and%20distributing%20a%20pipeline%20with%20Ray+-+/sections/how_to_guides/advanced/scaling_with_ray/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Offline%20batch%20generation+-+/sections/how_to_guides/advanced/offline_batch_generation/" target="_blank" rel="noopener">opening a GitHub issue</a>.
             </div>
           
         </div>
@@ -5074,44 +4675,6 @@ that we will submit to the Ray cluster:</p>
       
         <footer class="md-footer">
   
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../serving_an_llm_for_reuse/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Serving an LLM for sharing it between several tasks">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                Serving an LLM for sharing it between several tasks
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../../../pipeline_samples/" class="md-footer__link md-footer__link--next" aria-label="Next: Pipeline Samples">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Pipeline Samples
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
     
   
   <div class="md-footer-meta md-typeset">

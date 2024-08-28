@@ -246,6 +246,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-923/sections/how_to_guides/advanced/offline_batch_generation/</loc>
+         <lastmod>2024-08-28</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-923/sections/how_to_guides/advanced/pipeline_requirements/</loc>
          <lastmod>2024-08-28</lastmod>
          <changefreq>daily</changefreq>
