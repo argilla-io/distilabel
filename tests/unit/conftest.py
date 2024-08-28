@@ -46,7 +46,7 @@ class DummyLLM(LLM):
     structured_output: Any = None
 
     def load(self) -> None:
-        pass
+        super().load()
 
     @property
     def model_name(self) -> str:

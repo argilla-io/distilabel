@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 class DummyOfflineBatchGenerateLLM(LLM):
     def load(self) -> None:
-        pass
+        super().load()
 
     @property
     def model_name(self) -> str:
