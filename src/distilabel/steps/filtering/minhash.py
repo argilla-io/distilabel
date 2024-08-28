@@ -21,6 +21,7 @@ from typing import (
     Callable,
     Final,
     Iterable,
+    Iterator,
     List,
     Literal,
     Optional,
