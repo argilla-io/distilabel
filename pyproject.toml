@@ -96,6 +96,9 @@ sentence-transformers = ["sentence-transformers >= 3.0.0"]
 faiss-cpu = ["faiss-cpu >= 1.8.0"]
 faiss-gpu = ["faiss-cpu >= 1.7.2"]
 
+# minhash
+minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]
+
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
 Issues = "https://github.com/argilla/distilabel/issues"
