@@ -265,7 +265,7 @@ class QualityScorer(Task):
             return {"scores": [None] * len(input["responses"])}
 
     @override
-    def _sample_inputs(self) -> Dict[str, Any]:
+    def _sample_input(self) -> ChatType:
         return self.format_input(
             {
                 "instruction": f"<PLACEHOLDER_{'instruction'.upper()}>",

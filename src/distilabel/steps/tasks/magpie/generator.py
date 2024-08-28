@@ -24,6 +24,7 @@ from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.magpie.base import MagpieBase
 
 if TYPE_CHECKING:
+    from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import GeneratorStepOutput, StepColumns
 
 
@@ -277,5 +278,5 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             yield (conversations, generated == self.num_rows)
 
     @override
-    def _sample_inputs(self) -> Dict[str, Any]:
+    def _sample_input(self) -> ChatType:
         return self._generate_with_pre_query_template(inputs=[{}])

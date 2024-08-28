@@ -14,7 +14,7 @@
 
 import importlib
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import Field
 from typing_extensions import override
@@ -32,7 +32,7 @@ from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import FormattedInput
+    from distilabel.steps.tasks.typing import ChatType, FormattedInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -221,7 +221,7 @@ class _Task(_Step, ABC):
         """
         return None
 
-    def _sample_inputs(self) -> Dict[str, Any]:
+    def _sample_input(self) -> "ChatType":
         """Returns a sample input to be used in the `print` method.
         Tasks that don't adhere to a format input that returns a map of the type
         str -> str should override this method to return a sample input.
@@ -230,20 +230,25 @@ class _Task(_Step, ABC):
             {input: f"<PLACEHOLDER_{input.upper()}>" for input in self.inputs}
         )
 
-    def print(self) -> None:
+    def print(self, sample_input: Optional[Dict[str, Any]] = None) -> None:
         """Prints a sample input to the console using the `rich` library.
         Helper method to visualize the prompt of the task.
-        The variables variables that will be replaced in the final prompt will be named
-        <PLACEHOLDER_VARIABLE_NAME>.
+
+        Args:
+            sample_input: A sample input to be printed. If not provided, a default will be
+                generated using the `_sample_input` method, which can be overriden by
+                subclasses.
+                The variables be named <PLACEHOLDER_VARIABLE_NAME> by default.
         """
         from rich.console import Console, Group
         from rich.panel import Panel
         from rich.text import Text
 
         console = Console()
+        sample_input = sample_input or self._sample_input()
 
         panels = []
-        for item in self._sample_inputs():
+        for item in sample_input:
             content = Text.assemble((item.get("content", ""),))
             panel = Panel(
                 content,

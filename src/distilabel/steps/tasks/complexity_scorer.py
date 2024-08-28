@@ -242,7 +242,7 @@ class ComplexityScorer(Task):
             return {"scores": [None] * len(input["instructions"])}
 
     @override
-    def _sample_inputs(self) -> Dict[str, Any]:
+    def _sample_input(self) -> "ChatType":
         """Returns a sample input to be used in the `print` method.
         Tasks that don't adhere to a format input that returns a map of the type
         str -> str should override this method to return a sample input.

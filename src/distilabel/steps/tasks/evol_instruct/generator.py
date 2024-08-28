@@ -351,5 +351,5 @@ class EvolInstructGenerator(GeneratorTask):
             )
 
     @override
-    def _sample_inputs(self) -> Dict[str, Any]:
+    def _sample_input(self) -> "ChatType":
         return self._apply_random_mutation(iter_no=0)[0]

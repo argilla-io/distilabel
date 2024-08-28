@@ -392,7 +392,7 @@ class EvolInstruct(Task):
             yield inputs
 
     @override
-    def _sample_inputs(self) -> Dict[str, Any]:
+    def _sample_input(self) -> ChatType:
         return self.format_input(
             self._apply_random_mutation("<PLACEHOLDER_INSTRUCTION>")
         )

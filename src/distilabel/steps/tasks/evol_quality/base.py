@@ -275,5 +275,5 @@ class EvolQuality(Task):
         self._logger.info(f"🎉 Finished evolving {len(responses)} instructions!")
 
     @override
-    def _sample_inputs(self) -> Dict[str, Any]:
+    def _sample_input(self) -> ChatType:
         return self.format_input("<PLACEHOLDER_INSTRUCTION>")
