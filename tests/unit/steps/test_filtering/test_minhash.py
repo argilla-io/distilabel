@@ -58,10 +58,12 @@ class TestMinHash:
 
 class TestMinHashLSH:
     @pytest.mark.parametrize(
-        "threshold, duplicates, storage",
-        [(0.1, 4, "dict"), (0.9, 1, "dict"), (0.9, 1, "disk")],
+        "threshold, keep_row_after_minhash_filtering, storage",
+        [(0.1, 1, "dict"), (0.9, 4, "dict"), (0.9, 4, "disk")],
     )
-    def test_process(self, threshold: float, duplicates: int, storage: str) -> None:
+    def test_process(
+        self, threshold: float, keep_row_after_minhash_filtering: int, storage: str
+    ) -> None:
         hasher = MinHash()
         hasher.load()
         results_with_hashes = next(hasher.process([{"text": t} for t in texts]))
@@ -69,6 +71,6 @@ class TestMinHashLSH:
         minhash_lsh = MinHashLSH(threshold=threshold, seed=hasher.seed, storage=storage)
         minhash_lsh.load()
         result = next(minhash_lsh.process(results_with_hashes))
-        duplicated = [r["minhash_duplicate"] for r in result]
-        assert sum(duplicated) == duplicates
+        duplicated = [r["keep_row_after_minhash_filtering"] for r in result]
+        assert sum(duplicated) == keep_row_after_minhash_filtering
         minhash_lsh.unload()

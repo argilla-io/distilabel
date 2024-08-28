@@ -174,7 +174,7 @@ class MinHash(Step):
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         tokenized_texts = []
         for input in inputs:
-            tokenized_texts.append(self._tokenizer([input[self.column]])[0])
+            tokenized_texts.append(self._tokenizer([input[self.inputs[0]]])[0])
 
         minhashes = self._hasher(
             tokenized_texts, num_perm=self.num_perm, seed=self.seed
