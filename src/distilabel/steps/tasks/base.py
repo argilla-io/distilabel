@@ -230,15 +230,56 @@ class _Task(_Step, ABC):
             {input: f"<PLACEHOLDER_{input.upper()}>" for input in self.inputs}
         )
 
-    def print(self, sample_input: Optional[Dict[str, Any]] = None) -> None:
+    def print(self, sample_input: Optional["ChatType"] = None) -> None:
         """Prints a sample input to the console using the `rich` library.
         Helper method to visualize the prompt of the task.
 
         Args:
             sample_input: A sample input to be printed. If not provided, a default will be
                 generated using the `_sample_input` method, which can be overriden by
-                subclasses.
+                subclasses. This should correspond to the same example you could pass to
+                the `format_input` method.
                 The variables be named <PLACEHOLDER_VARIABLE_NAME> by default.
+
+        Examples:
+            Print the URIAL prompt:
+
+            ```python
+            from distilabel.steps.tasks import URIAL
+            from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+            # Consider this as a placeholder for your actual LLM.
+            urial = URIAL(
+                llm=InferenceEndpointsLLM(
+                    model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                ),
+            )
+            urial.load()
+            urial.print()
+            ╭─────────────────────────────────────── Prompt: URIAL  ────────────────────────────────────────╮
+            │ ╭────────────────────────────────────── User Message ───────────────────────────────────────╮ │
+            │ │ # Instruction                                                                             │ │
+            │ │                                                                                           │ │
+            │ │ Below is a list of conversations between a human and an AI assistant (you).               │ │
+            │ │ Users place their queries under "# User:", and your responses are under  "# Assistant:".  │ │
+            │ │ You are a helpful, respectful, and honest assistant.                                      │ │
+            │ │ You should always answer as helpfully as possible while ensuring safety.                  │ │
+            │ │ Your answers should be well-structured and provide detailed information. They should also │ │
+            │ │ have an engaging tone.                                                                    │ │
+            │ │ Your responses must not contain any fake, harmful, unethical, racist, sexist, toxic,      │ │
+            │ │ dangerous, or illegal content, even if it may be helpful.                                 │ │
+            │ │ Your response must be socially responsible, and thus you can refuse to answer some        │ │
+            │ │ controversial topics.                                                                     │ │
+            │ │                                                                                           │ │
+            │ │                                                                                           │ │
+            │ │ # User:                                                                                   │ │
+            │ │                                                                                           │ │
+            │ │ <PLACEHOLDER_INSTRUCTION>                                                                 │ │
+            │ │                                                                                           │ │
+            │ │ # Assistant:                                                                              │ │
+            │ ╰───────────────────────────────────────────────────────────────────────────────────────────╯ │
+            ╰───────────────────────────────────────────────────────────────────────────────────────────────╯
+            ```
         """
         from rich.console import Console, Group
         from rich.panel import Panel
