@@ -60,7 +60,7 @@ def tokenized_on_words(texts: Iterable[str]) -> List[Set[bytes]]:
         texts: List of documents to be tokenized.
 
     Returns:
-        Iterable[Set[bytes]]: List with the set of tokens for each document.
+        List with the set of tokens for each document.
     """
     return [{w.encode("utf-8") for w in word_tokenize(text)} for text in texts]
 
