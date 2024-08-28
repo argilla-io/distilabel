@@ -26,6 +26,14 @@ hide:
 
     [:octicons-arrow-right-24: FaissNearestNeighbour](faissnearestneighbour.md){ .bottom }
 
+-   :material-filter:{ .lg .middle } __MinHashLSH__
+
+    ---
+
+    Creates a `MinHashLSH` index to deduplicate texts using MinHash.
+
+    [:octicons-arrow-right-24: MinHashLSH](minhashlsh.md){ .bottom }
+
 -   :material-content-save:{ .lg .middle } __PushToHub__
 
     ---
@@ -97,6 +105,14 @@ hide:
     Generate embeddings using an `Embeddings` model.
 
     [:octicons-arrow-right-24: EmbeddingGeneration](embeddinggeneration.md){ .bottom }
+
+-   :material-filter:{ .lg .middle } __MinHash__
+
+    ---
+
+    Creates the components for a `MinHash` object to deduplicate texts.
+
+    [:octicons-arrow-right-24: MinHash](minhash.md){ .bottom }
 
 -   :material-format-list-bulleted:{ .lg .middle } __ConversationTemplate__
 
