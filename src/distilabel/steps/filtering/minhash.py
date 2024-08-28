@@ -29,7 +29,6 @@ from typing import (
     Union,
 )
 
-from nltk.tokenize import word_tokenize
 from pydantic import PrivateAttr
 from typing_extensions import override
 
@@ -60,6 +59,8 @@ def tokenized_on_words(texts: Iterable[str]) -> List[Set[bytes]]:
     Returns:
         List with the set of tokens for each document.
     """
+    from nltk.tokenize import word_tokenize
+
     return [{w.encode("utf-8") for w in word_tokenize(text)} for text in texts]
 
 
@@ -155,11 +156,16 @@ class MinHash(Step):
         from datasketch import MinHash
 
         self._hasher = MinHash.bulk
-        self._tokenizer = (
-            tokenized_on_words
-            if self.tokenizer == "words"
-            else partial(tokenize_on_ngrams, n=self.n)
-        )
+
+        if self.tokenizer == "words":
+            if not importlib.import_module("nltk"):
+                raise ImportError(
+                    "`nltk` is needed to tokenize based on words, but is not installed. "
+                    "Please install it using `pip install nltk`. Then run `nltk.download('punkt_tab')`."
+                )
+            self._tokenizer = tokenized_on_words
+        else:
+            self._tokenizer = partial(tokenize_on_ngrams, n=self.n)
 
     @property
     def inputs(self) -> List[str]:
