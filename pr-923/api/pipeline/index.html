@@ -9246,7 +9246,14 @@ your script and just want to pass it already processed. Defaults to <code>None</
 <span class="normal"><a href="#__codelineno-0-388">388</a></span>
 <span class="normal"><a href="#__codelineno-0-389">389</a></span>
 <span class="normal"><a href="#__codelineno-0-390">390</a></span>
-<span class="normal"><a href="#__codelineno-0-391">391</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="k">class</span> <span class="nc">Pipeline</span><span class="p">(</span><span class="n">BasePipeline</span><span class="p">):</span>
+<span class="normal"><a href="#__codelineno-0-391">391</a></span>
+<span class="normal"><a href="#__codelineno-0-392">392</a></span>
+<span class="normal"><a href="#__codelineno-0-393">393</a></span>
+<span class="normal"><a href="#__codelineno-0-394">394</a></span>
+<span class="normal"><a href="#__codelineno-0-395">395</a></span>
+<span class="normal"><a href="#__codelineno-0-396">396</a></span>
+<span class="normal"><a href="#__codelineno-0-397">397</a></span>
+<span class="normal"><a href="#__codelineno-0-398">398</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="k">class</span> <span class="nc">Pipeline</span><span class="p">(</span><span class="n">BasePipeline</span><span class="p">):</span>
 </span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Local pipeline implementation using `multiprocessing`.&quot;&quot;&quot;</span>
 </span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>
 </span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a>    <span class="k">def</span> <span class="nf">ray</span><span class="p">(</span>
@@ -9463,7 +9470,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
 </span><span id="__span-0-309"><a id="__codelineno-0-309" name="__codelineno-0-309"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_set_step_for_recovering_offline_batch_generation</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">step</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-310"><a id="__codelineno-0-310" name="__codelineno-0-310"></a>            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_called_lock</span><span class="p">:</span>
 </span><span id="__span-0-311"><a id="__codelineno-0-311" name="__codelineno-0-311"></a>                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_called</span><span class="p">:</span>
-</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="p">()</span>
+</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="p">(</span><span class="n">acquire_lock</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a>            <span class="k">return</span>
 </span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a>
 </span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a>        <span class="c1"># Global step with successors failed</span>
@@ -9502,47 +9509,54 @@ your script and just want to pass it already processed. Defaults to <code>None</
 </span><span id="__span-0-348"><a id="__codelineno-0-348" name="__codelineno-0-348"></a>        <span class="p">)</span>
 </span><span id="__span-0-349"><a id="__codelineno-0-349" name="__codelineno-0-349"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span><span class="o">.</span><span class="n">__cause__</span> <span class="o">=</span> <span class="n">_SUBPROCESS_EXCEPTION</span>
 </span><span id="__span-0-350"><a id="__codelineno-0-350" name="__codelineno-0-350"></a>
-</span><span id="__span-0-351"><a id="__codelineno-0-351" name="__codelineno-0-351"></a>    <span class="k">def</span> <span class="nf">_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-351"><a id="__codelineno-0-351" name="__codelineno-0-351"></a>    <span class="k">def</span> <span class="nf">_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acquire_lock</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-0-352"><a id="__codelineno-0-352" name="__codelineno-0-352"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Stops the pipeline execution. It will first send `None` to the input queues</span>
 </span><span id="__span-0-353"><a id="__codelineno-0-353" name="__codelineno-0-353"></a><span class="sd">        of all the steps and then wait until the output queue is empty i.e. all the steps</span>
 </span><span id="__span-0-354"><a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="sd">        finished processing the batches that were sent before the stop flag. Then it will</span>
-</span><span id="__span-0-355"><a id="__codelineno-0-355" name="__codelineno-0-355"></a><span class="sd">        send `None` to the output queue to notify the pipeline to stop.&quot;&quot;&quot;</span>
+</span><span id="__span-0-355"><a id="__codelineno-0-355" name="__codelineno-0-355"></a><span class="sd">        send `None` to the output queue to notify the pipeline to stop.</span>
 </span><span id="__span-0-356"><a id="__codelineno-0-356" name="__codelineno-0-356"></a>
-</span><span id="__span-0-357"><a id="__codelineno-0-357" name="__codelineno-0-357"></a>        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_called_lock</span><span class="p">:</span>
-</span><span id="__span-0-358"><a id="__codelineno-0-358" name="__codelineno-0-358"></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_called</span><span class="p">:</span>
-</span><span id="__span-0-359"><a id="__codelineno-0-359" name="__codelineno-0-359"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">_stop_calls</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="__span-0-360"><a id="__codelineno-0-360" name="__codelineno-0-360"></a>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_calls</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="__span-0-361"><a id="__codelineno-0-361" name="__codelineno-0-361"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-</span><span id="__span-0-362"><a id="__codelineno-0-362" name="__codelineno-0-362"></a>                        <span class="s2">&quot;🛑 Press again to force the pipeline to stop.&quot;</span>
-</span><span id="__span-0-363"><a id="__codelineno-0-363" name="__codelineno-0-363"></a>                    <span class="p">)</span>
-</span><span id="__span-0-364"><a id="__codelineno-0-364" name="__codelineno-0-364"></a>                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_calls</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="__span-0-365"><a id="__codelineno-0-365" name="__codelineno-0-365"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;🛑 Forcing pipeline interruption.&quot;</span><span class="p">)</span>
-</span><span id="__span-0-366"><a id="__codelineno-0-366" name="__codelineno-0-366"></a>
-</span><span id="__span-0-367"><a id="__codelineno-0-367" name="__codelineno-0-367"></a>                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="p">:</span>
-</span><span id="__span-0-368"><a id="__codelineno-0-368" name="__codelineno-0-368"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
-</span><span id="__span-0-369"><a id="__codelineno-0-369" name="__codelineno-0-369"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-</span><span id="__span-0-370"><a id="__codelineno-0-370" name="__codelineno-0-370"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="__span-0-371"><a id="__codelineno-0-371" name="__codelineno-0-371"></a>
-</span><span id="__span-0-372"><a id="__codelineno-0-372" name="__codelineno-0-372"></a>                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">:</span>
-</span><span id="__span-0-373"><a id="__codelineno-0-373" name="__codelineno-0-373"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
-</span><span id="__span-0-374"><a id="__codelineno-0-374" name="__codelineno-0-374"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-</span><span id="__span-0-375"><a id="__codelineno-0-375" name="__codelineno-0-375"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="__span-0-376"><a id="__codelineno-0-376" name="__codelineno-0-376"></a>
-</span><span id="__span-0-377"><a id="__codelineno-0-377" name="__codelineno-0-377"></a>                    <span class="n">stop_logging</span><span class="p">()</span>
-</span><span id="__span-0-378"><a id="__codelineno-0-378" name="__codelineno-0-378"></a>
-</span><span id="__span-0-379"><a id="__codelineno-0-379" name="__codelineno-0-379"></a>                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-357"><a id="__codelineno-0-357" name="__codelineno-0-357"></a><span class="sd">        Args:</span>
+</span><span id="__span-0-358"><a id="__codelineno-0-358" name="__codelineno-0-358"></a><span class="sd">            acquire_lock: Whether to acquire the lock to access the `_stop_called` attribute.</span>
+</span><span id="__span-0-359"><a id="__codelineno-0-359" name="__codelineno-0-359"></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="__span-0-360"><a id="__codelineno-0-360" name="__codelineno-0-360"></a>
+</span><span id="__span-0-361"><a id="__codelineno-0-361" name="__codelineno-0-361"></a>        <span class="k">if</span> <span class="n">acquire_lock</span><span class="p">:</span>
+</span><span id="__span-0-362"><a id="__codelineno-0-362" name="__codelineno-0-362"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_called_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+</span><span id="__span-0-363"><a id="__codelineno-0-363" name="__codelineno-0-363"></a>
+</span><span id="__span-0-364"><a id="__codelineno-0-364" name="__codelineno-0-364"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_called</span><span class="p">:</span>
+</span><span id="__span-0-365"><a id="__codelineno-0-365" name="__codelineno-0-365"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_calls</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="__span-0-366"><a id="__codelineno-0-366" name="__codelineno-0-366"></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_calls</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="__span-0-367"><a id="__codelineno-0-367" name="__codelineno-0-367"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;🛑 Press again to force the pipeline to stop.&quot;</span><span class="p">)</span>
+</span><span id="__span-0-368"><a id="__codelineno-0-368" name="__codelineno-0-368"></a>            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_calls</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="__span-0-369"><a id="__codelineno-0-369" name="__codelineno-0-369"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;🛑 Forcing pipeline interruption.&quot;</span><span class="p">)</span>
+</span><span id="__span-0-370"><a id="__codelineno-0-370" name="__codelineno-0-370"></a>
+</span><span id="__span-0-371"><a id="__codelineno-0-371" name="__codelineno-0-371"></a>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="p">:</span>
+</span><span id="__span-0-372"><a id="__codelineno-0-372" name="__codelineno-0-372"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+</span><span id="__span-0-373"><a id="__codelineno-0-373" name="__codelineno-0-373"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span id="__span-0-374"><a id="__codelineno-0-374" name="__codelineno-0-374"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-375"><a id="__codelineno-0-375" name="__codelineno-0-375"></a>
+</span><span id="__span-0-376"><a id="__codelineno-0-376" name="__codelineno-0-376"></a>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">:</span>
+</span><span id="__span-0-377"><a id="__codelineno-0-377" name="__codelineno-0-377"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</span><span id="__span-0-378"><a id="__codelineno-0-378" name="__codelineno-0-378"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span id="__span-0-379"><a id="__codelineno-0-379" name="__codelineno-0-379"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="__span-0-380"><a id="__codelineno-0-380" name="__codelineno-0-380"></a>
-</span><span id="__span-0-381"><a id="__codelineno-0-381" name="__codelineno-0-381"></a>                <span class="k">return</span>
-</span><span id="__span-0-382"><a id="__codelineno-0-382" name="__codelineno-0-382"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_called</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="__span-0-383"><a id="__codelineno-0-383" name="__codelineno-0-383"></a>
-</span><span id="__span-0-384"><a id="__codelineno-0-384" name="__codelineno-0-384"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-</span><span id="__span-0-385"><a id="__codelineno-0-385" name="__codelineno-0-385"></a>            <span class="sa">f</span><span class="s2">&quot;Steps loaded before calling `stop`: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_steps_load_status</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-0-386"><a id="__codelineno-0-386" name="__codelineno-0-386"></a>        <span class="p">)</span>
-</span><span id="__span-0-387"><a id="__codelineno-0-387" name="__codelineno-0-387"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-</span><span id="__span-0-388"><a id="__codelineno-0-388" name="__codelineno-0-388"></a>            <span class="s2">&quot;🛑 Stopping pipeline. Waiting for steps to finish processing batches...&quot;</span>
-</span><span id="__span-0-389"><a id="__codelineno-0-389" name="__codelineno-0-389"></a>        <span class="p">)</span>
+</span><span id="__span-0-381"><a id="__codelineno-0-381" name="__codelineno-0-381"></a>                <span class="n">stop_logging</span><span class="p">()</span>
+</span><span id="__span-0-382"><a id="__codelineno-0-382" name="__codelineno-0-382"></a>
+</span><span id="__span-0-383"><a id="__codelineno-0-383" name="__codelineno-0-383"></a>                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-384"><a id="__codelineno-0-384" name="__codelineno-0-384"></a>
+</span><span id="__span-0-385"><a id="__codelineno-0-385" name="__codelineno-0-385"></a>            <span class="k">return</span>
+</span><span id="__span-0-386"><a id="__codelineno-0-386" name="__codelineno-0-386"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_called</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="__span-0-387"><a id="__codelineno-0-387" name="__codelineno-0-387"></a>
+</span><span id="__span-0-388"><a id="__codelineno-0-388" name="__codelineno-0-388"></a>        <span class="k">if</span> <span class="n">acquire_lock</span><span class="p">:</span>
+</span><span id="__span-0-389"><a id="__codelineno-0-389" name="__codelineno-0-389"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_called_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </span><span id="__span-0-390"><a id="__codelineno-0-390" name="__codelineno-0-390"></a>
-</span><span id="__span-0-391"><a id="__codelineno-0-391" name="__codelineno-0-391"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_output_queue_loop</span><span class="p">()</span>
+</span><span id="__span-0-391"><a id="__codelineno-0-391" name="__codelineno-0-391"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+</span><span id="__span-0-392"><a id="__codelineno-0-392" name="__codelineno-0-392"></a>            <span class="sa">f</span><span class="s2">&quot;Steps loaded before calling `stop`: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_steps_load_status</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-0-393"><a id="__codelineno-0-393" name="__codelineno-0-393"></a>        <span class="p">)</span>
+</span><span id="__span-0-394"><a id="__codelineno-0-394" name="__codelineno-0-394"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+</span><span id="__span-0-395"><a id="__codelineno-0-395" name="__codelineno-0-395"></a>            <span class="s2">&quot;🛑 Stopping pipeline. Waiting for steps to finish processing batches...&quot;</span>
+</span><span id="__span-0-396"><a id="__codelineno-0-396" name="__codelineno-0-396"></a>        <span class="p">)</span>
+</span><span id="__span-0-397"><a id="__codelineno-0-397" name="__codelineno-0-397"></a>
+</span><span id="__span-0-398"><a id="__codelineno-0-398" name="__codelineno-0-398"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_output_queue_loop</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 
