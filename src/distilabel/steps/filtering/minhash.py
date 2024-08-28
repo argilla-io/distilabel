@@ -44,7 +44,7 @@ _DUPLICATE_COLUMN: Final[str] = "minhash_duplicate"
 
 
 # Copied from: https://github.com/huggingface/datatrove/blob/main/src/datatrove/utils/text.py#L89C1-L95C65
-def ngrams(sequence: Iterable, n: int):
+def ngrams(sequence: Iterable[str], n: int) -> Iterator[Tuple[str, ...]]:
     iterables = tee(sequence, n)
 
     for i, sub_iterable in enumerate(iterables):  # For each window,
