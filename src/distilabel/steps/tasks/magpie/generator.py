@@ -278,5 +278,5 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             yield (conversations, generated == self.num_rows)
 
     @override
-    def _sample_input(self) -> ChatType:
+    def _sample_input(self) -> "ChatType":
         return self._generate_with_pre_query_template(inputs=[{}])
