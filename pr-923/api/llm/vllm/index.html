@@ -1384,6 +1384,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/minhashlsh/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../components-gallery/steps/pushtohub/" class="md-nav__link">
         
   
@@ -1553,6 +1574,27 @@
   
     <li class="md-nav__item">
       <a href="../../../components-gallery/steps/embeddinggeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/minhash/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5017,7 +5059,7 @@ llm = ClientvLLM(
 
 llm.load()
 
-results = llm.generate(
+results = llm.generate_outputs(
     inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello, how are you?&quot;}]],
     temperature=0.7,
     top_p=1.0,
@@ -5259,7 +5301,7 @@ results = llm.generate(
 </span><span id="__span-0-428"><a id="__codelineno-0-428" name="__codelineno-0-428"></a>
 </span><span id="__span-0-429"><a id="__codelineno-0-429" name="__codelineno-0-429"></a><span class="sd">        llm.load()</span>
 </span><span id="__span-0-430"><a id="__codelineno-0-430" name="__codelineno-0-430"></a>
-</span><span id="__span-0-431"><a id="__codelineno-0-431" name="__codelineno-0-431"></a><span class="sd">        results = llm.generate(</span>
+</span><span id="__span-0-431"><a id="__codelineno-0-431" name="__codelineno-0-431"></a><span class="sd">        results = llm.generate_outputs(</span>
 </span><span id="__span-0-432"><a id="__codelineno-0-432" name="__codelineno-0-432"></a><span class="sd">            inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello, how are you?&quot;}]],</span>
 </span><span id="__span-0-433"><a id="__codelineno-0-433" name="__codelineno-0-433"></a><span class="sd">            temperature=0.7,</span>
 </span><span id="__span-0-434"><a id="__codelineno-0-434" name="__codelineno-0-434"></a><span class="sd">            top_p=1.0,</span>
@@ -6095,7 +6137,7 @@ llm = vLLM(
 llm.load()
 
 # Call the model
-output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello world!&quot;}]])
+output = llm.generate_outputs(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello world!&quot;}]])
 ```
 
 Generate structured data:
@@ -6117,7 +6159,7 @@ llm = vLLM(
 llm.load()
 
 # Call the model
-output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Create a user profile for the following marathon&quot;}]])
+output = llm.generate_outputs(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Create a user profile for the following marathon&quot;}]])
 ```
 </code></pre></div>
 
@@ -6524,7 +6566,7 @@ output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;conten
 </span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">        llm.load()</span>
 </span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a>
 </span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="sd">        # Call the model</span>
-</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="sd">        output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello world!&quot;}]])</span>
+</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="sd">        output = llm.generate_outputs(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello world!&quot;}]])</span>
 </span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="sd">        ```</span>
 </span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>
 </span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="sd">        Generate structured data:</span>
@@ -6546,7 +6588,7 @@ output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;conten
 </span><span id="__span-0-129"><a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="sd">        llm.load()</span>
 </span><span id="__span-0-130"><a id="__codelineno-0-130" name="__codelineno-0-130"></a>
 </span><span id="__span-0-131"><a id="__codelineno-0-131" name="__codelineno-0-131"></a><span class="sd">        # Call the model</span>
-</span><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a><span class="sd">        output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Create a user profile for the following marathon&quot;}]])</span>
+</span><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a><span class="sd">        output = llm.generate_outputs(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Create a user profile for the following marathon&quot;}]])</span>
 </span><span id="__span-0-133"><a id="__codelineno-0-133" name="__codelineno-0-133"></a><span class="sd">        ```</span>
 </span><span id="__span-0-134"><a id="__codelineno-0-134" name="__codelineno-0-134"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-135"><a id="__codelineno-0-135" name="__codelineno-0-135"></a>

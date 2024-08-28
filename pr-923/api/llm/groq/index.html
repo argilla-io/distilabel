@@ -1384,6 +1384,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/minhashlsh/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../components-gallery/steps/pushtohub/" class="md-nav__link">
         
   
@@ -1553,6 +1574,27 @@
   
     <li class="md-nav__item">
       <a href="../../../components-gallery/steps/embeddinggeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/minhash/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4911,7 +4953,7 @@ llm = GroqLLM(model=&quot;llama3-70b-8192&quot;)
 llm.load()
 
 # Call the model
-output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello world!&quot;}]])
+output = llm.generate_outputs(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello world!&quot;}]])
 
 Generate structured data:
 
@@ -4932,7 +4974,7 @@ llm = GroqLLM(
 
 llm.load()
 
-output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Create a user profile for the following marathon&quot;}]])
+output = llm.generate_outputs(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Create a user profile for the following marathon&quot;}]])
 ```
 </code></pre></div>
 
@@ -5185,7 +5227,7 @@ output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;conten
 </span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        llm.load()</span>
 </span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a>
 </span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">        # Call the model</span>
-</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello world!&quot;}]])</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        output = llm.generate_outputs(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello world!&quot;}]])</span>
 </span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a>
 </span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">        Generate structured data:</span>
 </span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a>
@@ -5206,7 +5248,7 @@ output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;conten
 </span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>
 </span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="sd">        llm.load()</span>
 </span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>
-</span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="sd">        output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Create a user profile for the following marathon&quot;}]])</span>
+</span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="sd">        output = llm.generate_outputs(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Create a user profile for the following marathon&quot;}]])</span>
 </span><span id="__span-0-99"><a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="sd">        ```</span>
 </span><span id="__span-0-100"><a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a>

@@ -60,7 +60,7 @@ llm = GroqLLM(model="llama3-70b-8192")
 llm.load()
 
 # Call the model
-output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
 
 Generate structured data:
 ```

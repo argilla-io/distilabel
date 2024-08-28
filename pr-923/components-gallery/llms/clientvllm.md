@@ -60,7 +60,7 @@ llm = ClientvLLM(
 
 llm.load()
 
-results = llm.generate(
+results = llm.generate_outputs(
     inputs=[[{"role": "user", "content": "Hello, how are you?"}]],
     temperature=0.7,
     top_p=1.0,

@@ -391,6 +391,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-923/components-gallery/steps/minhashlsh/</loc>
+         <lastmod>2024-08-28</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-923/components-gallery/steps/pushtohub/</loc>
          <lastmod>2024-08-28</lastmod>
          <changefreq>daily</changefreq>
@@ -432,6 +437,11 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-923/components-gallery/steps/embeddinggeneration/</loc>
+         <lastmod>2024-08-28</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-923/components-gallery/steps/minhash/</loc>
          <lastmod>2024-08-28</lastmod>
          <changefreq>daily</changefreq>
     </url>
