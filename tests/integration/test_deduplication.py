@@ -16,7 +16,7 @@ from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts, MinHash, MinHashLSH
 
 
-def test_minhash_deduplication():
+def test_minhash_deduplication() -> None:
     with Pipeline() as pipeline:
         ds_size = 1000
         batch_size = 500
