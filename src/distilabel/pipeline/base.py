@@ -14,7 +14,6 @@
 
 import hashlib
 import logging
-import os
 import signal
 import threading
 import time
@@ -39,7 +38,7 @@ from pydantic import BaseModel
 from typing_extensions import Self
 from upath import UPath
 
-from distilabel import __version__
+from distilabel import __version__, envs
 from distilabel.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
     INPUT_QUEUE_ATTR_NAME,
@@ -203,7 +202,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         if cache_dir:
             self._cache_dir = Path(cache_dir)
-        elif env_cache_dir := os.getenv("DISTILABEL_CACHE_DIR"):
+        elif env_cache_dir := envs.DISTILABEL_CACHE_DIR:
             self._cache_dir = Path(env_cache_dir)
         else:
             self._cache_dir = PIPELINES_CACHE_DIR
