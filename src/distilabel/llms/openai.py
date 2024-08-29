@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, U
 import orjson
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
+from distilabel import envs
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
@@ -562,14 +563,21 @@ class OpenAILLM(AsyncLLM):
         """
         import openai
 
+        metadata = {"description": "distilabel"}
+
+        if distilabel_pipeline_name := envs.DISTILABEL_PIPELINE_NAME:
+            metadata["distilabel_pipeline_name"] = distilabel_pipeline_name
+
+        if distilabel_pipeline_cache_id := envs.DISTILABEL_PIPELINE_CACHE_ID:
+            metadata["distilabel_pipeline_cache_id"] = distilabel_pipeline_cache_id
+
         batch = None
         try:
             batch = self._client.batches.create(
-                input_file_id=batch_input_file.id,
-                endpoint="/v1/chat/completions",
                 completion_window="24h",
-                # TODO: add distilabel pipeline name and id
-                metadata={"description": "distilabel"},
+                endpoint="/v1/chat/completions",
+                input_file_id=batch_input_file.id,
+                metadata=metadata,
             )
         except openai.OpenAIError as e:
             self._logger.error(  # type: ignore
@@ -603,11 +611,14 @@ class OpenAILLM(AsyncLLM):
         import openai
 
         files = []
-        for buffer in self._create_jsonl_buffers(inputs=inputs, **kwargs):
+        for file_no, buffer in enumerate(
+            self._create_jsonl_buffers(inputs=inputs, **kwargs)
+        ):
             try:
                 # TODO: add distilabel pipeline name and id
                 batch_input_file = self._client.files.create(
-                    file=buffer, purpose="batch"
+                    file=(self._name_for_openai_files(file_no), buffer),
+                    purpose="batch",
                 )
                 files.append(batch_input_file)
             except openai.OpenAIError as e:
@@ -674,3 +685,12 @@ class OpenAILLM(AsyncLLM):
         }
         json_row = orjson.dumps(row)
         return json_row + b"\n"
+
+    def _name_for_openai_files(self, file_no: int) -> str:
+        if (
+            envs.DISTILABEL_PIPELINE_NAME is None
+            or envs.DISTILABEL_PIPELINE_CACHE_ID is None
+        ):
+            return f"distilabel-pipeline-fileno-{file_no}.jsonl"
+
+        return f"distilabel-pipeline-{envs.DISTILABEL_PIPELINE_NAME}-{envs.DISTILABEL_PIPELINE_CACHE_ID}-fileno-{file_no}.jsonl"
