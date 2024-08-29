@@ -4481,6 +4481,9 @@
   
 
 
+<p><a target="_blank" href="https://colab.research.google.com/drive/1DJFDZtOfnNYg7ZfmZPfICm750tuJLR9l">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a></p>
 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
 <p>To start off, <code>distilabel</code> is a framework for building pipelines for generating synthetic data using LLMs, that defines a <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> which orchestrates the execution of the <a class="autorefs autorefs-internal" href="../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses, and those will be connected as nodes in a Direct Acyclic Graph (DAG).</p>
 <p>In this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text based on the dataset using the <a class="autorefs autorefs-internal" href="../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task.</p>
