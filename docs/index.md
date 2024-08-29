@@ -38,21 +38,39 @@ hide:
 
 Distilabel is the framework for synthetic data and AI feedback for engineers who need fast, reliable and scalable pipelines based on verified research papers.
 
-If you just want to get started, we recommend you check the [documentation](http://distilabel.argilla.io/). Curious, and want to know more? Keep reading!
+<div class="grid cards" markdown>
+
+-  __Get started in 5 minutes!__
+
+    ---
+
+    Install distilabel with `pip` and run your first `Pipeline` to generate and evaluate synthetic data.
+
+    [:octicons-arrow-right-24: Quickstart](./sections/getting_started/quickstart.md)
+
+-  __How-to guides__
+
+    ---
+
+    Get familiar with the basics of distilabel. Learn how to define `steps`, `tasks` and `llms` and run your `Pipeline`.
+
+    [:octicons-arrow-right-24: Learn more](./sections/how_to_guides/index.md)
+
+</div>
 
 ## Why use distilabel?
 
 Distilabel can be used for generating synthetic data and AI feedback for a wide variety of projects including traditional predictive NLP (classification, extraction, etc.), or generative and large language model scenarios (instruction following, dialogue generation, judging etc.). Distilabel's programmatic approach allows you to build scalable pipelines for data generation and AI feedback. The goal of distilabel is to accelerate your AI development by quickly generating high-quality, diverse datasets based on verified research methodologies for generating and judging with AI feedback.
 
-### Improve your AI output quality through data quality
+<p style="font-size:20px">Improve your AI output quality through data quality</p>
 
 Compute is expensive and output quality is important. We help you **focus on data quality**, which tackles the root cause of both of these problems at once. Distilabel helps you to synthesize and judge data to let you spend your valuable time **achieving and keeping high-quality standards for your synthetic data**.
 
-### Take control of your data and models
+<p style="font-size:20px">Take control of your data and models</p>
 
 **Ownership of data for fine-tuning your own LLMs** is not easy but distilabel can help you to get started. We integrate **AI feedback from any LLM provider out there** using one unified API.
 
-### Improve efficiency by quickly iterating on the right research and LLMs
+<p style="font-size:20px">Improve efficiency by quickly iterating on the right data and models</p>
 
 Synthesize and judge data with **latest research papers** while ensuring **flexibility, scalability and fault tolerance**. So you can focus on improving your data and training your models.
 
