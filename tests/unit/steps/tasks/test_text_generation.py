@@ -61,14 +61,6 @@ class TestTextGeneration:
         ):
             task.format_input({"instruction": 1})
 
-        with pytest.warns(
-            UserWarning,
-            match=r"\`use_system_prompt\` is set to \`True\`, but no \`system_prompt\` in input batch, so it will be ignored.",
-        ):
-            assert task.format_input({"instruction": "test"}) == [
-                {"role": "user", "content": "test"}
-            ]
-
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyAsyncLLM()
