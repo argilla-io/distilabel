@@ -311,10 +311,9 @@ class Pipeline(BasePipeline):
             e.subprocess_exception, DistilabelOfflineBatchGenerationNotFinishedException
         ):
             self._logger.info(
-                f"⏹️ '{e.step.name}' task used an `LLM` with the offline batch generation"
-                " feature and it has stopped the pipeline until the results are ready."
-                " Execute the pipeline again (with the cache enabled) to check if the"
-                " results are ready and continue the pipeline execution."
+                f"⏹️ '{e.step.name}' task stopped pipeline execution: LLM offline batch"
+                " generation in progress. Rerun pipeline with cache to check results and"
+                " continue execution."
             )
             self._set_step_for_recovering_offline_batch_generation(e.step, e.data)  # type: ignore
             with self._stop_called_lock:

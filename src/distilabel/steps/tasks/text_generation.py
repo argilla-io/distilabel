@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from distilabel.errors import DistilabelUserError
@@ -110,12 +109,6 @@ class TextGeneration(Task):
             if "system_prompt" in input:
                 messages.insert(
                     0, {"role": "system", "content": input["system_prompt"]}
-                )
-            else:
-                warnings.warn(
-                    "`use_system_prompt` is set to `True`, but no `system_prompt` in input batch, so it will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
                 )
         return messages  # type: ignore
 
