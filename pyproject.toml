@@ -93,7 +93,7 @@ vllm = [
 ]
 sentence-transformers = ["sentence-transformers >= 3.0.0"]
 faiss-cpu = ["faiss-cpu >= 1.8.0"]
-faiss-gpu = ["faiss-cpu >= 1.7.2"]
+faiss-gpu = ["faiss-gpu >= 1.7.2"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
