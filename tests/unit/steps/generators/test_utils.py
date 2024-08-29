@@ -18,7 +18,8 @@ import pandas as pd
 import pytest
 from datasets import Dataset
 
-from distilabel.steps import make_generator_step
+from distilabel.pipeline.local import Pipeline
+from distilabel.steps.generators.utils import make_generator_step
 
 data = [{"instruction": "Tell me a joke."}] * 10
 
@@ -26,7 +27,7 @@ data = [{"instruction": "Tell me a joke."}] * 10
 @pytest.mark.parametrize("dataset", (data, Dataset.from_list(data), pd.DataFrame(data)))
 def test_make_generator_step(
     dataset: Union[Dataset, pd.DataFrame, List[Dict[str, str]]],
-):
+) -> None:
     batch_size = 5
     load_dataset = make_generator_step(
         dataset, batch_size=batch_size, output_mappings={"instruction": "other"}
@@ -40,3 +41,9 @@ def test_make_generator_step(
         assert isinstance(load_dataset.data, list)
 
     assert load_dataset.output_mappings == {"instruction": "other"}
+
+
+def test_make_generator_step_with_pipeline() -> None:
+    pipeline = Pipeline()
+    load_dataset = make_generator_step(data, pipeline=pipeline)
+    assert load_dataset.pipeline == pipeline

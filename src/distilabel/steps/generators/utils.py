@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 def make_generator_step(
     dataset: Union[Dataset, pd.DataFrame, List[Dict[str, str]]],
-    pipeline: "BasePipeline",
+    pipeline: Union["BasePipeline", None] = None,
     batch_size: int = 50,
     input_mappings: Optional[Dict[str, str]] = None,
     output_mappings: Optional[Dict[str, str]] = None,
