@@ -23,9 +23,7 @@ import tblib
 from distilabel.constants import SIGINT_HANDLER_CALLED_ENV_NAME
 from distilabel.distiset import create_distiset
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
-from distilabel.pipeline.base import (
-    BasePipeline,
-)
+from distilabel.pipeline.base import BasePipeline, set_pipeline_running_env_variables
 from distilabel.pipeline.ray import RayPipeline
 from distilabel.pipeline.step_wrapper import _StepWrapper, _StepWrapperException
 from distilabel.utils.logging import setup_logging, stop_logging
@@ -42,19 +40,27 @@ if TYPE_CHECKING:
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
-def _init_worker(log_queue: "Queue[Any]") -> None:
+def _init_worker(
+    log_queue: "Queue[Any]", pipeline_name: str, pipeline_cache_id: str
+) -> None:
     """Init function for the child processes that will execute the `Step`s of the `Pipeline`.
 
     Args:
         log_queue: The queue to send the logs to the main process.
     """
 
+    # Register a signal handler for SIGINT to avoid the default behavior of the process
+    # to terminate when the parent process receives a SIGINT signal. Instead, set an env
+    # variable when SIGINT is received. Child process can check the value of this env
+    # variable in sections of the code where they need to stop the execution if SIGINT
+    # was received (such as offline batch generation polling).
     def signal_handler(sig: int, frame: Any) -> None:
         import os
 
         os.environ[SIGINT_HANDLER_CALLED_ENV_NAME] = "1"
 
     signal.signal(signal.SIGINT, signal_handler)
+    set_pipeline_running_env_variables(pipeline_name, pipeline_cache_id)
     setup_logging(log_queue)
 
 
@@ -191,7 +197,11 @@ class Pipeline(BasePipeline):
             _NoDaemonPool(
                 num_processes,
                 initializer=_init_worker,
-                initargs=(self._log_queue,),
+                initargs=(
+                    self._log_queue,
+                    self.name,
+                    self._create_signature(),
+                ),
             ) as pool,
         ):
             self._manager = manager

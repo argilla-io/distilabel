@@ -19,7 +19,7 @@ from distilabel.constants import INPUT_QUEUE_ATTR_NAME, STEP_ATTR_NAME
 from distilabel.distiset import create_distiset
 from distilabel.errors import DistilabelUserError
 from distilabel.llms.vllm import vLLM
-from distilabel.pipeline.base import BasePipeline
+from distilabel.pipeline.base import BasePipeline, set_pipeline_running_env_variables
 from distilabel.pipeline.step_wrapper import _StepWrapper
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import TYPE_INFO_KEY
@@ -249,13 +249,22 @@ class RayPipeline(BasePipeline):
         @ray.remote
         class _StepWrapperRay:
             def __init__(
-                self, step_wrapper: _StepWrapper, log_queue: "Queue[Any]"
+                self,
+                step_wrapper: _StepWrapper,
+                log_queue: "Queue[Any]",
+                pipeline_name: str,
+                pipeline_cache_id: str,
             ) -> None:
                 self._step_wrapper = step_wrapper
                 self._log_queue = log_queue
+                self._pipeline_name = pipeline_name
+                self._pipeline_cache_id = pipeline_cache_id
 
             def run(self) -> str:
                 setup_logging(log_queue=self._log_queue)
+                set_pipeline_running_env_variables(
+                    self._pipeline_name, self._pipeline_cache_id
+                )
                 return self._step_wrapper.run()
 
         resources: Dict[str, Any] = {

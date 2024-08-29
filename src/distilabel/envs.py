@@ -17,17 +17,24 @@
 import os
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
+from distilabel import constants
+
 if TYPE_CHECKING:
+    DISTILABEL_LOG_LEVEL: str = "INFO"
     DISTILABEL_PIPELINE_NAME: Optional[str] = None
     DISTILABEL_PIPELINE_CACHE_ID: Optional[str] = None
     DISTILABEL_CACHE_DIR: Optional[str] = None
 
 ENVIRONMENT_VARIABLES: Dict[str, Callable[[], Any]] = {
+    # `distilabel` logging level.
+    "DISTILABEL_LOG_LEVEL": lambda: os.getenv("DISTILABEL_LOG_LEVEL", "INFO").upper(),
     # The name of the `distilabel` pipeline currently running.
-    "DISTILABEL_PIPELINE_NAME": lambda: os.getenv("DISTILABEL_PIPELINE_NAME", None),
+    constants.PIPELINE_NAME_ENV_NAME: lambda: os.getenv(
+        constants.PIPELINE_NAME_ENV_NAME, None
+    ),
     # The cache ID of the `distilabel` pipeline currently running.
-    "DISTILABEL_PIPELINE_CACHE_ID": lambda: os.getenv(
-        "DISTILABEL_PIPELINE_CACHE_ID", None
+    constants.PIPELINE_CACHE_ID_ENV_NAME: lambda: os.getenv(
+        constants.PIPELINE_CACHE_ID_ENV_NAME, None
     ),
     # The cache ID of the `distilabel` pipeline currently running.
     "DISTILABEL_CACHE_DIR": lambda: os.getenv("DISTILABEL_CACHE_DIR", None),

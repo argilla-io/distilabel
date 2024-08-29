@@ -31,6 +31,8 @@ CONVERGENCE_STEP_ATTR_NAME: Final[str] = "convergence_step"
 LAST_BATCH_SENT_FLAG: Final[str] = "last_batch_sent"
 
 # Pipeline execution related constants
+PIPELINE_NAME_ENV_NAME = "DISTILABEL_PIPELINE_NAME"
+PIPELINE_CACHE_ID_ENV_NAME = "DISTILABEL_PIPELINE_CACHE_ID"
 SIGINT_HANDLER_CALLED_ENV_NAME = "sigint_handler_called"
 
 # Data paths constants
