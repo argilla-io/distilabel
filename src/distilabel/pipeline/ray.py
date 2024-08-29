@@ -303,6 +303,8 @@ class RayPipeline(BasePipeline):
                 ray_pipeline=True,
             ),
             log_queue=self._log_queue,
+            pipeline_name=self.name,
+            pipeline_cache_id=self._create_signature(),
         )
 
         self._logger.debug(
