@@ -1440,6 +1440,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/minhashlsh/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../components-gallery/steps/pushtohub/" class="md-nav__link">
         
   
@@ -1609,6 +1630,27 @@
   
     <li class="md-nav__item">
       <a href="../../../components-gallery/steps/embeddinggeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/minhash/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4442,6 +4484,9 @@
 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
 <p>To start off, <code>distilabel</code> is a framework for building pipelines for generating synthetic data using LLMs, that defines a <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> which orchestrates the execution of the <a class="autorefs autorefs-internal" href="../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses, and those will be connected as nodes in a Direct Acyclic Graph (DAG).</p>
 <p>In this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text based on the dataset using the <a class="autorefs autorefs-internal" href="../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task.</p>
+<blockquote>
+<p>You can check the available models in the <a href="https://huggingface.co/models?pipeline_tag=text-generation&amp;sort=trending">Hugging Face Model Hub</a> and filter by <code>Inference status</code>.</p>
+</blockquote>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span>
