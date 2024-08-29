@@ -119,8 +119,7 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]"content" }}
-{{ messages[1]"content" }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}\n{{ messages[1]"content" }}[/INST]",
     ),
     mode="absolute",
     rubric="factual-validity"
@@ -156,8 +155,7 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]"content" }}
-{{ messages[1]"content" }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}\n{{ messages[1]"content" }}[/INST]",
     ),
     mode="relative",
     rubric="honesty"
@@ -193,18 +191,12 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]"content" }}
-{{ messages[1]"content" }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}\n{{ messages[1]"content" }}[/INST]",
     ),
     mode="absolute",
     rubric="custom",
     rubrics={
-        "custom": "[A]
-Score 1: A
-Score 2: B
-Score 3: C
-Score 4: D
-Score 5: E"
+        "custom": "[A]\nScore 1: A\nScore 2: B\nScore 3: C\nScore 4: D\nScore 5: E"
     }
 )
 
@@ -238,8 +230,7 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]"content" }}
-{{ messages[1]"content" }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}\n{{ messages[1]"content" }}[/INST]",
     ),
     mode="absolute",
     rubric="helpfulness",

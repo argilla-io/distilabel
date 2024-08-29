@@ -118,12 +118,7 @@ result = next(
     )
 )
 # result
-# [{'instructions': ['plain instruction', 'highly complex instruction'], 'model_name': 'test', 'scores': [1, 2], 'distilabel_metadata': {'raw_output_complexity_scorer_0': '{ 
-  "scores": [
-    1, 
-    2
-  ]
-}'}}]
+# [{'instructions': ['plain instruction', 'highly complex instruction'], 'model_name': 'test', 'scores': [1, 2], 'distilabel_metadata': {'raw_output_complexity_scorer_0': '{ \n  "scores": [\n    1, \n    2\n  ]\n}'}}]
 ```
 
 

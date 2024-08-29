@@ -4,6 +4,8 @@ hide:
 ---
 # CombineColumns
 
+`CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead.
+
 
 
 

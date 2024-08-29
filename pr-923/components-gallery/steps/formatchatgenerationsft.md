@@ -4,13 +4,11 @@ hide:
 ---
 # FormatChatGenerationSFT
 
-Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT) following the
+Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT).
 
 
 
-standard formatting from frameworks such as `axolotl` or `alignment-handbook`.
-
-    `FormatChatGenerationSFT` is a `Step` that formats the output of a `ChatGeneration` task for
+`FormatChatGenerationSFT` is a `Step` that formats the output of a `ChatGeneration` task for
     Supervised Fine-Tuning (SFT) following the standard formatting from frameworks such as `axolotl`
     or `alignment-handbook`. The output of the `ChatGeneration` task is formatted into a chat-like
     conversation with the `instruction` as the user message and the `generation` as the assistant
@@ -80,6 +78,39 @@ graph TD
 
 
 
+
+
+### Examples
+
+
+#### Format your dataset for SFT
+```python
+from distilabel.steps import FormatChatGenerationSFT
+
+format_sft = FormatChatGenerationSFT()
+format_sft.load()
+
+# NOTE: "system_prompt" can be added optionally.
+result = next(
+    format_sft.process(
+        [
+            {
+                "messages": [{"role": "user", "content": "What's 2+2?"}],
+                "generation": "4"
+            }
+        ]
+    )
+)
+# >>> result
+# [
+#     {
+#         'messages': [{'role': 'user', 'content': "What's 2+2?"}, {'role': 'assistant', 'content': '4'}],
+#         'generation': '4',
+#         'prompt': 'What's 2+2?',
+#         'prompt_id': '7762ecf17ad41479767061a8f4a7bfa3b63d371672af5180872f9b82b4cd4e29',
+#     }
+# ]
+```
 
 
 

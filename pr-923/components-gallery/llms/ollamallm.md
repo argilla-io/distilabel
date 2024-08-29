@@ -36,4 +36,20 @@ Ollama LLM implementation running the Async API client.
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import OllamaLLM
+
+llm = OllamaLLM(model="llama3")
+
+llm.load()
+
+# Call the model
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+```
+
+
 

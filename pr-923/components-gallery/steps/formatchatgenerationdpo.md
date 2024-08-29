@@ -4,15 +4,13 @@ hide:
 ---
 # FormatChatGenerationDPO
 
-Format the output of a combination of a `ChatGeneration` + a preference task such as
+Format the output of a combination of a `ChatGeneration` + a preference task for Direct Preference Optimization (DPO).
 
 
 
-`UltraFeedback`, for Direct Preference Optimization (DPO) following the standard formatting
-    from frameworks such as `axolotl` or `alignment-handbook`.
-
-    `FormatChatGenerationDPO` is a `Step` that formats the output of the combination of a `ChatGeneration`
-    task with a preference `Task` i.e. a task generating `ratings`, so that those are used to rank the
+`FormatChatGenerationDPO` is a `Step` that formats the output of the combination of a `ChatGeneration`
+    task with a preference `Task` i.e. a task generating `ratings` such as `UltraFeedback` following the standard
+    formatting from frameworks such as `axolotl` or `alignment-handbook`., so that those are used to rank the
     existing generations and provide the `chosen` and `rejected` generations based on the `ratings`.
 
 
