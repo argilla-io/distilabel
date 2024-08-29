@@ -37,7 +37,6 @@ class EmbeddingGeneration(Step):
         - embedding (`List[Union[float, int]]`): the generated sentence embedding.
 
     Examples:
-
         Generate sentence embeddings with Sentence Transformers:
 
         ```python

@@ -1,7 +1,7 @@
 ---
 hide: toc
 ---
-# [Benchmarking with `distilabel`: Arena Hard](#benchmarking-with-distilabel-arena-hard)
+# Benchmarking with `distilabel`: Arena Hard
 
 Benchmark LLMs with `distilabel`: reproducing the Arena Hard benchmark.
 

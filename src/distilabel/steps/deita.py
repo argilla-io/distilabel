@@ -66,7 +66,6 @@ class DeitaFiltering(GlobalStep):
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
 
     Examples:
-
         Filter the dataset based on the DEITA score and the cosine distance between the embeddings:
 
         ```python
@@ -102,7 +101,6 @@ class DeitaFiltering(GlobalStep):
         ```
 
     Citations:
-
         ```
         @misc{liu2024makesgooddataalignment,
             title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},

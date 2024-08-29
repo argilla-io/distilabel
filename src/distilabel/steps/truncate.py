@@ -51,7 +51,6 @@ class TruncateTextColumn(Step):
         - text-manipulation
 
     Examples:
-
         Truncating a row to a given number of tokens:
 
         ```python

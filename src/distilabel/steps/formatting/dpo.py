@@ -65,7 +65,6 @@ class FormatTextGenerationDPO(Step):
         - generations
 
     Examples:
-
         Format your dataset for DPO fine tuning:
 
         ```python
@@ -197,12 +196,11 @@ class FormatTextGenerationDPO(Step):
 
 
 class FormatChatGenerationDPO(Step):
-    """Format the output of a combination of a `ChatGeneration` + a preference task such as
-    `UltraFeedback`, for Direct Preference Optimization (DPO) following the standard formatting
-    from frameworks such as `axolotl` or `alignment-handbook`.
+    """Format the output of a combination of a `ChatGeneration` + a preference task for Direct Preference Optimization (DPO).
 
     `FormatChatGenerationDPO` is a `Step` that formats the output of the combination of a `ChatGeneration`
-    task with a preference `Task` i.e. a task generating `ratings`, so that those are used to rank the
+    task with a preference `Task` i.e. a task generating `ratings` such as `UltraFeedback` following the standard
+    formatting from frameworks such as `axolotl` or `alignment-handbook`., so that those are used to rank the
     existing generations and provide the `chosen` and `rejected` generations based on the `ratings`.
 
     Note:
@@ -239,7 +237,6 @@ class FormatChatGenerationDPO(Step):
         - generations
 
     Examples:
-
         Format your dataset for DPO fine tuning:
 
         ```python

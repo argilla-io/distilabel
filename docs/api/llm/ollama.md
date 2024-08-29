@@ -1,3 +1,0 @@
-# OllamaLLM
-
-::: distilabel.llms.ollama

@@ -69,7 +69,6 @@ class Genstruct(Task):
         - [Ada-Instruct: Adapting Instruction Generators for Complex Reasoning](https://arxiv.org/abs/2310.04484)
 
     Examples:
-
         Generate instructions from raw documents using the title and content:
 
         ```python
@@ -105,7 +104,6 @@ class Genstruct(Task):
         ```
 
     Citations:
-
         ```
         @misc{cui2023adainstructadaptinginstructiongenerators,
             title={Ada-Instruct: Adapting Instruction Generators for Complex Reasoning},

@@ -1,3 +1,0 @@
-# OpenAILLM
-
-::: distilabel.llms.openai

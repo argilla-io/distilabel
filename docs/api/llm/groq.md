@@ -1,3 +1,0 @@
-# GroqLLM
-
-::: distilabel.llms.groq

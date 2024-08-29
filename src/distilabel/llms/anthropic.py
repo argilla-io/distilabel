@@ -75,7 +75,6 @@ class AnthropicLLM(AsyncLLM):
             Defaults to `6`.
 
     Examples:
-
         Generate text:
 
         ```python

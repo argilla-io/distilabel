@@ -6,9 +6,6 @@ hide:
 
 # Installation
 
-!!! NOTE
-    Since `distilabel` v1.0.0 was recently released, we refactored most of the stuff, so the installation below only applies to `distilabel` v1.0.0 and above.
-
 You will need to have at least Python 3.9 or higher, up to Python 3.12, since support for the latter is still a work in progress.
 
 To install the latest release of the package from PyPI you can use the following command:
@@ -42,6 +39,8 @@ Additionally, as part of `distilabel` some extra dependencies are available, mai
 
 - `hf-transformers`: for using models available in [transformers](https://github.com/huggingface/transformers) package via the `TransformersLLM` integration.
 
+- `instructor`: for using structured generation of LLMs with [Instructor](https://github.com/jxnl/instructor/).
+
 - `litellm`: for using [`LiteLLM`](https://github.com/BerriAI/litellm) to call any LLM using OpenAI format via the `LiteLLM` integration.
 
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) Python bindings for `llama.cpp` via the `LlamaCppLLM` integration.
@@ -52,15 +51,23 @@ Additionally, as part of `distilabel` some extra dependencies are available, mai
 
 - `openai`: for using [OpenAI API](https://openai.com/blog/openai-api) models via the `OpenAILLM` integration, or the rest of the integrations based on OpenAI and relying on its client as `AnyscaleLLM`, `AzureOpenAILLM`, and `TogetherLLM`.
 
+- `outlines`: for using structured generation of LLMs with [outlines](https://github.com/outlines-dev/outlines).
+
+- `ray`: for scaling and distributing a pipeline with [Ray](https://github.com/ray-project/ray).
+
 - `vertexai`: for using [Google Vertex AI](https://cloud.google.com/vertex-ai) proprietary models via the `VertexAILLM` integration.
 
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
+
+- `sentence-transformers`: for generating sentence embeddings using [sentence-transformers](https://github.com/UKPLab/sentence-transformers).
+
+- `faiss-cpu` and `faiss-gpu`: for generating sentence embeddings using [faiss](https://github.com/facebookresearch/faiss).
 
 ## Recommendations / Notes
 
 The [`mistralai`](https://github.com/mistralai/client-python) dependency requires Python 3.9 or higher, so if you're willing to use the `distilabel.llms.MistralLLM` implementation, you will need to have Python 3.9 or higher.
 
-In some cases like [`transformers`](https://github.com/huggingface/transformers) and [`vllm`](https://github.com/vllm-project/vllm) the installation of [`flash-attn`](https://github.com/Dao-AILab/flash-attention) is recommended if you are using a GPU accelerator, since it will speed up the inference process, but the installation needs to be done separately, as it's not included in the `distilabel` dependencies.
+In some cases like [`transformers`](https://github.com/huggingface/transformers) and [`vllm`](https://github.com/vllm-project/vllm), the installation of [`flash-attn`](https://github.com/Dao-AILab/flash-attention) is recommended if you are using a GPU accelerator since it will speed up the inference process, but the installation needs to be done separately, as it's not included in the `distilabel` dependencies.
 
 ```sh
 pip install flash-attn --no-build-isolation

@@ -165,7 +165,7 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
         elif section_name == "examples":
             # Parse examples into a dictionary
             example_items = re.findall(
-                r"(\w[\w\s]*?):\s*\n\s*```python\n(.*?)\n\s*```",
+                r"(\w[\w\s]*?):\s*\n?\s*```python\n(.*?)\n\s*```",
                 section_content,
                 re.DOTALL,
             )
@@ -217,7 +217,6 @@ def get_bibtex(ref: str) -> str:
         The bibtex style citation.
 
     Examples:
-
         ```python
         cite = get_bibtex(r"https://arxiv.org/abs/2406.18518")
         @misc{other,

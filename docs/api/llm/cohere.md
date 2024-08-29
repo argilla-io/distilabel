@@ -1,3 +1,0 @@
-# CohereLLM
-
-::: distilabel.llms.cohere

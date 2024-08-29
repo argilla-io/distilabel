@@ -47,7 +47,6 @@ class URIAL(Task):
         - [The Unlocking Spell on Base LLMs: Rethinking Alignment via In-Context Learning](https://arxiv.org/abs/2312.01552)
 
     Examples:
-
         Generate text from an instruction:
 
         ```python

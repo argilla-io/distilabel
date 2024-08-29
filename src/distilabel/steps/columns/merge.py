@@ -48,7 +48,6 @@ class MergeColumns(Step):
             that were merged.
 
     Examples:
-
         Combine columns in rows of a dataset:
 
         ```python

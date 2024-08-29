@@ -43,6 +43,20 @@ class VertexAILLM(AsyncLLM):
 
     Icon:
         `:simple-googlecloud:`
+
+    Examples:
+        Generate text:
+
+        ```python
+        from distilabel.llms import VertexAILLM
+
+        llm = VertexAILLM(model="gemini-1.5-pro")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        ```
     """
 
     model: str
