@@ -78,7 +78,7 @@ hide:
 
     ---
 
-    
+    `CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead.
 
     [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
 
@@ -134,7 +134,7 @@ hide:
 
     ---
 
-    Format the output of a combination of a `ChatGeneration` + a preference task such as
+    Format the output of a combination of a `ChatGeneration` + a preference task for Direct Preference Optimization (DPO).
 
     [:octicons-arrow-right-24: FormatChatGenerationDPO](formatchatgenerationdpo.md){ .bottom }
 
@@ -150,7 +150,7 @@ hide:
 
     ---
 
-    Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT) following the
+    Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT).
 
     [:octicons-arrow-right-24: FormatChatGenerationSFT](formatchatgenerationsft.md){ .bottom }
 
