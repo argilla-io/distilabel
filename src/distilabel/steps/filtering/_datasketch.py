@@ -19,7 +19,6 @@ Note: This implementation is not optimized for performance, but could be worth
 creating a PR to `datasketch`.
 """
 
-import shelve
 import shutil
 import struct
 from pathlib import Path
@@ -31,115 +30,23 @@ from datasketch.storage import OrderedStorage, UnorderedStorage, _random_name
 from datasketch.storage import ordered_storage as _ordered_storage
 from datasketch.storage import unordered_storage as _unordered_storage
 
-SHELVE_DIR: Path = Path.home() / ".cache" / "distilabel" / "key_value_store"
-SHELVE_LIST_NAME: Final[str] = "shelve_list_storage"
-SHELVE_SET_NAME: Final[str] = "shelve_set_storage"
-
 KEY_VALUE_DISK_DIR: Path = Path.home() / ".cache" / "distilabel" / "key_value_store"
 KV_DISK_LIST_NAME: Final[str] = "disckache_list_storage"
 KV_DISK_SET_NAME: Final[str] = "diskcache_set_storage"
 
 
-def _custom_shelve_open(path, writeback=True):
-    from shelve import Shelf
-
-    class CustomShelve(Shelf):
-        def __init__(self, filename, flag="c", protocol=None, writeback=False):
-            import dbm.gnu as dbm
-
-            Shelf.__init__(self, dbm.open(filename, flag), protocol, writeback)
-
-    return CustomShelve(path, flag="n", protocol=None, writeback=writeback)
-
-
-class ShelveListStorage(OrderedStorage):
-    """Key/Value storage using shelve to store the hash tables in disk.
-    It mimics the behaviour of `datasketch.DictListStorage`.
-    The only difference is the storage in disk.
-    The functionality is on purpose to avoid unnecessary errors.
-    """
-
-    def __init__(self, config, name) -> None:
-        path = config.get("path", self._get_db_name(name))
-        # Read about writeback here: https://docs.python.org/3/library/shelve.html#shelve.open
-        writeback = config.get("writeback", True)
-        # The flag is set to "n" to recreate the file always, we assume
-        # every pipeline works on it's own and recomputes it instead of trusting
-        # the cache.
-        # Note: Maybe we could move this to use `diskcache` instead of shelve
-        self._db = shelve.open(path, writeback=writeback, flag="n")
-        # self._db = _custom_shelve_open(path, writeback=writeback)
-
-    def _get_db_name(self, name):
-        return str(SHELVE_DIR / f"{name}_{SHELVE_LIST_NAME}")
-
-    def keys(self):
-        return self._db.keys()
-
-    def get(self, key):
-        return self._db.get(str(key), [])
-
-    def remove(self, *keys):
-        for key in keys:
-            del self._db[str(key)]
-
-    def remove_val(self, key, val):
-        self._db[str(key)].remove(val)
-
-    def insert(self, key, *vals, **kwargs):
-        key = str(key)
-        if not self._db.get(key):
-            self._db[key] = []
-        self._db[key].extend(vals)
-
-    def size(self):
-        return len(self._db)
-
-    def itemcounts(self, **kwargs):
-        return {k: len(v) for k, v in self._db.items()}
-
-    def has_key(self, key):
-        return key in self._db
-
-    def close(self):
-        self._db.close()
-
-
-class ShelveSetStorage(UnorderedStorage, ShelveListStorage):
-    """Key/Value storage using shelve to store the hash tables in disk.
-    It mimics the behaviour of `datasketch.DictSetStorage`.
-    The only difference is the storage in disk.
-    The functionality is on purpose to avoid unnecessary errors.
-    """
-
-    def _get_db_name(self, name):
-        return str(SHELVE_DIR / f"{name}_{SHELVE_SET_NAME}")
-
-    def get(self, key):
-        return self._db.get(str(key), set())
-
-    def insert(self, key, *vals, **kwargs):
-        key = str(key)
-        if not self._db.get(key):
-            self._db[key] = set()
-        self._db[key].update(vals)
-
-
 class DiskCacheListStorage(OrderedStorage):
     def __init__(self, config, name) -> None:
         path = config.get("path", self._get_db_name(name))
-        # Read about writeback here: https://docs.python.org/3/library/shelve.html#shelve.open
-        # The flag is set to "n" to recreate the file always, we assume
-        # every pipeline works on it's own and recomputes it instead of trusting
-        # the cache.
-        # Note: Maybe we could move this to use `diskcache` instead of shelve
-        # self._db = shelve.open(path, writeback=writeback, flag="n")
-        # self._db = _custom_shelve_open(path, writeback=writeback)
+        try:
+            from diskcache import Index
+        except ImportError as e:
+            raise ImportError(
+                "`diskcache` is required for disk storage using `MinHashDedup`. "
+                "Please install it using `pip install diskcache`."
+            ) from e
 
-        # from diskcache import Cache as KeyValStore
-        # self._db = KeyValStore(path)
-        from diskcache import Index
-
+        # Start with a clean file on each pipeline
         if Path(path).exists():
             shutil.rmtree(path)
         self._db = Index(path)
@@ -174,12 +81,12 @@ class DiskCacheListStorage(OrderedStorage):
         return key in self._db
 
     def close(self):
-        self._db.close()
+        self._db._cache.close()
 
 
 class DiskCacheSetStorage(UnorderedStorage, DiskCacheListStorage):
     def _get_db_name(self, name):
-        return str(KEY_VALUE_DISK_DIR / f"{name}_{SHELVE_SET_NAME}")
+        return str(KEY_VALUE_DISK_DIR / f"{name}_{KV_DISK_SET_NAME}")
 
     def get(self, key):
         return self._db.get(key, set())
@@ -194,7 +101,6 @@ def ordered_storage(config, name=None):
     """Copy of `datasketch.storage.ordered_storage` with the addition of `ShelveListStorage`."""
     tp = config["type"]
     if tp == "disk":
-        # return ShelveListStorage(config, name=name)
         return DiskCacheListStorage(config, name=name)
     return _ordered_storage(config, name=name)
 
@@ -203,7 +109,6 @@ def unordered_storage(config, name=None):
     """Copy of `datasketch.storage.ordered_storage` with the addition of `ShelveSetStorage`."""
     tp = config["type"]
     if tp == "disk":
-        # return ShelveSetStorage(config, name=name)
         return DiskCacheSetStorage(config, name=name)
     return _unordered_storage(config, name=name)
 
@@ -278,8 +183,8 @@ class MinHashLSH(_MinHashLSH):
         self.keys = ordered_storage(storage_config, name=b"".join([basename, b"_keys"]))
 
     def close(self):
-        """Closes the shelve objects."""
-        if isinstance(self.hashtables[0], ShelveListStorage):
+        """Closes the internal connections."""
+        if isinstance(self.hashtables[0], DiskCacheListStorage):
             for ht in self.hashtables:
                 ht.close()
             self.keys.close()
