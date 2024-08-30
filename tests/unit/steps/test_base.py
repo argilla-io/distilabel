@@ -251,6 +251,42 @@ class TestStep:
             {"prompt": "hello 3", "generation": "unit test"},
         ]
 
+    def test_process_applying_mappings_and_overriden_inputs(self) -> None:
+        step = DummyStep(
+            name="dummy",
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            input_mappings={"instruction": "prompt"},
+            output_mappings={"response": "generation"},
+        )
+
+        outputs = next(
+            step.process_applying_mappings(
+                [
+                    {"prompt": "hello 1", "instruction": "overriden 1"},
+                    {"prompt": "hello 2", "instruction": "overriden 2"},
+                    {"prompt": "hello 3", "instruction": "overriden 3"},
+                ]
+            )
+        )
+
+        assert outputs == [
+            {
+                "prompt": "hello 1",
+                "generation": "unit test",
+                "instruction": "overriden 1",
+            },
+            {
+                "prompt": "hello 2",
+                "generation": "unit test",
+                "instruction": "overriden 2",
+            },
+            {
+                "prompt": "hello 3",
+                "generation": "unit test",
+                "instruction": "overriden 3",
+            },
+        ]
+
     def test_connect(self) -> None:
         @step(inputs=["instruction"], outputs=["generation"])
         def GenerationStep(input: StepInput):
