@@ -21,11 +21,11 @@ from distilabel.steps.base import (
     StepInput,
     StepResources,
 )
+from distilabel.steps.columns.combine import CombineOutputs
 from distilabel.steps.columns.expand import ExpandColumns
 from distilabel.steps.columns.group import CombineColumns, GroupColumns
 from distilabel.steps.columns.keep import KeepColumns
 from distilabel.steps.columns.merge import MergeColumns
-from distilabel.steps.combine import CombineOutputs
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
 from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
@@ -60,12 +60,12 @@ __all__ = [
     "Step",
     "StepInput",
     "StepResources",
+    "CombineOutputs",
     "ExpandColumns",
     "CombineColumns",
     "GroupColumns",
     "KeepColumns",
     "MergeColumns",
-    "CombineOutputs",
     "step",
     "DeitaFiltering",
     "EmbeddingGeneration",

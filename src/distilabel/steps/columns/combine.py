@@ -14,9 +14,9 @@
 
 from typing import TYPE_CHECKING
 
+from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.columns.utils import merge_distilabel_metadata
-from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput

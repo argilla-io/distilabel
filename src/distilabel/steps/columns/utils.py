@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import defaultdict
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from distilabel.constants import DISTILABEL_METADATA_KEY
@@ -30,17 +31,28 @@ def merge_distilabel_metadata(*output_dicts: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         A merged dictionary containing all the distilabel metadata from the input dictionaries.
     """
-    merged_metadata = {}
+    merged_metadata = defaultdict(list)
+
     for output_dict in output_dicts:
-        merged_metadata.update(output_dict.get(DISTILABEL_METADATA_KEY, {}))
-    return merged_metadata
+        metadata = output_dict.get(DISTILABEL_METADATA_KEY, {})
+        for key, value in metadata.items():
+            merged_metadata[key].append(value)
+
+    final_metadata = {}
+    for key, value_list in merged_metadata.items():
+        if len(value_list) == 1:
+            final_metadata[key] = value_list[0]
+        else:
+            final_metadata[key] = value_list
+
+    return final_metadata
 
 
 def group_columns(
     *inputs: "StepInput",
     group_columns: List[str],
     output_group_columns: Optional[List[str]] = None,
-) -> StepInput:
+) -> "StepInput":
     """Groups multiple list of dictionaries into a single list of dictionaries on the
     specified `group_columns`. If `group_columns` are provided, then it will also rename
     `group_columns`.
