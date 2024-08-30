@@ -31,8 +31,8 @@ from datasketch.storage import ordered_storage as _ordered_storage
 from datasketch.storage import unordered_storage as _unordered_storage
 
 SHELVE_DIR: Path = Path.home() / ".cache" / "distilabel"
-SHELVE_LIST_NAME: Final[str] = ".shelve_list_storage"
-SHELVE_SET_NAME: Final[str] = ".shelve_set_storage"
+SHELVE_LIST_NAME: Final[str] = "shelve_list_storage"
+SHELVE_SET_NAME: Final[str] = "shelve_set_storage"
 
 
 class ShelveListStorage(OrderedStorage):
@@ -42,17 +42,18 @@ class ShelveListStorage(OrderedStorage):
     The functionality is on purpose to avoid unnecessary errors.
     """
 
-    def __init__(self, config) -> None:
-        path = config.get("path", self._get_db_name())
+    def __init__(self, config, name) -> None:
+        path = config.get("path", self._get_db_name(name))
         # Read about writeback here: https://docs.python.org/3/library/shelve.html#shelve.open
         writeback = config.get("writeback", True)
         # The flag is set to "n" to recreate the file always, we assume
         # every pipeline works on it's own and recomputes it instead of trusting
         # the cache.
+        # Note: Maybe we could move this to use `diskcache` instead of shelve
         self._db = shelve.open(path, writeback=writeback, flag="n")
 
-    def _get_db_name(self):
-        return str(SHELVE_DIR / SHELVE_LIST_NAME)
+    def _get_db_name(self, name):
+        return str(SHELVE_DIR / f"{name}_{SHELVE_LIST_NAME}")
 
     def keys(self):
         return self._db.keys()
@@ -93,8 +94,8 @@ class ShelveSetStorage(UnorderedStorage, ShelveListStorage):
     The functionality is on purpose to avoid unnecessary errors.
     """
 
-    def _get_db_name(self):
-        return str(SHELVE_DIR / SHELVE_SET_NAME)
+    def _get_db_name(self, name):
+        return str(SHELVE_DIR / f"{name}_{SHELVE_SET_NAME}")
 
     def get(self, key):
         return self._db.get(str(key), set())
@@ -110,7 +111,7 @@ def ordered_storage(config, name=None):
     """Copy of `datasketch.storage.ordered_storage` with the addition of `ShelveListStorage`."""
     tp = config["type"]
     if tp == "disk":
-        return ShelveListStorage(config)
+        return ShelveListStorage(config, name=name)
     return _ordered_storage(config, name=name)
 
 
@@ -118,7 +119,7 @@ def unordered_storage(config, name=None):
     """Copy of `datasketch.storage.ordered_storage` with the addition of `ShelveSetStorage`."""
     tp = config["type"]
     if tp == "disk":
-        return ShelveSetStorage(config)
+        return ShelveSetStorage(config, name=name)
     return _unordered_storage(config, name=name)
 
 
