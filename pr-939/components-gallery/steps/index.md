@@ -66,7 +66,7 @@ hide:
 
     [:octicons-arrow-right-24: CombineOutputs](combineoutputs.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __ExpandColumns__
+-   :material-table-column:{ .lg .middle } __ExpandColumns__
 
     ---
 
@@ -90,7 +90,7 @@ hide:
 
     [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __KeepColumns__
+-   :material-table-column:{ .lg .middle } __KeepColumns__
 
     ---
 
@@ -98,7 +98,7 @@ hide:
 
     [:octicons-arrow-right-24: KeepColumns](keepcolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __MergeColumns__
+-   :material-table-column:{ .lg .middle } __MergeColumns__
 
     ---
 

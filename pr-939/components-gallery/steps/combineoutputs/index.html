@@ -4417,6 +4417,63 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Input & Output Columns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inputs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Outputs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combine-dictionaries-of-a-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combine dictionaries of a dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combine-upstream-steps-outputs-in-a-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combine upstream steps outputs in a pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -4441,12 +4498,61 @@
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>graph TD
     subgraph Dataset
+        subgraph Columns
+            ICOL0[dynamic]
+        end
+        subgraph New columns
+            OCOL0[dynamic]
+        end
     end
 
     subgraph CombineOutputs
+        StepInput[Input Columns: dynamic]
+        StepOutput[Output Columns: dynamic]
     end
 
+    ICOL0 --&gt; StepInput
+    StepOutput --&gt; OCOL0
+    StepInput --&gt; StepOutput
 </code></pre>
+<h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>dynamic</strong> (based on the upstream <code>Step</code>s): All the columns of the upstream steps outputs.</li>
+</ul>
+<h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>dynamic</strong> (based on the upstream <code>Step</code>s): All the columns of the upstream steps outputs.</li>
+</ul>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<h4 id="combine-dictionaries-of-a-dataset">Combine dictionaries of a dataset<a class="headerlink" href="#combine-dictionaries-of-a-dataset" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineOutputs</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">combine_outputs</span> <span class="o">=</span> <span class="n">CombineOutputs</span><span class="p">()</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">combine_outputs</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">combine_outputs</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="p">[{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}],</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="p">[{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}],</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="p">)</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">)</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># [</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1">#   {&quot;a&quot;: 1, &quot;b&quot;: 2, &quot;c&quot;: 5, &quot;d&quot;: 6},</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1">#   {&quot;a&quot;: 3, &quot;b&quot;: 4, &quot;c&quot;: 7, &quot;d&quot;: 8},</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1"># ]</span>
+</span></code></pre></div>
+<h4 id="combine-upstream-steps-outputs-in-a-pipeline">Combine upstream steps outputs in a pipeline<a class="headerlink" href="#combine-upstream-steps-outputs-in-a-pipeline" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineOutputs</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">step_1</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">step_2</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">step_3</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">combine</span> <span class="o">=</span> <span class="n">CombineOutputs</span><span class="p">()</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="p">[</span><span class="n">step_1</span><span class="p">,</span> <span class="n">step_2</span><span class="p">,</span> <span class="n">step_3</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">combine</span>
+</span></code></pre></div>
 
 
 
