@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 class CombineOutputs(Step):
     """Combine the outputs of several upstream steps.
 
-    `CombineOutputs` is a `Step` that takes the outputs of several upstream steps and combine
+    `CombineOutputs` is a `Step` that takes the outputs of several upstream steps and combines
     them to generate a new dictionary with all keys/columns of the upstream steps outputs.
 
     Input columns:
