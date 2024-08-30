@@ -17,8 +17,8 @@ from typing import TYPE_CHECKING, Any, List, Optional
 
 from typing_extensions import override
 
-from distilabel.pipeline.utils import group_columns
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.columns.utils import group_columns
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepColumns, StepOutput

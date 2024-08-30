@@ -15,6 +15,7 @@
 from typing import TYPE_CHECKING
 
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.columns.utils import merge_distilabel_metadata
 from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 
 if TYPE_CHECKING:
@@ -40,13 +41,9 @@ class CombineOutputs(Step):
                         if k != DISTILABEL_METADATA_KEY
                     }
                 )
-
-            distilabel_metadata = {}
-            for output_dict in output_dicts:
-                distilabel_metadata.update(output_dict.get(DISTILABEL_METADATA_KEY, {}))
-
-            combined_dict[DISTILABEL_METADATA_KEY] = distilabel_metadata
-
+            combined_dict[DISTILABEL_METADATA_KEY] = merge_distilabel_metadata(
+                *output_dicts
+            )
             combined_outputs.append(combined_dict)
 
         yield combined_outputs

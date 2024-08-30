@@ -16,8 +16,8 @@ from typing import TYPE_CHECKING, List, Optional
 
 from typing_extensions import override
 
-from distilabel.pipeline.utils import merge_columns
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.columns.utils import merge_columns
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepColumns, StepOutput
