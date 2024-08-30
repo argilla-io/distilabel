@@ -12,4 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-CHATML_TEMPLATE = "{% for message in messages %}{{'<|im_start|>' + message['role'] + '\n' + message[\"content\"] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}"
+from distilabel.errors import DistilabelUserError
+
+
+def test_distilabel_user_error() -> None:
+    msg = DistilabelUserError("This is an error message.")
+    assert str(msg) == "This is an error message."
+    msg = DistilabelUserError(
+        "This is an error message.", page="sections/getting_started/faq/"
+    )
+    assert (
+        str(msg)
+        == "This is an error message.\n\nFor further information visit 'https://distilabel.argilla.io/latest/sections/getting_started/faq/'"
+    )

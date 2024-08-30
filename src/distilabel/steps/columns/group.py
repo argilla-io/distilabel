@@ -21,7 +21,7 @@ from distilabel.pipeline.utils import group_columns
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class GroupColumns(Step):
@@ -44,7 +44,6 @@ class GroupColumns(Step):
             that were grouped.
 
     Examples:
-
         Combine columns of a dataset:
 
         ```python
@@ -93,12 +92,12 @@ class GroupColumns(Step):
     output_columns: Optional[List[str]] = None
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The inputs for the task are the column names in `columns`."""
         return self.columns
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The outputs for the task are the column names in `output_columns` or
         `grouped_{column}` for each column in `columns`."""
         return (
@@ -125,6 +124,8 @@ class GroupColumns(Step):
 
 
 class CombineColumns(GroupColumns):
+    """`CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead."""
+
     def __init__(self, **data: Any) -> None:
         warnings.warn(
             "`CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead.",

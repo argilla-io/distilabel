@@ -30,11 +30,12 @@ from typing import (
 
 import networkx as nx
 
-from distilabel.pipeline.constants import (
+from distilabel.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
+from distilabel.errors import DistilabelUserError
 from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
 from distilabel.steps.base import GeneratorStep
 from distilabel.utils.serialization import (
@@ -339,9 +340,10 @@ class DAG(_Serializable):
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
                 if trophic_level == 1:
                     if not isinstance(step, GeneratorStep):
-                        raise ValueError(
+                        raise DistilabelUserError(
                             f"Step '{step_name}' cannot be a root step because it is not"
-                            " a `GeneratorStep`. It should have a previous step in the pipeline."
+                            " a `GeneratorStep`. It should have a previous step in the pipeline.",
+                            page="sections/how_to_guides/basic/step/#types-of-steps",
                         )
                     self._validate_generator_step_process_signature(step)
                 else:
@@ -374,9 +376,10 @@ class DAG(_Serializable):
             for output in self.get_step(step_name)[STEP_ATTR_NAME].get_outputs()  # type: ignore
         ]
         step_inputs = step.get_inputs()
-        if not all(input in inputs_available_for_step for input in step_inputs):
+        required_inputs = [input for input, required in step_inputs.items() if required]
+        if not all(input in inputs_available_for_step for input in required_inputs):
             raise ValueError(
-                f"Step '{step.name}' requires inputs {step_inputs}, but only the inputs"
+                f"Step '{step.name}' requires inputs {required_inputs}, but only the inputs"
                 f"={inputs_available_for_step} are available, which means that the inputs"
                 f"={list(set(step_inputs) - set(inputs_available_for_step))} are missing or not"
                 " available when the step gets to be executed in the pipeline."
@@ -478,9 +481,10 @@ class DAG(_Serializable):
             node = self.get_step(predecessor)
             routing_batch_function = node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME)
             if routing_batch_function is not None and len(predecessors) > 1:
-                raise ValueError(
+                raise DistilabelUserError(
                     f"Step '{step.name}' cannot have multiple predecessors when the batches"
-                    " of one are being routed with a `routing_batch_function`."
+                    " of one are being routed with a `routing_batch_function`.",
+                    page="sections/how_to_guides/basic/pipeline/?h=routing#routing-batches-to-specific-downstream-steps",
                 )
 
         if routing_batch_function is None:
@@ -541,24 +545,27 @@ class DAG(_Serializable):
         if step_input_parameter is None:
             if num_predecessors > 1:
                 prev_steps = ", ".join([f"'{step_name}'" for step_name in predecessors])
-                raise ValueError(
+                raise DistilabelUserError(
                     f"Step '{step_name}' should have a `*args` parameter with type hint"
-                    f" `StepInput` to receive outputs from previous steps: {prev_steps}."
+                    f" `StepInput` to receive outputs from previous steps: {prev_steps}.",
+                    page="sections/how_to_guides/basic/step/#define-steps-for-your-pipeline",
                 )
 
             prev_step_name = next(iter(predecessors))
-            raise ValueError(
+            raise DistilabelUserError(
                 f"Step '{step_name}' should have a parameter with type hint `StepInput`"
-                f" to receive the output from the previous step: '{prev_step_name}'."
+                f" to receive the output from the previous step: '{prev_step_name}'.",
+                page="sections/how_to_guides/basic/step/#define-steps-for-your-pipeline",
             )
 
         if (
             num_predecessors > 1
             and step_input_parameter.kind != inspect.Parameter.VAR_POSITIONAL
         ):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"Step '{step_name}' should have a `*args` parameter with type hint `StepInput`"
-                f" to receive outputs from previous steps."
+                f" to receive outputs from previous steps.",
+                page="sections/how_to_guides/basic/step/#define-steps-for-your-pipeline",
             )
 
     def _validate_step_process_runtime_parameters(  # noqa: C901

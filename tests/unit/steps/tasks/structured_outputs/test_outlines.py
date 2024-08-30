@@ -15,13 +15,14 @@
 from typing import Any, Dict, Literal, Type, Union
 
 import pytest
+from pydantic import BaseModel
+
 from distilabel.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
     # StructuredOutputType,
     model_to_schema,
 )
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
-from pydantic import BaseModel
 
 
 class DummyUserTest(BaseModel):
@@ -119,7 +120,7 @@ class TestOutlinesIntegration:
         self, format: str, schema: Union[str, Type[BaseModel]], prompt: str
     ) -> None:
         llm = TransformersLLM(
-            model="openaccess-ai-collective/tiny-mistral",
+            model="distilabel-internal-testing/tiny-random-mistral",
             structured_output=OutlinesStructuredOutputType(
                 format=format, schema=schema
             ),

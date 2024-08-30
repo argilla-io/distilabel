@@ -16,6 +16,7 @@ import json
 from typing import Any, List
 
 import pytest
+
 from distilabel.llms import LLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.pipeline.local import Pipeline
@@ -66,6 +67,7 @@ class TestEmbeddingTaskGenerator:
             add_raw_output=False,
             llm=MockLLM(output="[ 'A', 'B', 'C' ]"),
             pipeline=Pipeline(name="unit-test-pipeline"),
+            add_raw_input=False,
         )
         task.load()
 
@@ -122,6 +124,7 @@ class TestBitextRetrievalGenerator:
             add_raw_output=False,
             llm=MockLLM(output=json.dumps({"S1": "A", "S2": "B", "S3": "C"})),
             pipeline=Pipeline(name="unit-test-pipeline"),
+            add_raw_input=False,
         )
         task.load()
 
@@ -184,6 +187,7 @@ class TestMonolingualTripletGenerator:
             add_raw_output=False,
             llm=MockLLM(output=json.dumps({"S1": "A", "S2": "B", "S3": "C"})),
             pipeline=Pipeline(name="unit-test-pipeline"),
+            add_raw_input=False,
         )
         task.load()
         assert task.outputs == ["S1", "S2", "S3", "model_name"]
@@ -230,6 +234,7 @@ class TestGenerateLongTextMatchingData:
             add_raw_output=False,
             llm=MockLLM(output=json.dumps({"input": "A", "positive_document": "B"})),
             pipeline=Pipeline(name="unit-test-pipeline"),
+            add_raw_input=False,
         )
         task.load()
 
@@ -261,6 +266,7 @@ class TestGenerateShortTextMatchingData:
             add_raw_output=False,
             llm=MockLLM(output=json.dumps({"input": "A", "positive_document": "B"})),
             pipeline=Pipeline(name="unit-test-pipeline"),
+            add_raw_input=False,
         )
         task.load()
         assert task.outputs == ["input", "positive_document", "model_name"]
@@ -316,6 +322,7 @@ class TestGenerateTextClassificationData:
                 )
             ),
             pipeline=Pipeline(name="unit-test-pipeline"),
+            add_raw_input=False,
         )
         task.load()
         assert task.outputs == ["input_text", "label", "misleading_label", "model_name"]
@@ -387,6 +394,7 @@ class TestGenerateTextRetrievalData:
                 )
             ),
             pipeline=Pipeline(name="unit-test-pipeline"),
+            add_raw_input=False,
         )
         task.load()
         assert task.outputs == [

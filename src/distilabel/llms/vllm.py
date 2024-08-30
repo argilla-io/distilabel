@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+from functools import cached_property
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -29,7 +30,6 @@ import numpy as np
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import LLM
-from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.openai import OpenAILLM
@@ -38,14 +38,11 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
-    from openai import OpenAI
+    from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
 
     from distilabel.steps.tasks.typing import StandardInput
-
-
-SamplingParams = None
 
 
 class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
@@ -95,7 +92,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             the `LLM` class of `vllm` library.
 
     Examples:
-
         Generate text:
 
         ```python
@@ -177,10 +173,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         try:
             from vllm import LLM as _vLLM
-            from vllm import SamplingParams as _SamplingParams
-
-            global SamplingParams
-            SamplingParams = _SamplingParams
         except ImportError as ie:
             raise ImportError(
                 "vLLM is not installed. Please install it using `pip install vllm`."
@@ -203,11 +195,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         self._tokenizer = self._model.get_tokenizer()  # type: ignore
         if self.chat_template is not None:
             self._tokenizer.chat_template = self.chat_template  # type: ignore
-        elif (
-            self._tokenizer.chat_template is None  # type: ignore
-            and self._tokenizer.default_chat_template is None  # type: ignore
-        ):
-            self._tokenizer.chat_template = CHATML_TEMPLATE
 
         if self.structured_output:
             self._logits_processor = self._prepare_structured_output(
@@ -234,6 +221,9 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
+        if self._tokenizer.chat_template is None:
+            return input[0]["content"]
+
         prompt: str = (
             self._tokenizer.apply_chat_template(
                 input,  # type: ignore
@@ -321,6 +311,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        from vllm import SamplingParams
 
         if extra_sampling_params is None:
             extra_sampling_params = {}
@@ -423,7 +414,6 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             created to comunicate with the `vLLM` server. Defaults to `None`.
 
     Examples:
-
         Generate text:
 
         ```python
@@ -497,8 +487,8 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             self.tokenizer, revision=self.tokenizer_revision
         )
 
-    @property
-    def model_name(self) -> str:
+    @cached_property
+    def model_name(self) -> str:  # type: ignore
         """Returns the name of the model served with vLLM server."""
         models = self._client.models.list()
         return models.data[0].id
@@ -539,7 +529,7 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
         """Generates `num_generations` responses for each input.
 
         Args:
-            inputs: a list of inputs in chat format to generate responses for.
+            input: a single input in chat format to generate responses for.
             num_generations: the number of generations to create per input. Defaults to
                 `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.

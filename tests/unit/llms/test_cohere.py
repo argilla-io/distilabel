@@ -19,6 +19,7 @@ from unittest import mock
 
 import nest_asyncio
 import pytest
+
 from distilabel.llms.cohere import CohereLLM
 
 from .utils import DummyUserDetail

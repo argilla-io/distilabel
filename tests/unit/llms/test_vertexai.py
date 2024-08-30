@@ -16,12 +16,13 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llms.vertexai import VertexAILLM
 from vertexai.generative_models import (
     Content,
     GenerationConfig,
     Part,
 )
+
+from distilabel.llms.vertexai import VertexAILLM
 
 
 @patch("vertexai.generative_models.GenerativeModel.generate_content_async")

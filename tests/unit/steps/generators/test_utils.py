@@ -17,6 +17,7 @@ from typing import Dict, List, Union
 import pandas as pd
 import pytest
 from datasets import Dataset
+
 from distilabel.steps import make_generator_step
 
 data = [{"instruction": "Tell me a joke."}] * 10

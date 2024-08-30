@@ -11,12 +11,4 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-from typing import Final
 
-STEP_ATTR_NAME: Final[str] = "step"
-INPUT_QUEUE_ATTR_NAME: Final[str] = "input_queue"
-RECEIVES_ROUTED_BATCHES_ATTR_NAME: Final[str] = "receives_routed_batches"
-ROUTING_BATCH_FUNCTION_ATTR_NAME: Final[str] = "routing_batch_function"
-CONVERGENCE_STEP_ATTR_NAME: Final[str] = "convergence_step"
-LAST_BATCH_SENT_FLAG: Final[str] = "last_batch_sent"

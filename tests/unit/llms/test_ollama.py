@@ -16,6 +16,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
+
 from distilabel.llms.ollama import OllamaLLM
 
 

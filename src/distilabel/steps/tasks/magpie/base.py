@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import Field, PositiveInt
 
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.base import LLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import (
@@ -28,7 +29,7 @@ from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 MAGPIE_MULTI_TURN_SYSTEM_PROMPT = (
     "You are a helpful Al assistant. The user will engage in a multi−round conversation"
@@ -45,7 +46,6 @@ class MagpieBase(RuntimeParametersMixin):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
 
     Citations:
-
         ```
         @misc{xu2024magpiealignmentdatasynthesis,
             title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
@@ -327,7 +327,6 @@ class Magpie(Task, MagpieBase):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
 
     Examples:
-
         Generating instructions with Llama 3 8B Instruct and TransformersLLM:
 
         ```python
@@ -440,23 +439,24 @@ class Magpie(Task, MagpieBase):
         super().model_post_init(__context)
 
         if not isinstance(self.llm, MagpieChatTemplateMixin):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"`Magpie` task can only be used with an `LLM` that uses the `MagpieChatTemplateMixin`."
-                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin."
+                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin.",
+                page="components-gallery/tasks/magpie/",
             )
 
         self.llm.use_magpie_template = True
 
     @property
-    def inputs(self) -> List[str]:
-        return []
+    def inputs(self) -> "StepColumns":
+        return {"system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Does nothing."""
         return []
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
             return ["instruction", "model_name"]

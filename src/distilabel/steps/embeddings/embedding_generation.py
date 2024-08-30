@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from distilabel.embeddings.base import Embeddings
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class EmbeddingGeneration(Step):
@@ -37,7 +37,6 @@ class EmbeddingGeneration(Step):
         - embedding (`List[Union[float, int]]`): the generated sentence embedding.
 
     Examples:
-
         Generate sentence embeddings with Sentence Transformers:
 
         ```python
@@ -61,11 +60,11 @@ class EmbeddingGeneration(Step):
     embeddings: Embeddings
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         return ["text"]
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         return ["embedding", "model_name"]
 
     def load(self) -> None:

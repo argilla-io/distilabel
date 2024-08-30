@@ -16,9 +16,10 @@ import traceback
 from queue import Queue
 from typing import Any, Dict, List, Optional, Union, cast
 
+from distilabel.constants import LAST_BATCH_SENT_FLAG
+from distilabel.errors import DISTILABEL_DOCS_URL
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.pipeline.batch import _Batch
-from distilabel.pipeline.constants import LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.typing import StepLoadStatus
 from distilabel.steps.base import GeneratorStep, Step, _Step
 
@@ -294,7 +295,7 @@ class _StepWrapperException(Exception):
         code: int,
         subprocess_exception: Optional[Exception] = None,
     ) -> None:
-        self.message = message
+        self.message = f"{message}\n\nFor further information visit {DISTILABEL_DOCS_URL}api/pipeline/step_wrapper"
         self.step = step
         self.code = code
         self.subprocess_exception = subprocess_exception

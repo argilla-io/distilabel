@@ -15,6 +15,7 @@
 from typing import Any, Dict
 
 import pytest
+
 from distilabel.steps.tasks.sentence_transformers import (
     CONTEXT_INTRO,
     NEGATIVE_STYLE,
@@ -23,8 +24,28 @@ from distilabel.steps.tasks.sentence_transformers import (
     GenerateSentencePair,
     GenerationAction,
 )
-
 from tests.unit.conftest import DummyLLM
+
+# from distilabel.llms.base import LLM, AsyncLLM
+
+# if TYPE_CHECKING:
+#     from distilabel.llms.typing import GenerateOutput
+#     from distilabel.steps.tasks.typing import FormattedInput
+
+# # Defined here too, so that the serde still works
+# class DummyStructuredLLM(LLM):
+#     structured_output: Any = None
+#     def load(self) -> None:
+#         pass
+
+#     @property
+#     def model_name(self) -> str:
+#         return "test"
+
+#     def generate(
+#         self, input: "FormattedInput", num_generations: int = 1
+#     ) -> "GenerateOutput":
+#         return ['{ \n  "negative": "negative",\n  "positive": "positive"\n}' for _ in range(num_generations)]
 
 
 class TestGenerateSentencePair:
@@ -300,11 +321,12 @@ class TestGenerateSentencePair:
         ]
 
     @pytest.mark.parametrize(
-        "output,triplet,expected",
+        "output,triplet,use_default_structured_output,expected",
         [
             (
                 "## Positive\n\nThis is a paraphrase\n## Negative\n\nThis is not a paraphrase",
                 True,
+                False,
                 {
                     "positive": "This is a paraphrase",
                     "negative": "This is not a paraphrase",
@@ -313,25 +335,66 @@ class TestGenerateSentencePair:
             (
                 "## Positive\n\nThis is a paraphrase",
                 True,
+                False,
                 {"positive": "This is a paraphrase", "negative": None},
             ),
             (
                 "## Positive\n\nThis is a paraphrase",
+                False,
                 False,
                 {"positive": "This is a paraphrase"},
             ),
             (
                 "random",
                 False,
+                False,
                 {"positive": None},
+            ),
+            (
+                '{ \n  "negative": "This is not a paraphrase",\n  "positive": "This is a paraphrase"\n}',
+                True,
+                True,
+                {
+                    "positive": "This is a paraphrase",
+                    "negative": "This is not a paraphrase",
+                },
+            ),
+            (
+                '{ \n   "positive": "This is a paraphrase"\n}',
+                True,
+                True,
+                {
+                    "positive": "This is a paraphrase",
+                },
+            ),
+            (
+                "{ \n   random\n}",
+                False,
+                True,
+                {
+                    "positive": None,
+                },
+            ),
+            (
+                "{ \n   random\n}",
+                True,
+                True,
+                {"positive": None, "negative": None},
             ),
         ],
     )
     def test_format_output(
-        self, output: str, triplet: bool, expected: Dict[str, Any]
+        self,
+        output: str,
+        triplet: bool,
+        use_default_structured_output: bool,
+        expected: Dict[str, Any],
     ) -> None:
         task = GenerateSentencePair(
-            llm=DummyLLM(), action="paraphrase", triplet=triplet
+            llm=DummyLLM(),
+            action="paraphrase",
+            triplet=triplet,
+            use_default_structured_output=use_default_structured_output,
         )
         task.load()
 

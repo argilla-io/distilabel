@@ -1,18 +1,18 @@
 # Instruction Backtranslation
 
-["Self Alignment with Instruction Backtranslation"](https://arxiv.org/abs/2308.06259) presents a scalable method to build a high quality instruction following language model by automatically labelling human-written text with corresponding instructions. Their approach, named instruction backtranslation, starts with a language model finetuned on a small amount of seed data, and a given web corpus. The seed model is used to construct training examples by generating instruction prompts for web documents (self-augmentation), and then selecting high quality examples from among these candidates (self-curation). This data is then used to finetune a stronger model.
+["Self Alignment with Instruction Backtranslation"](https://arxiv.org/abs/2308.06259) presents a scalable method to build high-quality instruction following a language model by automatically labeling human-written text with corresponding instructions. Their approach, named instruction backtranslation, starts with a language model finetuned on a small amount of seed data, and a given web corpus. The seed model is used to construct training examples by generating instruction prompts for web documents (self-augmentation), and then selecting high-quality examples from among these candidates (self-curation). This data is then used to finetune a stronger model.
 
-Their self-training approach assumes access to a base language model, a small amount of seed data, and a collection of unlabelled examples, e.g. a web corpus. The unlabelled data is a large, diverse set of human-written documents which includes writing about all manner of topics humans are interested in – but crucially is not paired with instructions.
+Their self-training approach assumes access to a base language model, a small amount of seed data, and a collection of unlabelled examples, e.g. a web corpus. The unlabelled data is a large, diverse set of human-written documents that includes writing about all manner of topics humans are interested in – but crucially is not paired with instructions.
 
-A first key assumption is that there exists some subset of this very large human-written text that would be suitable as gold generations for some user instructions. A second key assumption is that they can predict instructions for these candidate gold answers that can be used as high quality example pairs to train an instruction following model.
+A first key assumption is that there exists some subset of this very large human-written text that would be suitable as gold generations for some user instructions. A second key assumption is that they can predict instructions for these candidate gold answers that can be used as high-quality example pairs to train an instruction-following model.
 
-Their overall process, called instruction backtranslation performs two core steps:
+Their overall process, called instruction back translation performs two core steps:
 
 1. Self-augment: Generate instructions for unlabelled data, i.e. the web corpus, to produce candidate training data of (instruction, output) pairs for instruction tuning.
 
-2. Self-curate: Self-select high quality demonstration examples as training data to finetune the base model to follow instructions. This approach is done iteratively where a better intermediate instruction-following model can improve on selecting data for finetuning in the next iteration.
+2. Self-curate: Self-select high-quality demonstration examples as training data to finetune the base model to follow instructions. This approach is done iteratively where a better intermediate instruction-following model can improve on selecting data for finetuning in the next iteration.
 
-This replication covers the self-curation step i.e. the second / latter step as mentioned above, so as to be able to use the proposed prompting approach to rate the quality of the generated text, which can either be synthetically generated or real human-written text.
+This replication covers the self-curation step i.e. the second/latter step as mentioned above, so as to be able to use the proposed prompting approach to rate the quality of the generated text, which can either be synthetically generated or real human-written text.
 
 ### Replication
 

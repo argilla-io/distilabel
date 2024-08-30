@@ -13,11 +13,15 @@
 # limitations under the License.
 
 import warnings
-from typing import Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
+from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.chat import is_openai_format
+
+if TYPE_CHECKING:
+    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.steps.typing import StepColumns
 
 
 class TextGeneration(Task):
@@ -43,7 +47,6 @@ class TextGeneration(Task):
         - text-generation
 
     Examples:
-
         Generate text from an instruction:
 
         ```python
@@ -78,23 +81,25 @@ class TextGeneration(Task):
     use_system_prompt: bool = True
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The input for the task is the `instruction`."""
         return ["instruction"]
 
-    def format_input(self, input: Dict[str, Any]) -> ChatType:
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
 
         if is_openai_format(input["instruction"]):
-            raise ValueError(
+            raise DistilabelUserError(
                 "Providing `instruction` formatted as an OpenAI chat / conversation is"
                 " deprecated, you should use `ChatGeneration` with `messages` as input instead.",
+                page="components-gallery/tasks/textgeneration/",
             )
 
         if not isinstance(input["instruction"], str):
-            raise ValueError(
-                f"Input `instruction` must be a string. Got: {input['instruction']}."
+            raise DistilabelUserError(
+                f"Input `instruction` must be a string. Got: {input['instruction']}.",
+                page="components-gallery/tasks/textgeneration/",
             )
 
         messages = [{"role": "user", "content": input["instruction"]}]
@@ -146,7 +151,6 @@ class ChatGeneration(Task):
         `:material-chat:`
 
     Examples:
-
         Generate text from a conversation in OpenAI chat format:
 
         ```python
@@ -189,20 +193,22 @@ class ChatGeneration(Task):
         """The input for the task are the `messages`."""
         return ["messages"]
 
-    def format_input(self, input: Dict[str, Any]) -> ChatType:
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the messages provided
         are already formatted that way i.e. following the OpenAI chat format."""
 
         if not is_openai_format(input["messages"]):
-            raise ValueError(
+            raise DistilabelUserError(
                 "Input `messages` must be an OpenAI chat-like format conversation. "
-                f"Got: {input['messages']}. Please check: 'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'."
+                f"Got: {input['messages']}. Please check: 'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'.",
+                page="components-gallery/tasks/chatgeneration/",
             )
 
         if input["messages"][-1]["role"] != "user":
-            raise ValueError(
+            raise DistilabelUserError(
                 "The last message must be from the user. Please check: "
-                "'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'."
+                "'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'.",
+                page="components-gallery/tasks/chatgeneration/",
             )
 
         return input["messages"]
@@ -213,7 +219,7 @@ class ChatGeneration(Task):
         return ["generation", "model_name"]
 
     def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `generation`. The `model_name`
         will be automatically included within the `process` method of `Task`."""

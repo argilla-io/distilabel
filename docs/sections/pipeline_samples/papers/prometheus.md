@@ -1,20 +1,20 @@
 # Prometheus 2
 
-["Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models"](https://arxiv.org/pdf/2405.01535) presents Prometheus 2, a new and more powerful evaluator LLM compared to Prometheus (its predecessor) presented in ["Prometheus: Inducing Fine-grained Evaluation Capability in Language Models"](https://arxiv.org/abs/2310.08491); since GPT-4, as well as other proprietary LLMs, are commonly used to asses the quality of the responses for various LLMs, but there are concerns about transparency, controllability, and affordability, that motivate the need of open-source LLMs specialized in evaluations.
+["Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models"](https://arxiv.org/pdf/2405.01535) presents Prometheus 2, a new and more powerful evaluator LLM compared to Prometheus (its predecessor) presented in ["Prometheus: Inducing Fine-grained Evaluation Capability in Language Models"](https://arxiv.org/abs/2310.08491); since GPT-4, as well as other proprietary LLMs, are commonly used to assess the quality of the responses for various LLMs, but there are concerns about transparency, controllability, and affordability, that motivate the need of open-source LLMs specialized in evaluations.
 
 Existing open evaluator LMs exhibit critical shortcomings:
 
 1. They issue scores that significantly diverge from those assigned by humans.
 2. They lack the flexibility to perform both direct assessment and pairwise ranking, the two most prevalent forms of assessment.
 
-Additionally, they do not possess the ability to evaluate based on custom evaluation criteria, focusing instead on general attributes like helpfulness and harmlessness. Prometheus 2 is capable of processing both direct assessment and pair-wise ranking formats grouped with a user-defined evaluation criteria.
+Additionally, they do not possess the ability to evaluate based on custom evaluation criteria, focusing instead on general attributes like helpfulness and harmlessness. Prometheus 2 is capable of processing both direct assessment and pair-wise ranking formats grouped with user-defined evaluation criteria.
 
 Prometheus 2 released two variants:
 
 - [`prometheus-eval/prometheus-7b-v2.0`](https://hf.co/prometheus-eval/prometheus-7b-v2.0): fine-tuned on top of [`mistralai/Mistral-7B-Instruct-v0.2`](https://hf.co/mistralai/Mistral-7B-Instruct-v0.2)
 - [`prometheus-eval/prometheus-8x7b-v2.0`](https://hf.co/prometheus-eval/prometheus-8x7b-v2.0): fine-tuned on top of [`mistralai/Mixtral-8x7B-Instruct-v0.1`](https://hf.co/mistralai/Mixtral-8x7B-Instruct-v0.1)
 
-Both models have been fine-tuned for both direct assessment and pairwise ranking tasks i.e. assessing the quality of a single isolated response for a given instruction with or without a reference answer, and assessing the quality of one response against another one for a given instruction with or without a reference answer, respectively.
+Both models have been fine-tuned for both direct assessment and pairwise ranking tasks i.e. assessing the quality of a single isolated response for a given instruction with or without a reference answer and assessing the quality of one response against another one for a given instruction with or without a reference answer, respectively.
 
 On four direct assessment benchmarks and four pairwise ranking benchmarks, Prometheus 2 scores the highest correlation and agreement with humans and proprietary LM judges among all tested open evaluator LMs. Their models, code, and data are all publicly available at [`prometheus-eval/prometheus-eval`](https://github.com/prometheus-eval/prometheus-eval).
 

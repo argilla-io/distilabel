@@ -155,10 +155,12 @@ def test_load_stages_status_load_from_cache() -> None:
 
             original_process_batch = pipeline._process_batch
 
-        def _process_batch_wrapper(batch: "_Batch") -> None:
+        def _process_batch_wrapper(
+            batch: "_Batch", send_last_batch_flag: bool = True
+        ) -> None:
             if batch.step_name == group_1.name and batch.seq_no == 10:
                 pipeline._stop_called = True
-            original_process_batch(batch)
+            original_process_batch(batch, send_last_batch_flag)
 
         # Run first time and stop the pipeline when specific batch received (simulate CTRL + C)
         with mock.patch.object(pipeline, "_process_batch", _process_batch_wrapper):
@@ -167,7 +169,3 @@ def test_load_stages_status_load_from_cache() -> None:
         distiset = pipeline.run(use_cache=True)
 
         assert len(distiset["default"]["train"]) == 1000
-
-
-if __name__ == "__main__":
-    test_load_stages_status_load_from_cache()

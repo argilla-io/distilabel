@@ -15,9 +15,9 @@
 from typing import Any, Dict, Union
 
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.quality_scorer import QualityScorer
-
 from tests.unit.conftest import DummyLLM
 
 
@@ -45,29 +45,43 @@ class TestQualityScorer:
         ]
 
     @pytest.mark.parametrize(
-        "output, expected",
+        "output, use_default_structured_output, expected",
         [
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\n",
+                False,
                 {"scores": [1.0, 2.0, 3.0]},
             ),
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\njfjfjfjjfjfjf this is noise from the llm\nlallalalala more noise\nand more noise",
+                False,
                 {"scores": [1.0, 2.0, 3.0]},
             ),
             (
                 None,
+                False,
+                {"scores": [None, None, None]},
+            ),
+            (
+                '{"scores":[1,2,3]}',
+                True,
+                {"scores": [1.0, 2.0, 3.0]},
+            ),
+            (
+                "wrong",
+                True,
                 {"scores": [None, None, None]},
             ),
         ],
     )
     def test_format_output(
-        self, output: Union[str, None], expected: Dict[str, Any]
+        self,
+        output: Union[str, None],
+        use_default_structured_output: bool,
+        expected: Dict[str, Any],
     ) -> None:
         task = QualityScorer(
-            name="quality_score",
-            llm=DummyLLM(),
-            pipeline=Pipeline(name="unit-test-pipeline"),
+            llm=DummyLLM(), use_default_structured_output=use_default_structured_output
         )
         task.load()
 

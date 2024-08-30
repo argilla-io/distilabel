@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Dict, List
 
 import pytest
+
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager, _BatchManagerStep

@@ -48,7 +48,6 @@ class AzureOpenAILLM(OpenAILLM):
         `:material-microsoft-azure:`
 
     Examples:
-
         Generate text:
 
         ```python

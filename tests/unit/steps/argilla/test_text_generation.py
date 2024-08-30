@@ -13,17 +13,20 @@
 # limitations under the License.
 
 import os
+from unittest import mock
 from unittest.mock import patch
 
 import argilla as rg
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 
 
 @pytest.fixture
 def mock_dataset() -> rg.Dataset:
-    client = rg.Argilla(api_url="<api_url>", api_key="<api_key>")
+    rg.Argilla._validate_connection = mock.MagicMock()  # type: ignore
+    client = rg.Argilla(api_url="https://example.com", api_key="<api_key>")
     return rg.Dataset(
         name="dataset",
         settings=rg.Settings(

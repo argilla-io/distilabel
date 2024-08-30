@@ -23,6 +23,7 @@ try:
 except ImportError:
     pass
 
+from distilabel.errors import DistilabelUserError
 from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
 
@@ -70,7 +71,6 @@ class PreferenceToArgilla(ArgillaBase):
             generated rationales won't be pushed to Argilla.
 
     Examples:
-
         Push a preference dataset to an Argilla instance:
 
         ```python
@@ -166,11 +166,12 @@ class PreferenceToArgilla(ArgillaBase):
                     ]
                     and field.required
                 ):
-                    raise ValueError(
+                    raise DistilabelUserError(
                         f"The dataset '{self.dataset_name}' in the workspace '{self.dataset_workspace}'"
                         f" already exists, but contains at least a required field that is"
                         f" neither `{self._id}`, `{self._instruction}`, nor `{self._generations}`"
-                        f" (one per generation starting from 0 up to {self.num_generations - 1})."
+                        f" (one per generation starting from 0 up to {self.num_generations - 1}).",
+                        page="components-gallery/steps/preferencetoargilla/",
                     )
 
             self._dataset = _dataset

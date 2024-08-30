@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import pytest
+from pydantic import ValidationError
+
 from distilabel.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.evol_instruct.base import (
@@ -21,7 +23,6 @@ from distilabel.steps.tasks.evol_instruct.base import (
 from distilabel.steps.tasks.evol_instruct.utils import (
     MUTATION_TEMPLATES,
 )
-from pydantic import ValidationError
 
 
 class TestEvolInstruct:
@@ -122,6 +123,7 @@ class TestEvolInstruct:
         assert task.dump() == {
             "name": "task",
             "add_raw_output": True,
+            "add_raw_input": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
             "resources": {
@@ -134,6 +136,7 @@ class TestEvolInstruct:
             "input_batch_size": task.input_batch_size,
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
                 "type_info": {
                     "module": task.llm.__module__,
                     "name": task.llm.__class__.__name__,
@@ -152,6 +155,7 @@ class TestEvolInstruct:
                 "INCREASED_REASONING_STEPS": "I want you act as a Prompt Rewriter.\n\nYour objective is to rewrite a given prompt into a more complex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.\n\nBut the rewritten prompt must be reasonable and must be understood and responded by humans.\n\nYour rewriting cannot omit the non-text parts such as the table and code in #The Given Prompt#:. Also, please do not omit the input in #The Given Prompt#.\n\nYou SHOULD complicate the given prompt using the following method: \nIf #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning.\n\nYou should try your best not to make the #Rewritten Prompt# become verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#.\n\n'#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' and 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#\n\n#The Given Prompt#:\n<PROMPT>\n#Rewritten Prompt#:\n\n",
                 "BREADTH": "I want you act as a Prompt Creator.\n\nYour goal is to draw inspiration from the #Given Prompt# to create a brand new prompt.\n\nThis new prompt should belong to the same domain as the #Given Prompt# but be even more rare.\n\nThe LENGTH and complexity of the #Created Prompt# should be similar to that of the #Given Prompt#.\n\nThe #Created Prompt# must be reasonable and must be understood and responded by humans.\n\n'#Given Prompt#', '#Created Prompt#', 'given prompt' and 'created prompt' are not allowed to appear in #Created Prompt#\n\n#Given Prompt#:\n<PROMPT>\n#Created Prompt#:\n\n",
             },
+            "use_default_structured_output": False,
             "seed": task.seed,
             "runtime_parameters_info": [
                 {
@@ -202,6 +206,11 @@ class TestEvolInstruct:
                 {
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
                     "name": "add_raw_output",
+                    "optional": True,
+                },
+                {
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                    "name": "add_raw_input",
                     "optional": True,
                 },
                 {

@@ -17,13 +17,14 @@ from unittest import mock
 
 import numpy as np
 import pytest
-from distilabel.llms import vLLM
-from distilabel.llms.vllm import ClientvLLM, _sort_batches
 from openai.pagination import SyncPage
 from openai.types import Model
 from openai.types.completion import Completion
 from openai.types.completion_choice import CompletionChoice
 from pydantic import BaseModel
+
+from distilabel.llms import vLLM
+from distilabel.llms.vllm import ClientvLLM, _sort_batches
 
 
 class Character(BaseModel):
@@ -43,42 +44,54 @@ class Animal(BaseModel):
 SAMPLE_DATA = [
     [
         {
-            "instruction": "Generate a character from a RPG game.",
+            "instruction": [
+                {"role": "user", "content": "Generate a character from a RPG game."}
+            ],
             "structured_output": {
                 "format": "json",
                 "schema": Character.model_json_schema(),
             },
         },
         {
-            "instruction": "Generate an animal from a zoo.",
+            "instruction": [
+                {
+                    "role": "user",
+                    "content": "Generate an animal from a zoo.",
+                }
+            ],
             "structured_output": {
                 "format": "json",
                 "schema": Animal.model_json_schema(),
             },
         },
         {
-            "instruction": "Repeated character",
+            "instruction": [{"role": "user", "content": "Repeated character"}],
             "structured_output": {
                 "format": "json",
                 "schema": Character.model_json_schema(),
             },
         },
         {
-            "instruction": "What's the weather like today in Seattle in Celsius degrees?",
+            "instruction": [
+                {
+                    "role": "user",
+                    "content": "What's the weather like today in Seattle in Celsius degrees?",
+                }
+            ],
             "structured_output": {
                 "format": "regex",
                 "schema": "(\\d{1,2})°C",
             },
         },
         {
-            "instruction": "Other character",
+            "instruction": [{"role": "user", "content": "Other character"}],
             "structured_output": {
                 "format": "json",
                 "schema": Character.model_json_schema(),
             },
         },
         {
-            "instruction": "repeated regex",
+            "instruction": [{"role": "user", "content": "repeated regex"}],
             "structured_output": {
                 "format": "regex",
                 "schema": "(\\d{1,2})°C",
@@ -90,6 +103,8 @@ SAMPLE_DATA = [
 
 # Just a mock to avoid loading the model
 class DummyTokenizer:
+    chat_template = None
+
     def __init__(self) -> None:
         pass
 
@@ -179,15 +194,14 @@ class TestvLLM:
 @mock.patch("openai.AsyncOpenAI")
 class TestClientvLLM:
     def test_clientvllm_model_name(
-        self, _openai_mock: mock.MagicMock, _async_openai_mock: mock.MagicMock
+        self, _: mock.MagicMock, openai_mock: mock.MagicMock
     ) -> None:
         llm = ClientvLLM(
             base_url="http://localhost:8000/v1",
             tokenizer="google-bert/bert-base-uncased",
         )
 
-        llm.load()
-
+        llm._client = mock.MagicMock()
         llm._client.models.list.return_value = SyncPage[Model](  # type: ignore
             data=[Model(id="llama", created=1234, object="model", owned_by="")],
             object="model",
@@ -201,7 +215,7 @@ class TestClientvLLM:
     ) -> None:
         llm = ClientvLLM(
             base_url="http://localhost:8000/v1",
-            tokenizer="google-bert/bert-base-uncased",
+            tokenizer="distilabel-internal-testing/tiny-random-mistral",
         )
 
         llm.load()

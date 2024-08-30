@@ -12,17 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tempfile
+from pathlib import Path
 from typing import List, Optional
 
 import pytest
+from pydantic import ValidationError
+
+from distilabel.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.pipeline.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.decorator import step
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
-from pydantic import ValidationError
 
 
 class DummyStep(Step):
@@ -160,7 +163,18 @@ class TestStep:
             pipeline=Pipeline(name="unit-test-pipeline"),
             input_mappings={"instruction": "prompt"},
         )
-        assert step.get_inputs() == ["prompt"]
+        assert step.get_inputs() == {"prompt": True}
+
+    def test_get_inputs_with_dict(self) -> None:
+        @step(inputs={"instruction": False, "completion": True}, outputs=["score"])
+        def DummyStepWithDict(input: StepInput):
+            pass
+
+        dummy_step_with_dict = DummyStepWithDict()
+        assert dummy_step_with_dict.get_inputs() == {
+            "instruction": False,
+            "completion": True,
+        }
 
     def test_get_outputs(self) -> None:
         step = DummyStep(
@@ -168,7 +182,15 @@ class TestStep:
             pipeline=Pipeline(name="unit-test-pipeline"),
             output_mappings={"response": "generation"},
         )
-        assert step.get_outputs() == ["generation"]
+        assert step.get_outputs() == {"generation": True}
+
+    def test_get_outputs_with_dict(self) -> None:
+        @step(outputs={"score": False})
+        def DummyStepWithDict(input: StepInput):
+            pass
+
+        dummy_step_with_dict = DummyStepWithDict()
+        assert dummy_step_with_dict.get_outputs() == {"score": False}
 
     def test_apply_input_mappings(self) -> None:
         step = DummyStep(
@@ -258,6 +280,48 @@ class TestStep:
             pipeline.dag.get_step("dummy_generator")[ROUTING_BATCH_FUNCTION_ATTR_NAME]
             == routing_batch_function
         )
+
+    def test_set_pipeline_artifacts_path(self) -> None:
+        step = DummyStep()
+        step.set_pipeline_artifacts_path(Path("/tmp"))
+        assert step.artifacts_directory == Path(f"/tmp/{step.name}")
+
+    def test_save_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            pipeline_artifacts_path = Path(tempdir)
+            step = DummyStep()
+            step.load()
+            step.set_pipeline_artifacts_path(pipeline_artifacts_path)
+            step.save_artifact(
+                name="unit-test",
+                write_function=lambda path: Path(path / "file.txt").write_text(
+                    "unit test"
+                ),
+                metadata={"unit-test": True},
+            )
+
+            artifact_path = pipeline_artifacts_path / step.name / "unit-test"  # type: ignore
+
+            assert artifact_path.is_dir()
+            assert (artifact_path / "file.txt").read_text() == "unit test"
+            assert (artifact_path / "metadata.json").read_text() == '{"unit-test":true}'
+
+    def test_save_artifact_without_setting_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            pipeline_artifacts_path = Path(tempdir)
+            step = DummyStep()
+            step.load()
+            step.save_artifact(
+                name="unit-test",
+                write_function=lambda path: Path(path / "file.txt").write_text(
+                    "unit test"
+                ),
+                metadata={"unit-test": True},
+            )
+
+            artifact_path = pipeline_artifacts_path / step.name / "unit-test"  # type: ignore
+
+            assert not artifact_path.exists()
 
 
 class TestGeneratorStep:

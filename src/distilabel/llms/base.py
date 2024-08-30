@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
+from distilabel.errors import DistilabelUserError
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
@@ -400,8 +401,9 @@ class AsyncLLM(LLM):
 
         schema = structured_output.get("schema")
         if not schema:
-            raise ValueError(
-                f"The `structured_output` argument must contain a schema: {structured_output}"
+            raise DistilabelUserError(
+                f"The `structured_output` argument must contain a schema: {structured_output}",
+                page="sections/how_to_guides/advanced/structured_generation/#instructor",
             )
         if inspect.isclass(schema) and issubclass(schema, BaseModel):
             # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
@@ -428,7 +430,10 @@ class AsyncLLM(LLM):
         # We can deal with json schema or BaseModel, but we need to convert it to a BaseModel
         # for the Instructor client.
         schema = structured_output.get("schema", {})
-        if not issubclass(schema, BaseModel):
+
+        # If there's already a pydantic model, we don't need to do anything,
+        # otherwise, try to obtain one.
+        if not (inspect.isclass(schema) and issubclass(schema, BaseModel)):
             from distilabel.steps.tasks.structured_outputs.utils import (
                 json_schema_to_model,
             )

@@ -17,6 +17,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Dict,
     List,
@@ -24,6 +25,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    TypeVar,
     Union,
 )
 
@@ -39,11 +41,19 @@ from pydantic import Field, PrivateAttr
 from upath import UPath
 
 from distilabel.distiset import Distiset
+from distilabel.errors import DistilabelUserError
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import GeneratorStep
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput
+
+
+T = TypeVar("T")
+
+# To avoid using repo_id in LoadDataFromFileSystem:
+# https://github.com/pydantic/pydantic/discussions/7076#discussioncomment-6699138
+ExcludedField = Annotated[T, Field(exclude=True)]
 
 
 class LoadDataFromHub(GeneratorStep):
@@ -64,6 +74,7 @@ class LoadDataFromHub(GeneratorStep):
         - `split`: The split of the dataset to load. Defaults to 'train'.
         - `config`: The configuration of the dataset to load. This is optional and only
             needed if the dataset has multiple configurations.
+        - `revision`: The revision of the dataset to load. Defaults to the latest revision.
         - `streaming`: Whether to load the dataset in streaming mode or not. Defaults to
             `False`.
         - `num_examples`: The number of examples to load from the dataset.
@@ -79,7 +90,6 @@ class LoadDataFromHub(GeneratorStep):
         - load
 
     Examples:
-
         Load data from a dataset in Hugging Face Hub:
 
         ```python
@@ -112,6 +122,10 @@ class LoadDataFromHub(GeneratorStep):
         description="The configuration of the dataset to load. This is optional and only"
         " needed if the dataset has multiple configurations.",
     )
+    revision: Optional[RuntimeParameter[str]] = Field(
+        default=None,
+        description="The revision of the dataset to load. Defaults to the latest revision.",
+    )
     streaming: RuntimeParameter[bool] = Field(
         default=False,
         description="Whether to load the dataset in streaming mode or not. Defaults to False.",
@@ -139,6 +153,7 @@ class LoadDataFromHub(GeneratorStep):
             self.repo_id,  # type: ignore
             self.config,
             split=self.split,
+            revision=self.revision,
             streaming=self.streaming,
         )
         num_examples = self._get_dataset_num_examples()
@@ -279,7 +294,6 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         - load
 
     Examples:
-
         Load data from a Hugging Face dataset in your file system:
 
         ```python
@@ -324,6 +338,23 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         # >>> result
         # ([{'type': 'function', 'function':...', False)
         ```
+
+        Load data passing a glob pattern:
+
+        ```python
+        from distilabel.steps import LoadDataFromFileSystem
+
+        loader = LoadDataFromFileSystem(
+            data_files="path/to/dataset/*.jsonl",
+            streaming=True
+        )
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'type': 'function', 'function':...', False)
+        ```
     """
 
     data_files: RuntimeParameter[Union[str, Path]] = Field(
@@ -334,6 +365,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         default=None,
         description="The expected filetype. If not provided, it will be inferred from the file extension.",
     )
+    repo_id: ExcludedField[Union[str, None]] = None
 
     def load(self) -> None:
         """Load the dataset from the file/s in disk."""
@@ -366,7 +398,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
                 self.num_examples = len(self._dataset)
 
     @staticmethod
-    def _prepare_data_files(
+    def _prepare_data_files(  # noqa: C901
         data_path: UPath,
     ) -> Tuple[Union[str, Sequence[str], Mapping[str, Union[str, Sequence[str]]]], str]:
         """Prepare the loading process by setting the `data_files` attribute.
@@ -384,9 +416,12 @@ class LoadDataFromFileSystem(LoadDataFromHub):
                 filetype = "json"
             return filetype
 
-        if data_path.is_file():
+        if data_path.is_file() or (
+            len(str(data_path.parent.glob(data_path.name))) >= 1
+        ):
             filetype = get_filetype(data_path)
             data_files = str(data_path)
+
         elif data_path.is_dir():
             file_sequence = []
             file_map = defaultdict(list)
@@ -416,9 +451,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         """
         # We assume there are Dataset/IterableDataset, not it's ...Dict counterparts
         if self._dataset is None:
-            raise ValueError(
-                "Dataset not loaded yet, you must call `load` method first."
-            )
+            self.load()
 
         return self._dataset.column_names
 
@@ -432,16 +465,16 @@ class LoadDataFromDisk(LoadDataFromHub):
     Attributes:
         dataset_path: The path to the dataset or distiset.
         split: The split of the dataset to load (typically will be `train`, `test` or `validation`).
-        config: The configuration of the dataset to load. This is optional and only needed
-            if the dataset has multiple configurations.
+        config: The configuration of the dataset to load. Defaults to `default`, if there are
+            multiple configurations in the dataset this must be suplied or an error is raised.
 
     Runtime parameters:
         - `batch_size`: The batch size to use when processing the data.
         - `dataset_path`: The path to the dataset or distiset.
         - `is_distiset`: Whether the dataset to load is a `Distiset` or not. Defaults to False.
         - `split`: The split of the dataset to load. Defaults to 'train'.
-        - `config`: The configuration of the dataset to load. This is optional and only
-            needed if the dataset has multiple configurations.
+        - `config`: The configuration of the dataset to load. Defaults to `default`, if there are
+            multiple configurations in the dataset this must be suplied or an error is raised.
         - `num_examples`: The number of examples to load from the dataset.
             By default will load all examples.
         - `storage_options`: Key/value pairs to be passed on to the file-system backend, if any.
@@ -455,7 +488,6 @@ class LoadDataFromDisk(LoadDataFromHub):
         - load
 
     Examples:
-
         Load data from a Hugging Face Dataset:
 
         ```python
@@ -511,10 +543,12 @@ class LoadDataFromDisk(LoadDataFromHub):
         default=None,
         description="Path to the dataset or distiset.",
     )
-    config: RuntimeParameter[str] = Field(
-        default=None,
-        description="The configuration of the dataset to load. This is optional and only"
-        " needed if the dataset has multiple configurations.",
+    config: Optional[RuntimeParameter[str]] = Field(
+        default="default",
+        description=(
+            "The configuration of the dataset to load. Will default to 'default'",
+            " which corresponds to a distiset with a single configuration.",
+        ),
     )
     is_distiset: Optional[RuntimeParameter[bool]] = Field(
         default=False,
@@ -529,6 +563,7 @@ class LoadDataFromDisk(LoadDataFromHub):
         default=None,
         description="The split of the dataset to load. By default will load the whole Dataset/Distiset.",
     )
+    repo_id: ExcludedField[Union[str, None]] = None
 
     def load(self) -> None:
         """Load the dataset from the file/s in disk."""
@@ -539,8 +574,14 @@ class LoadDataFromDisk(LoadDataFromHub):
                 keep_in_memory=self.keep_in_memory,
                 storage_options=self.storage_options,
             )
-            if self.config:
-                ds = ds[self.config]
+            if self.config not in ds.keys():
+                raise DistilabelUserError(
+                    f"Configuration '{self.config}' not found in the Distiset, available ones"
+                    f" are: {list(ds.keys())}. Please try changing the `config` parameter to one "
+                    "of the available configurations.\n\n",
+                    page="sections/how_to_guides/advanced/distiset/#using-the-distiset-dataset-object",
+                )
+            ds = ds[self.config]
 
         else:
             ds = load_from_disk(
@@ -568,9 +609,7 @@ class LoadDataFromDisk(LoadDataFromHub):
             The columns that will be generated by this step.
         """
         # We assume there are Dataset/IterableDataset, not it's ...Dict counterparts
-        if self._dataset is Ellipsis:
-            raise ValueError(
-                "Dataset not loaded yet, you must call `load` method first."
-            )
+        if self._dataset is None:
+            self.load()
 
         return self._dataset.column_names

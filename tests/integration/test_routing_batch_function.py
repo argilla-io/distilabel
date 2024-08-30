@@ -17,6 +17,7 @@ import time
 from typing import TYPE_CHECKING, List
 
 import pytest
+
 from distilabel.pipeline import Pipeline, routing_batch_function
 from distilabel.steps import LoadDataFromDicts, StepInput, step
 

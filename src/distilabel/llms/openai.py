@@ -62,7 +62,6 @@ class OpenAILLM(AsyncLLM):
         `:simple-openai:`
 
     Examples:
-
         Generate text:
 
         ```python
@@ -247,7 +246,6 @@ class OpenAILLM(AsyncLLM):
             "temperature": temperature,
             "top_p": top_p,
             "stop": stop,
-            "timeout": 50,
         }
 
         if response_format is not None:

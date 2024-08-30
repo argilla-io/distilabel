@@ -17,17 +17,29 @@ import logging
 import re
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, overload
+from pathlib import Path
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    overload,
+)
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, Self
 
+from distilabel.errors import DistilabelTypeError, DistilabelUserError
 from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
 )
-from distilabel.utils.serialization import _Serializable
+from distilabel.utils.serialization import _Serializable, write_json
 from distilabel.utils.typing_ import is_parameter_annotated_with
 
 if TYPE_CHECKING:
@@ -40,7 +52,7 @@ if TYPE_CHECKING:
         DownstreamConnectableSteps,
         UpstreamConnectableSteps,
     )
-    from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
 
 
 DEFAULT_INPUT_BATCH_SIZE = 50
@@ -182,6 +194,7 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
 
+    _pipeline_artifacts_path: Path = PrivateAttr(None)
     _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: "Logger" = PrivateAttr(None)
 
@@ -369,8 +382,10 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         return not self.is_generator and not self.is_global
 
     @property
-    def inputs(self) -> List[str]:
-        """List of strings with the names of the columns that the step needs as input.
+    def inputs(self) -> "StepColumns":
+        """List of strings with the names of the mandatory columns that the step needs as
+        input or dictionary in which the keys are the input columns of the step and the
+        values are booleans indicating whether the column is optional or not.
 
         Returns:
             List of strings with the names of the columns that the step needs as input.
@@ -378,9 +393,10 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         return []
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """List of strings with the names of the columns that the step will produce as
-        output.
+        output or dictionary in which the keys are the output columns of the step and the
+        values are booleans indicating whether the column is optional or not.
 
         Returns:
             List of strings with the names of the columns that the step will produce as
@@ -424,9 +440,10 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         for parameter in self.process_parameters:
             if is_parameter_annotated_with(parameter, _STEP_INPUT_ANNOTATION):
                 if step_input_parameter is not None:
-                    raise TypeError(
+                    raise DistilabelTypeError(
                         f"Step '{self.name}' should have only one parameter with type"
-                        " hint `StepInput`."
+                        " hint `StepInput`.",
+                        page="sections/how_to_guides/basic/step/#defining-custom-steps",
                     )
                 step_input_parameter = parameter
         return step_input_parameter
@@ -443,10 +460,11 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
 
         for input in self.input_mappings:
             if input not in self.inputs:
-                raise ValueError(
+                raise DistilabelUserError(
                     f"The input column '{input}' doesn't exist in the inputs of the"
                     f" step '{self.name}'. Inputs of the step are: {self.inputs}."
-                    " Please, review the `inputs_mappings` argument of the step."
+                    " Please, review the `inputs_mappings` argument of the step.",
+                    page="sections/how_to_guides/basic/step/#arguments",
                 )
 
     def verify_outputs_mappings(self) -> None:
@@ -461,29 +479,108 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
 
         for output in self.output_mappings:
             if output not in self.outputs:
-                raise ValueError(
+                raise DistilabelUserError(
                     f"The output column '{output}' doesn't exist in the outputs of the"
                     f" step '{self.name}'. Outputs of the step are: {self.outputs}."
-                    " Please, review the `outputs_mappings` argument of the step."
+                    " Please, review the `outputs_mappings` argument of the step.",
+                    page="sections/how_to_guides/basic/step/#arguments",
                 )
 
-    def get_inputs(self) -> List[str]:
+    def get_inputs(self) -> Dict[str, bool]:
         """Gets the inputs of the step after the `input_mappings`. This method is meant
         to be used to run validations on the inputs of the step.
 
         Returns:
-            The inputs of the step after the `input_mappings`.
+            The inputs of the step after the `input_mappings` and if they are required or
+            not.
         """
-        return [self.input_mappings.get(input, input) for input in self.inputs]
+        if isinstance(self.inputs, list):
+            return {
+                self.input_mappings.get(input, input): True for input in self.inputs
+            }
 
-    def get_outputs(self) -> List[str]:
+        return {
+            self.input_mappings.get(input, input): required
+            for input, required in self.inputs.items()
+        }
+
+    def get_outputs(self) -> Dict[str, bool]:
         """Gets the outputs of the step after the `outputs_mappings`. This method is
         meant to be used to run validations on the outputs of the step.
 
         Returns:
-            The outputs of the step after the `outputs_mappings`.
+            The outputs of the step after the `outputs_mappings` and if they are required
+            or not.
         """
-        return [self.output_mappings.get(output, output) for output in self.outputs]
+        if isinstance(self.outputs, list):
+            return {
+                self.output_mappings.get(output, output): True
+                for output in self.outputs
+            }
+
+        return {
+            self.output_mappings.get(output, output): required
+            for output, required in self.outputs.items()
+        }
+
+    def set_pipeline_artifacts_path(self, path: Path) -> None:
+        """Sets the `_pipeline_artifacts_path` attribute. This method is meant to be used
+        by the `Pipeline` once the cache location is known.
+
+        Args:
+            path: the path where the artifacts generated by the pipeline steps should be
+                saved.
+        """
+        self._pipeline_artifacts_path = path
+
+    @property
+    def artifacts_directory(self) -> Union[Path, None]:
+        """Gets the path of the directory where the step should save its generated artifacts.
+
+        Returns:
+            The path of the directory where the step should save the generated artifacts,
+                or `None` if `_pipeline_artifacts_path` is not set.
+        """
+        if self._pipeline_artifacts_path is None:
+            return None
+        return self._pipeline_artifacts_path / self.name  # type: ignore
+
+    def save_artifact(
+        self,
+        name: str,
+        write_function: Callable[[Path], None],
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Saves an artifact generated by the `Step`.
+
+        Args:
+            name: the name of the artifact.
+            write_function: a function that will receive the path where the artifact should
+                be saved.
+            metadata: the artifact metadata. Defaults to `None`.
+        """
+        if self.artifacts_directory is None:
+            self._logger.warning(
+                f"Cannot save artifact with '{name}' as `_pipeline_artifacts_path` is not"
+                " set. This is normal if the `Step` is being executed as a standalone component."
+            )
+            return
+
+        artifact_directory_path = self.artifacts_directory / name
+        artifact_directory_path.mkdir(parents=True, exist_ok=True)
+
+        self._logger.info(f"🏺 Storing '{name}' generated artifact...")
+
+        self._logger.debug(
+            f"Calling `write_function` to write artifact in '{artifact_directory_path}'..."
+        )
+        write_function(artifact_directory_path)
+
+        metadata_path = artifact_directory_path / "metadata.json"
+        self._logger.debug(
+            f"Calling `write_json` to write artifact metadata in '{metadata_path}'..."
+        )
+        write_json(filename=metadata_path, data=metadata or {})
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         dump = super()._model_dump(obj, **kwargs)
@@ -658,9 +755,9 @@ class GlobalStep(Step, ABC):
     """
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         return []
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         return []

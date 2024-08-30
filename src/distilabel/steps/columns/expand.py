@@ -20,7 +20,7 @@ from pydantic import field_validator
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class ExpandColumns(Step):
@@ -43,7 +43,6 @@ class ExpandColumns(Step):
         - dynamic (determined by `columns` attribute):  The expanded columns.
 
     Examples:
-
         Expand the selected columns into multiple rows:
 
         ```python
@@ -87,12 +86,12 @@ class ExpandColumns(Step):
         return value
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The columns to be expanded."""
         return list(self.columns.keys())
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The expanded columns."""
         return [
             new_column if new_column else expand_column

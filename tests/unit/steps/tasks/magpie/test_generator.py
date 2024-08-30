@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import pytest
+
 from distilabel.llms.openai import OpenAILLM
 from distilabel.steps.tasks.magpie.generator import MagpieGenerator
-
 from tests.unit.conftest import DummyMagpieLLM
 
 
@@ -78,8 +78,10 @@ class TestMagpieGenerator:
             "batch_size": 50,
             "group_generations": False,
             "add_raw_output": True,
+            "add_raw_input": True,
             "num_generations": 1,
             "num_rows": None,
+            "use_default_structured_output": False,
             "runtime_parameters_info": [
                 {
                     "name": "llm",
@@ -155,6 +157,11 @@ class TestMagpieGenerator:
                     "name": "add_raw_output",
                     "optional": True,
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
+                },
+                {
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                    "name": "add_raw_input",
+                    "optional": True,
                 },
                 {
                     "name": "num_generations",

@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import LLM
-from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
@@ -77,7 +76,6 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         `:hugging:`
 
     Examples:
-
         Generate text:
 
         ```python
@@ -145,11 +143,9 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         if self.chat_template is not None:
             self._pipeline.tokenizer.chat_template = self.chat_template  # type: ignore
-        elif (
-            self._pipeline.tokenizer.chat_template is None  # type: ignore
-            and self._pipeline.tokenizer.default_chat_template is None  # type: ignore
-        ):
-            self._pipeline.tokenizer.chat_template = CHATML_TEMPLATE  # type: ignore
+
+        if self._pipeline.tokenizer.pad_token is None:  # type: ignore
+            self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token  # type: ignore
 
         if self.structured_output:
             self._prefix_allowed_tokens_fn = self._prepare_structured_output(
@@ -178,6 +174,9 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
+        if self._pipeline.tokenizer.chat_template:  # type: ignore
+            return input[0]["content"]
+
         prompt: str = (
             self._pipeline.tokenizer.apply_chat_template(  # type: ignore
                 input,  # type: ignore

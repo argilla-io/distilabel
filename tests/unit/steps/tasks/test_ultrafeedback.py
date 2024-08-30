@@ -12,16 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, List
+from typing import Any, Dict, List, Union
+
+import pytest
 
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
-from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.typing import ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 
 
 class UltraFeedbackLLM(LLM):
+    structured_output: Any = None
+
     def load(self) -> None:
         pass
 
@@ -43,14 +46,12 @@ class UltraFeedbackLLM(LLM):
 
 class TestUltraFeedback:
     def test_process_with_simple_aspect(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        llm = UltraFeedbackLLM()
-
         task = UltraFeedback(
             name="ultrafeedback",
             aspect="instruction-following",
-            llm=llm,
-            pipeline=pipeline,
+            llm=UltraFeedbackLLM(),
+            use_default_structured_output=False,
+            add_raw_input=False,
         )
         task.load()
 
@@ -70,14 +71,12 @@ class TestUltraFeedback:
         ]
 
     def test_process_with_complex_aspect(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        llm = UltraFeedbackLLM()
-
         task = UltraFeedback(
             name="ultrafeedback",
             aspect="truthfulness",
-            llm=llm,
-            pipeline=pipeline,
+            llm=UltraFeedbackLLM(),
+            use_default_structured_output=False,
+            add_raw_input=False,
         )
         task.load()
 
@@ -97,3 +96,66 @@ class TestUltraFeedback:
                 },
             }
         ]
+
+    @pytest.mark.parametrize(
+        "output, use_default_structured_output, aspect, expected",
+        [
+            (
+                "{ \n   random\n}",
+                True,
+                "honesty",
+                {"ratings": [None, None], "rationales": [None, None]},
+            ),
+            (
+                '{ \n  "ratings": [\n    1,\n    5\n  ]\n ,\n  "rationales": [\n    "rationale1",\n    "rationale2"\n  ]}',
+                True,
+                "honesty",
+                {"ratings": [1, 5], "rationales": ["rationale1", "rationale2"]},
+            ),
+            (
+                "{ \n   random\n}",
+                True,
+                "helpfulness",
+                {
+                    "ratings": [None, None],
+                    "rationales": [None, None],
+                    "rationales-for-ratings": [None, None],
+                    "types": [None, None],
+                },
+            ),
+            (
+                '{ \n  "ratings": [\n    1,\n    5\n  ]\n ,\n  "rationales": [\n    "rationale1",\n    "rationale2"\n  ], "rationales-for-ratings": [\n    "rationale1",\n    "rationale2"\n  ], "types": [\n    1,\n    2\n  ]}',
+                True,
+                "helpfulness",
+                {
+                    "ratings": [1, 5],
+                    "rationales": ["rationale1", "rationale2"],
+                    "rationales-for-ratings": ["rationale1", "rationale2"],
+                    "types": [1, 2],
+                },
+            ),
+        ],
+    )
+    def test_format_output(
+        self,
+        output: Union[str, None],
+        use_default_structured_output: bool,
+        aspect: str,
+        expected: Dict[str, Any],
+    ) -> None:
+        task = UltraFeedback(
+            llm=UltraFeedbackLLM(),
+            aspect=aspect,
+            use_default_structured_output=use_default_structured_output,
+        )
+        task.load()
+
+        result = task.format_output(
+            output=output,
+            input={
+                "instruction": "How much is 2+2?",
+                "generations": ["4", "something weird"],
+            },
+        )
+
+        assert result == expected

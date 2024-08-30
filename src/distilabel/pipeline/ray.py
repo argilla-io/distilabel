@@ -15,10 +15,10 @@
 import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
+from distilabel.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.distiset import create_distiset
 from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.base import BasePipeline
-from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.pipeline.step_wrapper import _StepWrapper
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import TYPE_INFO_KEY
@@ -175,14 +175,27 @@ class RayPipeline(BasePipeline):
                 runtime_env={"pip": self.requirements},
                 **self._ray_init_kwargs,
             )
-        else:
+        elif not ray.is_initialized():
+            # Init a local Ray cluster
             ray.init(**self._ray_init_kwargs)
 
-        # Get the number of GPUs per Ray node
+        self._ray_node_ids = self._get_ray_gpus_per_node()
+
+    def _get_ray_gpus_per_node(self) -> Dict[str, int]:
+        """Gets the number of GPUs per node in the Ray cluster.
+
+        Returns:
+            A dictionary in which the keys are the node IDs and the values the number of
+                GPUs per node.
+        """
+        import ray
+
+        gpus_per_node = {}
         for node in ray.nodes():
             node_id = node["NodeID"]
             gpus = int(node["Resources"].get("GPU", 0))
-            self._ray_node_ids[node_id] = gpus
+            gpus_per_node[node_id] = gpus
+        return gpus_per_node
 
     @property
     def QueueClass(self) -> Callable:
@@ -316,7 +329,7 @@ class RayPipeline(BasePipeline):
         selected_node_id = None
         gpus_left_needed = total_gpus_needed
         for node_id in self._ray_node_ids:
-            gpus_to_allocate = min(self._ray_node_ids[node_id], total_gpus_needed)
+            gpus_to_allocate = min(self._ray_node_ids[node_id], gpus_left_needed)
             self._ray_node_ids[node_id] -= gpus_to_allocate
             gpus_left_needed -= gpus_to_allocate
             if gpus_left_needed == 0:

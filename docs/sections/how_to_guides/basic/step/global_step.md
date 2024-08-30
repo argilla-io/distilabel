@@ -6,9 +6,9 @@ The [`GlobalStep`][distilabel.steps.GlobalStep] is a subclass of [`Step`][distil
 
 We can define a custom step by creating a new subclass of the [`GlobalStep`][distilabel.steps.GlobalStep] and defining the following:
 
-- `inputs`: is a property that returns a list of strings with the names of the required input fields.
+- `inputs`: is a property that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
-- `outputs`: is a property that returns a list of strings with the names of the output fields.
+- `outputs`: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
 - `process`: is a method that receives the input data and returns the output data, and it should be a generator, meaning that it should `yield` the output data.
 
@@ -23,20 +23,23 @@ We can define a custom step by creating a new subclass of the [`GlobalStep`][dis
     We can inherit from the `GlobalStep` class and define the `inputs`, `outputs`, and `process` methods as follows:
 
     ```python
+    from typing import TYPE_CHECKING
     from distilabel.steps import GlobalStep, StepInput
-    from distilabel.steps.typing import StepOutput
+
+    if TYPE_CHECKING:
+        from distilabel.steps.typing import StepColumns, StepOutput
 
     class CustomStep(Step):
         @property
-        def inputs(self) -> List[str]:
+        def inputs(self) -> "StepColumns":
             ...
 
         @property
-        def outputs(self) -> List[str]:
+        def outputs(self) -> "StepColumns":
             ...
 
         def process(self, *inputs: StepInput) -> StepOutput:
-            for input in inputs:
+            for upstream_step_inputs in inputs:
                 for item in input:
                     ...
                 yield item
@@ -54,11 +57,14 @@ We can define a custom step by creating a new subclass of the [`GlobalStep`][dis
     The `@step` decorator will take care of the boilerplate code, and will allow to define the `inputs`, `outputs`, and `process` methods in a more straightforward way. One downside is that it won't let you access the `self` attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom [`GlobalStep`][distilabel.steps.GlobalStep] subclass.
 
     ```python
+    from typing import TYPE_CHECKING
     from distilabel.steps import StepInput, step
-    from distilabel.steps.typing import StepOutput
+
+    if TYPE_CHECKING:
+        from distilabel.steps.typing import StepOutput
 
     @step(inputs=[...], outputs=[...], step_type="global")
-    def CustomStep(inputs: StepInput) -> StepOutput:
+    def CustomStep(inputs: StepInput) -> "StepOutput":
         for input in inputs:
             ...
         yield inputs

@@ -39,7 +39,7 @@ def group_columns(
         group_columns
     ):
         raise ValueError(
-            "The length of output_group_columns must be the same as the length of group_columns"
+            "The length of `output_group_columns` must be the same as the length of `group_columns`."
         )
     if output_group_columns is None:
         output_group_columns = [f"grouped_{key}" for key in group_columns]

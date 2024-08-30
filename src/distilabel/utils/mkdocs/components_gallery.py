@@ -75,16 +75,17 @@ _LLM_DETAIL_TEMPLATE = Template(
 )
 
 _STEPS_CATEGORY_TO_ICON = {
-    "text-generation": ":material-text-box-edit:",
-    "evol": ":material-dna:",
-    "preference": ":material-poll:",
     "critique": ":material-comment-edit:",
-    "scorer": ":octicons-number-16:",
     "embedding": ":material-vector-line:",
-    "format": ":material-format-list-bulleted:",
+    "evol": ":material-dna:",
     "filtering": ":material-filter:",
-    "save": ":material-content-save:",
+    "format": ":material-format-list-bulleted:",
     "load": ":material-file-download:",
+    "preference": ":material-poll:",
+    "save": ":material-content-save:",
+    "scorer": ":octicons-number-16:",
+    "text-generation": ":material-text-box-edit:",
+    "text-manipulation": ":material-receipt-text-edit:",
 }
 
 

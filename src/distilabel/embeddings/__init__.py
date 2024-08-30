@@ -14,8 +14,10 @@
 
 from distilabel.embeddings.base import Embeddings
 from distilabel.embeddings.sentence_transformers import SentenceTransformerEmbeddings
+from distilabel.embeddings.vllm import vLLMEmbeddings
 
 __all__ = [
     "Embeddings",
     "SentenceTransformerEmbeddings",
+    "vLLMEmbeddings",
 ]

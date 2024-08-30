@@ -17,6 +17,7 @@ from typing import Any, Dict
 from unittest import mock
 
 import pytest
+
 from distilabel.llms.azure import AzureOpenAILLM
 
 from .utils import DummyUserDetail

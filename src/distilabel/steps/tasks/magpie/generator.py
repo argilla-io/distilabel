@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 from pydantic import Field
 
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.magpie.base import MagpieBase
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepColumns
 
 
 class MagpieGenerator(GeneratorTask, MagpieBase):
@@ -90,7 +91,6 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
 
     Examples:
-
         Generating instructions with Llama 3 8B Instruct and TransformersLLM:
 
         ```python
@@ -204,7 +204,6 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         ```
 
     Citations:
-
         ```
         @misc{xu2024magpiealignmentdatasynthesis,
             title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
@@ -228,9 +227,10 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         super().model_post_init(__context)
 
         if not isinstance(self.llm, MagpieChatTemplateMixin):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"`Magpie` task can only be used with an `LLM` that uses the `MagpieChatTemplateMixin`."
-                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin."
+                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin.",
+                page="components-gallery/tasks/magpiegenerator/",
             )
 
         self.llm.use_magpie_template = True
@@ -244,7 +244,7 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         return {}
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
             return ["instruction", "model_name"]

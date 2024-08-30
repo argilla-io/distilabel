@@ -20,13 +20,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
 from huggingface_hub import (
     ChatCompletionOutput,
     ChatCompletionOutputComplete,
     ChatCompletionOutputMessage,
     ChatCompletionOutputUsage,
 )
+
+from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
 
 
 @pytest.fixture(autouse=True)
@@ -276,7 +277,7 @@ class TestInferenceEndpointsLLM:
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
         kwargs = {
-            "prompt": "<s>[INST] Lorem ipsum dolor sit amet, consectetur adipiscing elit. [/INST]",
+            "prompt": "<s> [INST] Lorem ipsum dolor sit amet, consectetur adipiscing elit. [/INST]",
             "max_new_tokens": 128,
             "do_sample": False,
             "typical_p": None,

@@ -15,6 +15,7 @@
 from typing import TYPE_CHECKING, Any, List
 
 import pytest
+
 from distilabel.llms.base import LLM, AsyncLLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 
@@ -25,6 +26,8 @@ if TYPE_CHECKING:
 
 # Defined here too, so that the serde still works
 class DummyLLM(AsyncLLM):
+    structured_output: Any = None
+
     def load(self) -> None:
         pass
 
@@ -33,6 +36,22 @@ class DummyLLM(AsyncLLM):
         return "test"
 
     async def agenerate(
+        self, input: "FormattedInput", num_generations: int = 1
+    ) -> "GenerateOutput":
+        return ["output" for _ in range(num_generations)]
+
+
+class DummySyncLLM(AsyncLLM):
+    structured_output: Any = None
+
+    def load(self) -> None:
+        pass
+
+    @property
+    def model_name(self) -> str:
+        return "test"
+
+    def generate(
         self, input: "FormattedInput", num_generations: int = 1
     ) -> "GenerateOutput":
         return ["output" for _ in range(num_generations)]

@@ -17,11 +17,11 @@ from dataclasses import field
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import pytest
+from pydantic import ValidationError
+
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.base import Task
-from pydantic import ValidationError
-
 from tests.unit.conftest import DummyLLM
 
 if TYPE_CHECKING:
@@ -107,7 +107,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_0",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_0", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_0",
@@ -115,7 +121,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_0",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_0", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_0",
@@ -123,7 +135,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_0",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_0", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_1",
@@ -131,7 +149,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_1",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_1", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_1",
@@ -139,7 +163,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_1",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_1", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_1",
@@ -147,7 +177,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_1",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_1", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_2",
@@ -155,7 +191,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_2",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_2", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_2",
@@ -163,7 +205,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_2",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_2", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_2",
@@ -171,7 +219,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_2",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_2", "role": "user"},
+                            ],
+                        },
                     },
                 ],
             ),
@@ -194,9 +248,48 @@ class TestTask:
                         ],
                         "model_name": "test",
                         "distilabel_metadata": [
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_0",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_0",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_0",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            # {"raw_output_task": "output"},
+                            # {"raw_output_task": "output"},
+                            # {"raw_output_task": "output"},
                         ],
                     },
                     {
@@ -210,9 +303,45 @@ class TestTask:
                         ],
                         "model_name": "test",
                         "distilabel_metadata": [
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_1",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_1",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_1",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
                         ],
                     },
                     {
@@ -226,9 +355,45 @@ class TestTask:
                         ],
                         "model_name": "test",
                         "distilabel_metadata": [
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_2",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_2",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_2",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
                         ],
                     },
                 ],
@@ -308,6 +473,7 @@ class TestTask:
         assert task.dump() == {
             "name": "task",
             "add_raw_output": True,
+            "add_raw_input": True,
             "input_mappings": {},
             "output_mappings": {},
             "resources": {
@@ -320,6 +486,7 @@ class TestTask:
             "input_batch_size": 50,
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
                 "type_info": {
                     "module": "tests.unit.conftest",
                     "name": "DummyLLM",
@@ -380,6 +547,11 @@ class TestTask:
                     "optional": True,
                 },
                 {
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                    "name": "add_raw_input",
+                    "optional": True,
+                },
+                {
                     "name": "num_generations",
                     "description": "The number of generations to be produced per input.",
                     "optional": True,
@@ -389,8 +561,52 @@ class TestTask:
                 "module": "tests.unit.steps.tasks.test_base",
                 "name": "DummyTask",
             },
+            "use_default_structured_output": False,
         }
 
         with Pipeline(name="unit-test-pipeline") as pipeline:
             new_task = DummyTask.from_dict(task.dump())
             assert isinstance(new_task, DummyTask)
+
+    @pytest.mark.parametrize(
+        "add_raw_output, add_raw_input",
+        [
+            (True, False),
+            (False, True),
+            (True, True),
+            (False, False),
+        ],
+    )
+    def test_add_raw_input_and_or_output(
+        self, add_raw_output: bool, add_raw_input: bool
+    ) -> None:
+        task = DummyTask(
+            llm=DummyLLM(),
+            add_raw_output=add_raw_output,
+            add_raw_input=add_raw_input,
+        )
+        assert task.add_raw_output is add_raw_output
+        assert task.add_raw_input is add_raw_input
+        task.load()
+        input = [
+            {"instruction": "test_0", "additional_info": "additional_info_0"},
+            {"instruction": "test_1", "additional_info": "additional_info_1"},
+            {"instruction": "test_2", "additional_info": "additional_info_2"},
+        ]
+        result = next(task.process(input))
+        import pprint
+
+        pprint.pprint(result)
+
+        if add_raw_output or add_raw_input:
+            assert "distilabel_metadata" in result[0].keys()
+            if add_raw_output:
+                assert (
+                    "raw_output_dummy_task_0" in result[0]["distilabel_metadata"].keys()
+                )
+            if add_raw_input:
+                assert (
+                    "raw_input_dummy_task_0" in result[0]["distilabel_metadata"].keys()
+                )
+        else:
+            assert "distilabel_metadata" not in result[0].keys()

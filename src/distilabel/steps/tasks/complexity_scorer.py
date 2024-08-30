@@ -22,8 +22,10 @@ else:
 
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
+import orjson
 from jinja2 import Template
 from pydantic import PrivateAttr
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 
@@ -61,7 +63,6 @@ class ComplexityScorer(Task):
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
 
     Examples:
-
         Evaluate the complexity of your instructions:
 
         ```python
@@ -86,8 +87,32 @@ class ComplexityScorer(Task):
         # [{'instructions': ['plain instruction', 'highly complex instruction'], 'model_name': 'test', 'scores': [1, 5], 'distilabel_metadata': {'raw_output_complexity_scorer_0': 'output'}}]
         ```
 
-    Citations:
+        Generate structured output with default schema:
 
+        ```python
+        from distilabel.steps.tasks import ComplexityScorer
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        scorer = ComplexityScorer(
+            llm=InferenceEndpointsLLM(
+                model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            ),
+            use_default_structured_output=use_default_structured_output
+        )
+
+        scorer.load()
+
+        result = next(
+            scorer.process(
+                [{"instructions": ["plain instruction", "highly complex instruction"]}]
+            )
+        )
+        # result
+        # [{'instructions': ['plain instruction', 'highly complex instruction'], 'model_name': 'test', 'scores': [1, 2], 'distilabel_metadata': {'raw_output_complexity_scorer_0': '{ \\n  "scores": [\\n    1, \\n    2\\n  ]\\n}'}}]
+        ```
+
+    Citations:
         ```
         @misc{liu2024makesgooddataalignment,
             title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},
@@ -153,6 +178,9 @@ class ComplexityScorer(Task):
         if output is None:
             return {"scores": [None] * len(input["instructions"])}
 
+        if self.use_default_structured_output:
+            return self._format_structured_output(output, input)
+
         scores = []
         score_lines = output.split("\n")
         for i, line in enumerate(score_lines):
@@ -162,3 +190,51 @@ class ComplexityScorer(Task):
             if i == len(input["instructions"]) - 1:
                 break
         return {"scores": scores}
+
+    @override
+    def get_structured_output(self) -> Dict[str, Any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        The schema corresponds to the following:
+
+        ```python
+        from pydantic import BaseModel
+        from typing import List
+
+        class SchemaComplexityScorer(BaseModel):
+            scores: List[int]
+        ```
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        return {
+            "properties": {
+                "scores": {
+                    "items": {"type": "integer"},
+                    "title": "Scores",
+                    "type": "array",
+                }
+            },
+            "required": ["scores"],
+            "title": "SchemaComplexityScorer",
+            "type": "object",
+        }
+
+    def _format_structured_output(
+        self, output: str, input: Dict[str, Any]
+    ) -> Dict[str, str]:
+        """Parses the structured response, which should correspond to a dictionary
+        with either `positive`, or `positive` and `negative` keys.
+
+        Args:
+            output: The output from the `LLM`.
+
+        Returns:
+            Formatted output.
+        """
+        try:
+            return orjson.loads(output)
+        except orjson.JSONDecodeError:
+            return {"scores": [None] * len(input["instructions"])}
