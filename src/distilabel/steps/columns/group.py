@@ -43,6 +43,9 @@ class GroupColumns(Step):
         - dynamic (determined by `columns` and `output_columns` attributes): The columns
             that were grouped.
 
+    Categories:
+        - columns
+
     Examples:
         Combine columns of a dataset:
 

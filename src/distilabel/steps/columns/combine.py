@@ -27,6 +27,35 @@ class CombineOutputs(Step):
 
     `CombineOutputs` is a `Step` that takes the outputs of several upstream steps and combine
     them to generate a new dictionary with all keys/columns of the upstream steps outputs.
+
+    Input columns:
+        - dynamic: All the columns of the upstream steps outputs.
+
+    Output columns:
+        - dynamic: All the columns of the upstream steps outputs.
+
+    Categories:
+        - columns
+
+    Examples:
+
+        ```python
+        from distilabel.steps import CombineOutputs
+
+        combine_outputs = CombineOutputs()
+        combine_outputs.load()
+
+        result = next(
+            combine_outputs.process(
+                [{"a": 1, "b": 2}, {"a": 3, "b": 4}],
+                [{"c": 5, "d": 6}, {"c": 7, "d": 8}],
+            )
+        )
+        # [
+        #   {"a": 1, "b": 2, "c": 5, "d": 6},
+        #   {"a": 3, "b": 4, "c": 7, "d": 8},
+        # ]
+        ```
     """
 
     def process(self, *inputs: StepInput) -> "StepOutput":
@@ -41,9 +70,13 @@ class CombineOutputs(Step):
                         if k != DISTILABEL_METADATA_KEY
                     }
                 )
-            combined_dict[DISTILABEL_METADATA_KEY] = merge_distilabel_metadata(
-                *output_dicts
-            )
+
+            if any(
+                DISTILABEL_METADATA_KEY in output_dict for output_dict in output_dicts
+            ):
+                combined_dict[DISTILABEL_METADATA_KEY] = merge_distilabel_metadata(
+                    *output_dicts
+                )
             combined_outputs.append(combined_dict)
 
         yield combined_outputs

@@ -86,6 +86,7 @@ _STEPS_CATEGORY_TO_ICON = {
     "scorer": ":octicons-number-16:",
     "text-generation": ":material-text-box-edit:",
     "text-manipulation": ":material-receipt-text-edit:",
+    "columns": ":material-table-column:",
 }
 
 
