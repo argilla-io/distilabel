@@ -82,7 +82,8 @@ graph TD
 #### Deduplicate a list of texts using MinHash and MinHashLSH
 ```python
 from distilabel.pipeline import Pipeline
-from distilabel.steps import MinHash, MinHashLSH
+from distilabel.steps import MinHashDedup
+from distilabel.steps import LoadDataFromDicts
 
 with Pipeline() as pipeline:
     ds_size = 1000
