@@ -44,7 +44,6 @@ class GroupColumns(Step):
             that were grouped.
 
     Examples:
-
         Combine columns of a dataset:
 
         ```python
@@ -125,6 +124,8 @@ class GroupColumns(Step):
 
 
 class CombineColumns(GroupColumns):
+    """`CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead."""
+
     def __init__(self, **data: Any) -> None:
         warnings.warn(
             "`CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead.",

@@ -55,6 +55,7 @@ docs = [
     "mkdocs-literate-nav >= 0.6.1",
     "mkdocs-section-index >= 0.3.8",
     "mkdocs-gen-files >= 0.5.0",
+    "material-plausible-plugin>=0.2.0",
     "mike >= 2.0.0",
     "Pillow >= 9.5.0",
     "CairoSVG >= 2.7.1",
@@ -93,7 +94,7 @@ vllm = [
 ]
 sentence-transformers = ["sentence-transformers >= 3.0.0"]
 faiss-cpu = ["faiss-cpu >= 1.8.0"]
-faiss-gpu = ["faiss-cpu >= 1.7.2"]
+faiss-gpu = ["faiss-gpu >= 1.7.2"]
 
 # minhash
 minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]

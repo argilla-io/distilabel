@@ -45,7 +45,6 @@ class KeepColumns(Step):
         - dynamic (determined by `columns` attribute): The columns that were kept.
 
     Examples:
-
         Select the columns to keep:
 
         ```python

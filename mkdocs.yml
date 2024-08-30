@@ -22,8 +22,8 @@ extra:
     - icon: fontawesome/brands/discord
       link: http://hf.co/join/discord
   analytics:
-    provider: google
-    property: G-PPKL7LMWCE
+    provider: plausible
+    domain: distilabel.argilla.io
     feedback:
       title: Was this page helpful?
       ratings:
@@ -136,21 +136,32 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          selection:
-            inherited_members: true # Allow looking up inherited methods
+          setup_commands:
+            - import sys; sys.path.insert(0, 'src') # API references are built from source
           options:
-            show_protected_members: true
-            show_private_members: true
-          rendering:
-            show_root_heading: true # actually display anything at all...
-            # show_root_full_path: true  # display "diffrax.asdf" not just "asdf"
-            show_if_no_docstring: true
-            show_signature_annotations: true
-            show_source: false # don't include source code
+            show_inheritance_diagram: false
+            show_source: true # include source code
+            # Headings
+            heading_level: 3
+            show_root_heading: true # show the python path of the class
+            show_root_toc_entry: true # show the toc entry for the root class
+            show_root_full_path: false # display "diffrax.asdf" not just "asdf"
+            show_object_full_path: false # display "diffrax.asdf" not just "asdf"
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            # Members
+            inherited_members: false # allow looking up inherited methods
             members_order: source # order methods according to their order of definition in the source code, not alphabetical order
-            heading_level: 4
+            show_labels : true
+            # Docstring
+            docstring_style: google  # more info: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+            show_if_no_docstring: false
+            # Signature
+            separate_signature: false
+            show_signature_annotations: false
   - social
   - mknotebooks
+  - material-plausible
   - distilabel/components-gallery:
       add_after_page: How-to guides
 
@@ -212,28 +223,18 @@ nav:
               - Hugging Face: "api/step_gallery/hugging_face.md"
               - Columns: "api/step_gallery/columns.md"
               - Extra: "api/step_gallery/extra.md"
+          - Typing: "api/step/typing.md"
       - Task:
           - "api/task/index.md"
           - GeneratorTask: "api/task/generator_task.md"
-          - Task Gallery: "api/task_gallery/index.md"
+          - Task Gallery: "api/task/task_gallery.md"
           - Typing: "api/task/typing.md"
       - LLM:
           - "api/llm/index.md"
-          - LLM Gallery:
-              - Anthropic: "api/llm/anthropic.md"
-              - Anyscale: "api/llm/anyscale.md"
-              - Azure (via OpenAI): "api/llm/azure.md"
-              - Cohere: "api/llm/cohere.md"
-              - Groq: "api/llm/groq.md"
-              - Hugging Face: "api/llm/huggingface.md"
-              - LiteLLM: "api/llm/litellm.md"
-              - llama.cpp: "api/llm/llamacpp.md"
-              - Mistral: "api/llm/mistral.md"
-              - Ollama: "api/llm/ollama.md"
-              - OpenAI: "api/llm/openai.md"
-              - Together AI: "api/llm/together.md"
-              - Google Vertex AI: "api/llm/vertexai.md"
-              - vLLM: "api/llm/vllm.md"
+          - LLM Gallery: "api/llm/llm_gallery.md"
+      - Embedding:
+          - "api/embedding/index.md"
+          - Embedding Gallery: "api/embedding/embedding_gallery.md"
       - Pipeline:
           - "api/pipeline/index.md"
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
@@ -247,4 +248,5 @@ nav:
       - CLI: "api/cli.md"
   - Community:
       - sections/community/index.md
+      - How to contribute?: sections/community/contributor.md
       - Issue dashboard: sections/community/popular_issues.md

@@ -43,7 +43,6 @@ class ExpandColumns(Step):
         - dynamic (determined by `columns` attribute):  The expanded columns.
 
     Examples:
-
         Expand the selected columns into multiple rows:
 
         ```python

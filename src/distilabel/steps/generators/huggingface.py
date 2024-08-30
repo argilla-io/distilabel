@@ -74,6 +74,7 @@ class LoadDataFromHub(GeneratorStep):
         - `split`: The split of the dataset to load. Defaults to 'train'.
         - `config`: The configuration of the dataset to load. This is optional and only
             needed if the dataset has multiple configurations.
+        - `revision`: The revision of the dataset to load. Defaults to the latest revision.
         - `streaming`: Whether to load the dataset in streaming mode or not. Defaults to
             `False`.
         - `num_examples`: The number of examples to load from the dataset.
@@ -89,7 +90,6 @@ class LoadDataFromHub(GeneratorStep):
         - load
 
     Examples:
-
         Load data from a dataset in Hugging Face Hub:
 
         ```python
@@ -122,6 +122,10 @@ class LoadDataFromHub(GeneratorStep):
         description="The configuration of the dataset to load. This is optional and only"
         " needed if the dataset has multiple configurations.",
     )
+    revision: Optional[RuntimeParameter[str]] = Field(
+        default=None,
+        description="The revision of the dataset to load. Defaults to the latest revision.",
+    )
     streaming: RuntimeParameter[bool] = Field(
         default=False,
         description="Whether to load the dataset in streaming mode or not. Defaults to False.",
@@ -149,6 +153,7 @@ class LoadDataFromHub(GeneratorStep):
             self.repo_id,  # type: ignore
             self.config,
             split=self.split,
+            revision=self.revision,
             streaming=self.streaming,
         )
         num_examples = self._get_dataset_num_examples()
@@ -289,7 +294,6 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         - load
 
     Examples:
-
         Load data from a Hugging Face dataset in your file system:
 
         ```python
@@ -484,7 +488,6 @@ class LoadDataFromDisk(LoadDataFromHub):
         - load
 
     Examples:
-
         Load data from a Hugging Face Dataset:
 
         ```python

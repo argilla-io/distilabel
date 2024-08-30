@@ -63,7 +63,6 @@ class ComplexityScorer(Task):
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
 
     Examples:
-
         Evaluate the complexity of your instructions:
 
         ```python
@@ -110,11 +109,10 @@ class ComplexityScorer(Task):
             )
         )
         # result
-        # [{'instructions': ['plain instruction', 'highly complex instruction'], 'model_name': 'test', 'scores': [1, 2], 'distilabel_metadata': {'raw_output_complexity_scorer_0': '{ \n  "scores": [\n    1, \n    2\n  ]\n}'}}]
+        # [{'instructions': ['plain instruction', 'highly complex instruction'], 'model_name': 'test', 'scores': [1, 2], 'distilabel_metadata': {'raw_output_complexity_scorer_0': '{ \\n  "scores": [\\n    1, \\n    2\\n  ]\\n}'}}]
         ```
 
     Citations:
-
         ```
         @misc{liu2024makesgooddataalignment,
             title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},

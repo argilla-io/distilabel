@@ -36,7 +36,6 @@ class ConversationTemplate(Step):
         - template
 
     Examples:
-
         Create a conversation from an instruction and a response:
 
         ```python

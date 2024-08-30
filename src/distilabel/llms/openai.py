@@ -62,7 +62,6 @@ class OpenAILLM(AsyncLLM):
         `:simple-openai:`
 
     Examples:
-
         Generate text:
 
         ```python
