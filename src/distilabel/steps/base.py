@@ -670,15 +670,12 @@ class Step(_Step, ABC):
                 for k, v in row.items():
                     renamed_key = reverted_input_mappings.get(k, k)
 
-                    # `renamed_key` will replace another key after renaming. Store the
-                    # value of the key to be replaced, so we can recover it after applying
-                    # output mappings. If `len(inputs) > 1`, then we can't recover the
-                    # original key, as the `Step` logic could have aggregated the values
-                    # of the keys.
-                    if renamed_key in row and len(inputs) == 1:
-                        overriden_keys[renamed_key] = row[renamed_key]
+                    if renamed_key not in renamed_row or k != renamed_key:
+                        renamed_row[renamed_key] = v
 
-                    renamed_row[renamed_key] = v
+                        if k != renamed_key and renamed_key in row and len(inputs) == 1:
+                            overriden_keys[renamed_key] = row[renamed_key]
+
                 overriden_inputs.append(overriden_keys)
                 renamed_row_inputs.append(renamed_row)
             renamed_inputs.append(renamed_row_inputs)
