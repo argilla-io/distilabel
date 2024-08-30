@@ -47,6 +47,9 @@ class MergeColumns(Step):
         - dynamic (determined by `columns` and `output_column` attributes): The columns
             that were merged.
 
+    Categories:
+        - columns
+
     Examples:
         Combine columns in rows of a dataset:
 

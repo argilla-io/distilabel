@@ -44,6 +44,9 @@ class KeepColumns(Step):
     Output columns:
         - dynamic (determined by `columns` attribute): The columns that were kept.
 
+    Categories:
+        - columns
+
     Examples:
         Select the columns to keep:
 

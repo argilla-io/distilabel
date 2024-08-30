@@ -29,15 +29,17 @@ class CombineOutputs(Step):
     them to generate a new dictionary with all keys/columns of the upstream steps outputs.
 
     Input columns:
-        - dynamic: All the columns of the upstream steps outputs.
+        - dynamic (based on the upstream `Step`s): All the columns of the upstream steps outputs.
 
     Output columns:
-        - dynamic: All the columns of the upstream steps outputs.
+        - dynamic (based on the upstream `Step`s): All the columns of the upstream steps outputs.
 
     Categories:
         - columns
 
     Examples:
+
+        Combine dictionaries of a dataset:
 
         ```python
         from distilabel.steps import CombineOutputs
@@ -55,6 +57,21 @@ class CombineOutputs(Step):
         #   {"a": 1, "b": 2, "c": 5, "d": 6},
         #   {"a": 3, "b": 4, "c": 7, "d": 8},
         # ]
+        ```
+
+        Combine upstream steps outputs in a pipeline:
+
+        ```python
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps import CombineOutputs
+
+        with Pipeline() as pipeline:
+            step_1 = ...
+            step_2 = ...
+            step_3 = ...
+            combine = CombineOutputs()
+
+            [step_1, step_2, step_3] >> combine
         ```
     """
 

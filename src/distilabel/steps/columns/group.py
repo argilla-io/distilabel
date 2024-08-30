@@ -47,7 +47,8 @@ class GroupColumns(Step):
         - columns
 
     Examples:
-        Combine columns of a dataset:
+
+        Group columns of a dataset:
 
         ```python
         from distilabel.steps import GroupColumns
