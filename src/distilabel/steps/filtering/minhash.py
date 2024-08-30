@@ -30,12 +30,11 @@ from typing import (
 )
 
 from pydantic import PrivateAttr
-from typing_extensions import override
 
-from distilabel.steps.base import GlobalStep, Step, StepInput
+from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from datasketch import LeanMinHash, MinHash, MinHashLSH
+    from datasketch import MinHash, MinHashLSH
 
     from distilabel.steps.typing import StepOutput
 
@@ -81,146 +80,42 @@ def tokenize_on_ngrams(texts: Iterable[str], n: int = 1) -> List[Set[bytes]]:
     ]
 
 
-# NOTE: This class must be used together with the `MinHashLSH` class.
-# We return the `hashvalues` to reproduce the MinHash objects, but we also need
-# the seed, so the seed used for the MinHash objects must be kept to be grabbed
-# for the next class. We could also pass it as part of the dict, but there's no point.
-# Also, instead of returning the values, we could be saving them as artifacts,
-# This still needs to be studied.
-class MinHash(Step):
-    """Creates the components for a `MinHash` object to deduplicate texts.
+class MinHashDedup(Step):
+    """Deduplicates text using `MinHash` and `MinHashLSH`.
 
     From `datasketch` documentation:
     Estimates the Jaccard similarity (resemblance) between sets of arbitrary sizes in linear
     time using a small and fixed memory space.
 
-    Note:
-        We only keep the hashvalues, as using those values together with the seed
-        we can reproduce the `MinHash` objects. The `MinHashLSH` will recreate those internally.
-
     Attributes:
-        num_perm: the number of permutations to use. Defaults to `128`.
-        seed: the seed to use for the MinHash. Defaults to `1`.
+        seed: the seed to use for the MinHash. This seed must be the same
+            used for `MinHash`, keep in mind when both steps are created. Defaults to `1`.
         tokenizer: the tokenizer to use. Available ones are `words` or `ngrams`.
             If `words` is selected, it tokenize the text into words using nltk's
             word tokenizer. `ngram` estimates the ngrams (together with the size
             `n`) using. Defaults to `words`.
-        n: the size of the ngrams to use. Only relevant if `tokenizer="ngrams"`. Defaults to `1`.
-
-    Input columns:
-        - text (`str`): the texts to obtain the hashes for.
-
-    Output columns:
-        - hashvalues (`List[int]`): hash values obtained for the algorithm.
-
-    Categories:
-        - filtering
-
-    References:
-        - [`datasketch documentation`](https://ekzhu.com/datasketch/minhash.html#minhash)
-        - [Identifying and Filtering Near-Duplicate Documents](https://cs.brown.edu/courses/cs253/papers/nearduplicate.pdf)
-
-    Examples:
-
-        Create MinHash objects for a list of texts to be deduplicated:
-
-        ```python
-        texts: List[str] = [
-            "This is a test document.",
-            "This document is a test.",
-            "Test document for duplication.",
-            "Document for duplication test.",
-            "This is another unique document."
-        ]
-        from distilabel.steps import MinHash
-        minhasher = MinHash(tokenizer="ngrams", n=3)
-        minhasher.load()
-        result = next(hasher.process([{"text": t} for t in texts]))
-        ```
-    """
-
-    num_perm: int = 128
-    seed: int = 1
-    tokenizer: Literal["words", "ngrams"] = "words"
-    n: Optional[int] = 1
-    _hasher: Union["MinHash", None] = PrivateAttr(None)
-    _tokenizer: Union[Callable, None] = PrivateAttr(None)
-
-    def load(self) -> None:
-        super().load()
-        if not importlib.import_module("datasketch"):
-            raise ImportError(
-                "`datasketch` is needed to deduplicate with MinHash, but is not installed. "
-                "Please install it using `pip install datasketch`."
-            )
-        from datasketch import MinHash
-
-        self._hasher = MinHash.bulk
-
-        if self.tokenizer == "words":
-            if not importlib.import_module("nltk"):
-                raise ImportError(
-                    "`nltk` is needed to tokenize based on words, but is not installed. "
-                    "Please install it using `pip install nltk`. Then run `nltk.download('punkt_tab')`."
-                )
-            self._tokenizer = tokenized_on_words
-        else:
-            self._tokenizer = partial(tokenize_on_ngrams, n=self.n)
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["text"]
-
-    @property
-    def outputs(self) -> List[str]:
-        # Do we need to keep anything, or can it be stored in the cache?
-        return ["hashvalues"]
-
-    @override
-    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
-        tokenized_texts = []
-        for input in inputs:
-            tokenized_texts.append(self._tokenizer([input[self.inputs[0]]])[0])
-
-        minhashes = self._hasher(
-            tokenized_texts, num_perm=self.num_perm, seed=self.seed
-        )
-        for input, mh in zip(inputs, minhashes):
-            input["hashvalues"] = mh.hashvalues
-        yield inputs
-
-
-class MinHashLSH(GlobalStep):
-    """Creates a `MinHashLSH` index to deduplicate texts using MinHash.
-
-    This class must be used together with `MinHash` step. It will work with the previous hashes
-    to detect duplicate texts, and inform whether a given row can be removed.
-
-    Attributes:
-        seed: the seed to use for the MinHash. This seed must be the same
-            used for `MinHash`, keep in mind when both steps are created. Defaults to `1`.
+        n: the size of the ngrams to use. Only relevant if `tokenizer="ngrams"`. Defaults to `5`.
         num_perm: the number of permutations to use. Defaults to `128`.
         threshold: the threshold to consider two MinHashes as duplicates.
             Values closer to 0 detect more duplicates. Defaults to `0.9`.
-        drop_hashvalues: whether to drop the hashvalues after processing. Defaults to `False`.
         storage: the storage to use for the LSH. Can be `dict` to store the index
             in memory, or `disk`, which uses a custom `shelve` backend. Note the `disk`
             is an experimetal feature that may cause issues. Defaults to `dict`.
 
     Input columns:
         - text (`str`): the texts to be filtered.
-        - hashvalues (`List[int]`): hash values obtained from `MinHash` step.
 
     Output columns:
-        - minhash_duplicate (`bool`): boolean indicating if the piece of text is a
-            duplicate or not, so the user can decide afterwards whether to remove it
-            or not.
+        - keep_row_after_minhash_filtering (`bool`): boolean indicating if the piece of text is a
+            duplicate or not, so the user can decide afterwards whether to remove it.
+            If `True`, the text is not a duplicate.
 
     Categories:
         - filtering
 
     References:
         - [`datasketch documentation`](https://ekzhu.github.io/datasketch/lsh.html)
+        - [Identifying and Filtering Near-Duplicate Documents](https://cs.brown.edu/courses/cs253/papers/nearduplicate.pdf)
 
     Examples:
 
@@ -244,30 +139,32 @@ class MinHashLSH(GlobalStep):
                 * (ds_size // 5),
                 batch_size=batch_size,
             )
-            minhash = MinHash(tokenizer="ngrams", n=1, input_batch_size=batch_size)
-            minhash_lsh = MinHashLSH(
-                threshold=0.9,         # lower values will increase the number of duplicates
-                seed=minhash.seed,     # we need to keep the same seed for the LSH
-                drop_hashvalues=True,  # the hashvalues are not needed anymore
-                storage="dict",        # or "disk" for bigger datasets
+            minhash_dedup = MinHashDedup(
+                tokenizer="words",
+                threshold=0.9,      # lower values will increase the number of duplicates
+                storage="dict",     # or "disk" for bigger datasets
             )
-            data >> minhash >> minhash_lsh
+
+            data >> minhash_dedup
 
         if __name__ == "__main__":
             distiset = pipeline.run(use_cache=False)
             ds = distiset["default"]["train"]
             # Filter out the duplicates
-            ds_dedup = ds.filter(lambda x: x["minhash_duplicate"] is False)
+            ds_dedup = ds.filter(lambda x: x["keep_row_after_minhash_filtering"])
         ```
     """
 
-    seed: int = 1
     num_perm: int = 128
+    seed: int = 1
+    tokenizer: Literal["words", "ngrams"] = "words"
+    n: Optional[int] = 5
     threshold: float = 0.9
-    drop_hashvalues: bool = False
     storage: Literal["dict", "disk"] = "dict"
+
+    _hasher: Union["MinHash", None] = PrivateAttr(None)
+    _tokenizer: Union[Callable, None] = PrivateAttr(None)
     _lhs: Union["MinHashLSH", None] = PrivateAttr(None)
-    _minhasher: Union["LeanMinHash", None] = PrivateAttr(None)
 
     def load(self) -> None:
         super().load()
@@ -276,16 +173,26 @@ class MinHashLSH(GlobalStep):
                 "`datasketch` is needed to deduplicate with MinHash, but is not installed. "
                 "Please install it using `pip install datasketch`."
             )
-        from datasketch import LeanMinHash
+        from datasketch import MinHash
 
         from distilabel.steps.filtering._datasketch import MinHashLSH
 
+        self._hasher = MinHash.bulk
         self._lsh = MinHashLSH(
             num_perm=self.num_perm,
             threshold=self.threshold,
             storage_config={"type": self.storage},
         )
-        self._minhasher = partial(LeanMinHash, seed=self.seed)
+
+        if self.tokenizer == "words":
+            if not importlib.import_module("nltk"):
+                raise ImportError(
+                    "`nltk` is needed to tokenize based on words, but is not installed. "
+                    "Please install it using `pip install nltk`. Then run `nltk.download('punkt_tab')`."
+                )
+            self._tokenizer = tokenized_on_words
+        else:
+            self._tokenizer = partial(tokenize_on_ngrams, n=self.n)
 
     def unload(self) -> None:
         super().unload()
@@ -295,22 +202,27 @@ class MinHashLSH(GlobalStep):
 
     @property
     def inputs(self) -> List[str]:
-        return ["text", "hashvalues"]
+        return ["text"]
 
     @property
     def outputs(self) -> List[str]:
         return ["keep_row_after_minhash_filtering"]
 
     def process(self, inputs: StepInput) -> "StepOutput":
+        tokenized_texts = []
         for input in inputs:
-            minhash = self._minhasher(hashvalues=input["hashvalues"])
+            tokenized_texts.append(self._tokenizer([input[self.inputs[0]]])[0])
+
+        minhashes = self._hasher(
+            tokenized_texts, num_perm=self.num_perm, seed=self.seed
+        )
+
+        for input, minhash in zip(inputs, minhashes):
             # Check if the text is already in the LSH index
             if self._lsh.query(minhash):
                 input["keep_row_after_minhash_filtering"] = False
             else:
                 self._lsh.insert(str(uuid.uuid4()), minhash)
                 input["keep_row_after_minhash_filtering"] = True
-            if self.drop_hashvalues:
-                del input["hashvalues"]
 
         yield inputs
