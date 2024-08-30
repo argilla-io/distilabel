@@ -99,8 +99,10 @@ class MinHashDedup(Step):
         threshold: the threshold to consider two MinHashes as duplicates.
             Values closer to 0 detect more duplicates. Defaults to `0.9`.
         storage: the storage to use for the LSH. Can be `dict` to store the index
-            in memory, or `disk`, which uses a custom `shelve` backend. Note the `disk`
-            is an experimetal feature that may cause issues. Defaults to `dict`.
+            in memory, or `disk`. Keep in mind, `disk` is an experimental feature
+            not defined in `datasketch`, that is based on DiskCache's `Index` class.
+            It should work as a `dict`, but backed by disk, but depending on the system
+            it can be slower. Defaults to `dict`.
 
     Input columns:
         - text (`str`): the texts to be filtered.
@@ -116,6 +118,7 @@ class MinHashDedup(Step):
     References:
         - [`datasketch documentation`](https://ekzhu.github.io/datasketch/lsh.html)
         - [Identifying and Filtering Near-Duplicate Documents](https://cs.brown.edu/courses/cs253/papers/nearduplicate.pdf)
+        - [Diskcache's Index](https://grantjenks.com/docs/diskcache/api.html#diskcache.Index)
 
     Examples:
 
