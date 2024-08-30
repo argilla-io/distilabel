@@ -16,6 +16,14 @@
     }
   },
   {
+    "version": "pr-937",
+    "title": "pr-937",
+    "aliases": [],
+    "properties": {
+      "hidden": true
+    }
+  },
+  {
     "version": "pr-936",
     "title": "pr-936",
     "aliases": [],
