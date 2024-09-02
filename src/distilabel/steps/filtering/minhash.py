@@ -110,9 +110,8 @@ class MinHashDedup(Step):
         - text (`str`): the texts to be filtered.
 
     Output columns:
-        - keep_row_after_minhash_filtering (`bool`): boolean indicating if the piece of text is a
-            duplicate or not, so the user can decide afterwards whether to remove it.
-            If `True`, the text is not a duplicate.
+        - keep_row_after_minhash_filtering (`bool`): boolean indicating if the piece `text` is
+            not a duplicate i.e. this text should be kept.
 
     Categories:
         - filtering
