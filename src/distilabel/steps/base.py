@@ -629,7 +629,9 @@ class Step(_Step, ABC):
         """
 
         inputs, overriden_inputs = (
-            self._apply_input_mappings(args) if self.input_mappings else (args, [])
+            self._apply_input_mappings(args)
+            if self.input_mappings
+            else (args, [{} for _ in range(len(args[0]))])
         )
 
         # If the `Step` was built using the `@step` decorator, then we need to pass
@@ -656,7 +658,8 @@ class Step(_Step, ABC):
             inputs: The input rows.
 
         Returns:
-            The input rows with the `input_mappings` applied.
+            The input rows with the `input_mappings` applied and the overriden values
+                that were replaced by the `input_mappings`.
         """
         reverted_input_mappings = {v: k for k, v in self.input_mappings.items()}
 
