@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 GenerationAction = Literal["paraphrase", "semantically-similar", "query", "answer"]
 
 POSITIVE_NEGATIVE_PAIR_REGEX = re.compile(
-    r"## Positive\s+(.*?)(?:\s+## Negative\s+(.*?))?\s*$",
+    r"\s*## Positive\s+(.*?)(?:\s+## Negative\s+(.*?))?\s*$",
     re.DOTALL,
 )
 
