@@ -53,10 +53,6 @@
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/pipeline/utils/</loc>
-         <lastmod>2024-09-02</lastmod>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/api/step/</loc>
          <lastmod>2024-09-02</lastmod>
     </url>
@@ -289,6 +285,10 @@
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/combineoutputs/</loc>
+         <lastmod>2024-09-02</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/expandcolumns/</loc>
          <lastmod>2024-09-02</lastmod>
     </url>
@@ -481,11 +481,11 @@
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/openaillm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/anthropicllm/</loc>
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/clientvllm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/openaillm/</loc>
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
@@ -501,7 +501,7 @@
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/anthropicllm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/clientvllm/</loc>
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
@@ -537,15 +537,15 @@
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/vllm/</loc>
-         <lastmod>2024-09-02</lastmod>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/transformersllm/</loc>
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/llamacppllm/</loc>
+         <lastmod>2024-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/vllm/</loc>
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>

@@ -50,7 +50,15 @@ hide:
 
     [:octicons-arrow-right-24: TextGenerationToArgilla](textgenerationtoargilla.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __ExpandColumns__
+-   :material-table-column:{ .lg .middle } __CombineOutputs__
+
+    ---
+
+    Combine the outputs of several upstream steps.
+
+    [:octicons-arrow-right-24: CombineOutputs](combineoutputs.md){ .bottom }
+
+-   :material-table-column:{ .lg .middle } __ExpandColumns__
 
     ---
 
@@ -58,7 +66,7 @@ hide:
 
     [:octicons-arrow-right-24: ExpandColumns](expandcolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __GroupColumns__
+-   :material-table-column:{ .lg .middle } __GroupColumns__
 
     ---
 
@@ -74,7 +82,7 @@ hide:
 
     [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __KeepColumns__
+-   :material-table-column:{ .lg .middle } __KeepColumns__
 
     ---
 
@@ -82,7 +90,7 @@ hide:
 
     [:octicons-arrow-right-24: KeepColumns](keepcolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __MergeColumns__
+-   :material-table-column:{ .lg .middle } __MergeColumns__
 
     ---
 
@@ -90,7 +98,7 @@ hide:
 
     [:octicons-arrow-right-24: MergeColumns](mergecolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __EmbeddingGeneration__
+-   :material-vector-line:{ .lg .middle } __EmbeddingGeneration__
 
     ---
 
