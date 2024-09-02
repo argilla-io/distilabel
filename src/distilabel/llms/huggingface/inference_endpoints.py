@@ -85,7 +85,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Dedicated Inference Endpoints:
@@ -101,7 +101,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Dedicated Inference Endpoints or TGI:
@@ -116,7 +116,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Generate structured data:
@@ -139,7 +139,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the Tour De France"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the Tour De France"}]])
         ```
     """
 

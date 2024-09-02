@@ -306,6 +306,7 @@ class EmbeddingTaskGenerator(GeneratorTask):
     flatten_tasks: bool = False
 
     _template: Union[Template, None] = PrivateAttr(...)
+    _can_be_used_with_offline_batch_generation = True
 
     def load(self) -> None:
         """Loads the Jinja2 template."""
@@ -486,6 +487,7 @@ class GenerateTextRetrievalData(_EmbeddingDataGeneration):
     num_words: Optional[Literal[50, 100, 200, 300, 400, 500]] = None
 
     _template_name: str = PrivateAttr(default="text-retrieval")
+    _can_be_used_with_offline_batch_generation = True
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """Method to format the input based on the `task` and the provided attributes, or just
@@ -593,6 +595,7 @@ class GenerateShortTextMatchingData(_EmbeddingDataGeneration):
     )
 
     _template_name: str = PrivateAttr(default="short-text-matching")
+    _can_be_used_with_offline_batch_generation = True
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """Method to format the input based on the `task` and the provided attributes, or just
@@ -682,6 +685,7 @@ class GenerateLongTextMatchingData(_EmbeddingDataGeneration):
     )
 
     _template_name: str = PrivateAttr(default="long-text-matching")
+    _can_be_used_with_offline_batch_generation = True
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """Method to format the input based on the `task` and the provided attributes, or just
@@ -782,6 +786,7 @@ class GenerateTextClassificationData(_EmbeddingDataGeneration):
     ] = None
 
     _template_name: str = PrivateAttr(default="text-classification")
+    _can_be_used_with_offline_batch_generation = True
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """Method to format the input based on the `task` and the provided attributes, or just
@@ -878,6 +883,7 @@ class MonolingualTripletGenerator(_EmbeddingDataGenerator):
     low_score: Optional[Literal["2.5", "3", "3.5"]] = None
 
     _template_name: str = PrivateAttr(default="monolingual-triplet")
+    _can_be_used_with_offline_batch_generation = True
 
     @property
     def prompt(self) -> ChatType:
@@ -974,6 +980,7 @@ class BitextRetrievalGenerator(_EmbeddingDataGenerator):
     low_score: Optional[Literal["2.5", "3", "3.5"]] = None
 
     _template_name: str = PrivateAttr(default="bitext-retrieval")
+    _can_be_used_with_offline_batch_generation = True
 
     @property
     def prompt(self) -> ChatType:

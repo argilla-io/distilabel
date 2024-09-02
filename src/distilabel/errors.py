@@ -59,3 +59,9 @@ class DistilabelTypeError(DistilabelError, TypeError):
     """TypeError that we can redirect to a given page in the documentation."""
 
     pass
+
+
+class DistilabelNotImplementedError(DistilabelError, NotImplementedError):
+    """NotImplementedError that we can redirect to a given page in the documentation."""
+
+    pass

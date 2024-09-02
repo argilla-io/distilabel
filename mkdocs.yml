@@ -188,6 +188,7 @@ nav:
           - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
           - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
+          - Offline Batch Generation: "sections/how_to_guides/advanced/offline_batch_generation.md"
           - Specify requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
           - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
           - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
@@ -243,6 +244,8 @@ nav:
       - Mixins:
           - RuntimeParametersMixin: "api/mixins/runtime_parameters.md"
           - RequirementsMixin: "api/mixins/requirements.md"
+      - Exceptions: "api/exceptions.md"
+      - Errors: "api/errors.md"
       - Distiset: "api/distiset.md"
       - CLI: "api/cli.md"
   - Community:

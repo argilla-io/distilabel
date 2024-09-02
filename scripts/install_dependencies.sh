@@ -8,9 +8,6 @@ python -m pip install uv
 
 uv pip install --system -e ".[anthropic,argilla,cohere,groq,hf-inference-endpoints,hf-transformers,litellm,llama-cpp,ollama,openai,outlines,vertexai,mistralai,instructor,sentence-transformers,faiss-cpu,minhash]"
 
-# For the tests of minhash
-python -c "import nltk; nltk.download('punkt_tab')"
-
 if [ "${python_version}" != "(3, 12)" ]; then
   uv pip install --system -e .[ray]
 fi

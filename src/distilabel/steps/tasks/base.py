@@ -16,14 +16,16 @@ import importlib
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.constants import DISTILABEL_METADATA_KEY
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
     GeneratorStep,
+    GlobalStep,
     Step,
     StepInput,
     _Step,
@@ -72,6 +74,36 @@ class _Task(_Step, ABC):
         default=1, description="The number of generations to be produced per input."
     )
     use_default_structured_output: bool = False
+
+    _can_be_used_with_offline_batch_generation: bool = PrivateAttr(False)
+
+    def model_post_init(self, __context: Any) -> None:
+        if (
+            self.llm.use_offline_batch_generation
+            and not self._can_be_used_with_offline_batch_generation
+        ):
+            raise DistilabelUserError(
+                f"`{self.__class__.__name__}` task cannot be used with offline batch generation"
+                " feature.",
+                page="sections/how_to_guides/advanced/offline-batch-generation",
+            )
+
+        super().model_post_init(__context)
+
+    @property
+    def is_global(self) -> bool:
+        """Extends the `is_global` property to return `True` if the task is using the
+        offline batch generation feature, otherwise it returns the value of the parent
+        class property. `offline_batch_generation` requires to receive all the inputs
+        at once, so for the `_BatchManager` this is a global step.
+
+        Returns:
+            Whether the task is a global step or not.
+        """
+        if self.llm.use_offline_batch_generation:
+            return True
+
+        return super().is_global
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method."""
@@ -264,7 +296,7 @@ class Task(_Task, Step):
         formatted_inputs = self._format_inputs(inputs)
 
         # `outputs` is a list containing a list of generations per input
-        outputs = self.llm.generate(
+        outputs = self.llm.generate_outputs(
             inputs=formatted_inputs,
             num_generations=self.num_generations,  # type: ignore
             **self.llm.get_generation_kwargs(),  # type: ignore
@@ -291,7 +323,7 @@ class Task(_Task, Step):
 
 
 class GeneratorTask(_Task, GeneratorStep):
-    """GeneratorTask is a class that implements the `_Task` abstract class and adds the
+    """`GeneratorTask` is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
     Attributes:
@@ -299,6 +331,15 @@ class GeneratorTask(_Task, GeneratorStep):
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
+    """
+
+    pass
+
+
+class GlobalTask(_Task, GlobalStep):
+    """`GlobalTask` is a class that implements the `_Task` abstract class and adds the
+    `GlobalStep` interface to be used as a step in the pipeline. It's generally used in
+    combination with `LLM`s that can be used for offline batched inference.
     """
 
     pass

@@ -746,6 +746,24 @@ class _BatchManager(_Serializable):
         step = self._steps[to_step]
         step.add_batch(batch, prepend)
 
+    def add_batch_to_recover_offline_batch_generation(
+        self, to_step: str, data: List[List[Dict[str, Any]]]
+    ) -> None:
+        """Add a batch to recover pipeline execution from an `_Step` that used an `LLM`
+        with offline batch generation. It will add the batch to the start of the buffer
+        of the step  and set the last batch received of the step to `None`.
+
+        Args:
+            to_step: The name of the step that will process the batch.
+            data: The data that was used with the offline batch generation.
+        """
+        self.add_batch(
+            to_step=to_step,
+            batch=_Batch(seq_no=0, step_name=to_step, last_batch=True, data=data),
+            prepend=True,
+        )
+        self._last_batch_received[to_step] = None
+
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.
 

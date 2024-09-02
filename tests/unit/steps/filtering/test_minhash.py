@@ -14,6 +14,7 @@
 
 from typing import List
 
+import nltk
 import pytest
 
 from distilabel.steps.filtering.minhash import (
@@ -21,6 +22,8 @@ from distilabel.steps.filtering.minhash import (
     tokenize_on_ngrams,
     tokenized_on_words,
 )
+
+nltk.download("punkt_tab")
 
 texts: List[str] = [
     "This is a test document.",

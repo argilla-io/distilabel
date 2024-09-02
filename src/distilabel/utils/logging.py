@@ -14,7 +14,6 @@
 
 import logging
 import multiprocessing as mp
-import os
 import warnings
 from logging import FileHandler
 from logging.handlers import QueueHandler, QueueListener
@@ -22,6 +21,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from rich.logging import RichHandler
+
+from distilabel import envs
 
 if TYPE_CHECKING:
     from queue import Queue
@@ -77,7 +78,7 @@ def setup_logging(
             )
             queue_listener.start()
 
-    log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
+    log_level = envs.DISTILABEL_LOG_LEVEL
     if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
         warnings.warn(
             f"Invalid log level '{log_level}', using default 'INFO' instead.",

@@ -49,6 +49,9 @@ class TestAnyscaleLLM:
             "base_url": "https://api.endpoints.anyscale.com/v1",
             "timeout": 120,
             "structured_output": None,
+            "jobs_ids": None,
+            "offline_batch_generation_block_until_done": None,
+            "use_offline_batch_generation": False,
             "type_info": {
                 "module": "distilabel.llms.anyscale",
                 "name": "AnyscaleLLM",
