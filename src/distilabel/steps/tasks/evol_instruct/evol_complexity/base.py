@@ -63,7 +63,6 @@ class EvolComplexity(EvolInstruct):
         - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)
 
     Examples:
-
         Evolve an instruction using an LLM:
 
         ```python
@@ -86,7 +85,6 @@ class EvolComplexity(EvolInstruct):
         ```
 
     Citations:
-
         ```
         @misc{liu2024makesgooddataalignment,
             title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},

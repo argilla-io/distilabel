@@ -15,12 +15,10 @@
 from typing import List
 
 import nltk
-import numpy as np
 import pytest
 
 from distilabel.steps.filtering.minhash import (
-    MinHash,
-    MinHashLSH,
+    MinHashDedup,
     tokenize_on_ngrams,
     tokenized_on_words,
 )
@@ -49,35 +47,20 @@ def test_tokenize_on_ngrams(n: int) -> None:
     assert all(len(t) == n for t in tokenized[0])
 
 
-class TestMinHash:
-    @pytest.mark.parametrize("tokenizer", ["words", "ngrams"])
-    def test_process(self, tokenizer: str) -> None:
-        hasher = MinHash(tokenizer=tokenizer, n=3)
-        hasher.load()
-        result = next(hasher.process([{"text": t} for t in texts]))
-        hashvalues = result[0]["hashvalues"]
-        assert isinstance(hashvalues, np.ndarray)
-
-
-class TestMinHashLSH:
+class TestMinHashDedup:
     @pytest.mark.parametrize(
         "threshold, keep_row_after_minhash_filtering, storage",
-        [
-            (0.1, 1, "dict"),
-            (0.9, 4, "dict"),
-            # (0.9, 4, "disk")  # This test is skipped because it fails while testing on CI
-        ],
+        [(0.1, 1, "dict"), (0.9, 4, "dict"), (0.9, 4, "disk")],
     )
     def test_process(
         self, threshold: float, keep_row_after_minhash_filtering: int, storage: str
     ) -> None:
-        hasher = MinHash()
-        hasher.load()
-        results_with_hashes = next(hasher.process([{"text": t} for t in texts]))
-
-        minhash_lsh = MinHashLSH(threshold=threshold, seed=hasher.seed, storage=storage)
-        minhash_lsh.load()
-        result = next(minhash_lsh.process(results_with_hashes))
+        msh = MinHashDedup(
+            threshold=threshold,
+            storage=storage,
+        )
+        msh.load()
+        result = next(msh.process([{"text": t} for t in texts]))
         duplicated = [r["keep_row_after_minhash_filtering"] for r in result]
         assert sum(duplicated) == keep_row_after_minhash_filtering
-        minhash_lsh.unload()
+        msh.unload()

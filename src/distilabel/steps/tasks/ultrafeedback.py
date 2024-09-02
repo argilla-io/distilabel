@@ -59,7 +59,6 @@ class UltraFeedback(Task):
         - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
 
     Examples:
-
         Rate generations from different LLMs based on the selected aspect:
 
         ```python
@@ -130,7 +129,7 @@ class UltraFeedback(Task):
         # 'ratings': [5, 1],
         # 'rationales': ['The response is correct and confident, as it directly answers the question without expressing any uncertainty or doubt.',
         # "The response is confidently incorrect, as it provides unrelated information ('a car') and does not address the question. The model shows no uncertainty or indication that it does not know the answer."],
-        # 'distilabel_metadata': {'raw_output_ultra_feedback_0': '{"ratings": [\n    5,\n    1\n] \n\n,"rationales": [\n    "The response is correct and confident, as it directly answers the question without expressing any uncertainty or doubt.",\n    "The response is confidently incorrect, as it provides unrelated information (\'a car\') and does not address the question. The model shows no uncertainty or indication that it does not know the answer."\n] }'},
+        # 'distilabel_metadata': {'raw_output_ultra_feedback_0': '{"ratings": [\\n    5,\\n    1\\n] \\n\\n,"rationales": [\\n    "The response is correct and confident, as it directly answers the question without expressing any uncertainty or doubt.",\\n    "The response is confidently incorrect, as it provides unrelated information (\'a car\') and does not address the question. The model shows no uncertainty or indication that it does not know the answer."\\n] }'},
         # 'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]
         ```
 
@@ -170,12 +169,11 @@ class UltraFeedback(Task):
         #   'rationales_for_rating': ['Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.',
         #    'Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question.'],
         #   'types': [1, 3, 1],
-        #   'distilabel_metadata': {'raw_output_ultra_feedback_0': '{ \n  "ratings": [\n    1,\n    5\n  ]\n ,\n  "rationales": [\n    "Text 1 is clear and relevant, providing the correct answer to the question. It is also not lengthy and does not contain repetition. However, it lacks comprehensive information or detailed description.",\n    "Text 2 is neither clear nor relevant to the task. It does not provide any useful information and seems unrelated to the question."\n  ]\n ,\n  "rationales_for_rating": [\n    "Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.",\n    "Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question."\n  ]\n ,\n  "types": [\n    1, 3,\n    1\n  ]\n  }'},
+        #   'distilabel_metadata': {'raw_output_ultra_feedback_0': '{ \\n  "ratings": [\\n    1,\\n    5\\n  ]\\n ,\\n  "rationales": [\\n    "Text 1 is clear and relevant, providing the correct answer to the question. It is also not lengthy and does not contain repetition. However, it lacks comprehensive information or detailed description.",\\n    "Text 2 is neither clear nor relevant to the task. It does not provide any useful information and seems unrelated to the question."\\n  ]\\n ,\\n  "rationales_for_rating": [\\n    "Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.",\\n    "Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question."\\n  ]\\n ,\\n  "types": [\\n    1, 3,\\n    1\\n  ]\\n  }'},
         #   'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]
         ```
 
     Citations:
-
         ```
         @misc{cui2024ultrafeedbackboostinglanguagemodels,
             title={UltraFeedback: Boosting Language Models with Scaled AI Feedback},
@@ -314,9 +312,11 @@ class UltraFeedback(Task):
 
             formatted_outputs.append(
                 {
-                    "ratings": int(re.findall(r"\b\d+\b", matches.group(1))[0])
-                    if matches.group(1) not in ["None", "N/A"]
-                    else None,
+                    "ratings": (
+                        int(re.findall(r"\b\d+\b", matches.group(1))[0])
+                        if matches.group(1) not in ["None", "N/A"]
+                        else None
+                    ),
                     "rationales": matches.group(2),
                 }
             )
@@ -359,13 +359,17 @@ class UltraFeedback(Task):
 
             formatted_outputs.append(
                 {
-                    "types": int(re.findall(r"\b\d+\b", matches.group(1))[0])
-                    if matches.group(1) not in ["None", "N/A"]
-                    else None,
+                    "types": (
+                        int(re.findall(r"\b\d+\b", matches.group(1))[0])
+                        if matches.group(1) not in ["None", "N/A"]
+                        else None
+                    ),
                     "rationales": matches.group(2),
-                    "ratings": int(re.findall(r"\b\d+\b", matches.group(3))[0])
-                    if matches.group(3) not in ["None", "N/A"]
-                    else None,
+                    "ratings": (
+                        int(re.findall(r"\b\d+\b", matches.group(3))[0])
+                        if matches.group(3) not in ["None", "N/A"]
+                        else None
+                    ),
                     "rationales-for-ratings": matches.group(4),
                 }
             )

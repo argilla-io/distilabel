@@ -111,7 +111,7 @@ hide: toc
 
     Learn about answering instructions with knowledge graphs defined as pydantic.BaseModel objects using instructor in distilabel.
 
-    [:octicons-arrow-right-24: Example](papers/prometheus.md)
+    [:octicons-arrow-right-24: Example](examples/mistralai_with_instructor.md)
 
 
 </div>

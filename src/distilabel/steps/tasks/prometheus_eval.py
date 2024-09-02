@@ -134,7 +134,6 @@ class PrometheusEval(Task):
         - [prometheus-eval: Evaluate your LLM's response with Prometheus 💯](https://github.com/prometheus-eval/prometheus-eval)
 
     Examples:
-
         Critique and evaluate LLM generation quality using Prometheus 2_0:
 
         ```python
@@ -145,7 +144,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="absolute",
             rubric="factual-validity"
@@ -182,7 +181,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="relative",
             rubric="honesty"
@@ -219,12 +218,12 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="absolute",
             rubric="custom",
             rubrics={
-                "custom": "[A]\nScore 1: A\nScore 2: B\nScore 3: C\nScore 4: D\nScore 5: E"
+                "custom": "[A]\\nScore 1: A\\nScore 2: B\\nScore 3: C\\nScore 4: D\\nScore 5: E"
             }
         )
 
@@ -259,7 +258,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="absolute",
             rubric="helpfulness",
@@ -293,7 +292,6 @@ class PrometheusEval(Task):
         ```
 
     Citations:
-
         ```
         @misc{kim2024prometheus2opensource,
             title={Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models},

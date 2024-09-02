@@ -43,7 +43,6 @@ class LoadDataFromDicts(GeneratorStep):
         - load
 
     Examples:
-
         Load data from a list of dictionaries:
 
         ```python

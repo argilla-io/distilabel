@@ -28,7 +28,6 @@ class DistilabelError:
         page: An optional error code from PydanticErrorCodes enum.
 
     Examples:
-
         ```python
         raise DistilabelUserError("This is an error message.")
         This is an error message.

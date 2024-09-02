@@ -71,7 +71,6 @@ class EvolInstruct(Task):
         - [GitHub: h2oai/h2o-wizardlm](https://github.com/h2oai/h2o-wizardlm)
 
     Examples:
-
         Evolve an instruction using an LLM:
 
         ```python
@@ -151,7 +150,6 @@ class EvolInstruct(Task):
         ```
 
     Citations:
-
         ```
         @misc{xu2023wizardlmempoweringlargelanguage,
             title={WizardLM: Empowering Large Language Models to Follow Complex Instructions},

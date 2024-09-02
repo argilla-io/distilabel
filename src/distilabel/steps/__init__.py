@@ -29,7 +29,7 @@ from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
 from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
 from distilabel.steps.embeddings.nearest_neighbour import FaissNearestNeighbour
-from distilabel.steps.filtering.minhash import MinHash, MinHashLSH
+from distilabel.steps.filtering.minhash import MinHashDedup
 from distilabel.steps.formatting.conversation import ConversationTemplate
 from distilabel.steps.formatting.dpo import (
     FormatChatGenerationDPO,
@@ -74,8 +74,7 @@ __all__ = [
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
-    "MinHash",
-    "MinHashLSH",
+    "MinHashDedup",
     "make_generator_step",
     "PushToHub",
     "Step",

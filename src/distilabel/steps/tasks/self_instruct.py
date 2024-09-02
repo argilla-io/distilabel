@@ -62,7 +62,6 @@ class SelfInstruct(Task):
         - [`Self-Instruct: Aligning Language Models with Self-Generated Instructions`](https://arxiv.org/abs/2212.10560)
 
     Examples:
-
         Generate instructions based on a given input:
 
         ```python
@@ -90,7 +89,6 @@ class SelfInstruct(Task):
         ```
 
     Citations:
-
         ```
         @misc{wang2023selfinstructaligninglanguagemodels,
             title={Self-Instruct: Aligning Language Models with Self-Generated Instructions},

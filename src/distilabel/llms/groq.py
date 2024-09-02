@@ -63,7 +63,6 @@ class GroqLLM(AsyncLLM):
             to `120`.
 
     Examples:
-
         Generate text:
 
         ```python

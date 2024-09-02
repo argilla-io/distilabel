@@ -59,7 +59,6 @@ class LlamaCppLLM(LLM):
         - [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python)
 
     Examples:
-
         Generate text:
 
         ```python

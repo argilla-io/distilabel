@@ -92,7 +92,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             the `LLM` class of `vllm` library.
 
     Examples:
-
         Generate text:
 
         ```python
@@ -415,7 +414,6 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             created to comunicate with the `vLLM` server. Defaults to `None`.
 
     Examples:
-
         Generate text:
 
         ```python

@@ -46,7 +46,6 @@ class TextGeneration(Task):
         - text-generation
 
     Examples:
-
         Generate text from an instruction:
 
         ```python
@@ -147,7 +146,6 @@ class ChatGeneration(Task):
         `:material-chat:`
 
     Examples:
-
         Generate text from a conversation in OpenAI chat format:
 
         ```python

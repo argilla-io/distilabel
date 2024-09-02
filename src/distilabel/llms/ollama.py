@@ -79,6 +79,20 @@ class OllamaLLM(AsyncLLM):
     Runtime parameters:
         - `host`: the Ollama server host.
         - `timeout`: the client timeout for the Ollama API. Defaults to `120`.
+
+    Examples:
+        Generate text:
+
+        ```python
+        from distilabel.llms import OllamaLLM
+
+        llm = OllamaLLM(model="llama3")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        ```
     """
 
     model: str
