@@ -628,7 +628,11 @@ class Step(_Step, ABC):
             The output rows.
         """
 
-        inputs = self._apply_input_mappings(args) if self.input_mappings else args
+        inputs, overriden_inputs = (
+            self._apply_input_mappings(args)
+            if self.input_mappings
+            else (args, [{} for _ in range(len(args[0]))])
+        )
 
         # If the `Step` was built using the `@step` decorator, then we need to pass
         # the runtime parameters as kwargs, so they can be used within the processing
@@ -641,47 +645,76 @@ class Step(_Step, ABC):
 
         for output_rows in generator:
             yield [
-                {
-                    # Apply output mapping and revert input mapping
-                    self.output_mappings.get(k, None)
-                    or self.input_mappings.get(k, None)
-                    or k: v
-                    for k, v in row.items()
-                }
-                for row in output_rows
+                self._apply_mappings_and_restore_overriden(row, overriden_inputs[i])
+                for i, row in enumerate(output_rows)
             ]
-
-    def _revert_input_mappings(self, input: Dict[str, Any]) -> Dict[str, Any]:
-        """Reverts the `input_mappings` of the step to the input row.
-
-        Args:
-            input: The input row.
-
-        Returns:
-            The input row with the `input_mappings` reverted.
-        """
-        return {self.input_mappings.get(k, k): v for k, v in input.items()}
 
     def _apply_input_mappings(
         self, inputs: Tuple[List[Dict[str, Any]], ...]
-    ) -> List[List[Dict[str, Any]]]:
+    ) -> Tuple[Tuple[List[Dict[str, Any]], ...], List[Dict[str, Any]]]:
         """Applies the `input_mappings` to the input rows.
 
         Args:
             inputs: The input rows.
 
         Returns:
-            The input rows with the `input_mappings` applied.
+            The input rows with the `input_mappings` applied and the overriden values
+                that were replaced by the `input_mappings`.
         """
         reverted_input_mappings = {v: k for k, v in self.input_mappings.items()}
 
-        return [
-            [
-                {reverted_input_mappings.get(k, k): v for k, v in row.items()}
-                for row in row_inputs
-            ]
-            for row_inputs in inputs
-        ]
+        renamed_inputs = []
+        overriden_inputs = []
+        for i, row_inputs in enumerate(inputs):
+            renamed_row_inputs = []
+            for row in row_inputs:
+                overriden_keys = {}
+                renamed_row = {}
+                for k, v in row.items():
+                    renamed_key = reverted_input_mappings.get(k, k)
+
+                    if renamed_key not in renamed_row or k != renamed_key:
+                        renamed_row[renamed_key] = v
+
+                        if k != renamed_key and renamed_key in row and len(inputs) == 1:
+                            overriden_keys[renamed_key] = row[renamed_key]
+
+                if i == 0:
+                    overriden_inputs.append(overriden_keys)
+                renamed_row_inputs.append(renamed_row)
+            renamed_inputs.append(renamed_row_inputs)
+        return tuple(renamed_inputs), overriden_inputs
+
+    def _apply_mappings_and_restore_overriden(
+        self, row: Dict[str, Any], overriden: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Reverts the `input_mappings` applied to the input rows and applies the `output_mappings`
+        to the output rows. In addition, it restores the overriden values that were replaced
+        by the `input_mappings`.
+
+        Args:
+            row: The output row.
+            overriden: The overriden values that were replaced by the `input_mappings`.
+
+        Returns:
+            The output row with the `output_mappings` applied and the overriden values
+            restored.
+        """
+        result = {}
+        for k, v in row.items():
+            mapped_key = (
+                self.output_mappings.get(k, None)
+                or self.input_mappings.get(k, None)
+                or k
+            )
+            result[mapped_key] = v
+
+        # Restore overriden values
+        for k, v in overriden.items():
+            if k not in result:
+                result[k] = v
+
+        return result
 
 
 class GeneratorStep(_Step, ABC):
