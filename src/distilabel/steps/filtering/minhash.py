@@ -83,9 +83,12 @@ def tokenize_on_ngrams(texts: Iterable[str], n: int = 1) -> List[Set[bytes]]:
 class MinHashDedup(Step):
     """Deduplicates text using `MinHash` and `MinHashLSH`.
 
-    From `datasketch` documentation:
-    Estimates the Jaccard similarity (resemblance) between sets of arbitrary sizes in linear
-    time using a small and fixed memory space.
+    `MinHashDedup` is a Step that detects near-duplicates in datasets. The idea roughly translates
+    to the following steps:
+    1. Tokenize the text into words or ngrams.
+    2. Create a `MinHash` for each text.
+    3. Store the `MinHashes` in a `MinHashLSH`.
+    4. Check if the `MinHash` is already in the `LSH`, if so, it is a duplicate.
 
     Attributes:
         num_perm: the number of permutations to use. Defaults to `128`.
