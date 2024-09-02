@@ -4460,9 +4460,12 @@
 
 <h1 id="minhashdedup">MinHashDedup<a class="headerlink" href="#minhashdedup" title="Permanent link">&para;</a></h1>
 <p>Deduplicates text using <code>MinHash</code> and <code>MinHashLSH</code>.</p>
-<p>From <code>datasketch</code> documentation:
-    Estimates the Jaccard similarity (resemblance) between sets of arbitrary sizes in linear
-    time using a small and fixed memory space.</p>
+<p><code>MinHashDedup</code> is a Step that detects near-duplicates in datasets. The idea roughly translates
+    to the following steps:
+    1. Tokenize the text into words or ngrams.
+    2. Create a <code>MinHash</code> for each text.
+    3. Store the <code>MinHashes</code> in a <code>MinHashLSH</code>.
+    4. Check if the <code>MinHash</code> is already in the <code>LSH</code>, if so, it is a duplicate.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
