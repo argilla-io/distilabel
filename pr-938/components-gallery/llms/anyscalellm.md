@@ -40,7 +40,7 @@ llm = AnyscaleLLM(model="google/gemma-7b-it", api_key="api.key")
 
 llm.load()
 
-output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
 ```
 
 

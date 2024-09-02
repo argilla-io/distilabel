@@ -26,14 +26,6 @@ hide:
 
     [:octicons-arrow-right-24: FaissNearestNeighbour](faissnearestneighbour.md){ .bottom }
 
--   :material-filter:{ .lg .middle } __MinHashLSH__
-
-    ---
-
-    Creates a `MinHashLSH` index to deduplicate texts using MinHash.
-
-    [:octicons-arrow-right-24: MinHashLSH](minhashlsh.md){ .bottom }
-
 -   :material-content-save:{ .lg .middle } __PushToHub__
 
     ---
@@ -58,7 +50,15 @@ hide:
 
     [:octicons-arrow-right-24: TextGenerationToArgilla](textgenerationtoargilla.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __ExpandColumns__
+-   :material-table-column:{ .lg .middle } __CombineOutputs__
+
+    ---
+
+    Combine the outputs of several upstream steps.
+
+    [:octicons-arrow-right-24: CombineOutputs](combineoutputs.md){ .bottom }
+
+-   :material-table-column:{ .lg .middle } __ExpandColumns__
 
     ---
 
@@ -66,7 +66,7 @@ hide:
 
     [:octicons-arrow-right-24: ExpandColumns](expandcolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __GroupColumns__
+-   :material-table-column:{ .lg .middle } __GroupColumns__
 
     ---
 
@@ -82,7 +82,7 @@ hide:
 
     [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __KeepColumns__
+-   :material-table-column:{ .lg .middle } __KeepColumns__
 
     ---
 
@@ -90,7 +90,7 @@ hide:
 
     [:octicons-arrow-right-24: KeepColumns](keepcolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __MergeColumns__
+-   :material-table-column:{ .lg .middle } __MergeColumns__
 
     ---
 
@@ -98,7 +98,7 @@ hide:
 
     [:octicons-arrow-right-24: MergeColumns](mergecolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __EmbeddingGeneration__
+-   :material-vector-line:{ .lg .middle } __EmbeddingGeneration__
 
     ---
 
@@ -106,13 +106,13 @@ hide:
 
     [:octicons-arrow-right-24: EmbeddingGeneration](embeddinggeneration.md){ .bottom }
 
--   :material-filter:{ .lg .middle } __MinHash__
+-   :material-filter:{ .lg .middle } __MinHashDedup__
 
     ---
 
-    Creates the components for a `MinHash` object to deduplicate texts.
+    Deduplicates text using `MinHash` and `MinHashLSH`.
 
-    [:octicons-arrow-right-24: MinHash](minhash.md){ .bottom }
+    [:octicons-arrow-right-24: MinHashDedup](minhashdedup.md){ .bottom }
 
 -   :material-format-list-bulleted:{ .lg .middle } __ConversationTemplate__
 

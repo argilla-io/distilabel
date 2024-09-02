@@ -63,7 +63,7 @@ llm = TransformersLLM(model="microsoft/Phi-3-mini-4k-instruct")
 llm.load()
 
 # Call the model
-output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
 ```
 
 

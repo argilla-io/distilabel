@@ -64,7 +64,7 @@ llm = MixtureOfAgentsLLM(
 
 llm.load()
 
-output = llm.generate(
+output = llm.generate_outputs(
     inputs=[
         [
             {

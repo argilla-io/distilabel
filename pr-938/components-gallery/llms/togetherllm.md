@@ -40,7 +40,7 @@ llm = TogetherLLM(model="mistralai/Mixtral-8x7B-Instruct-v0.1", api_key="api.key
 
 llm.load()
 
-output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
 ```
 
 
