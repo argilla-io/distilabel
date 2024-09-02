@@ -1222,7 +1222,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
             step_num_replicas: int = step.resources.replicas if step.is_normal else 1  # type: ignore
             for replica in range(step_num_replicas):
-                self._logger.debug(f"Running 1 replica of step '{step.name}'...")
+                self._logger.debug(
+                    f"Running 1 replica of step '{step.name}' with ID {replica}..."
+                )
                 self._run_step(step=step, input_queue=input_queue, replica=replica)
 
     def _add_batches_back_to_batch_manager(self) -> None:
