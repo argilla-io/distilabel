@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadDataFromDicts, MinHash, MinHashLSH
+from distilabel.steps import LoadDataFromDicts, MinHashDedup
 
 
 def test_minhash_deduplication() -> None:
@@ -31,15 +31,14 @@ def test_minhash_deduplication() -> None:
             * (ds_size // 5),
             batch_size=batch_size,
         )
-        minhash = MinHash(tokenizer="ngrams", n=1, input_batch_size=batch_size)
-        minhash_lsh = MinHashLSH(
+        minhash = MinHashDedup(
+            tokenizer="ngrams",
+            n=2,
             threshold=0.9,
-            seed=minhash.seed,
-            drop_hashvalues=True,
-            storage="dict",
-            # storage="disk",
+            storage="disk",
+            input_batch_size=batch_size,
         )
-        data >> minhash >> minhash_lsh
+        data >> minhash
 
     distiset = pipeline.run(use_cache=False)
     ds = distiset["default"]["train"]

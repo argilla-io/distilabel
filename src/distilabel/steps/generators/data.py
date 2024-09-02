@@ -14,6 +14,7 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List
 
+from pydantic import Field
 from typing_extensions import override
 
 from distilabel.steps.base import GeneratorStep
@@ -59,7 +60,7 @@ class LoadDataFromDicts(GeneratorStep):
         ```
     """
 
-    data: List[Dict[str, Any]]
+    data: List[Dict[str, Any]] = Field(default_factory=list, exclude=True)
 
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore

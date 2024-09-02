@@ -49,7 +49,7 @@ class AnyscaleLLM(OpenAILLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
     """
 

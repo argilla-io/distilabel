@@ -21,11 +21,13 @@ from distilabel.errors import DistilabelUserError
 from distilabel.steps.base import StepResources
 
 if TYPE_CHECKING:
+    from distilabel.pipeline.base import BasePipeline
     from distilabel.steps import GeneratorStep
 
 
 def make_generator_step(
     dataset: Union[Dataset, pd.DataFrame, List[Dict[str, str]]],
+    pipeline: Union["BasePipeline", None] = None,
     batch_size: int = 50,
     input_mappings: Optional[Dict[str, str]] = None,
     output_mappings: Optional[Dict[str, str]] = None,
@@ -52,6 +54,7 @@ def make_generator_step(
 
     if isinstance(dataset, list):
         return LoadDataFromDicts(
+            pipeline=pipeline,
             data=dataset,
             batch_size=batch_size,
             input_mappings=input_mappings or {},
@@ -70,6 +73,7 @@ def make_generator_step(
         )
 
     loader = LoadDataFromHub(
+        pipeline=pipeline,
         repo_id="placeholder_name",
         batch_size=batch_size,
         input_mappings=input_mappings or {},

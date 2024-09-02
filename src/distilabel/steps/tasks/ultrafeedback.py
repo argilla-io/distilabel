@@ -206,6 +206,7 @@ class UltraFeedback(Task):
         )
     )
     _template: Optional["Template"] = PrivateAttr(default=...)
+    _can_be_used_with_offline_batch_generation = True
 
     def load(self) -> None:
         """Loads the Jinja2 template for the given `aspect`."""

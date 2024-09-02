@@ -119,6 +119,9 @@ class TestEvolInstructGenerator:
             "llm": {
                 "generation_kwargs": {},
                 "structured_output": None,
+                "jobs_ids": None,
+                "offline_batch_generation_block_until_done": None,
+                "use_offline_batch_generation": False,
                 "type_info": {
                     "module": task.llm.__class__.__module__,
                     "name": task.llm.__class__.__name__,
@@ -195,6 +198,20 @@ class TestEvolInstructGenerator:
                             "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
                             "keys": [],
                             "name": "generation_kwargs",
+                        },
+                        {
+                            "description": "Whether to use the `offline_batch_generate` method to "
+                            "generate the responses.",
+                            "name": "use_offline_batch_generation",
+                            "optional": True,
+                        },
+                        {
+                            "description": "If provided, then polling will be done until the "
+                            "`ofline_batch_generate` method is able to retrieve the "
+                            "results. The value indicate the time to wait between each "
+                            "polling.",
+                            "name": "offline_batch_generation_block_until_done",
+                            "optional": True,
                         },
                     ],
                 },

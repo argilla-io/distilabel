@@ -42,3 +42,6 @@ hide:
 
 ??? faq "How can I use the same `LLM` across several tasks without having to load it several times?"
     You can serve the LLM using a solution like TGI or vLLM, and then connect to it using an `AsyncLLM` client like `InferenceEndpointsLLM` or `OpenAILLM`. Please refer to [Serving LLMs guide](../how_to_guides/advanced/serving_an_llm_for_reuse.md) for more information.
+
+??? faq "Can `distilabel` be used with [OpenAI Batch API](https://platform.openai.com/docs/guides/batch)?"
+    Yes, `distilabel` is integrated with OpenAI Batch API via [OpenAILLM][distilabel.llms.openai.OpenAILLM]. Check [LLMs - Offline Batch Generation](../how_to_guides/basic/llm/index.md#offline-batch-generation) for a small example on how to use it and [Advanced - Offline Batch Generation](../how_to_guides/advanced/offline_batch_generation.md) for a more detailed guide.

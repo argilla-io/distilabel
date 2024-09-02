@@ -154,8 +154,9 @@ class DAG(_Serializable):
         Args:
             step: The generator step that will be set as the new root.
         """
-        self.add_step(step)
-        self.add_edge(step.name, next(iter(self)))
+        for other_step, level in self.trophic_levels.items():
+            if level == 1 and other_step != step.name:
+                self.add_edge(step.name, other_step)  # type: ignore
 
     @cached_property
     def root_steps(self) -> Set[str]:
@@ -175,14 +176,14 @@ class DAG(_Serializable):
         """
         return {node for node, degree in self.G.out_degree() if degree == 0}
 
-    @cached_property
+    @property
     def trophic_levels(self) -> Dict[str, int]:
         """The trophic level of each step in the DAG.
 
         Returns:
             A dictionary with the trophic level of each step.
         """
-        return {step: int(level) for step, level in nx.trophic_levels(self.G).items()}
+        return nx.trophic_levels(self.G)
 
     def get_step_predecessors(self, step_name: str) -> Iterable[str]:
         """Gets the predecessors of a step.

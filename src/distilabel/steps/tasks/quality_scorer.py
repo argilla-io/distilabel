@@ -147,6 +147,7 @@ class QualityScorer(Task):
     """
 
     _template: Union[Template, None] = PrivateAttr(...)
+    _can_be_used_with_offline_batch_generation = True
 
     def load(self) -> None:
         """Loads the Jinja2 template."""

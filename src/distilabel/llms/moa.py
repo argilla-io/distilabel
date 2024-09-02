@@ -90,7 +90,7 @@ class MixtureOfAgentsLLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(
+        output = llm.generate_outputs(
             inputs=[
                 [
                     {

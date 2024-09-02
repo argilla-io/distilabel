@@ -86,7 +86,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         llm.load()
 
         # Call the model
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
     """
 

@@ -36,6 +36,9 @@ class EmbeddingGeneration(Step):
     Output columns:
         - embedding (`List[Union[float, int]]`): the generated sentence embedding.
 
+    Categories:
+        - embedding
+
     Examples:
         Generate sentence embeddings with Sentence Transformers:
 
