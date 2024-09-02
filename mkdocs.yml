@@ -152,9 +152,9 @@ plugins:
             # Members
             inherited_members: false # allow looking up inherited methods
             members_order: source # order methods according to their order of definition in the source code, not alphabetical order
-            show_labels : true
+            show_labels: true
             # Docstring
-            docstring_style: google  # more info: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+            docstring_style: google # more info: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
             show_if_no_docstring: false
             # Signature
             separate_signature: false
@@ -240,7 +240,6 @@ nav:
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
           - Typing: "api/pipeline/typing.md"
           - Step Wrapper: "api/pipeline/step_wrapper.md"
-          - Utils: "api/pipeline/utils.md"
       - Mixins:
           - RuntimeParametersMixin: "api/mixins/runtime_parameters.md"
           - RequirementsMixin: "api/mixins/requirements.md"
