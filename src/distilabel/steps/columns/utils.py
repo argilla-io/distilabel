@@ -12,16 +12,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List, Optional
+from collections import defaultdict
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from distilabel.steps.base import StepInput
+from distilabel.constants import DISTILABEL_METADATA_KEY
+
+if TYPE_CHECKING:
+    from distilabel.steps.base import StepInput
+
+
+def merge_distilabel_metadata(*output_dicts: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Merge the `DISTILABEL_METADATA_KEY` from multiple output dictionaries.
+
+    Args:
+        *output_dicts: Variable number of dictionaries containing distilabel metadata.
+
+    Returns:
+        A merged dictionary containing all the distilabel metadata from the input dictionaries.
+    """
+    merged_metadata = defaultdict(list)
+
+    for output_dict in output_dicts:
+        metadata = output_dict.get(DISTILABEL_METADATA_KEY, {})
+        for key, value in metadata.items():
+            merged_metadata[key].append(value)
+
+    final_metadata = {}
+    for key, value_list in merged_metadata.items():
+        if len(value_list) == 1:
+            final_metadata[key] = value_list[0]
+        else:
+            final_metadata[key] = value_list
+
+    return final_metadata
 
 
 def group_columns(
-    *inputs: StepInput,
+    *inputs: "StepInput",
     group_columns: List[str],
     output_group_columns: Optional[List[str]] = None,
-) -> StepInput:
+) -> "StepInput":
     """Groups multiple list of dictionaries into a single list of dictionaries on the
     specified `group_columns`. If `group_columns` are provided, then it will also rename
     `group_columns`.
@@ -49,16 +80,30 @@ def group_columns(
     # Use zip to iterate over lists based on their index
     for dicts_at_index in zip(*inputs):
         combined_dict = {}
+        metadata_dicts = []
         # Iterate over dicts at the same index
         for d in dicts_at_index:
+            # Extract metadata for merging
+            if DISTILABEL_METADATA_KEY in d:
+                metadata_dicts.append(
+                    {DISTILABEL_METADATA_KEY: d[DISTILABEL_METADATA_KEY]}
+                )
             # Iterate over key-value pairs in each dict
             for key, value in d.items():
+                if key == DISTILABEL_METADATA_KEY:
+                    continue
                 # If the key is in the merge_keys, append the value to the existing list
                 if key in group_columns_dict.keys():
                     combined_dict.setdefault(group_columns_dict[key], []).append(value)
                 # If the key is not in the merge_keys, create a new key-value pair
                 else:
                     combined_dict[key] = value
+
+        if metadata_dicts:
+            combined_dict[DISTILABEL_METADATA_KEY] = merge_distilabel_metadata(
+                *metadata_dicts
+            )
+
         result.append(combined_dict)
     return result
 

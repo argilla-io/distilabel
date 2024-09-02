@@ -15,6 +15,7 @@
 
 import pytest
 
+from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.columns.group import CombineColumns, GroupColumns
 
@@ -44,8 +45,19 @@ class TestGroupColumns:
             columns=["a", "b"],
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
-        output = next(group.process([{"a": 1, "b": 2}], [{"a": 3, "b": 4}]))
-        assert output == [{"grouped_a": [1, 3], "grouped_b": [2, 4]}]
+        output = next(
+            group.process(
+                [{"a": 1, "b": 2, DISTILABEL_METADATA_KEY: {"model": "model-1"}}],
+                [{"a": 3, "b": 4, DISTILABEL_METADATA_KEY: {"model": "model-2"}}],
+            )
+        )
+        assert output == [
+            {
+                "grouped_a": [1, 3],
+                "grouped_b": [2, 4],
+                DISTILABEL_METADATA_KEY: {"model": ["model-1", "model-2"]},
+            }
+        ]
 
 
 def test_CombineColumns_deprecation_warning():
