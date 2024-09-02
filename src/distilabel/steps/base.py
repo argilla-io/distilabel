@@ -665,7 +665,7 @@ class Step(_Step, ABC):
 
         renamed_inputs = []
         overriden_inputs = []
-        for row_inputs in inputs:
+        for i, row_inputs in enumerate(inputs):
             renamed_row_inputs = []
             for row in row_inputs:
                 overriden_keys = {}
@@ -679,7 +679,8 @@ class Step(_Step, ABC):
                         if k != renamed_key and renamed_key in row and len(inputs) == 1:
                             overriden_keys[renamed_key] = row[renamed_key]
 
-                overriden_inputs.append(overriden_keys)
+                if i == 0:
+                    overriden_inputs.append(overriden_keys)
                 renamed_row_inputs.append(renamed_row)
             renamed_inputs.append(renamed_row_inputs)
         return tuple(renamed_inputs), overriden_inputs

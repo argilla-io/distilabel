@@ -214,18 +214,21 @@ class TestStep:
             )
         )
 
-        assert inputs == [
-            [
-                {"instruction": "hello 1"},
-                {"instruction": "hello 2"},
-                {"instruction": "hello 3"},
-            ],
-            [
-                {"instruction": "bye 1"},
-                {"instruction": "bye 2"},
-                {"instruction": "bye 3"},
-            ],
-        ]
+        assert inputs == (
+            (
+                [
+                    {"instruction": "hello 1"},
+                    {"instruction": "hello 2"},
+                    {"instruction": "hello 3"},
+                ],
+                [
+                    {"instruction": "bye 1"},
+                    {"instruction": "bye 2"},
+                    {"instruction": "bye 3"},
+                ],
+            ),
+            [{}, {}, {}],
+        )
 
     def test_process_applying_mappings(self) -> None:
         step = DummyStep(
