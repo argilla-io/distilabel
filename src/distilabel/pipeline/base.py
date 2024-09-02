@@ -471,7 +471,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     f" `GeneratorStep`: {step}",
                     page="sections/how_to_guides/basic/step/#types-of-steps",
                 )
-        loader = make_generator_step(dataset)
+        loader = make_generator_step(dataset, self)
         self.dag.add_root_step(loader)
 
     def get_runtime_parameters_info(self) -> "PipelineRuntimeParametersInfo":
