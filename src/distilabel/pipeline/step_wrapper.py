@@ -76,7 +76,7 @@ class _StepWrapper:
                 attr.disable_cuda_device_placement = True
             else:
                 desired_num_gpus = self.step.resources.gpus or 1
-                attr._llm_identifier = self.step.name
+                attr._llm_identifier = f"{self.step.name}-replica-{self.replica}"
                 attr._desired_num_gpus = desired_num_gpus
 
         for field_name in self.step.model_fields_set:
