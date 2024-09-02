@@ -13,6 +13,14 @@
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/errors/</loc>
+         <lastmod>2024-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/exceptions/</loc>
+         <lastmod>2024-09-02</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/api/embedding/</loc>
          <lastmod>2024-09-02</lastmod>
     </url>
@@ -154,6 +162,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/sections/how_to_guides/advanced/fs_to_pass_data/</loc>
+         <lastmod>2024-09-02</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/how_to_guides/advanced/offline_batch_generation/</loc>
          <lastmod>2024-09-02</lastmod>
     </url>
     <url>

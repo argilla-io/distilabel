@@ -1076,6 +1076,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../offline_batch_generation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Offline Batch Generation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pipeline_requirements/" class="md-nav__link">
         
   
@@ -4318,6 +4339,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exceptions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/errors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Errors
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../api/distiset/" class="md-nav__link">
         
   
@@ -4640,7 +4703,7 @@
 <li>We're setting <a href="../assigning_resources_to_step/">resources</a> for the <code>text_generation</code> step and defining that we want two replicas and one GPU per replica. <code>distilabel</code> will create two replicas of the step i.e. two actors in the Ray cluster, and each actor will request to be allocated in a node of the cluster that have at least one GPU. You can read more about how Ray manages the resources <a href="https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#resources">here</a>.</li>
 <li>You should modify this and add your user or organization on the Hugging Face Hub.</li>
 </ol>
-<p>It's a basic pipeline with just two steps: one to load a dataset from the Hub with an <code>instruction</code> column and one to generate a <code>response</code> for that instruction using Llama 3 8B Instruct with <a href="/distilabel/components-gallery/llms/vllm/">vLLM</a>. Simple but enough to demonstrate how to distribute and scale the workload using a Ray cluster!</p>
+<p>It's a basic pipeline with just two steps: one to load a dataset from the Hub with an <code>instruction</code> column and one to generate a <code>response</code> for that instruction using Llama 3 8B Instruct with <a href="../../../../components-gallery/llms/vllm/">vLLM</a>. Simple but enough to demonstrate how to distribute and scale the workload using a Ray cluster!</p>
 <h3 id="using-ray-jobs-api">Using Ray Jobs API<a class="headerlink" href="#using-ray-jobs-api" title="Permanent link">&para;</a></h3>
 <p>If you don't know the Ray Jobs API then it's recommended to read <a href="https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-overview">Ray Jobs Overview</a>. Quick summary: Ray Jobs is the recommended way to execute a job in a Ray cluster as it will handle packaging, deploying and managing the Ray application.</p>
 <p>To execute the pipeline above, we first need to create a directory (kind of a package) with the pipeline script (or scripts)

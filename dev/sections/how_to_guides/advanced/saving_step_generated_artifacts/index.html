@@ -1076,6 +1076,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../offline_batch_generation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Offline Batch Generation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pipeline_requirements/" class="md-nav__link">
         
   
@@ -4228,6 +4249,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exceptions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/errors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Errors
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../api/distiset/" class="md-nav__link">
         
   
@@ -4409,7 +4472,7 @@
 
 
 <h1 id="saving-step-generated-artifacts">Saving step generated artifacts<a class="headerlink" href="#saving-step-generated-artifacts" title="Permanent link">&para;</a></h1>
-<p>Some <code>Step</code>s might need to produce an auxiliary artifact that is not a result of the computation, but is needed for the computation. For example, the <a href="/distilabel/components-gallery/steps/faissnearestneighbour/"><code>FaissNearestNeighbour</code></a> needs to create a Faiss index to compute the output of the step which are the top <code>k</code> nearest neighbours for each input. Generating the Faiss index takes time and it could potentially be reused outside of the <code>distilabel</code> pipeline, so it would be a shame not saving it.</p>
+<p>Some <code>Step</code>s might need to produce an auxiliary artifact that is not a result of the computation, but is needed for the computation. For example, the <a href="../../../../components-gallery/steps/faissnearestneighbour/"><code>FaissNearestNeighbour</code></a> needs to create a Faiss index to compute the output of the step which are the top <code>k</code> nearest neighbours for each input. Generating the Faiss index takes time and it could potentially be reused outside of the <code>distilabel</code> pipeline, so it would be a shame not saving it.</p>
 <p>For this reason, <code>Step</code>s have a method called <code>save_artifact</code> that allows saving artifacts that will be included along the outputs of the pipeline in the generated <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a>. The generated artifacts will be uploaded and saved when using <code>Distiset.push_to_hub</code> or <code>Distiset.save_to_disk</code> respectively. Let's see how to use it with a simple example.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GlobalStep</span><span class="p">,</span> <span class="n">StepInput</span><span class="p">,</span> <span class="n">StepOutput</span>

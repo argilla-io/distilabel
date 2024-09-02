@@ -1080,6 +1080,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../how_to_guides/advanced/offline_batch_generation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Offline Batch Generation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
         
   
@@ -4222,6 +4243,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exceptions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/errors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Errors
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../api/distiset/" class="md-nav__link">
         
   
@@ -4438,6 +4501,10 @@
 <details class="faq">
 <summary>How can I use the same <code>LLM</code> across several tasks without having to load it several times?</summary>
 <p>You can serve the LLM using a solution like TGI or vLLM, and then connect to it using an <code>AsyncLLM</code> client like <code>InferenceEndpointsLLM</code> or <code>OpenAILLM</code>. Please refer to <a href="../../how_to_guides/advanced/serving_an_llm_for_reuse/">Serving LLMs guide</a> for more information.</p>
+</details>
+<details class="faq">
+<summary>Can <code>distilabel</code> be used with <a href="https://platform.openai.com/docs/guides/batch">OpenAI Batch API</a>?</summary>
+<p>Yes, <code>distilabel</code> is integrated with OpenAI Batch API via <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.OpenAILLM">OpenAILLM</a>. Check <a href="../../how_to_guides/basic/llm/#offline-batch-generation">LLMs - Offline Batch Generation</a> for a small example on how to use it and <a href="../../how_to_guides/advanced/offline_batch_generation/">Advanced - Offline Batch Generation</a> for a more detailed guide.</p>
 </details>
 
 
