@@ -200,7 +200,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         elif env_cache_dir := envs.DISTILABEL_CACHE_DIR:
             self._cache_dir = Path(env_cache_dir)
         else:
-            self._cache_dir = constants.PIPELINE_CACHE_DIR
+            self._cache_dir = constants.PIPELINES_CACHE_DIR
 
         self._logger = logging.getLogger("distilabel.pipeline")
 

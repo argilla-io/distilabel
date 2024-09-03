@@ -69,7 +69,7 @@ def _init_worker(
     set_pipeline_running_env_variables(
         pipeline_name=pipeline_name,
         pipeline_cache_id=pipeline_cache_id,
-        pipeline_cache_dir=pipeline_cache_dir,
+        pipeline_cache_dir=str(pipeline_cache_dir),
     )
     setup_logging(log_queue)
 

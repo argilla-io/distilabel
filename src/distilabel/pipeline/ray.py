@@ -267,7 +267,7 @@ class RayPipeline(BasePipeline):
                 set_pipeline_running_env_variables(
                     pipeline_name=self._pipeline_name,
                     pipeline_cache_id=self._pipeline_cache_id,
-                    pipeline_cache_dir=self._pipeline_cache_dir,
+                    pipeline_cache_dir=str(self._pipeline_cache_dir),
                 )
                 return self._step_wrapper.run()
 
