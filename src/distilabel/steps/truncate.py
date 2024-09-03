@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import importlib
+import importlib.util
 from typing import TYPE_CHECKING, Any, Callable, List, Optional
 
 from typing_extensions import override
