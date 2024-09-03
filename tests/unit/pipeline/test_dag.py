@@ -276,6 +276,37 @@ class TestDAG:
             ],
         )
 
+    def test_get_steps_load_stages_global_steps_chained(self) -> None:
+        with Pipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummies_0 = [DummyStep1(name=f"dummy_step_0_{i}") for i in range(3)]
+            global_0 = DummyGlobalStep(name="global_0")
+            global_1 = DummyGlobalStep(name="global_1")
+
+            generator >> dummies_0 >> global_0 >> global_1
+
+        assert pipeline.dag.get_steps_load_stages() == (
+            [
+                [
+                    "dummy_generator_step",
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ],
+                ["global_0"],
+                ["global_1"],
+            ],
+            [
+                [
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ],
+                ["global_0"],
+                ["global_1"],
+            ],
+        )
+
     def test_get_steps_load_stages_simple(self) -> None:
         with Pipeline(name="dummy") as pipeline:
             generator = DummyGeneratorStep(name="dummy_generator_step")
