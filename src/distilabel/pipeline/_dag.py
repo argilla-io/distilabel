@@ -294,13 +294,19 @@ class DAG(_Serializable):
         current_stage = []
         stages_last_steps = []
 
-        for step_name in nx.topological_sort(self.G):
+        steps_sorted = list(nx.topological_sort(self.G))
+        for i, step_name in enumerate(steps_sorted):
             step: "_Step" = self.get_step(step_name)[STEP_ATTR_NAME]
             if not step.is_global:
                 current_stage.append(step_name)
             else:
-                stages.append(current_stage)
-                stages_last_steps.append(_get_stage_last_steps(current_stage))
+                previous_step = None
+                if i > 0:
+                    previous_step_name = steps_sorted[i - 1]
+                    previous_step = self.get_step(previous_step_name)[STEP_ATTR_NAME]
+                if not previous_step or not previous_step.is_global:
+                    stages.append(current_stage)
+                    stages_last_steps.append(_get_stage_last_steps(current_stage))
                 stages.append([step_name])
                 stages_last_steps.append([step_name])
                 current_stage = []
