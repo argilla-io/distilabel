@@ -41,12 +41,18 @@ _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
 def _init_worker(
-    log_queue: "Queue[Any]", pipeline_name: str, pipeline_cache_id: str
+    log_queue: "Queue[Any]",
+    pipeline_name: str,
+    pipeline_cache_id: str,
+    pipeline_cache_dir: str,
 ) -> None:
     """Init function for the child processes that will execute the `Step`s of the `Pipeline`.
 
     Args:
         log_queue: The queue to send the logs to the main process.
+        pipeline_name: The name of the pipeline.
+        pipeline_cache_id: The cache ID of the pipeline.
+        pipeline_cache_dir: The cache directory of the pipeline.
     """
 
     # Register a signal handler for SIGINT to avoid the default behavior of the process
@@ -60,7 +66,11 @@ def _init_worker(
         os.environ[SIGINT_HANDLER_CALLED_ENV_NAME] = "1"
 
     signal.signal(signal.SIGINT, signal_handler)
-    set_pipeline_running_env_variables(pipeline_name, pipeline_cache_id)
+    set_pipeline_running_env_variables(
+        pipeline_name=pipeline_name,
+        pipeline_cache_id=pipeline_cache_id,
+        pipeline_cache_dir=pipeline_cache_dir,
+    )
     setup_logging(log_queue)
 
 
@@ -201,6 +211,7 @@ class Pipeline(BasePipeline):
                     self._log_queue,
                     self.name,
                     self._create_signature(),
+                    self._cache_location["base"],
                 ),
             ) as pool,
         ):

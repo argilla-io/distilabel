@@ -79,12 +79,17 @@ if TYPE_CHECKING:
         """Dictionary to store the filenames and directories of a cached pipeline.
 
         Attributes:
+            base: The base directory where all the files of the pipeline will be stored.
             pipeline: The filename where the pipeline content will be serialized.
             batch_manager: The filename where the batch manager content will be serialized.
             data: The directory where the output data of each leaf step will be stored.
+            batch_input_data: The directory where the input data of the steps using the
+                file system to pass the data will be stored.
             log_file: The filename where the logs will be stored.
+            stages_file: The filename where the stages status will be stored.
         """
 
+        base: Path
         pipeline: Path
         batch_manager: Path
         data: Path
@@ -195,7 +200,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         elif env_cache_dir := envs.DISTILABEL_CACHE_DIR:
             self._cache_dir = Path(env_cache_dir)
         else:
-            self._cache_dir = constants.PIPELINES_CACHE_DIR
+            self._cache_dir = constants.PIPELINE_CACHE_DIR
 
         self._logger = logging.getLogger("distilabel.pipeline")
 
@@ -673,6 +678,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         folder = self._cache_dir / self.name / self._create_signature()
         return {
+            "base": folder,
             "pipeline": folder / "pipeline.yaml",
             "batch_manager": folder / "batch_manager.json",
             "data": folder / "data",
@@ -1590,7 +1596,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
 
 def set_pipeline_running_env_variables(
-    pipeline_name: str, pipeline_cache_id: str
+    pipeline_name: str, pipeline_cache_id: str, pipeline_cache_dir: str
 ) -> None:
     os.environ[constants.PIPELINE_NAME_ENV_NAME] = pipeline_name
     os.environ[constants.PIPELINE_CACHE_ID_ENV_NAME] = pipeline_cache_id
+    os.environ[constants.PIPELINE_CACHE_DIR_ENV_NAME] = pipeline_cache_dir

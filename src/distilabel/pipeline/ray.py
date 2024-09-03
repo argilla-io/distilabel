@@ -254,16 +254,20 @@ class RayPipeline(BasePipeline):
                 log_queue: "Queue[Any]",
                 pipeline_name: str,
                 pipeline_cache_id: str,
+                pipeline_cache_dir: str,
             ) -> None:
                 self._step_wrapper = step_wrapper
                 self._log_queue = log_queue
                 self._pipeline_name = pipeline_name
                 self._pipeline_cache_id = pipeline_cache_id
+                self._pipeline_cache_dir = pipeline_cache_dir
 
             def run(self) -> str:
                 setup_logging(log_queue=self._log_queue)
                 set_pipeline_running_env_variables(
-                    self._pipeline_name, self._pipeline_cache_id
+                    pipeline_name=self._pipeline_name,
+                    pipeline_cache_id=self._pipeline_cache_id,
+                    pipeline_cache_dir=self._pipeline_cache_dir,
                 )
                 return self._step_wrapper.run()
 
@@ -305,6 +309,7 @@ class RayPipeline(BasePipeline):
             log_queue=self._log_queue,
             pipeline_name=self.name,
             pipeline_cache_id=self._create_signature(),
+            pipeline_cache_dir=self._cache_location["base"],
         )
 
         self._logger.debug(
