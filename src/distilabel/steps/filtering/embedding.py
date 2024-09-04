@@ -171,6 +171,7 @@ class EmbeddingDedup(GlobalStep):
             indices = np.array(input["nn_indices"])[indices_scores]
             if len(indices) > 0:  # If there are any rows found over the threshold
                 rows_to_remove.update(list(indices))
+
         # Remove duplicates and get the list of rows to remove
         for idx in rows_to_remove:
             inputs[idx]["keep_row_after_embedding_filtering"] = False
