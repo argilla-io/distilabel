@@ -87,6 +87,7 @@ _STEPS_CATEGORY_TO_ICON = {
     "text-generation": ":material-text-box-edit:",
     "text-manipulation": ":material-receipt-text-edit:",
     "columns": ":material-table-column:",
+    "text-classification": ":material-label:",
 }
 
 
