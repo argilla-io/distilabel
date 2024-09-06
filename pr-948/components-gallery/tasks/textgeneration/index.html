@@ -4540,7 +4540,12 @@
     instruction. The model_name is also returned as part of the output in order to enhance it.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>use_system_prompt</strong>: Whether to use the system prompt in the generation. Defaults to <code>True</code>,  which means that if the column <code>system_prompt</code> is defined within the input batch, then  the <code>system_prompt</code> will be used, otherwise, it will be ignored.</li>
+<li>
+<p><strong>system_prompt</strong>: The system prompt to use in the generation. If not provided, then  it will check if the input row has a column named <code>system_prompt</code> and use it.  If not, then no system prompt will be used. Defaults to <code>None</code>.</p>
+</li>
+<li>
+<p><strong>use_system_prompt</strong>: DEPRECATED. To be removed in 1.5.0. Whether to use the system  prompt in the generation. Defaults to <code>True</code>, which means that if the column  <code>system_prompt</code> is defined within the input batch, then the <code>system_prompt</code>  will be used, otherwise, it will be ignored.</p>
+</li>
 </ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>graph TD

@@ -18,7 +18,9 @@ Simple text generation with an `LLM` given an instruction.
 
 ### Attributes
 
-- **use_system_prompt**: Whether to use the system prompt in the generation. Defaults to `True`,  which means that if the column `system_prompt` is defined within the input batch, then  the `system_prompt` will be used, otherwise, it will be ignored.
+- **system_prompt**: The system prompt to use in the generation. If not provided, then  it will check if the input row has a column named `system_prompt` and use it.  If not, then no system prompt will be used. Defaults to `None`.
+
+- **use_system_prompt**: DEPRECATED. To be removed in 1.5.0. Whether to use the system  prompt in the generation. Defaults to `True`, which means that if the column  `system_prompt` is defined within the input batch, then the `system_prompt`  will be used, otherwise, it will be ignored.
 
 
 
