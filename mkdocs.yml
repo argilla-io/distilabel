@@ -202,6 +202,7 @@ nav:
           - Generate a preference dataset: "sections/pipeline_samples/tutorials/generate_preference_dataset.ipynb"
           - Clean an existing preference dataset: "sections/pipeline_samples/tutorials/clean_existing_dataset.ipynb"
           - Synthetic data generation for fine-tuning custom retrieval and reranking models: "sections/pipeline_samples/tutorials/GenerateSentencePair.ipynb"
+          - Generate synthetic text classification data: "sections/pipeline_samples/tutorials/generate_textcat_dataset.ipynb"
       - Papers:
           - DeepSeek Prover: "sections/pipeline_samples/papers/deepseek_prover.md"
           - DEITA: "sections/pipeline_samples/papers/deita.md"
