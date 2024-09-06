@@ -28,14 +28,14 @@ if TYPE_CHECKING:
 
 TEXT_CLASSIFICATION_TEMPLATE: str = """\
 # Instruction
-Please classify the user query by assigning the most appropriate labels.
+Please classify the {{ query_title.lower() }} by assigning the most appropriate labels.
 Do not explain your reasoning or provide any additional commentary.
 If the text is ambiguous or lacks sufficient information for classification, respond with "{{ default_label }}".
 {{ labels_message }}{{ context}}
 {{ available_labels }}
 {{ examples }}
 
-## User Query
+## {{ query_title }}
 ```
 {{ text }}
 ```
@@ -114,6 +114,10 @@ class TextClassification(Task):
             "Default label to use when the text is ambiguous or lacks sufficient information for "
             "classification. Can be a list in case of multiple labels (n>1)."
         ),
+    )
+    query_title: str = Field(
+        default="User Query",
+        description="Title of the query used to show the example/s to classify.",
     )
 
     _template: Optional[Template] = PrivateAttr(default=None)
@@ -209,6 +213,7 @@ class TextClassification(Task):
                     examples=self._examples,
                     default_label=self.default_label,
                     labels_format=self._labels_format,
+                    query_title=self.query_title,
                     text=input["text"],
                 ),
             },
