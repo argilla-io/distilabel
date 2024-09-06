@@ -20,7 +20,7 @@ Deduplicates text using embeddings.
 
 ### Attributes
 
-- **threshold**: the threshold to consider 2 examples as duplicates.  It's dependent on the type of index that was used to generate the embeddings.  For example, if the embeddings were generated using cosine similarity, a threshold  of `0.9` would make all the texts with a cosine similarity above the value  duplicates. Higher values detect less duplicates in such an index, but that should  be taken into account when building it. Defaults to `0.9`.
+- **threshold**: the threshold to consider 2 examples as duplicates.  It's dependent on the type of index that was used to generate the embeddings.  For example, if the embeddings were generated using cosine similarity, a threshold  of `0.9` would make all the texts with a cosine similarity above the value  duplicates. Higher values detect less duplicates in such an index, but that should  be taken into account when building it. Defaults to `0.9`.  Runtime Parameters:  - `threshold`: the threshold to consider 2 examples as duplicates.
 
 
 

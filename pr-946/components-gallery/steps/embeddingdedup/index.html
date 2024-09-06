@@ -4542,7 +4542,7 @@
     are duplicate.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>threshold</strong>: the threshold to consider 2 examples as duplicates.  It's dependent on the type of index that was used to generate the embeddings.  For example, if the embeddings were generated using cosine similarity, a threshold  of <code>0.9</code> would make all the texts with a cosine similarity above the value  duplicates. Higher values detect less duplicates in such an index, but that should  be taken into account when building it. Defaults to <code>0.9</code>.</li>
+<li><strong>threshold</strong>: the threshold to consider 2 examples as duplicates.  It's dependent on the type of index that was used to generate the embeddings.  For example, if the embeddings were generated using cosine similarity, a threshold  of <code>0.9</code> would make all the texts with a cosine similarity above the value  duplicates. Higher values detect less duplicates in such an index, but that should  be taken into account when building it. Defaults to <code>0.9</code>.  Runtime Parameters:  - <code>threshold</code>: the threshold to consider 2 examples as duplicates.</li>
 </ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>graph TD
