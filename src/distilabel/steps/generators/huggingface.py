@@ -249,7 +249,6 @@ class LoadDataFromHub(GeneratorStep):
         except Exception as e:
             # The previous could fail in case of a internet connection issues.
             # Assuming the dataset is already loaded and we can get the info from the loaded dataset, otherwise it will fail anyway.
-            # TODO: This fails when the step is not loaded using make_generator_step.
             self._logger.warning(
                 f"Failed to get dataset info from Hugging Face Hub, trying to get it loading the dataset. Error: {e}"
             )

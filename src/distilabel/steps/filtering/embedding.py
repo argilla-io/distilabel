@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
+from pydantic import Field
 from rich.progress import track
 from typing_extensions import override
 
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import GlobalStep, StepInput
 
 if TYPE_CHECKING:
@@ -40,6 +42,9 @@ class EmbeddingDedup(GlobalStep):
             of `0.9` would make all the texts with a cosine similarity above the value
             duplicates. Higher values detect less duplicates in such an index, but that should
             be taken into account when building it. Defaults to `0.9`.
+
+    Runtime Parameters:
+        - `threshold`: the threshold to consider 2 examples as duplicates.
 
     Input columns:
         - nn_indices (`List[int]`): a list containing the indices of the `k` nearest neighbours
@@ -151,7 +156,15 @@ class EmbeddingDedup(GlobalStep):
         ```
     """
 
-    threshold: float = 0.9
+    threshold: Optional[RuntimeParameter[float]] = Field(
+        default=0.9,
+        description="The threshold to consider 2 examples as duplicates. It's dependent "
+        "on the type of index that was used to generate the embeddings. For example, if "
+        "the embeddings were generated using cosine similarity, a threshold of `0.9` "
+        "would make all the texts with a cosine similarity above the value duplicates. "
+        "Higher values detect less duplicates in such an index, but that should be "
+        "taken into account when building it.",
+    )
 
     @property
     def inputs(self) -> List[str]:
