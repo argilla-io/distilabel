@@ -46,6 +46,8 @@ class FaissNearestNeighbour(GlobalStep):
         search_batch_size: the number of rows to include in a search batch. The value can
             be adjusted to maximize the resources usage or to avoid OOM issues. Defaults
             to `50`.
+        train_size: If the index needs a training step, specifies how many vectors will be
+            used to train the index.
 
     Runtime parameters:
         - `device`: the CUDA device ID or a list of IDs to be used. If negative integer,
@@ -60,6 +62,8 @@ class FaissNearestNeighbour(GlobalStep):
         - `search_batch_size`: the number of rows to include in a search batch. The value
             can be adjusted to maximize the resources usage or to avoid OOM issues. Defaults
             to `50`.
+        - `train_size`: If the index needs a training step, specifies how many vectors will
+            be used to train the index.
 
     Input columns:
         - embedding (`List[Union[float, int]]`): a sentence embedding.
@@ -148,6 +152,10 @@ class FaissNearestNeighbour(GlobalStep):
         description="The number of rows to include in a search batch. The value can be adjusted"
         " to maximize the resources usage or to avoid OOM issues.",
     )
+    train_size: Optional[RuntimeParameter[int]] = Field(
+        default=None,
+        description="If the index needs a training step, specifies how many vectors will be used to train the index.",
+    )
 
     def load(self) -> None:
         super().load()
@@ -176,11 +184,14 @@ class FaissNearestNeighbour(GlobalStep):
             The build `datasets.Dataset` with its `faiss` index.
         """
         dataset = Dataset.from_list(inputs)
+        if self.train_size is not None and self.string_factory:
+            self._logger.info("🏋️‍♀️ Starting Faiss index training...")
         dataset.add_faiss_index(
             column="embedding",
             device=self.device,  # type: ignore
             string_factory=self.string_factory,
             metric_type=self.metric_type,
+            train_size=self.train_size,
         )
         return dataset
 

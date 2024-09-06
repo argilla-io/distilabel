@@ -43,6 +43,9 @@ def make_generator_step(
         input_mappings: Applies the same as any other step. Defaults to `None`.
         output_mappings: Applies the same as any other step. Defaults to `None`.
         resources: Applies the same as any other step. Defaults to `StepResources()`.
+        repo_id: The repository ID to use in the `LoadDataFromHub` step.
+            This shouldn't be necessary, but in case of error, the dataset will try to be loaded
+            using `load_dataset` internally. If that case happens, the `repo_id` will be used.
 
     Raises:
         ValueError: If the format is different from the ones supported.
@@ -81,7 +84,7 @@ def make_generator_step(
         output_mappings=output_mappings or {},
         resources=resources,
     )
-    super(loader.__class__, loader).load()
+    super(loader.__class__, loader).load()  # Ensure the logger is loaded
     loader._dataset = dataset
     loader.num_examples = len(dataset)
     loader._dataset_info = {"default": dataset.info}
