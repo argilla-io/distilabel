@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import traceback
+from pathlib import Path
 from queue import Queue
 from typing import Any, Dict, List, Optional, Union, cast
 
+from distilabel import envs
 from distilabel.constants import LAST_BATCH_SENT_FLAG
 from distilabel.errors import DISTILABEL_DOCS_URL
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
@@ -23,6 +26,7 @@ from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixi
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.typing import StepLoadStatus
 from distilabel.steps.base import GeneratorStep, Step, _Step
+from distilabel.utils.codecarbon import track_emissions
 
 
 class _StepWrapper:
@@ -88,6 +92,22 @@ class _StepWrapper:
             _init_cuda_device_placement_mixin(self.step)
 
     def run(self) -> str:
+        output_dir = Path(envs.DISTILABEL_PIPELINE_CACHE_DIR, "codecarbon")  # type: ignore
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        with track_emissions(
+            project_name=f"distilabel-pipeline-{envs.DISTILABEL_PIPELINE_NAME}",
+            output_dir=str(output_dir),
+            output_file=f"{self.step.name}-replica-{self.replica}.csv",
+            tracking_mode="process",
+            gpu_ids=os.environ.get("CUDA_VISIBLE_DEVICES", None),
+        ) as tracker:
+            name = self._run()
+            if tracker:
+                print(tracker.final_emissions)
+            return name
+
+    def _run(self) -> str:
         """The target function executed by the process. This function will also handle
         the step lifecycle, executing first the `load` function of the `Step` and then
         waiting to receive a batch from the `input_queue` that will be handled by the
