@@ -4723,7 +4723,7 @@
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParametersMixin" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParametersMixin">RuntimeParametersMixin</a></code>, <code><span title="pydantic.BaseModel">BaseModel</span></code>, <code><span title="distilabel.utils.serialization._Serializable">_Serializable</span></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
-      <p>Base class for <code>LLM</code>s to be used in <code>distilabel</code> framework.</p>
+        <p>Base class for <code>LLM</code>s to be used in <code>distilabel</code> framework.</p>
 <p>To implement an <code>LLM</code> subclass, you need to subclass this class and implement:
     - <code>load</code> method to load the <code>LLM</code> if needed. Don't forget to call <code>super().load()</code>,
         so the <code>_logger</code> attribute is initialized.
@@ -5480,7 +5480,7 @@ method is called.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns the model name used for the LLM.</p>
+        <p>Returns the model name used for the LLM.</p>
     </div>
 
 </div>
@@ -5501,7 +5501,7 @@ method is called.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns the parameters of the <code>generate</code> method.</p>
+        <p>Returns the parameters of the <code>generate</code> method.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -5545,7 +5545,7 @@ method is called.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns the runtime parameters of the <code>LLM</code>, which are combination of the
+        <p>Returns the runtime parameters of the <code>LLM</code>, which are combination of the
 attributes of the <code>LLM</code> type hinted with <code>RuntimeParameter</code> and the parameters
 of the <code>generate</code> method that are not <code>input</code> and <code>num_generations</code>.</p>
 
@@ -5602,7 +5602,7 @@ of the <code>generate</code> method that are not <code>input</code> and <code>nu
 
     <div class="doc doc-contents ">
 
-      <p>Returns the parsed docstring of the <code>generate</code> method.</p>
+        <p>Returns the parsed docstring of the <code>generate</code> method.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -5643,7 +5643,7 @@ of the <code>generate</code> method that are not <code>input</code> and <code>nu
 
     <div class="doc doc-contents ">
 
-      <p>Method to be called to initialize the <code>LLM</code>, its logger and optionally the
+        <p>Method to be called to initialize the <code>LLM</code>, its logger and optionally the
 structured output generator.</p>
 
             <details class="quote">
@@ -5672,7 +5672,7 @@ structured output generator.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Method to be called to unload the <code>LLM</code> and release any resources.</p>
+        <p>Method to be called to unload the <code>LLM</code> and release any resources.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/llms/base.py</code></summary>
@@ -5698,7 +5698,7 @@ structured output generator.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns the generation kwargs to be used for the generation. This method can
+        <p>Returns the generation kwargs to be used for the generation. This method can
 be overridden to provide a more complex logic for the generation kwargs.</p>
 
 
@@ -5762,7 +5762,7 @@ be overridden to provide a more complex logic for the generation kwargs.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Abstract method to be implemented by each LLM to generate <code>num_generations</code>
+        <p>Abstract method to be implemented by each LLM to generate <code>num_generations</code>
 per input in <code>inputs</code>.</p>
 
 
@@ -5900,7 +5900,7 @@ API format:</p>
 
     <div class="doc doc-contents ">
 
-      <p>Generates outputs for the given inputs using either <code>generate</code> method or the
+        <p>Generates outputs for the given inputs using either <code>generate</code> method or the
 <code>offine_batch_generate</code> method if `use_offline_</p>
 
             <details class="quote">
@@ -5973,7 +5973,7 @@ API format:</p>
 
     <div class="doc doc-contents ">
 
-      <p>Gets the information of the runtime parameters of the <code>LLM</code> such as the name
+        <p>Gets the information of the runtime parameters of the <code>LLM</code> such as the name
 and the description. This function is meant to include the information of the runtime
 parameters in the serialized data of the <code>LLM</code>.</p>
 
@@ -6086,7 +6086,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Method to get the last hidden states of the model for a list of inputs.</p>
+        <p>Method to get the last hidden states of the model for a list of inputs.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -6191,7 +6191,7 @@ with shape [num_tokens, hidden_size].</p>
 
     <div class="doc doc-contents ">
 
-      <p>Method to generate a list of outputs for the given inputs using an offline batch
+        <p>Method to generate a list of outputs for the given inputs using an offline batch
 generation method to be implemented by each <code>LLM</code>.</p>
 <p>This method should create jobs the first time is called and store the job ids, so
 the second and subsequent calls can retrieve the results of the batch generation.
@@ -6367,7 +6367,7 @@ information for recovering the pipeline execution when the batch generation is f
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.llms.base.LLM" href="#distilabel.llms.base.LLM">LLM</a></code></p>
 
 
-      <p>Abstract class for asynchronous LLMs, so as to benefit from the async capabilities
+        <p>Abstract class for asynchronous LLMs, so as to benefit from the async capabilities
 of each LLM implementation. This class is meant to be subclassed by each LLM, and the
 method <code>agenerate</code> needs to be implemented to provide the asynchronous generation of
 responses.</p>
@@ -6843,7 +6843,7 @@ responses.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns the parameters of the <code>agenerate</code> method.</p>
+        <p>Returns the parameters of the <code>agenerate</code> method.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -6888,7 +6888,7 @@ responses.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns the parsed docstring of the <code>agenerate</code> method.</p>
+        <p>Returns the parsed docstring of the <code>agenerate</code> method.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -6934,7 +6934,7 @@ responses.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Method to generate a <code>num_generations</code> responses for a given input asynchronously,
+        <p>Method to generate a <code>num_generations</code> responses for a given input asynchronously,
 and executed concurrently in <code>generate</code> method.</p>
 
             <details class="quote">
@@ -6971,7 +6971,7 @@ and executed concurrently in <code>generate</code> method.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Method to generate a list of responses asynchronously, returning the output
+        <p>Method to generate a list of responses asynchronously, returning the output
 synchronously awaiting for the response of each input sent to <code>agenerate</code>.</p>
 
 
@@ -7112,7 +7112,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
 
     <div class="doc doc-contents ">
 
-      <p>Closes the event loop when the object is deleted.</p>
+        <p>Closes the event loop when the object is deleted.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/llms/base.py</code></summary>

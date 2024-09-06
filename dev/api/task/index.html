@@ -4633,7 +4633,7 @@
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="../step/#distilabel.steps.base._Step">_Step</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
-      <p>_Task is an abstract class that implements the <code>_Step</code> interface and adds the
+        <p>_Task is an abstract class that implements the <code>_Step</code> interface and adds the
 <code>format_input</code> and <code>format_output</code> methods to format the inputs and outputs of the
 task. It also adds a <code>llm</code> attribute to be used as the LLM to generate the outputs.</p>
 
@@ -5156,7 +5156,7 @@ with <code>Tasks</code> that need to format the output of the <code>LLM</code>. 
 
     <div class="doc doc-contents ">
 
-      <p>Extends the <code>is_global</code> property to return <code>True</code> if the task is using the
+        <p>Extends the <code>is_global</code> property to return <code>True</code> if the task is using the
 offline batch generation feature, otherwise it returns the value of the parent
 class property. <code>offline_batch_generation</code> requires to receive all the inputs
 at once, so for the <code>_BatchManager</code> this is a global step.</p>
@@ -5200,7 +5200,7 @@ at once, so for the <code>_BatchManager</code> this is a global step.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Loads the LLM via the <code>LLM.load()</code> method.</p>
+        <p>Loads the LLM via the <code>LLM.load()</code> method.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/steps/tasks/base.py</code></summary>
@@ -5230,7 +5230,7 @@ at once, so for the <code>_BatchManager</code> this is a global step.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Unloads the LLM.</p>
+        <p>Unloads the LLM.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/steps/tasks/base.py</code></summary>
@@ -5264,7 +5264,7 @@ at once, so for the <code>_BatchManager</code> this is a global step.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Abstract method to format the outputs of the task. It needs to receive an output
+        <p>Abstract method to format the outputs of the task. It needs to receive an output
 as a string, and generates a Python dictionary with the outputs of the task. In
 addition the <code>input</code> used to generate the output is also received just in case it's
 needed to be able to parse the output correctly.</p>
@@ -5311,7 +5311,7 @@ needed to be able to parse the output correctly.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns the structured output for a task that implements one by default,
+        <p>Returns the structured output for a task that implements one by default,
 must be overriden by subclasses of <code>Task</code>. When implemented, should be a json
 schema that enforces the response from the LLM so that it's easier to parse.</p>
 
@@ -5358,7 +5358,7 @@ schema that enforces the response from the LLM so that it's easier to parse.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base._Task" href="#distilabel.steps.tasks.base._Task">_Task</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Task is a class that implements the <code>_Task</code> abstract class and adds the <code>Step</code>
+        <p>Task is a class that implements the <code>_Task</code> abstract class and adds the <code>Step</code>
 interface to be used as a step in the pipeline.</p>
 
 
@@ -5569,7 +5569,7 @@ a list or create a row per generation. Defaults to <code>False</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Abstract method to format the inputs of the task. It needs to receive an input
+        <p>Abstract method to format the inputs of the task. It needs to receive an input
 as a Python dictionary, and generates an OpenAI chat-like list of dicts.</p>
 
             <details class="quote">
@@ -5600,7 +5600,7 @@ as a Python dictionary, and generates an OpenAI chat-like list of dicts.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Processes the inputs of the task and generates the outputs using the LLM.</p>
+        <p>Processes the inputs of the task and generates the outputs using the LLM.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>

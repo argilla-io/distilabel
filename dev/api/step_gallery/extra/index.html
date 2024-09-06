@@ -5573,7 +5573,7 @@
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Combine the outputs of several upstream steps.</p>
+        <p>Combine the outputs of several upstream steps.</p>
 <p><code>CombineOutputs</code> is a <code>Step</code> that takes the outputs of several upstream steps and combines
 them to generate a new dictionary with all keys/columns of the upstream steps outputs.</p>
 
@@ -5597,7 +5597,7 @@ them to generate a new dictionary with all keys/columns of the upstream steps ou
   <ul>
 <li>columns</li>
 </ul>
-</details>      <p>Examples:</p>
+</details>        <p>Examples:</p>
 <div class="language-text highlight"><pre><span></span><code>Combine dictionaries of a dataset:
 
 ```python
@@ -5824,7 +5824,7 @@ with Pipeline() as pipeline:
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.GlobalStep" href="../../step/global_step/#distilabel.steps.base.GlobalStep">GlobalStep</a></code></p>
 
 
-      <p>Filter dataset rows using DEITA filtering strategy.</p>
+        <p>Filter dataset rows using DEITA filtering strategy.</p>
 <p>Filter the dataset based on the DEITA score and the cosine distance between the embeddings.
 It's an implementation of the filtering step from the paper 'What Makes Good Data
 for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.</p>
@@ -6502,7 +6502,7 @@ distance. Defaults to <code>True</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Filter the dataset based on the DEITA score and the cosine distance between the
+        <p>Filter the dataset based on the DEITA score and the cosine distance between the
 embeddings.</p>
 
 
@@ -6617,7 +6617,7 @@ embeddings.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Computes the DEITA score for each instruction-response pair. The DEITA score is
+        <p>Computes the DEITA score for each instruction-response pair. The DEITA score is
 the product of the instruction score and the response score.</p>
 
 
@@ -6782,7 +6782,7 @@ the product of the instruction score and the response score.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Computes the cosine distance between the embeddings of the instruction-response
+        <p>Computes the cosine distance between the embeddings of the instruction-response
 pairs and the nearest neighbor.</p>
 
 
@@ -6905,7 +6905,7 @@ pairs and the nearest neighbor.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Normalize the embeddings.</p>
+        <p>Normalize the embeddings.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -7001,7 +7001,7 @@ pairs and the nearest neighbor.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Computes the cosine distance between the embeddings.</p>
+        <p>Computes the cosine distance between the embeddings.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -7101,7 +7101,7 @@ pairs and the nearest neighbor.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Computes the manhattan distance between the embeddings.</p>
+        <p>Computes the manhattan distance between the embeddings.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -7212,7 +7212,7 @@ pairs and the nearest neighbor.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Generate embeddings using an <code>Embeddings</code> model.</p>
+        <p>Generate embeddings using an <code>Embeddings</code> model.</p>
 <p><code>EmbeddingGeneration</code> is a <code>Step</code> that using an <code>Embeddings</code> model generates sentence
 embeddings for the provided input texts.</p>
 
@@ -7437,7 +7437,7 @@ embeddings for the provided input texts.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Loads the <code>Embeddings</code> model.</p>
+        <p>Loads the <code>Embeddings</code> model.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/steps/embeddings/embedding_generation.py</code></summary>
@@ -7480,7 +7480,7 @@ embeddings for the provided input texts.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.GlobalStep" href="../../step/global_step/#distilabel.steps.base.GlobalStep">GlobalStep</a></code></p>
 
 
-      <p>Create a <code>faiss</code> index to get the nearest neighbours.</p>
+        <p>Create a <code>faiss</code> index to get the nearest neighbours.</p>
 <p><code>FaissNearestNeighbour</code> is a <code>GlobalStep</code> that creates a <code>faiss</code> index using the Hugging
 Face <code>datasets</code> library integration, and then gets the nearest neighbours and the scores
 or distance of the nearest neighbours for each input row.</p>
@@ -8095,7 +8095,7 @@ to <code>50</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Builds a <code>faiss</code> index using <code>datasets</code> integration.</p>
+        <p>Builds a <code>faiss</code> index using <code>datasets</code> integration.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -8201,7 +8201,7 @@ to <code>50</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Save the generated Faiss index as an artifact of the step.</p>
+        <p>Save the generated Faiss index as an artifact of the step.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -8282,7 +8282,7 @@ to <code>50</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Search the top <code>k</code> nearest neighbours for each row in the dataset.</p>
+        <p>Search the top <code>k</code> nearest neighbours for each row in the dataset.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -8427,7 +8427,7 @@ to <code>50</code>.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Deduplicates text using <code>MinHash</code> and <code>MinHashLSH</code>.</p>
+        <p>Deduplicates text using <code>MinHash</code> and <code>MinHashLSH</code>.</p>
 <p><code>MinHashDedup</code> is a Step that detects near-duplicates in datasets. The idea roughly translates
 to the following steps:
 1. Tokenize the text into words or ngrams.
@@ -8556,7 +8556,7 @@ is an experimetal feature that may cause issues. Defaults to <code>dict</code>.<
 <li><a href="https://cs.brown.edu/courses/cs253/papers/nearduplicate.pdf">Identifying and Filtering Near-Duplicate Documents</a></li>
 <li><a href="https://grantjenks.com/docs/diskcache/api.html#diskcache.Index">Diskcache's Index</a></li>
 </ul>
-</details>      <p>Examples:</p>
+</details>        <p>Examples:</p>
 <div class="language-text highlight"><pre><span></span><code>Deduplicate a list of texts using MinHash and MinHashLSH:
 
 ```python
@@ -8942,7 +8942,7 @@ if __name__ == &quot;__main__&quot;:
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Generate a conversation template from an instruction and a response.</p>
+        <p>Generate a conversation template from an instruction and a response.</p>
 
 
 <details class="input-columns" open>
@@ -9148,7 +9148,7 @@ if __name__ == &quot;__main__&quot;:
 
     <div class="doc doc-contents ">
 
-      <p>The instruction and response.</p>
+        <p>The instruction and response.</p>
     </div>
 
 </div>
@@ -9169,7 +9169,7 @@ if __name__ == &quot;__main__&quot;:
 
     <div class="doc doc-contents ">
 
-      <p>The conversation template.</p>
+        <p>The conversation template.</p>
     </div>
 
 </div>
@@ -9187,7 +9187,7 @@ if __name__ == &quot;__main__&quot;:
 
     <div class="doc doc-contents ">
 
-      <p>Generate a conversation template from an instruction and a response.</p>
+        <p>Generate a conversation template from an instruction and a response.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -9302,7 +9302,7 @@ if __name__ == &quot;__main__&quot;:
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Format the output of a combination of a <code>ChatGeneration</code> + a preference task for Direct Preference Optimization (DPO).</p>
+        <p>Format the output of a combination of a <code>ChatGeneration</code> + a preference task for Direct Preference Optimization (DPO).</p>
 <p><code>FormatChatGenerationDPO</code> is a <code>Step</code> that formats the output of the combination of a <code>ChatGeneration</code>
 task with a preference <code>Task</code> i.e. a task generating <code>ratings</code> such as <code>UltraFeedback</code> following the standard
 formatting from frameworks such as <code>axolotl</code> or <code>alignment-handbook</code>., so that those are used to rank the
@@ -9739,7 +9739,7 @@ number of ratings as generations.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of inputs required by the <code>Step</code>, which in this case are: <code>messages</code>, <code>generations</code>,
+        <p>List of inputs required by the <code>Step</code>, which in this case are: <code>messages</code>, <code>generations</code>,
 and <code>ratings</code>.</p>
     </div>
 
@@ -9761,7 +9761,7 @@ and <code>ratings</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of optional inputs, which are not required by the <code>Step</code> but used if available,
+        <p>List of optional inputs, which are not required by the <code>Step</code> but used if available,
 which in this case is: <code>generation_models</code>.</p>
     </div>
 
@@ -9783,7 +9783,7 @@ which in this case is: <code>generation_models</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of outputs generated by the <code>Step</code>, which are: <code>prompt</code>, <code>prompt_id</code>, <code>chosen</code>,
+        <p>List of outputs generated by the <code>Step</code>, which are: <code>prompt</code>, <code>prompt_id</code>, <code>chosen</code>,
 <code>chosen_model</code>, <code>chosen_rating</code>, <code>rejected</code>, <code>rejected_model</code>, <code>rejected_rating</code>. Both
 the <code>chosen_model</code> and <code>rejected_model</code> being optional and only used if <code>generation_models</code>
 is available.</p>
@@ -9811,7 +9811,7 @@ is available.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The <code>process</code> method formats the received <code>StepInput</code> or list of <code>StepInput</code>
+        <p>The <code>process</code> method formats the received <code>StepInput</code> or list of <code>StepInput</code>
 according to the DPO formatting standard.</p>
 
 
@@ -9991,7 +9991,7 @@ according to the DPO formatting standard.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Format the output of your LLMs for Direct Preference Optimization (DPO).</p>
+        <p>Format the output of your LLMs for Direct Preference Optimization (DPO).</p>
 <p><code>FormatTextGenerationDPO</code> is a <code>Step</code> that formats the output of the combination of a <code>TextGeneration</code>
 task with a preference <code>Task</code> i.e. a task generating <code>ratings</code>, so that those are used to rank the
 existing generations and provide the <code>chosen</code> and <code>rejected</code> generations based on the <code>ratings</code>.
@@ -10455,7 +10455,7 @@ contain the same number of ratings as generations.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of inputs required by the <code>Step</code>, which in this case are: <code>instruction</code>, <code>generations</code>,
+        <p>List of inputs required by the <code>Step</code>, which in this case are: <code>instruction</code>, <code>generations</code>,
 and <code>ratings</code>.</p>
     </div>
 
@@ -10477,7 +10477,7 @@ and <code>ratings</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of optional inputs, which are not required by the <code>Step</code> but used if available,
+        <p>List of optional inputs, which are not required by the <code>Step</code> but used if available,
 which in this case are: <code>system_prompt</code>, and <code>generation_models</code>.</p>
     </div>
 
@@ -10499,7 +10499,7 @@ which in this case are: <code>system_prompt</code>, and <code>generation_models<
 
     <div class="doc doc-contents ">
 
-      <p>List of outputs generated by the <code>Step</code>, which are: <code>prompt</code>, <code>prompt_id</code>, <code>chosen</code>,
+        <p>List of outputs generated by the <code>Step</code>, which are: <code>prompt</code>, <code>prompt_id</code>, <code>chosen</code>,
 <code>chosen_model</code>, <code>chosen_rating</code>, <code>rejected</code>, <code>rejected_model</code>, <code>rejected_rating</code>. Both
 the <code>chosen_model</code> and <code>rejected_model</code> being optional and only used if <code>generation_models</code>
 is available.</p>
@@ -10527,7 +10527,7 @@ is available.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The <code>process</code> method formats the received <code>StepInput</code> or list of <code>StepInput</code>
+        <p>The <code>process</code> method formats the received <code>StepInput</code> or list of <code>StepInput</code>
 according to the DPO formatting standard.</p>
 
 
@@ -10719,7 +10719,7 @@ according to the DPO formatting standard.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Format the output of a <code>ChatGeneration</code> task for Supervised Fine-Tuning (SFT).</p>
+        <p>Format the output of a <code>ChatGeneration</code> task for Supervised Fine-Tuning (SFT).</p>
 <p><code>FormatChatGenerationSFT</code> is a <code>Step</code> that formats the output of a <code>ChatGeneration</code> task for
 Supervised Fine-Tuning (SFT) following the standard formatting from frameworks such as <code>axolotl</code>
 or <code>alignment-handbook</code>. The output of the <code>ChatGeneration</code> task is formatted into a chat-like
@@ -11023,7 +11023,7 @@ in the conversation.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of inputs required by the <code>Step</code>, which in this case are: <code>instruction</code>, and <code>generation</code>.</p>
+        <p>List of inputs required by the <code>Step</code>, which in this case are: <code>instruction</code>, and <code>generation</code>.</p>
     </div>
 
 </div>
@@ -11044,7 +11044,7 @@ in the conversation.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of outputs generated by the <code>Step</code>, which are: <code>prompt</code>, <code>prompt_id</code>, <code>messages</code>.</p>
+        <p>List of outputs generated by the <code>Step</code>, which are: <code>prompt</code>, <code>prompt_id</code>, <code>messages</code>.</p>
 
 
 <details class="reference" open>
@@ -11069,7 +11069,7 @@ in the conversation.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The <code>process</code> method formats the received <code>StepInput</code> or list of <code>StepInput</code>
+        <p>The <code>process</code> method formats the received <code>StepInput</code> or list of <code>StepInput</code>
 according to the SFT formatting standard.</p>
 
 
@@ -11213,7 +11213,7 @@ according to the SFT formatting standard.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Format the output of a <code>TextGeneration</code> task for Supervised Fine-Tuning (SFT).</p>
+        <p>Format the output of a <code>TextGeneration</code> task for Supervised Fine-Tuning (SFT).</p>
 <p><code>FormatTextGenerationSFT</code> is a <code>Step</code> that formats the output of a <code>TextGeneration</code> task for
 Supervised Fine-Tuning (SFT) following the standard formatting from frameworks such as <code>axolotl</code>
 or <code>alignment-handbook</code>. The output of the <code>TextGeneration</code> task is formatted into a chat-like
@@ -11548,7 +11548,7 @@ in the conversation.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of inputs required by the <code>Step</code>, which in this case are: <code>instruction</code>, and <code>generation</code>.</p>
+        <p>List of inputs required by the <code>Step</code>, which in this case are: <code>instruction</code>, and <code>generation</code>.</p>
     </div>
 
 </div>
@@ -11569,7 +11569,7 @@ in the conversation.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of optional inputs, which are not required by the <code>Step</code> but used if available,
+        <p>List of optional inputs, which are not required by the <code>Step</code> but used if available,
 which in this case is: <code>system_prompt</code>.</p>
     </div>
 
@@ -11591,7 +11591,7 @@ which in this case is: <code>system_prompt</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of outputs generated by the <code>Step</code>, which are: <code>prompt</code>, <code>prompt_id</code>, <code>messages</code>.</p>
+        <p>List of outputs generated by the <code>Step</code>, which are: <code>prompt</code>, <code>prompt_id</code>, <code>messages</code>.</p>
 
 
 <details class="reference" open>
@@ -11616,7 +11616,7 @@ which in this case is: <code>system_prompt</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The <code>process</code> method formats the received <code>StepInput</code> or list of <code>StepInput</code>
+        <p>The <code>process</code> method formats the received <code>StepInput</code> or list of <code>StepInput</code>
 according to the SFT formatting standard.</p>
 
 
@@ -11768,7 +11768,7 @@ according to the SFT formatting standard.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.GeneratorStep" href="../../step/generator_step/#distilabel.steps.base.GeneratorStep">GeneratorStep</a></code></p>
 
 
-      <p>Loads a dataset from a list of dictionaries.</p>
+        <p>Loads a dataset from a list of dictionaries.</p>
 <p><code>GeneratorStep</code> that loads a dataset from a list of dictionaries and yields it in
 batches.</p>
 
@@ -11995,7 +11995,7 @@ batches.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns a list of strings with the names of the columns that the step will generate.</p>
+        <p>Returns a list of strings with the names of the columns that the step will generate.</p>
     </div>
 
 </div>
@@ -12013,7 +12013,7 @@ batches.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Yields batches from a list of dictionaries.</p>
+        <p>Yields batches from a list of dictionaries.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -12150,7 +12150,7 @@ batches.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.llms.mixins.cuda_device_placement.CudaDevicePlacementMixin" href="../../llm/llm_gallery/#distilabel.llms.CudaDevicePlacementMixin">CudaDevicePlacementMixin</a></code></p>
 
 
-      <p>Assign a score to a response using a Reward Model.</p>
+        <p>Assign a score to a response using a Reward Model.</p>
 <p><code>RewardModelScore</code> is a <code>Step</code> that using a Reward Model (RM) loaded using <code>transformers</code>,
 assigns an score to a response generated for an instruction, or a score to a multi-turn
 conversation.</p>
@@ -12782,7 +12782,7 @@ local configuration will be used. Defaults to <code>None</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Either <code>response</code> and <code>instruction</code>, or a <code>conversation</code> columns.</p>
+        <p>Either <code>response</code> and <code>instruction</code>, or a <code>conversation</code> columns.</p>
     </div>
 
 </div>
@@ -12803,7 +12803,7 @@ local configuration will be used. Defaults to <code>None</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The <code>score</code> given by the reward model.</p>
+        <p>The <code>score</code> given by the reward model.</p>
     </div>
 
 </div>
@@ -12834,7 +12834,7 @@ local configuration will be used. Defaults to <code>None</code>.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Truncate a row using a tokenizer or the number of characters.</p>
+        <p>Truncate a row using a tokenizer or the number of characters.</p>
 <p><code>TruncateTextColumn</code> is a <code>Step</code> that truncates a row according to the max length. If
 the <code>tokenizer</code> is provided, then the row will be truncated using the tokenizer,
 and the <code>max_length</code> will be used as the maximum number of tokens, otherwise it will
@@ -13227,7 +13227,7 @@ truncated using the tokenizer. Defaults to <code>None</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Truncates the text according to the number of characters.</p>
+        <p>Truncates the text according to the number of characters.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/steps/truncate.py</code></summary>
@@ -13253,7 +13253,7 @@ truncated using the tokenizer. Defaults to <code>None</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Truncates the text according to the number of characters using the tokenizer.</p>
+        <p>Truncates the text according to the number of characters using the tokenizer.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/steps/truncate.py</code></summary>

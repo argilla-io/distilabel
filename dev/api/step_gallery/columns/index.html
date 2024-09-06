@@ -5076,7 +5076,7 @@
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Expand columns that contain lists into multiple rows.</p>
+        <p>Expand columns that contain lists into multiple rows.</p>
 <p><code>ExpandColumns</code> is a <code>Step</code> that takes a list of columns and expands them into multiple
 rows. The new rows will have the same data as the original row, except for the expanded
 column, which will contain a single item from the original list.</p>
@@ -5395,7 +5395,7 @@ will be the same as the column name.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The columns to be expanded.</p>
+        <p>The columns to be expanded.</p>
     </div>
 
 </div>
@@ -5416,7 +5416,7 @@ will be the same as the column name.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The expanded columns.</p>
+        <p>The expanded columns.</p>
     </div>
 
 </div>
@@ -5438,7 +5438,7 @@ will be the same as the column name.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Ensure that the columns are always a dictionary.</p>
+        <p>Ensure that the columns are always a dictionary.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -5540,7 +5540,7 @@ will be the same as the column name.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Expand the columns in the input data.</p>
+        <p>Expand the columns in the input data.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -5677,7 +5677,7 @@ will be the same as the column name.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Keeps selected columns in the dataset.</p>
+        <p>Keeps selected columns in the dataset.</p>
 <p><code>KeepColumns</code> is a <code>Step</code> that implements the <code>process</code> method that keeps only the columns
 specified in the <code>columns</code> attribute. Also <code>KeepColumns</code> provides an attribute <code>columns</code> to
 specify the columns to keep which will override the default value for the properties <code>inputs</code>
@@ -5931,7 +5931,7 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
 
     <div class="doc doc-contents ">
 
-      <p>The inputs for the task are the column names in <code>columns</code>.</p>
+        <p>The inputs for the task are the column names in <code>columns</code>.</p>
     </div>
 
 </div>
@@ -5952,7 +5952,7 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
 
     <div class="doc doc-contents ">
 
-      <p>The outputs for the task are the column names in <code>columns</code>.</p>
+        <p>The outputs for the task are the column names in <code>columns</code>.</p>
     </div>
 
 </div>
@@ -5970,7 +5970,7 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
 
     <div class="doc doc-contents ">
 
-      <p>The <code>process</code> method keeps only the columns specified in the <code>columns</code> attribute.</p>
+        <p>The <code>process</code> method keeps only the columns specified in the <code>columns</code> attribute.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -6117,7 +6117,7 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Merge columns from a row.</p>
+        <p>Merge columns from a row.</p>
 <p><code>MergeColumns</code> is a <code>Step</code> that implements the <code>process</code> method that calls the <code>merge_columns</code>
 function to handle and combine columns in a <code>StepInput</code>. <code>MergeColumns</code> provides two attributes
 <code>columns</code> and <code>output_column</code> to specify the columns to merge and the resulting output column.</p>
@@ -6436,7 +6436,7 @@ further processing.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
-      <p>Combines columns from a list of <code>StepInput</code>.</p>
+        <p>Combines columns from a list of <code>StepInput</code>.</p>
 <p><code>GroupColumns</code> is a <code>Step</code> that implements the <code>process</code> method that calls the <code>group_dicts</code>
 function to handle and combine a list of <code>StepInput</code>. Also <code>GroupColumns</code> provides two attributes
 <code>columns</code> and <code>output_columns</code> to specify the columns to group and the output columns
@@ -6499,7 +6499,7 @@ which will override the default value for the properties <code>inputs</code> and
   <ul>
 <li>columns</li>
 </ul>
-</details>      <p>Examples:</p>
+</details>        <p>Examples:</p>
 <div class="language-text highlight"><pre><span></span><code>Group columns of a dataset:
 
 ```python
@@ -6776,7 +6776,7 @@ result = next(
 
     <div class="doc doc-contents ">
 
-      <p>The inputs for the task are the column names in <code>columns</code>.</p>
+        <p>The inputs for the task are the column names in <code>columns</code>.</p>
     </div>
 
 </div>
@@ -6797,7 +6797,7 @@ result = next(
 
     <div class="doc doc-contents ">
 
-      <p>The outputs for the task are the column names in <code>output_columns</code> or
+        <p>The outputs for the task are the column names in <code>output_columns</code> or
 <code>grouped_{column}</code> for each column in <code>columns</code>.</p>
     </div>
 
@@ -6816,7 +6816,7 @@ result = next(
 
     <div class="doc doc-contents ">
 
-      <p>The <code>process</code> method calls the <code>group_dicts</code> function to handle and combine a list of <code>StepInput</code>.</p>
+        <p>The <code>process</code> method calls the <code>group_dicts</code> function to handle and combine a list of <code>StepInput</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -6931,7 +6931,7 @@ result = next(
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.columns.group.GroupColumns" href="#distilabel.steps.columns.group.GroupColumns">GroupColumns</a></code></p>
 
 
-      <p><code>CombineColumns</code> is deprecated and will be removed in version 1.5.0, use <code>GroupColumns</code> instead.</p>
+        <p><code>CombineColumns</code> is deprecated and will be removed in version 1.5.0, use <code>GroupColumns</code> instead.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/group.py</code></summary>
@@ -7021,7 +7021,7 @@ result = next(
 
     <div class="doc doc-contents ">
 
-      <p>Merge the <code>DISTILABEL_METADATA_KEY</code> from multiple output dictionaries.</p>
+        <p>Merge the <code>DISTILABEL_METADATA_KEY</code> from multiple output dictionaries.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -7143,7 +7143,7 @@ result = next(
 
     <div class="doc doc-contents ">
 
-      <p>Groups multiple list of dictionaries into a single list of dictionaries on the
+        <p>Groups multiple list of dictionaries into a single list of dictionaries on the
 specified <code>group_columns</code>. If <code>group_columns</code> are provided, then it will also rename
 <code>group_columns</code>.</p>
 
@@ -7371,7 +7371,7 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
 
     <div class="doc doc-contents ">
 
-      <p>Merge columns in a dictionary into a single column on the specified <code>new_column</code>.</p>
+        <p>Merge columns in a dictionary into a single column on the specified <code>new_column</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>

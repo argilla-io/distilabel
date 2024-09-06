@@ -4784,7 +4784,7 @@
 
     <div class="doc doc-contents ">
 
-      <p>Type alias for a routing batch function. It takes a list of all the downstream steps and
+        <p>Type alias for a routing batch function. It takes a list of all the downstream steps and
 returns a list with the names of the steps that should receive the batch.</p>
     </div>
 
@@ -4807,7 +4807,7 @@ returns a list with the names of the steps that should receive the batch.</p>
               Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code>, <code><span title="distilabel.utils.serialization._Serializable">_Serializable</span></code></p>
 
 
-      <p>A thin wrapper around a routing batch function that can be used to route batches
+        <p>A thin wrapper around a routing batch function that can be used to route batches
 from one upstream step to specific downstream steps.</p>
 
 
@@ -5282,7 +5282,7 @@ routed to specific downstream steps.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns a list of selected downstream steps from <code>steps</code> to which the <code>batch</code>
+        <p>Returns a list of selected downstream steps from <code>steps</code> to which the <code>batch</code>
 should be routed.</p>
 
 
@@ -5397,7 +5397,7 @@ should be routed.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Sets the factory function that was used to create the <code>routing_batch_function</code>.</p>
+        <p>Sets the factory function that was used to create the <code>routing_batch_function</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -5512,7 +5512,7 @@ factory function.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns a list of selected downstream steps from <code>steps</code> to which the <code>batch</code>
+        <p>Returns a list of selected downstream steps from <code>steps</code> to which the <code>batch</code>
 should be routed.</p>
 
 
@@ -5623,7 +5623,7 @@ should be routed.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Connects a list of dowstream steps to the upstream step of the routing batch
+        <p>Connects a list of dowstream steps to the upstream step of the routing batch
 function.</p>
 
 
@@ -5777,7 +5777,7 @@ of the routing batch function.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Dumps the routing batch function to a dictionary, and the information of the
+        <p>Dumps the routing batch function to a dictionary, and the information of the
 factory function used to create this routing batch function.</p>
 
 
@@ -5904,7 +5904,7 @@ factory function used to create this routing batch function.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Loads a routing batch function from a dictionary. It must contain the information
+        <p>Loads a routing batch function from a dictionary. It must contain the information
 of the factory function used to create the routing batch function.</p>
 
 
@@ -6036,7 +6036,7 @@ function information.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Creates a routing batch function that can be used to route batches from one upstream
+        <p>Creates a routing batch function that can be used to route batches from one upstream
 step to specific downstream steps.</p>
 
 
@@ -6100,7 +6100,7 @@ step to specific downstream steps.</p>
           </tr>
       </tbody>
     </table>
-      <p>Example:</p>
+        <p>Example:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">routing_batch_function</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span><span class="p">,</span> <span class="n">GroupColumns</span>
@@ -6316,7 +6316,7 @@ step to specific downstream steps.</p>
 
     <div class="doc doc-contents ">
 
-      <p>A simple function that creates a routing batch function that samples <code>n</code> steps from
+        <p>A simple function that creates a routing batch function that samples <code>n</code> steps from
 the list of all the downstream steps.</p>
 
 
@@ -6380,7 +6380,7 @@ the list of all the downstream steps.</p>
           </tr>
       </tbody>
     </table>
-      <p>Example:</p>
+        <p>Example:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">sample_n_steps</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span><span class="p">,</span> <span class="n">GroupColumns</span>

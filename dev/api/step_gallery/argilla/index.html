@@ -4926,7 +4926,7 @@
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
-      <p>Abstract step that provides a class to subclass from, that contains the boilerplate code
+        <p>Abstract step that provides a class to subclass from, that contains the boilerplate code
 required to interact with Argilla, as well as some extra validations on top of it. It also defines
 the abstract methods that need to be implemented in order to add a new dataset type as a step.</p>
 
@@ -5289,7 +5289,7 @@ be read from the <code>ARGILLA_API_KEY</code> environment variable.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The outputs of the step is an empty list, since the steps subclassing from this one, will
+        <p>The outputs of the step is an empty list, since the steps subclassing from this one, will
 always be leaf nodes and won't propagate the inputs neither generate any outputs.</p>
     </div>
 
@@ -5308,7 +5308,7 @@ always be leaf nodes and won't propagate the inputs neither generate any outputs
 
     <div class="doc doc-contents ">
 
-      <p>Checks that the Argilla Python SDK is installed, and then filters the Argilla warnings.</p>
+        <p>Checks that the Argilla Python SDK is installed, and then filters the Argilla warnings.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/steps/argilla/base.py</code></summary>
@@ -5346,7 +5346,7 @@ always be leaf nodes and won't propagate the inputs neither generate any outputs
 
     <div class="doc doc-contents ">
 
-      <p>Method to perform any initialization logic before the <code>process</code> method is
+        <p>Method to perform any initialization logic before the <code>process</code> method is
 called. For example, to load an LLM, stablish a connection to a database, etc.</p>
 
             <details class="quote">
@@ -5442,7 +5442,7 @@ called. For example, to load an LLM, stablish a connection to a database, etc.</
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.argilla.base.ArgillaBase" href="#distilabel.steps.argilla.base.ArgillaBase">ArgillaBase</a></code></p>
 
 
-      <p>Creates a preference dataset in Argilla.</p>
+        <p>Creates a preference dataset in Argilla.</p>
 <p>Step that creates a dataset in Argilla during the load phase, and then pushes the input
 batches into it as records. This dataset is a preference dataset, where there's one field
 for the instruction and one extra field per each generation within the same record, and then
@@ -6208,7 +6208,7 @@ be read from the <code>ARGILLA_API_KEY</code> environment variable.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The inputs for the step are the <code>instruction</code> and the <code>generations</code>. Optionally, one could also
+        <p>The inputs for the step are the <code>instruction</code> and the <code>generations</code>. Optionally, one could also
 provide the <code>ratings</code> and the <code>rationales</code> for the generations.</p>
     </div>
 
@@ -6230,7 +6230,7 @@ provide the <code>ratings</code> and the <code>rationales</code> for the generat
 
     <div class="doc doc-contents ">
 
-      <p>The optional inputs for the step are the <code>ratings</code> and the <code>rationales</code> for the generations.</p>
+        <p>The optional inputs for the step are the <code>ratings</code> and the <code>rationales</code> for the generations.</p>
     </div>
 
 </div>
@@ -6248,7 +6248,7 @@ provide the <code>ratings</code> and the <code>rationales</code> for the generat
 
     <div class="doc doc-contents ">
 
-      <p>Sets the <code>_instruction</code> and <code>_generations</code> attributes based on the <code>inputs_mapping</code>, otherwise
+        <p>Sets the <code>_instruction</code> and <code>_generations</code> attributes based on the <code>inputs_mapping</code>, otherwise
 uses the default values; and then uses those values to create a <code>FeedbackDataset</code> suited for
 the text-generation scenario. And then it pushes it to Argilla.</p>
 
@@ -6384,7 +6384,7 @@ the text-generation scenario. And then it pushes it to Argilla.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Creates and pushes the records as <code>rg.Record</code>s to the Argilla dataset.</p>
+        <p>Creates and pushes the records as <code>rg.Record</code>s to the Argilla dataset.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -6569,7 +6569,7 @@ the text-generation scenario. And then it pushes it to Argilla.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.argilla.base.ArgillaBase" href="#distilabel.steps.argilla.base.ArgillaBase">ArgillaBase</a></code></p>
 
 
-      <p>Creates a text generation dataset in Argilla.</p>
+        <p>Creates a text generation dataset in Argilla.</p>
 <p><code>Step</code> that creates a dataset in Argilla during the load phase, and then pushes the input
 batches into it as records. This dataset is a text-generation dataset, where there's one field
 per each input, and then a label question to rate the quality of the completion in either bad
@@ -7046,7 +7046,7 @@ be read from the <code>ARGILLA_API_KEY</code> environment variable.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The inputs for the step are the <code>instruction</code> and the <code>generation</code>.</p>
+        <p>The inputs for the step are the <code>instruction</code> and the <code>generation</code>.</p>
     </div>
 
 </div>
@@ -7064,7 +7064,7 @@ be read from the <code>ARGILLA_API_KEY</code> environment variable.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Sets the <code>_instruction</code> and <code>_generation</code> attributes based on the <code>inputs_mapping</code>, otherwise
+        <p>Sets the <code>_instruction</code> and <code>_generation</code> attributes based on the <code>inputs_mapping</code>, otherwise
 uses the default values; and then uses those values to create a <code>FeedbackDataset</code> suited for
 the text-generation scenario. And then it pushes it to Argilla.</p>
 
@@ -7194,7 +7194,7 @@ the text-generation scenario. And then it pushes it to Argilla.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Creates and pushes the records as FeedbackRecords to the Argilla dataset.</p>
+        <p>Creates and pushes the records as FeedbackRecords to the Argilla dataset.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>

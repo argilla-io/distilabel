@@ -4683,7 +4683,7 @@
               Bases: <code><span title="abc.ABC">ABC</span></code>, <code><a class="autorefs autorefs-internal" title="distilabel.mixins.requirements.RequirementsMixin" href="../mixins/requirements/#distilabel.mixins.requirements.RequirementsMixin">RequirementsMixin</a></code>, <code><span title="distilabel.utils.serialization._Serializable">_Serializable</span></code></p>
 
 
-      <p>Base class for a <code>distilabel</code> pipeline.</p>
+        <p>Base class for a <code>distilabel</code> pipeline.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -7793,7 +7793,7 @@ loading or it the step has been unloaded.</p>
 
     <div class="doc doc-contents ">
 
-      <p>The class of the queue to use in the pipeline.</p>
+        <p>The class of the queue to use in the pipeline.</p>
     </div>
 
 </div>
@@ -7811,7 +7811,7 @@ loading or it the step has been unloaded.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Initialize the <code>BasePipeline</code> instance.</p>
+        <p>Initialize the <code>BasePipeline</code> instance.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -8047,7 +8047,7 @@ that this requirements must be installed.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Set the global pipeline instance when entering a pipeline context.</p>
+        <p>Set the global pipeline instance when entering a pipeline context.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/pipeline/base.py</code></summary>
@@ -8075,7 +8075,7 @@ that this requirements must be installed.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Unset the global pipeline instance when exiting a pipeline context.</p>
+        <p>Unset the global pipeline instance when exiting a pipeline context.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/pipeline/base.py</code></summary>
@@ -8103,7 +8103,7 @@ that this requirements must be installed.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Run the pipeline. It will set the runtime parameters for the steps and validate
+        <p>Run the pipeline. It will set the runtime parameters for the steps and validate
 the pipeline.</p>
 <p>This method should be extended by the specific pipeline implementation,
 adding the logic to run the pipeline.</p>
@@ -8461,7 +8461,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
 
     <div class="doc doc-contents ">
 
-      <p>Do a dry run to test the pipeline runs as expected.</p>
+        <p>Do a dry run to test the pipeline runs as expected.</p>
 <p>Running a <code>Pipeline</code> in dry run mode will set all the <code>batch_size</code> of generator steps
 to the specified <code>batch_size</code>, and run just with a single batch, effectively
 running the whole pipeline with a single example. The cache will be set to <code>False</code>.</p>
@@ -8644,7 +8644,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
 
     <div class="doc doc-contents ">
 
-      <p>Get the runtime parameters for the steps in the pipeline.</p>
+        <p>Get the runtime parameters for the steps in the pipeline.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -8725,7 +8725,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
 
     <div class="doc doc-contents ">
 
-      <p>Create a Pipeline from a dict containing the serialized data.</p>
+        <p>Create a Pipeline from a dict containing the serialized data.</p>
 
 
 <details class="note" open>
@@ -8885,7 +8885,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.pipeline.base.BasePipeline" href="#distilabel.pipeline.base.BasePipeline">BasePipeline</a></code></p>
 
 
-      <p>Local pipeline implementation using <code>multiprocessing</code>.</p>
+        <p>Local pipeline implementation using <code>multiprocessing</code>.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/pipeline/local.py</code></summary>
@@ -9531,7 +9531,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
 
     <div class="doc doc-contents ">
 
-      <p>The callable used to create the input and output queues.</p>
+        <p>The callable used to create the input and output queues.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -9572,7 +9572,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
 
     <div class="doc doc-contents ">
 
-      <p>Creates a <code>RayPipeline</code> using the init parameters of this pipeline. This is a
+        <p>Creates a <code>RayPipeline</code> using the init parameters of this pipeline. This is a
 convenient method that can be used to "transform" one common <code>Pipeline</code> to a <code>RayPipeline</code>
 and it's mainly used by the CLI.</p>
 
@@ -9729,7 +9729,7 @@ to <code>None</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Runs the pipeline.</p>
+        <p>Runs the pipeline.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>

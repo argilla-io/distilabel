@@ -4609,7 +4609,7 @@
 
     <div class="doc doc-contents ">
 
-      <p>Creates an <code>Step</code> from a processing function.</p>
+        <p>Creates an <code>Step</code> from a processing function.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -4700,7 +4700,7 @@ columns. Defaults to <code>None</code>.</p>
           </tr>
       </tbody>
     </table>
-      <p>Example:</p>
+        <p>Example:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Normal step</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nd">@step</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">])</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">def</span> <span class="nf">GenerationStep</span><span class="p">(</span><span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">,</span> <span class="n">dummy_generation</span><span class="p">:</span> <span class="n">RuntimeParameter</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">StepOutput</span><span class="p">:</span>

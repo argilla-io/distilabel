@@ -4776,7 +4776,7 @@
 
     <div class="doc doc-contents ">
 
-      <p>StepInput is just an <code>Annotated</code> alias of the typing <code>List[Dict[str, Any]]</code> with
+        <p>StepInput is just an <code>Annotated</code> alias of the typing <code>List[Dict[str, Any]]</code> with
 extra metadata that allows <code>distilabel</code> to perform validations over the <code>process</code> step
 method defined in each <code>Step</code></p>
     </div>
@@ -4800,7 +4800,7 @@ method defined in each <code>Step</code></p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParametersMixin" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParametersMixin">RuntimeParametersMixin</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.mixins.requirements.RequirementsMixin" href="../mixins/requirements/#distilabel.mixins.requirements.RequirementsMixin">RequirementsMixin</a></code>, <code><span title="pydantic.BaseModel">BaseModel</span></code>, <code><span title="distilabel.utils.serialization._Serializable">_Serializable</span></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
-      <p>Base class for the steps that can be included in a <code>Pipeline</code>.</p>
+        <p>Base class for the steps that can be included in a <code>Pipeline</code>.</p>
 <p>A <code>Step</code> is a class defining some processing logic. The input and outputs for this
 processing logic are lists of dictionaries with the same keys:</p>
 <div class="language-text highlight"><pre><span></span><code>```python
@@ -5778,7 +5778,7 @@ defined, validated, serialized and included in the <code>__init__</code> method 
 
     <div class="doc doc-contents ">
 
-      <p>Whether the step is a generator step or not.</p>
+        <p>Whether the step is a generator step or not.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -5822,7 +5822,7 @@ defined, validated, serialized and included in the <code>__init__</code> method 
 
     <div class="doc doc-contents ">
 
-      <p>Whether the step is a global step or not.</p>
+        <p>Whether the step is a global step or not.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -5866,7 +5866,7 @@ defined, validated, serialized and included in the <code>__init__</code> method 
 
     <div class="doc doc-contents ">
 
-      <p>Whether the step is a normal step or not.</p>
+        <p>Whether the step is a normal step or not.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -5910,7 +5910,7 @@ defined, validated, serialized and included in the <code>__init__</code> method 
 
     <div class="doc doc-contents ">
 
-      <p>List of strings with the names of the mandatory columns that the step needs as
+        <p>List of strings with the names of the mandatory columns that the step needs as
 input or dictionary in which the keys are the input columns of the step and the
 values are booleans indicating whether the column is optional or not.</p>
 
@@ -5956,7 +5956,7 @@ values are booleans indicating whether the column is optional or not.</p>
 
     <div class="doc doc-contents ">
 
-      <p>List of strings with the names of the columns that the step will produce as
+        <p>List of strings with the names of the columns that the step will produce as
 output or dictionary in which the keys are the output columns of the step and the
 values are booleans indicating whether the column is optional or not.</p>
 
@@ -6013,7 +6013,7 @@ values are booleans indicating whether the column is optional or not.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns the parameters of the <code>process</code> method of the step.</p>
+        <p>Returns the parameters of the <code>process</code> method of the step.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -6057,7 +6057,7 @@ values are booleans indicating whether the column is optional or not.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Gets the path of the directory where the step should save its generated artifacts.</p>
+        <p>Gets the path of the directory where the step should save its generated artifacts.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -6099,7 +6099,7 @@ or <code>None</code> if <code>_pipeline_artifacts_path</code> is not set.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Connects the current step to another step in the pipeline, which means that
+        <p>Connects the current step to another step in the pipeline, which means that
 the output of this step will be the input of the other step.</p>
 
 
@@ -6213,7 +6213,7 @@ Defaults to <code>None</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Allows using the <code>&gt;&gt;</code> operator to connect steps in the pipeline.</p>
+        <p>Allows using the <code>&gt;&gt;</code> operator to connect steps in the pipeline.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -6385,7 +6385,7 @@ function to be set for the step.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Allows using the [step1, step2] &gt;&gt; step3 operator to connect a list of steps in the pipeline
+        <p>Allows using the [step1, step2] &gt;&gt; step3 operator to connect a list of steps in the pipeline
 to a single step, as the list doesn't have the <strong>rshift</strong> operator.</p>
 
 
@@ -6509,7 +6509,7 @@ to a single step, as the list doesn't have the <strong>rshift</strong> operator.
 
     <div class="doc doc-contents ">
 
-      <p>Method to perform any initialization logic before the <code>process</code> method is
+        <p>Method to perform any initialization logic before the <code>process</code> method is
 called. For example, to load an LLM, stablish a connection to a database, etc.</p>
 
             <details class="quote">
@@ -6540,7 +6540,7 @@ called. For example, to load an LLM, stablish a connection to a database, etc.</
 
     <div class="doc doc-contents ">
 
-      <p>Method to perform any cleanup logic after the <code>process</code> method is called. For
+        <p>Method to perform any cleanup logic after the <code>process</code> method is called. For
 example, to close a connection to a database, etc.</p>
 
             <details class="quote">
@@ -6571,7 +6571,7 @@ example, to close a connection to a database, etc.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Whether the <code>process</code> method of the step receives more than one input or not
+        <p>Whether the <code>process</code> method of the step receives more than one input or not
 i.e. has a <code>*</code> argument annotated with <code>StepInput</code>.</p>
 
 
@@ -6647,7 +6647,7 @@ i.e. has a <code>*</code> argument annotated with <code>StepInput</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Returns the parameter of the <code>process</code> method of the step annotated with
+        <p>Returns the parameter of the <code>process</code> method of the step annotated with
 <code>StepInput</code>.</p>
 
 
@@ -6768,7 +6768,7 @@ i.e. has a <code>*</code> argument annotated with <code>StepInput</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Verifies that the <code>inputs_mappings</code> of the step are valid i.e. the input
+        <p>Verifies that the <code>inputs_mappings</code> of the step are valid i.e. the input
 columns exist in the inputs of the step.</p>
 
 
@@ -6848,7 +6848,7 @@ columns exist in the inputs of the step.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Verifies that the <code>outputs_mappings</code> of the step are valid i.e. the output
+        <p>Verifies that the <code>outputs_mappings</code> of the step are valid i.e. the output
 columns exist in the outputs of the step.</p>
 
 
@@ -6928,7 +6928,7 @@ columns exist in the outputs of the step.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Gets the inputs of the step after the <code>input_mappings</code>. This method is meant
+        <p>Gets the inputs of the step after the <code>input_mappings</code>. This method is meant
 to be used to run validations on the inputs of the step.</p>
 
 
@@ -7016,7 +7016,7 @@ to be used to run validations on the inputs of the step.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Gets the outputs of the step after the <code>outputs_mappings</code>. This method is
+        <p>Gets the outputs of the step after the <code>outputs_mappings</code>. This method is
 meant to be used to run validations on the outputs of the step.</p>
 
 
@@ -7106,7 +7106,7 @@ meant to be used to run validations on the outputs of the step.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Sets the <code>_pipeline_artifacts_path</code> attribute. This method is meant to be used
+        <p>Sets the <code>_pipeline_artifacts_path</code> attribute. This method is meant to be used
 by the <code>Pipeline</code> once the cache location is known.</p>
 
 
@@ -7175,7 +7175,7 @@ saved.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Saves an artifact generated by the <code>Step</code>.</p>
+        <p>Saves an artifact generated by the <code>Step</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -7338,7 +7338,7 @@ be saved.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="#distilabel.steps.base._Step">_Step</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
-      <p>Base class for the steps that can be included in a <code>Pipeline</code>.</p>
+        <p>Base class for the steps that can be included in a <code>Pipeline</code>.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -7659,7 +7659,7 @@ the step. Defaults to <code>50</code>.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Method that defines the processing logic of the step. It should yield the
+        <p>Method that defines the processing logic of the step. It should yield the
 output rows.</p>
 
 
@@ -7736,7 +7736,7 @@ with <code>StepInput</code> if the step has only one previous step.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Runs the <code>process</code> method of the step applying the <code>input_mappings</code> to the input
+        <p>Runs the <code>process</code> method of the step applying the <code>input_mappings</code> to the input
 rows and the <code>outputs_mappings</code> to the output rows. This is the function that
 should be used to run the processing logic of the step.</p>
 
