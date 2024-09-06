@@ -26,6 +26,14 @@ hide:
 
     [:octicons-arrow-right-24: FaissNearestNeighbour](faissnearestneighbour.md){ .bottom }
 
+-   :material-filter:{ .lg .middle } __EmbeddingDedup__
+
+    ---
+
+    Deduplicates text using embeddings.
+
+    [:octicons-arrow-right-24: EmbeddingDedup](embeddingdedup.md){ .bottom }
+
 -   :material-content-save:{ .lg .middle } __PushToHub__
 
     ---
