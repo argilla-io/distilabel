@@ -41,16 +41,17 @@ class TextClassificationLLM(DummyAsyncLLM):
 
 class TestTextClassification:
     @pytest.mark.parametrize(
-        "n, context, examples, available_labels, default_label",
+        "n, context, examples, available_labels, default_label, query_title",
         [
-            (1, "context", None, None, "Unclassified"),
-            (1, "", ["example"], ["label1", "label2"], "default"),
+            (1, "context", None, None, "Unclassified", "User Query"),
+            (1, "", ["example"], ["label1", "label2"], "default", "User Query"),
             (
                 1,
                 "",
                 ["example"],
                 {"label1": "explanation 1", "label2": "explanation 2"},
                 "default",
+                "User Query",
             ),
             (
                 3,
@@ -58,6 +59,7 @@ class TestTextClassification:
                 ["example", "other example"],
                 None,
                 "default",
+                "User Query",
             ),
         ],
     )
@@ -68,6 +70,7 @@ class TestTextClassification:
         examples: Optional[List[str]],
         available_labels: Optional[Union[List[str], Dict[str, str]]],
         default_label: Optional[Union[str, List[str]]],
+        query_title: str,
     ) -> None:
         task = TextClassification(
             llm=DummyAsyncLLM(),
@@ -76,6 +79,7 @@ class TestTextClassification:
             examples=examples,
             available_labels=available_labels,
             default_label=default_label,
+            query_title=query_title,
         )
         task.load()
 
@@ -109,6 +113,11 @@ class TestTextClassification:
             )
         else:
             assert "## Examples" not in content
+        assert (
+            f"Please classify the {query_title.lower()} by assigning the most appropriate labels."
+            in content
+        )
+        assert f"## {query_title}" in content
 
     @pytest.mark.parametrize(
         "n, expected",
