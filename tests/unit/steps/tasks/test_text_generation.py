@@ -22,9 +22,9 @@ from tests.unit.conftest import DummyAsyncLLM
 class TestTextGeneration:
     def test_format_input(self) -> None:
         llm = DummyAsyncLLM()
-        task = TextGeneration(name="task", llm=llm, use_system_prompt=False)
+        task = TextGeneration(name="task", llm=llm)
 
-        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
+        assert task.format_input({"instruction": "test"}) == [
             {"role": "user", "content": "test"}
         ]
 
@@ -32,10 +32,29 @@ class TestTextGeneration:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyAsyncLLM()
         task = TextGeneration(
-            name="task",
-            llm=llm,
-            pipeline=pipeline,
-            use_system_prompt=True,
+            name="task", llm=llm, pipeline=pipeline, system_prompt="test"
+        )
+
+        assert task.format_input({"instruction": "test"}) == [
+            {"role": "system", "content": "test"},
+            {"role": "user", "content": "test"},
+        ]
+
+    def test_format_input_with_row_system_prompt(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyAsyncLLM()
+        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
+
+        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
+            {"role": "system", "content": "test"},
+            {"role": "user", "content": "test"},
+        ]
+
+    def test_format_input_with_row_system_prompt_and_system_prompt(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyAsyncLLM()
+        task = TextGeneration(
+            name="task", llm=llm, pipeline=pipeline, system_prompt="i won't be used"
         )
 
         assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
