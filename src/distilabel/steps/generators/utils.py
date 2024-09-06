@@ -32,6 +32,7 @@ def make_generator_step(
     input_mappings: Optional[Dict[str, str]] = None,
     output_mappings: Optional[Dict[str, str]] = None,
     resources: StepResources = StepResources(),
+    repo_id: Optional[str] = None,
 ) -> "GeneratorStep":
     """Helper method to create a `GeneratorStep` from a dataset, to simplify
 
@@ -74,12 +75,13 @@ def make_generator_step(
 
     loader = LoadDataFromHub(
         pipeline=pipeline,
-        repo_id="placeholder_name",
+        repo_id=repo_id,
         batch_size=batch_size,
         input_mappings=input_mappings or {},
         output_mappings=output_mappings or {},
         resources=resources,
     )
+    super(loader.__class__, loader).load()
     loader._dataset = dataset
     loader.num_examples = len(dataset)
     loader._dataset_info = {"default": dataset.info}
