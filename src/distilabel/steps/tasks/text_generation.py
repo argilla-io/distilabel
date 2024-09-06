@@ -14,6 +14,8 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
+from pydantic import Field
+
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
 from distilabel.utils.chat import is_openai_format
@@ -31,9 +33,13 @@ class TextGeneration(Task):
     instruction. The model_name is also returned as part of the output in order to enhance it.
 
     Attributes:
-        use_system_prompt: Whether to use the system prompt in the generation. Defaults to `True`,
-            which means that if the column `system_prompt` is defined within the input batch, then
-            the `system_prompt` will be used, otherwise, it will be ignored.
+        system_prompt: The system prompt to use in the generation. If not provided, then
+            it will check if the input row has a column named `system_prompt` and use it.
+            If not, then no system prompt will be used. Defaults to `None`.
+        use_system_prompt: DEPRECATED. To be removed in 1.5.0. Whether to use the system
+            prompt in the generation. Defaults to `True`, which means that if the column
+            `system_prompt` is defined within the input batch, then the `system_prompt`
+            will be used, otherwise, it will be ignored.
 
     Input columns:
         - instruction (`str`): The instruction to generate text from.
@@ -77,14 +83,15 @@ class TextGeneration(Task):
         ```
     """
 
-    use_system_prompt: bool = True
+    system_prompt: Union[str, None] = None
+    use_system_prompt: bool = Field(default=True, deprecated=True)
 
     _can_be_used_with_offline_batch_generation = True
 
     @property
     def inputs(self) -> "StepColumns":
         """The input for the task is the `instruction`."""
-        return ["instruction"]
+        return {"instruction": True, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -104,11 +111,14 @@ class TextGeneration(Task):
             )
 
         messages = [{"role": "user", "content": input["instruction"]}]
-        if self.use_system_prompt:
-            if "system_prompt" in input:
-                messages.insert(
-                    0, {"role": "system", "content": input["system_prompt"]}
-                )
+
+        row_system_prompt = input.get("system_prompt")
+        if row_system_prompt:
+            messages.insert(0, {"role": "system", "content": row_system_prompt})
+
+        if self.system_prompt and not row_system_prompt:
+            messages.insert(0, {"role": "system", "content": self.system_prompt})
+
         return messages  # type: ignore
 
     @property
