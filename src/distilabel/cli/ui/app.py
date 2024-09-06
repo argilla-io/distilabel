@@ -14,10 +14,11 @@
 
 import typer
 
-from distilabel.cli.pipeline import app as pipeline_app
-from distilabel.cli.ui import app as ui_app
+app = typer.Typer(help="Commands to run Distilabel UIs.", no_args_is_help=True)
 
-app = typer.Typer(name="distilabel")
 
-app.add_typer(pipeline_app, name="pipeline")
-app.add_typer(ui_app, name="ui")
+@app.command(name="prompt-checker", help="Run the Distilabel prompt checker UI.")
+def run() -> None:
+    from distilabel.ui.prompt_checker.app import PromptChecker
+
+    PromptChecker().run()

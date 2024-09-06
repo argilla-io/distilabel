@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import typer
+from textual.app import App, ComposeResult
+from textual.widgets import Footer, Header
 
-from distilabel.cli.pipeline import app as pipeline_app
-from distilabel.cli.ui import app as ui_app
 
-app = typer.Typer(name="distilabel")
+class PromptChecker(App):
+    BINDINGS = [("d", "toggle_dark", "Toggle dark mode")]
 
-app.add_typer(pipeline_app, name="pipeline")
-app.add_typer(ui_app, name="ui")
+    def compose(self) -> ComposeResult:
+        """Create child widgets for the app."""
+        yield Header()
+        yield Footer()
+
+    def action_toggle_dark(self) -> None:
+        """An action to toggle dark mode."""
+        self.dark = not self.dark

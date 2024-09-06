@@ -12,12 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import typer
-
-from distilabel.cli.pipeline import app as pipeline_app
-from distilabel.cli.ui import app as ui_app
-
-app = typer.Typer(name="distilabel")
-
-app.add_typer(pipeline_app, name="pipeline")
-app.add_typer(ui_app, name="ui")
