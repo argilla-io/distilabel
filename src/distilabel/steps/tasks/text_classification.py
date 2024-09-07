@@ -242,15 +242,12 @@ class TextClassification(Task):
             class MultiLabelSchema(BaseModel):
                 labels: List[str]
 
-            schema = MultiLabelSchema.model_json_schema()
-        else:
+            return MultiLabelSchema.model_json_schema()
 
-            class SingleLabelSchema(BaseModel):
-                labels: str
+        class SingleLabelSchema(BaseModel):
+            labels: str
 
-            schema = SingleLabelSchema.model_json_schema()
-
-        return schema
+        return SingleLabelSchema.model_json_schema()
 
     def _format_structured_output(
         self, output: str
