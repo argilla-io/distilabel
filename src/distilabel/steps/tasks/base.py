@@ -236,9 +236,8 @@ class _Task(_Step, ABC):
             dependency = "outlines"
             structured_output = {"schema": schema}
             # To determine instructor or outlines format
-            if not (
-                isinstance(self.llm, AsyncLLM)
-                and not isinstance(self.llm, InferenceEndpointsLLM)
+            if isinstance(self.llm, AsyncLLM) and not isinstance(
+                self.llm, InferenceEndpointsLLM
             ):
                 dependency = "instructor"
                 structured_output.update({"format": "json"})
