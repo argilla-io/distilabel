@@ -2,582 +2,594 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/cli/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/distiset/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/errors/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/exceptions/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/embedding/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/embedding/embedding_gallery/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/llm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/llm/llm_gallery/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/mixins/requirements/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/mixins/runtime_parameters/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/pipeline/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/pipeline/routing_batch_function/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/pipeline/step_wrapper/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/pipeline/typing/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step/decorator/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step/generator_step/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step/global_step/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step/resources/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step/typing/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step_gallery/argilla/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step_gallery/columns/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step_gallery/extra/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/step_gallery/hugging_face/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/task/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/task/generator_task/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/task/task_gallery/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/api/task/typing/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/community/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/community/contributor/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/community/popular_issues/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/getting_started/faq/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/getting_started/installation/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/getting_started/quickstart/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/argilla/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/assigning_resources_to_step/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/caching/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/distiset/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/fs_to_pass_data/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/offline_batch_generation/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/pipeline_requirements/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/saving_step_generated_artifacts/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/scaling_with_ray/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/serving_an_llm_for_reuse/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/structured_generation/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/advanced/cli/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/basic/llm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/basic/pipeline/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/basic/step/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/basic/step/generator_step/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/basic/step/global_step/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/basic/task/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/how_to_guides/basic/task/generator_task/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/examples/benchmarking_with_distilabel/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/examples/llama_cpp_with_outlines/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/examples/mistralai_with_instructor/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/papers/deepseek_prover/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/papers/deita/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/papers/instruction_backtranslation/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/papers/prometheus/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/papers/ultrafeedback/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/tutorials/GenerateSentencePair/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/tutorials/clean_existing_dataset/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/sections/pipeline_samples/tutorials/generate_preference_dataset/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/dbscan/</loc>
+         <lastmod>2024-09-09</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/umap/</loc>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/deitafiltering/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/faissnearestneighbour/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/embeddingdedup/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/pushtohub/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/preferencetoargilla/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/textgenerationtoargilla/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/combineoutputs/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/expandcolumns/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/groupcolumns/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/combinecolumns/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/keepcolumns/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/mergecolumns/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/embeddinggeneration/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/minhashdedup/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/conversationtemplate/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/formattextgenerationdpo/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/formatchatgenerationdpo/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/formattextgenerationsft/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/formatchatgenerationsft/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/rewardmodelscore/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/truncatetextcolumn/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/loaddatafromdicts/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/loaddatafromhub/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/loaddatafromfilesystem/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/steps/loaddatafromdisk/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/complexityscorer/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/evolinstruct/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/evolcomplexity/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/evolquality/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/genstruct/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/generatetextretrievaldata/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/generateshorttextmatchingdata/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/generatelongtextmatchingdata/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/generatetextclassificationdata/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/instructionbacktranslation/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/magpie/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/prometheuseval/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/qualityscorer/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/selfinstruct/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/generatesentencepair/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/structuredgeneration/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/textclassification/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/textgeneration/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/chatgeneration/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/ultrafeedback/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/urial/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/evolinstructgenerator/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/evolcomplexitygenerator/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/monolingualtripletgenerator/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/bitextretrievalgenerator/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/embeddingtaskgenerator/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/magpiegenerator/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/textclustering/</loc>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/pairrm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/tasks/generateembeddings/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/anthropicllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/openaillm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/anyscalellm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/azureopenaillm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/togetherllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/clientvllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/coherellm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/groqllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/inferenceendpointsllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/litellm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/mistralllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/mixtureofagentsllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/ollamallm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/vertexaillm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/transformersllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/llamacppllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/llms/vllm/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/embeddings/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/embeddings/sentencetransformerembeddings/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-948/components-gallery/embeddings/vllmembeddings/</loc>
-         <lastmod>2024-09-07</lastmod>
+         <lastmod>2024-09-09</lastmod>
     </url>
 </urlset>

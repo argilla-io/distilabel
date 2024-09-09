@@ -1359,6 +1359,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../steps/dbscan/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../steps/umap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../steps/deitafiltering/" class="md-nav__link">
         
   
@@ -2318,6 +2360,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../textclustering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../textgeneration/" class="md-nav__link">
         
   
@@ -2508,6 +2571,27 @@
   
     <li class="md-nav__item">
       <a href="../magpiegenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../textclustering/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4516,6 +4600,48 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assigning-a-sentiment-to-a-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assigning a sentiment to a text
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assigning-predefined-labels-with-specified-descriptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assigning predefined labels with specified descriptions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#free-multi-label-classification-without-predefined-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free multi label classification without predefined labels
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#references" class="md-nav__link">
     <span class="md-ellipsis">
       References
@@ -4541,9 +4667,10 @@
 
 <h1 id="textclassification">TextClassification<a class="headerlink" href="#textclassification" title="Permanent link">&para;</a></h1>
 <p>Classifies text into one or more categories or labels.</p>
-<p>ADD EXAMPLES, THIS IS HIGHLY CUSTOMIZABLE.
-    It uses structured generation as per the reference paper, it can help to generate more
-    concise labels. See section 4.1 in the reference.</p>
+<p>This task can be used for text classification problems, where the goal is to assign
+    one or multiple labels to a given text.
+    It uses structured generation as per the reference paper by default,
+    it can help to generate more concise labels. See section 4.1 in the reference.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
@@ -4600,6 +4727,104 @@
 <p><strong>model_name</strong> (<code>str</code>): The name of the model used to generate the label/s.</p>
 </li>
 </ul>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<h4 id="assigning-a-sentiment-to-a-text">Assigning a sentiment to a text<a class="headerlink" href="#assigning-a-sentiment-to-a-text" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextClassification</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms.huggingface</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">text_classification</span> <span class="o">=</span> <span class="n">TextClassification</span><span class="p">(</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">context</span><span class="o">=</span><span class="s2">&quot;You are an AI system specialized in assigning sentiment to movies.&quot;</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">available_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;positive&quot;</span><span class="p">,</span> <span class="s2">&quot;negative&quot;</span><span class="p">],</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">)</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="n">text_classification</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">text_classification</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="p">[{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;This was a masterpiece. Not completely faithful to the books, but enthralling from beginning to end. Might be my favorite of the three.&quot;</span><span class="p">}]</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="p">)</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="p">)</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1"># result</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1"># [{&#39;text&#39;: &#39;This was a masterpiece. Not completely faithful to the books, but enthralling from beginning to end. Might be my favorite of the three.&#39;,</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="c1"># &#39;labels&#39;: &#39;positive&#39;,</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1"># &#39;distilabel_metadata&#39;: {&#39;raw_output_text_classification_0&#39;: &#39;{\n    &quot;labels&quot;: &quot;positive&quot;\n}&#39;,</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="c1"># &#39;raw_input_text_classification_0&#39;: [{&#39;role&#39;: &#39;system&#39;,</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="c1">#     &#39;content&#39;: &#39;You are an AI system specialized in generating labels to classify pieces of text. Your sole purpose is to analyze the given text and provide appropriate classification labels.&#39;},</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1">#     {&#39;role&#39;: &#39;user&#39;,</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1">#     &#39;content&#39;: &#39;# Instruction\nPlease classify the user query by assigning the most appropriate labels.\nDo not explain your reasoning or provide any additional commentary.\nIf the text is ambiguous or lacks sufficient information for classification, respond with &quot;Unclassified&quot;.\nProvide the label that best describes the text.\nYou are an AI system specialized in assigning sentiment to movie the user queries.\n## Labeling the user input\nUse the available labels to classify the user query. Analyze the context of each label specifically:\navailable_labels = [\n    &quot;positive&quot;,  # The text shows positive sentiment\n    &quot;negative&quot;,  # The text shows negative sentiment\n]\n\n\n## User Query\n```\nThis was a masterpiece. Not completely faithful to the books, but enthralling from beginning to end. Might be my favorite of the three.\n```\n\n## Output Format\nNow, please give me the labels in JSON format, do not include any other text in your response:\n```\n{\n    &quot;labels&quot;: &quot;label&quot;\n}\n```&#39;}]},</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="c1"># &#39;model_name&#39;: &#39;meta-llama/Meta-Llama-3.1-70B-Instruct&#39;}]</span>
+</span></code></pre></div>
+<h4 id="assigning-predefined-labels-with-specified-descriptions">Assigning predefined labels with specified descriptions<a class="headerlink" href="#assigning-predefined-labels-with-specified-descriptions" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextClassification</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">text_classification</span> <span class="o">=</span> <span class="n">TextClassification</span><span class="p">(</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">context</span><span class="o">=</span><span class="s2">&quot;Determine the intent of the text.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">available_labels</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="s2">&quot;complaint&quot;</span><span class="p">:</span> <span class="s2">&quot;A statement expressing dissatisfaction or annoyance about a product, service, or experience. It&#39;s a negative expression of discontent, often with the intention of seeking a resolution or compensation.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="s2">&quot;inquiry&quot;</span><span class="p">:</span> <span class="s2">&quot;A question or request for information about a product, service, or situation. It&#39;s a neutral or curious expression seeking clarification or details.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="s2">&quot;feedback&quot;</span><span class="p">:</span> <span class="s2">&quot;A statement providing evaluation, opinion, or suggestion about a product, service, or experience. It can be positive, negative, or neutral, and is often intended to help improve or inform.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="s2">&quot;praise&quot;</span><span class="p">:</span> <span class="s2">&quot;A statement expressing admiration, approval, or appreciation for a product, service, or experience. It&#39;s a positive expression of satisfaction or delight, often with the intention of encouraging or recommending.&quot;</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="p">},</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">query_title</span><span class="o">=</span><span class="s2">&quot;Customer Query&quot;</span><span class="p">,</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="p">)</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="n">text_classification</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="n">text_classification</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="p">[{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Can you tell me more about your return policy?&quot;</span><span class="p">}]</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="p">)</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="p">)</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="c1"># result</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="c1"># [{&#39;text&#39;: &#39;Can you tell me more about your return policy?&#39;,</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="c1"># &#39;labels&#39;: &#39;inquiry&#39;,</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="c1"># &#39;distilabel_metadata&#39;: {&#39;raw_output_text_classification_0&#39;: &#39;{\n    &quot;labels&quot;: &quot;inquiry&quot;\n}&#39;,</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="c1"># &#39;raw_input_text_classification_0&#39;: [{&#39;role&#39;: &#39;system&#39;,</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="c1">#     &#39;content&#39;: &#39;You are an AI system specialized in generating labels to classify pieces of text. Your sole purpose is to analyze the given text and provide appropriate classification labels.&#39;},</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="c1">#     {&#39;role&#39;: &#39;user&#39;,</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="c1">#     &#39;content&#39;: &#39;# Instruction\nPlease classify the customer query by assigning the most appropriate labels.\nDo not explain your reasoning or provide any additional commentary.\nIf the text is ambiguous or lacks sufficient information for classification, respond with &quot;Unclassified&quot;.\nProvide the label that best describes the text.\nDetermine the intent of the text.\n## Labeling the user input\nUse the available labels to classify the user query. Analyze the context of each label specifically:\navailable_labels = [\n    &quot;complaint&quot;,  # A statement expressing dissatisfaction or annoyance about a product, service, or experience. It\&#39;s a negative expression of discontent, often with the intention of seeking a resolution or compensation.\n    &quot;inquiry&quot;,  # A question or request for information about a product, service, or situation. It\&#39;s a neutral or curious expression seeking clarification or details.\n    &quot;feedback&quot;,  # A statement providing evaluation, opinion, or suggestion about a product, service, or experience. It can be positive, negative, or neutral, and is often intended to help improve or inform.\n    &quot;praise&quot;,  # A statement expressing admiration, approval, or appreciation for a product, service, or experience. It\&#39;s a positive expression of satisfaction or delight, often with the intention of encouraging or recommending.\n]\n\n\n## Customer Query\n```\nCan you tell me more about your return policy?\n```\n\n## Output Format\nNow, please give me the labels in JSON format, do not include any other text in your response:\n```\n{\n    &quot;labels&quot;: &quot;label&quot;\n}\n```&#39;}]},</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="c1"># &#39;model_name&#39;: &#39;meta-llama/Meta-Llama-3.1-70B-Instruct&#39;}]</span>
+</span></code></pre></div>
+<h4 id="free-multi-label-classification-without-predefined-labels">Free multi label classification without predefined labels<a class="headerlink" href="#free-multi-label-classification-without-predefined-labels" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextClassification</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">text_classification</span> <span class="o">=</span> <span class="n">TextClassification</span><span class="p">(</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">context</span><span class="o">=</span><span class="p">(</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="s2">&quot;Describe the main themes, topics, or categories that could describe the &quot;</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="s2">&quot;following type of persona.&quot;</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="p">),</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">query_title</span><span class="o">=</span><span class="s2">&quot;Example of Persona&quot;</span><span class="p">,</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">)</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">text_classification</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="n">text_classification</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="p">[{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;A historian or curator of Mexican-American history and culture focused on the cultural, social, and historical impact of the Mexican presence in the United States.&quot;</span><span class="p">}]</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    <span class="p">)</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="p">)</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="c1"># result</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="c1"># [{&#39;text&#39;: &#39;A historian or curator of Mexican-American history and culture focused on the cultural, social, and historical impact of the Mexican presence in the United States.&#39;,</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="c1"># &#39;labels&#39;: [&#39;Historical Researcher&#39;,</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="c1"># &#39;Cultural Specialist&#39;,</span>
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="c1"># &#39;Ethnic Studies Expert&#39;],</span>
+</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="c1"># &#39;distilabel_metadata&#39;: {&#39;raw_output_text_classification_0&#39;: &#39;{\n    &quot;labels&quot;: [&quot;Historical Researcher&quot;, &quot;Cultural Specialist&quot;, &quot;Ethnic Studies Expert&quot;]\n}&#39;,</span>
+</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="c1"># &#39;raw_input_text_classification_0&#39;: [{&#39;role&#39;: &#39;system&#39;,</span>
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="c1">#     &#39;content&#39;: &#39;You are an AI system specialized in generating labels to classify pieces of text. Your sole purpose is to analyze the given text and provide appropriate classification labels.&#39;},</span>
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="c1">#     {&#39;role&#39;: &#39;user&#39;,</span>
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="c1">#     &#39;content&#39;: &#39;# Instruction\nPlease classify the example of persona by assigning the most appropriate labels.\nDo not explain your reasoning or provide any additional commentary.\nIf the text is ambiguous or lacks sufficient information for classification, respond with &quot;Unclassified&quot;.\nProvide a list of 3 labels that best describe the text.\nDescribe the main themes, topics, or categories that could describe the following type of persona.\nUse clear, widely understood terms for labels.Avoid overly specific or obscure labels unless the text demands it.\n\n\n## Example of Persona\n```\nA historian or curator of Mexican-American history and culture focused on the cultural, social, and historical impact of the Mexican presence in the United States.\n```\n\n## Output Format\nNow, please give me the labels in JSON format, do not include any other text in your response:\n```\n{\n    &quot;labels&quot;: [&quot;label_0&quot;, &quot;label_1&quot;, &quot;label_2&quot;]\n}\n```&#39;}]},</span>
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="c1"># &#39;model_name&#39;: &#39;meta-llama/Meta-Llama-3.1-70B-Instruct&#39;}]</span>
+</span></code></pre></div>
 <h3 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="https://arxiv.org/abs/2408.02442">Let Me Speak Freely? A Study on the Impact of Format Restrictions on Performance of Large Language Models</a></li>
