@@ -31,10 +31,11 @@ if TYPE_CHECKING:
 
 
 class UMAP(GlobalStep):
-    """UMAP is a general purpose manifold learning and dimension reduction algorithm.
+    r"""UMAP is a general purpose manifold learning and dimension reduction algorithm.
 
     This is a `GlobalStep` that reduces the dimensionality of the embeddings using. Visit
-    the `TextClustering` step for an example of use.
+    the `TextClustering` step for an example of use. The trained model is saved as an artifact
+    when creating a distiset and pushing it to the Hugging Face Hub.
 
     Input columns:
         - embedding (`List[float]`): The original embeddings we want to reduce the dimension.
