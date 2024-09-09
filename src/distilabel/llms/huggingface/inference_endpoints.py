@@ -15,7 +15,6 @@
 import os
 import random
 import sys
-import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
 
 from pydantic import (
@@ -456,30 +455,6 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             )
         return message
 
-    def _check_stop_sequences(
-        self,
-        stop_sequences: Optional[Union[str, List[str]]] = None,
-    ) -> Union[List[str], None]:
-        """Checks that no more than 4 stop sequences are provided.
-
-        Args:
-            stop_sequences: the stop sequences to be checked.
-
-        Returns:
-            The stop sequences.
-        """
-        if stop_sequences is not None:
-            if isinstance(stop_sequences, str):
-                stop_sequences = [stop_sequences]
-            if len(stop_sequences) > 4:
-                warnings.warn(
-                    "Only up to 4 stop sequences are allowed, so keeping the first 4 items only.",
-                    UserWarning,
-                    stacklevel=2,
-                )
-                stop_sequences = stop_sequences[:4]
-        return stop_sequences
-
     @validate_call
     async def agenerate(  # type: ignore
         self,
@@ -564,7 +539,6 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        stop_sequences = self._check_stop_sequences(stop_sequences)
 
         if self.tokenizer_id is None:
             return [
