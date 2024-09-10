@@ -164,6 +164,13 @@ class MagpieBase(RuntimeParametersMixin):
         """
         outputs = []
         for conversation in conversations:
+            # Something went wrong with the `LLM` and it didn't generate any message
+            if len(conversation) == 0:
+                if self.n_turns == 1:
+                    outputs.append({"instruction": None, "response": None})
+                else:
+                    outputs.append({"conversation": []})
+                continue
             if not self.include_system_prompt and conversation[0]["role"] == "system":
                 conversation.pop(0)
             if self.n_turns == 1 and len(conversation) == 2:

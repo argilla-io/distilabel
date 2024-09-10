@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import random
+from typing import Any, Dict
 from unittest import mock
 
 import pytest
@@ -387,6 +388,94 @@ class TestMagpie:
                 "model_name": "test",
             },
         ]
+
+    @pytest.mark.parametrize(
+        "conversation, include_system_prompt, n_turns, expected",
+        [
+            (
+                [
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello user"},
+                ],
+                False,
+                1,
+                {"instruction": "Hello Magpie", "response": "Hello user"},
+            ),
+            (
+                [
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello user"},
+                ],
+                False,
+                1,
+                {"instruction": "Hello Magpie", "response": "Hello user"},
+            ),
+            (
+                [
+                    {"role": "system", "content": "This is a system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello user"},
+                    {"role": "user", "content": "How are you?"},
+                    {"role": "assistant", "content": "I'm fine thank you."},
+                ],
+                True,
+                2,
+                {
+                    "conversation": [
+                        {"role": "system", "content": "This is a system prompt."},
+                        {"role": "user", "content": "Hello Magpie"},
+                        {"role": "assistant", "content": "Hello user"},
+                        {"role": "user", "content": "How are you?"},
+                        {"role": "assistant", "content": "I'm fine thank you."},
+                    ],
+                },
+            ),
+            (
+                [
+                    {"role": "system", "content": "This is a system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello user"},
+                    {"role": "user", "content": "How are you?"},
+                    {"role": "assistant", "content": "I'm fine thank you."},
+                ],
+                False,
+                2,
+                {
+                    "conversation": [
+                        {"role": "user", "content": "Hello Magpie"},
+                        {"role": "assistant", "content": "Hello user"},
+                        {"role": "user", "content": "How are you?"},
+                        {"role": "assistant", "content": "I'm fine thank you."},
+                    ],
+                },
+            ),
+            (
+                [],
+                False,
+                1,
+                {"instruction": None, "response": None},
+            ),
+            (
+                [],
+                False,
+                2,
+                {"conversation": []},
+            ),
+        ],
+    )
+    def test_prepare_conversation_outputs(
+        self,
+        conversation,
+        include_system_prompt: bool,
+        n_turns: int,
+        expected: Dict[str, Any],
+    ) -> None:
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=n_turns,
+            include_system_prompt=include_system_prompt,
+        )
+        assert task._prepare_conversation_outputs([conversation]) == [expected]
 
     def test_serialization(self) -> None:
         task = Magpie(
