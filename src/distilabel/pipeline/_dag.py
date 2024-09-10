@@ -773,7 +773,7 @@ class DAG(_Serializable):
         }
 
         for step in all_steps:
-            graph.append(f'    {step}["{step_name_to_class[step]} {step}"]')
+            graph.append(f'    {step}["{step_name_to_class[step]}"]')
 
         for connection in connections:
             from_step = connection["from"]
