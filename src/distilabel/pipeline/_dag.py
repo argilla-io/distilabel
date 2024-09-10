@@ -751,11 +751,11 @@ class DAG(_Serializable):
 
         return dag
 
-    def draw(self, top_to_bottom: bool = True) -> str:
+    def draw(self, top_to_bottom: bool = False) -> str:
         """Draws the DAG and returns the image content.
 
         Parameters:
-            top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `True`.
+            top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `False`.
 
         Returns:
             The image content.
