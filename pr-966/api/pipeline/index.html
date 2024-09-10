@@ -6882,14 +6882,14 @@ loading or it the step has been unloaded.</p>
 </span><span id="__span-0-635"><a id="__codelineno-0-635" name="__codelineno-0-635"></a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span>
 </span><span id="__span-0-636"><a id="__codelineno-0-636" name="__codelineno-0-636"></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="__span-0-637"><a id="__codelineno-0-637" name="__codelineno-0-637"></a>        <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;pipeline.png&quot;</span><span class="p">,</span>
-</span><span id="__span-0-638"><a id="__codelineno-0-638" name="__codelineno-0-638"></a>        <span class="n">top_to_bottom</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-638"><a id="__codelineno-0-638" name="__codelineno-0-638"></a>        <span class="n">top_to_bottom</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 </span><span id="__span-0-639"><a id="__codelineno-0-639" name="__codelineno-0-639"></a>    <span class="p">):</span>
 </span><span id="__span-0-640"><a id="__codelineno-0-640" name="__codelineno-0-640"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-641"><a id="__codelineno-0-641" name="__codelineno-0-641"></a><span class="sd">        Draws the pipeline.</span>
 </span><span id="__span-0-642"><a id="__codelineno-0-642" name="__codelineno-0-642"></a>
 </span><span id="__span-0-643"><a id="__codelineno-0-643" name="__codelineno-0-643"></a><span class="sd">        Parameters:</span>
 </span><span id="__span-0-644"><a id="__codelineno-0-644" name="__codelineno-0-644"></a><span class="sd">            path: The path to save the image to.</span>
-</span><span id="__span-0-645"><a id="__codelineno-0-645" name="__codelineno-0-645"></a><span class="sd">            top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `True`.</span>
+</span><span id="__span-0-645"><a id="__codelineno-0-645" name="__codelineno-0-645"></a><span class="sd">            top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `False`.</span>
 </span><span id="__span-0-646"><a id="__codelineno-0-646" name="__codelineno-0-646"></a>
 </span><span id="__span-0-647"><a id="__codelineno-0-647" name="__codelineno-0-647"></a><span class="sd">        Returns:</span>
 </span><span id="__span-0-648"><a id="__codelineno-0-648" name="__codelineno-0-648"></a><span class="sd">            The path to the saved image.</span>
@@ -8817,7 +8817,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
 
 
 <h5 id="distilabel.pipeline.base.BasePipeline.draw" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">draw</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;pipeline.png&#39;</span><span class="p">,</span> <span class="n">top_to_bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">draw</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;pipeline.png&#39;</span><span class="p">,</span> <span class="n">top_to_bottom</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#distilabel.pipeline.base.BasePipeline.draw" class="headerlink" title="Permanent link">&para;</a></h5>
 
@@ -8859,11 +8859,11 @@ your script and just want to pass it already processed. Defaults to <code>None</
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Whether to draw the DAG top to bottom. Defaults to <code>True</code>.</p>
+                <p>Whether to draw the DAG top to bottom. Defaults to <code>False</code>.</p>
               </div>
             </td>
             <td>
-                  <code>True</code>
+                  <code>False</code>
             </td>
           </tr>
       </tbody>
@@ -8914,14 +8914,14 @@ your script and just want to pass it already processed. Defaults to <code>None</
 <span class="normal"><a href="#__codelineno-0-653">653</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-635"><a id="__codelineno-0-635" name="__codelineno-0-635"></a><span class="k">def</span> <span class="nf">draw</span><span class="p">(</span>
 </span><span id="__span-0-636"><a id="__codelineno-0-636" name="__codelineno-0-636"></a>    <span class="bp">self</span><span class="p">,</span>
 </span><span id="__span-0-637"><a id="__codelineno-0-637" name="__codelineno-0-637"></a>    <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;pipeline.png&quot;</span><span class="p">,</span>
-</span><span id="__span-0-638"><a id="__codelineno-0-638" name="__codelineno-0-638"></a>    <span class="n">top_to_bottom</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-638"><a id="__codelineno-0-638" name="__codelineno-0-638"></a>    <span class="n">top_to_bottom</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 </span><span id="__span-0-639"><a id="__codelineno-0-639" name="__codelineno-0-639"></a><span class="p">):</span>
 </span><span id="__span-0-640"><a id="__codelineno-0-640" name="__codelineno-0-640"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-641"><a id="__codelineno-0-641" name="__codelineno-0-641"></a><span class="sd">    Draws the pipeline.</span>
 </span><span id="__span-0-642"><a id="__codelineno-0-642" name="__codelineno-0-642"></a>
 </span><span id="__span-0-643"><a id="__codelineno-0-643" name="__codelineno-0-643"></a><span class="sd">    Parameters:</span>
 </span><span id="__span-0-644"><a id="__codelineno-0-644" name="__codelineno-0-644"></a><span class="sd">        path: The path to save the image to.</span>
-</span><span id="__span-0-645"><a id="__codelineno-0-645" name="__codelineno-0-645"></a><span class="sd">        top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `True`.</span>
+</span><span id="__span-0-645"><a id="__codelineno-0-645" name="__codelineno-0-645"></a><span class="sd">        top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `False`.</span>
 </span><span id="__span-0-646"><a id="__codelineno-0-646" name="__codelineno-0-646"></a>
 </span><span id="__span-0-647"><a id="__codelineno-0-647" name="__codelineno-0-647"></a><span class="sd">    Returns:</span>
 </span><span id="__span-0-648"><a id="__codelineno-0-648" name="__codelineno-0-648"></a><span class="sd">        The path to the saved image.</span>
