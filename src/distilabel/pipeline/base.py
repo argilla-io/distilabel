@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import hashlib
 import logging
 import os
@@ -50,6 +49,7 @@ from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import GeneratorStep
 from distilabel.steps.generators.utils import make_generator_step
 from distilabel.utils.logging import setup_logging, stop_logging
+from distilabel.utils.notebook import in_notebook
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
     _Serializable,
@@ -645,8 +645,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         If running in a Jupyter notebook, display an image representing this `Pipeline`.
         """
-        from distilabel.utils.notebook import in_notebook
-
         if in_notebook():
             from IPython.display import Image, display  # type: ignore
 

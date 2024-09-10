@@ -453,7 +453,7 @@ class DAG(_Serializable):
 
         # Check if the `input_batch_size` of the step is equal or lower than the
         for predecessor in predecessors:
-            prev_step: "Step" = self.get_step(predecessor)[STEP_ATTR_NAME]
+            prev_step: "Step" = self.get_step(predecessor)[STEP_ATTR_NAME]  # type: ignore
             if step.input_batch_size > prev_step.input_batch_size:  # type: ignore
                 raise ValueError(
                     "A convergence step should have an `input_batch_size` equal or lower"
@@ -751,24 +751,23 @@ class DAG(_Serializable):
 
         return dag
 
-    def draw(self, path: str = "pipeline.png") -> str:
-        """Draws the DAG"""
+    def draw(self) -> str:
+        """Draws the DAG and returns the image content."""
         dump = self.dump()
-        steps = dump["steps"]
         step_name_to_class = {
             step["step"].get("name"): step["step"].get("type_info", {}).get("name")
-            for step in steps
+            for step in dump["steps"]
         }
         connections = dump["connections"]
-        graph = ["flowchart TD"]
 
-        # Collect all unique steps
+        graph = ["flowchart TD"]
         all_steps = {con["from"] for con in connections} | {
             to_step for con in connections for to_step in con["to"]
         }
 
         for step in all_steps:
             graph.append(f'    {step}["{step_name_to_class[step]} {step}"]')
+
         for connection in connections:
             from_step = connection["from"]
             for to_step in connection["to"]:
@@ -779,16 +778,15 @@ class DAG(_Serializable):
         return self._to_mermaid_image(graph_styled)
 
     def _to_mermaid_image(self, graph_styled: str) -> str:
-        graphbytes = graph_styled.encode("ascii")
-        base64_bytes = base64.b64encode(graphbytes)
-        base64_string = base64_bytes.decode("ascii")
+        """Converts a Mermaid graph to an image using the Mermaid Ink service."""
+        base64_string = base64.b64encode(graph_styled.encode("ascii")).decode("ascii")
         url = f"https://mermaid.ink/img/{base64_string}?type=png"
-        try:
-            resp = requests.get(url, timeout=10)
-            resp.raise_for_status()
-        except Exception as e:
-            raise ValueError(
-                "There was an issue with https://mermaid.ink/, see the stacktrace for details."
-            ) from e
 
-        return resp.content
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            return response.content
+        except requests.RequestException as e:
+            raise ValueError(
+                "Error accessing https://mermaid.ink/. See stacktrace for details."
+            ) from e
