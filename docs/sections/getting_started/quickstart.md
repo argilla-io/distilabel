@@ -74,31 +74,3 @@ if __name__ == "__main__":
 7. We run the pipeline with the parameters for the `load_dataset` and `text_generation` steps. The `load_dataset` step will use the repository `distilabel-internal-testing/instruction-dataset-mini` and the `test` split, and the `text_generation` task will use the `generation_kwargs` with the `temperature` set to `0.7` and the `max_new_tokens` set to `512`.
 
 8. Optionally, we can push the generated [`Distiset`][distilabel.distiset.Distiset] to the Hugging Face Hub repository `distilabel-example`. This will allow you to share the generated dataset with others and use it in other pipelines.
-
-## Minimal example
-
-`distilabel` gives a lot of flexibility to create your pipelines, but to start right away, you can omit a lot of the details and let default values:
-
-```python
-from distilabel.llms import InferenceEndpointsLLM
-from distilabel.pipeline import Pipeline
-from distilabel.steps.tasks import TextGeneration
-from datasets import load_dataset
-
-
-dataset = load_dataset("distilabel-internal-testing/instruction-dataset-mini", split="test")
-
-with Pipeline() as pipeline:  # (1)
-    TextGeneration(llm=InferenceEndpointsLLM(model_id="meta-llama/Meta-Llama-3.1-8B-Instruct"))  # (2)
-
-
-if __name__ == "__main__":    
-    distiset = pipeline.run(dataset=dataset)  # (3)
-    distiset.push_to_hub(repo_id="distilabel-example")
-```
-
-1. The [`Pipeline`][distilabel.pipeline.Pipeline] can take no arguments and generate a default name on it's own that will be tracked internally.
-
-2. Just as with the [`Pipeline`][distilabel.pipeline.Pipeline], the [`Step`][distilabel.steps.base.Step]s don't explicitly need a name.
-
-3. You can generate the dataset as you would normally do with Hugging Face and pass the dataset to the run method.

@@ -174,22 +174,23 @@ nav:
   - How-to guides:
       - "sections/how_to_guides/index.md"
       - Basic:
-          - Define Steps for your Pipeline:
+          - Basic Concepts: "sections/how_to_guides/basic/concepts.md"
+          - Steps for data operations:
               - "sections/how_to_guides/basic/step/index.md"
               - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
               - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
-          - Define Tasks that rely on LLMs:
+          - Tasks for prompting:
               - "sections/how_to_guides/basic/task/index.md"
               - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
-          - Define LLMs as local or remote models: "sections/how_to_guides/basic/llm/index.md"
-          - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
+          - LLMs for inference: "sections/how_to_guides/basic/llm/index.md"
+          - Pipeline for orchestration: "sections/how_to_guides/basic/pipeline/index.md"
       - Advanced:
-          - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
-          - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
-          - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
+          - The Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
+          - Cachinc and recovering pipelines: "sections/how_to_guides/advanced/caching.md"
+          - Exporting data to Argilla: "sections/how_to_guides/advanced/argilla.md"
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
           - Offline Batch Generation: "sections/how_to_guides/advanced/offline_batch_generation.md"
-          - Specify requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
+          - Specifying requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
           - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
           - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
           - Assigning resources to a step: "sections/how_to_guides/advanced/assigning_resources_to_step.md"
