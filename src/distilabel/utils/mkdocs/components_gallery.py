@@ -89,6 +89,21 @@ _STEPS_CATEGORY_TO_ICON = {
     "columns": ":material-table-column:",
 }
 
+_STEP_CATEGORY_TO_DESCRIPTION = {
+    "critique": "Critique steps are used to provide feedback on the quality of the data.",
+    "embedding": "Embedding steps are used to generate embeddings for the data.",
+    "evol": "Evol steps are used to evolve the data.",
+    "filtering": "Filtering steps are used to filter the data.",
+    "format": "Format steps are used to format the data.",
+    "load": "Load steps are used to load the data.",
+    "preference": "Preference steps are used to collect preferences on the data.",
+    "save": "Save steps are used to save the data.",
+    "scorer": "Scorer steps are used to score the data.",
+    "text-generation": "Text generation steps are used to generate text.",
+    "text-manipulation": "Text manipulation steps are used to manipulate the text.",
+    "tasks": "Tasks are used to define a specific use case.",
+}
+
 
 class ComponentsGalleryConfig(Config):
     enabled = Type(bool, default=True)
