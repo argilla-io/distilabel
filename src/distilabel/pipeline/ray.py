@@ -125,11 +125,12 @@ class RayPipeline(BasePipeline):
         )
 
         if distiset := super().run(
-            parameters,
-            use_cache,
-            storage_parameters,
-            use_fs_to_pass_data,
+            parameters=parameters,
+            use_cache=use_cache,
+            storage_parameters=storage_parameters,
+            use_fs_to_pass_data=use_fs_to_pass_data,
             dataset=dataset,
+            logging_handlers=logging_handlers,
         ):
             return distiset
 
