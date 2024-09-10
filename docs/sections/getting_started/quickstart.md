@@ -12,6 +12,16 @@ hide:
 
 To start off, `distilabel` is a framework for building pipelines for generating synthetic data using LLMs, that defines a [`Pipeline`][distilabel.pipeline.Pipeline] which orchestrates the execution of the [`Step`][distilabel.steps.base.Step] subclasses, and those will be connected as nodes in a Direct Acyclic Graph (DAG).
 
+## Installation
+
+To install the latest release with `hf-inference-endpoints` extra of the package from PyPI you can use the following command:
+
+```sh
+pip install distilabel[hf-inference-endpoints] --upgrade
+```
+
+## Define a pipeline
+
 In this guide we will walk you through the process of creating a simple pipeline that uses the [`InferenceEndpointsLLM`][distilabel.llms.InferenceEndpointsLLM] class to generate text. The [`Pipeline`][distilabel.pipeline.Pipeline] will load a dataset that contains a column named `prompt` from the Hugging Face Hub via the step [`LoadDataFromHub`][distilabel.steps.LoadDataFromHub] and then use the [`InferenceEndpointsLLM`][distilabel.llms.InferenceEndpointsLLM] class to generate text based on the dataset using the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task.
 
 > You can check the available models in the [Hugging Face Model Hub](https://huggingface.co/models?pipeline_tag=text-generation&sort=trending) and filter by `Inference status`.
@@ -92,7 +102,7 @@ with Pipeline() as pipeline:  # (1)
     TextGeneration(llm=InferenceEndpointsLLM(model_id="meta-llama/Meta-Llama-3.1-8B-Instruct"))  # (2)
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     distiset = pipeline.run(dataset=dataset)  # (3)
     distiset.push_to_hub(repo_id="distilabel-example")
 ```
