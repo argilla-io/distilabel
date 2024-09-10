@@ -97,7 +97,7 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/benchmarking_with_distilabel.md)
 
--   __llama.cpp with outlines__
+-   __Structured generation with outlines__
 
     ---
 
@@ -105,7 +105,7 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/llama_cpp_with_outlines.md)
 
--   __MistralAI with instructor__
+-   __Structured generation with instructor__
 
     ---
 

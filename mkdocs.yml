@@ -196,7 +196,7 @@ nav:
           - Saving step generated artifacts: "sections/how_to_guides/advanced/saving_step_generated_artifacts.md"
           - Serving an LLM for sharing it between several tasks: "sections/how_to_guides/advanced/serving_an_llm_for_reuse.md"
           - Scaling and distributing a pipeline with Ray: "sections/how_to_guides/advanced/scaling_with_ray.md"
-  - Pipeline Samples:
+  - Tutorials:
       - "sections/pipeline_samples/index.md"
       - Tutorials:
           - Generate a preference dataset: "sections/pipeline_samples/tutorials/generate_preference_dataset.ipynb"
@@ -210,8 +210,8 @@ nav:
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
       - Examples:
           - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
-          - Llama cpp with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"
-          - MistralAI with instructor: "sections/pipeline_samples/examples/mistralai_with_instructor.md"
+          - Structured generation with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"
+          - Structured generation with instructor: "sections/pipeline_samples/examples/mistralai_with_instructor.md"
   - API Reference:
       - Step:
           - "api/step/index.md"
