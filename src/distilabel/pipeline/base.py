@@ -632,6 +632,29 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         return self.dag.dump()
 
+    def draw(self, path: Optional[Union[str, Path]] = "pipeline.png"):
+        """
+        Draws the pipeline.
+        """
+        png = self.dag.draw()
+        with open(path, "wb") as f:
+            f.write(png)
+        return path
+
+    def __repr__(self) -> str:
+        """
+        If running in a Jupyter notebook, display an image representing this `Pipeline`.
+        """
+        from distilabel.utils.notebook import in_notebook
+
+        if in_notebook():
+            from IPython.display import Image, display  # type: ignore
+
+            image_data = self.dag.draw()
+
+            display(Image(image_data))
+        return super().__repr__()
+
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
         return {
             "distilabel": {"version": __version__},

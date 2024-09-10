@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import base64
 import inspect
 from collections import defaultdict
 from functools import cached_property
@@ -29,6 +29,7 @@ from typing import (
 )
 
 import networkx as nx
+import requests
 
 from distilabel.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
@@ -749,3 +750,45 @@ class DAG(_Serializable):
             )
 
         return dag
+
+    def draw(self, path: str = "pipeline.png") -> str:
+        """Draws the DAG"""
+        dump = self.dump()
+        steps = dump["steps"]
+        step_name_to_class = {
+            step["step"].get("name"): step["step"].get("type_info", {}).get("name")
+            for step in steps
+        }
+        connections = dump["connections"]
+        graph = ["flowchart TD"]
+
+        # Collect all unique steps
+        all_steps = {con["from"] for con in connections} | {
+            to_step for con in connections for to_step in con["to"]
+        }
+
+        for step in all_steps:
+            graph.append(f'    {step}["{step_name_to_class[step]} {step}"]')
+        for connection in connections:
+            from_step = connection["from"]
+            for to_step in connection["to"]:
+                graph.append(f"    {from_step} --> {to_step}")
+
+        graph.append("classDef component text-align:center;")
+        graph_styled = "\n".join(graph)
+        return self._to_mermaid_image(graph_styled)
+
+    def _to_mermaid_image(self, graph_styled: str) -> str:
+        graphbytes = graph_styled.encode("ascii")
+        base64_bytes = base64.b64encode(graphbytes)
+        base64_string = base64_bytes.decode("ascii")
+        url = f"https://mermaid.ink/img/{base64_string}?type=png"
+        try:
+            resp = requests.get(url, timeout=10)
+            resp.raise_for_status()
+        except Exception as e:
+            raise ValueError(
+                "There was an issue with https://mermaid.ink/, see the stacktrace for details."
+            ) from e
+
+        return resp.content
