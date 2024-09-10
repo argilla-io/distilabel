@@ -751,8 +751,15 @@ class DAG(_Serializable):
 
         return dag
 
-    def draw(self) -> str:
-        """Draws the DAG and returns the image content."""
+    def draw(self, top_to_bottom: bool = True) -> str:
+        """Draws the DAG and returns the image content.
+
+        Parameters:
+            top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `True`.
+
+        Returns:
+            The image content.
+        """
         dump = self.dump()
         step_name_to_class = {
             step["step"].get("name"): step["step"].get("type_info", {}).get("name")
@@ -760,7 +767,7 @@ class DAG(_Serializable):
         }
         connections = dump["connections"]
 
-        graph = ["flowchart TD"]
+        graph = [f"flowchart {'TD' if top_to_bottom else 'LR'}"]
         all_steps = {con["from"] for con in connections} | {
             to_step for con in connections for to_step in con["to"]
         }
@@ -778,7 +785,14 @@ class DAG(_Serializable):
         return self._to_mermaid_image(graph_styled)
 
     def _to_mermaid_image(self, graph_styled: str) -> str:
-        """Converts a Mermaid graph to an image using the Mermaid Ink service."""
+        """Converts a Mermaid graph to an image using the Mermaid Ink service.
+
+        Parameters:
+            graph_styled: The Mermaid graph to convert to an image.
+
+        Returns:
+            The image content.
+        """
         base64_string = base64.b64encode(graph_styled.encode("ascii")).decode("ascii")
         url = f"https://mermaid.ink/img/{base64_string}?type=png"
 

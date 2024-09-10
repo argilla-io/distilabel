@@ -632,11 +632,22 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         return self.dag.dump()
 
-    def draw(self, path: Optional[Union[str, Path]] = "pipeline.png"):
+    def draw(
+        self,
+        path: Optional[Union[str, Path]] = "pipeline.png",
+        top_to_bottom: bool = True,
+    ):
         """
         Draws the pipeline.
+
+        Parameters:
+            path: The path to save the image to.
+            top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `True`.
+
+        Returns:
+            The path to the saved image.
         """
-        png = self.dag.draw()
+        png = self.dag.draw(top_to_bottom=top_to_bottom)
         with open(path, "wb") as f:
             f.write(png)
         return path
