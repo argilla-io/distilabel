@@ -165,7 +165,6 @@ class DBSCAN(GlobalStep):
 
         self._logger.info("🏋️‍♀️ Start training DBSCAN...")
         fitted_clusterer = self._clusterer.fit(projections)
-        self._logger.info("🏅 DBSCAN training done!")
         cluster_labels = fitted_clusterer.labels_
         # Sets the cluster labels for each input, -1 means it wasn't clustered
         for input, cluster_label in zip(inputs, cluster_labels):
