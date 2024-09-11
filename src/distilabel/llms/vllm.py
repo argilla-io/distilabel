@@ -44,6 +44,13 @@ if TYPE_CHECKING:
 
     from distilabel.steps.tasks.typing import StandardInput
 
+LogitsProcessorFn = Union[
+    Callable[[List[int], Any], Any],
+    Callable[[List[int], List[int], Any], Any],
+]
+
+LogitsProcessors = List[LogitsProcessorFn]
+
 
 class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     """`vLLM` library LLM implementation.
@@ -159,7 +166,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     _model: "_vLLM" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
-    _logits_processor: Optional[Callable] = PrivateAttr(default=None)
+    _structured_output_logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the `vLLM` model using either the path or the Hugging Face Hub repository id.
@@ -197,12 +204,14 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             self._tokenizer.chat_template = self.chat_template  # type: ignore
 
         if self.structured_output:
-            self._logits_processor = self._prepare_structured_output(
+            self._structured_output_logits_processor = self._prepare_structured_output(
                 self.structured_output
             )
 
     def unload(self) -> None:
         """Unloads the `vLLM` model."""
+        self._model = None  # type: ignore
+        self._tokenizer = None  # type: ignore
         CudaDevicePlacementMixin.unload(self)
         super().unload()
 
@@ -283,11 +292,17 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         inputs: List[FormattedInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
-        frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
+        frequency_penalty: float = 0.0,
+        repetition_penalty: float = 1.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
         top_k: int = -1,
+        min_p: float = 0.0,
+        stop: Optional[List[str]] = None,
+        stop_token_ids: Optional[List[int]] = None,
+        include_stop_str_in_output: bool = False,
+        logits_processors: Optional[LogitsProcessors] = None,
         extra_sampling_params: Optional[Dict[str, Any]] = None,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input.
@@ -298,13 +313,24 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            frequency_penalty: the repetition penalty to use for the generation. Defaults
-                to `0.0`.
             presence_penalty: the presence penalty to use for the generation. Defaults to
                 `0.0`.
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            repetition_penalty: the repetition penalty to use for the generation Defaults to
+                `1.0`.
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             top_k: the top-k value to use for the generation. Defaults to `0`.
+            min_p: the minimum probability to use for the generation. Defaults to `0.0`.
+            stop: a list of strings that will be used to stop the generation when found.
+                Defaults to `None`.
+            stop_token_ids: a list of token ids that will be used to stop the generation
+                when found. Defaults to `None`.
+            include_stop_str_in_output: whether to include the stop string in the output.
+                Defaults to `False`.
+            logits_processors: a list of functions to process the logits before sampling.
+                Defaults to `None`.
             extra_sampling_params: dictionary with additional arguments to be passed to
                 the `SamplingParams` class from `vllm`.
 
@@ -313,8 +339,12 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         """
         from vllm import SamplingParams
 
+        if not logits_processors:
+            logits_processors = []
+
         if extra_sampling_params is None:
             extra_sampling_params = {}
+
         structured_output = None
 
         if isinstance(inputs[0], tuple):
@@ -324,25 +354,31 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             prepared_batches = [([self.prepare_input(input) for input in inputs], None)]
             sorted_indices = None
 
-        # In case we have a single structured output for the dataset, we can
-        logits_processors = None
-        if self._logits_processor:
-            logits_processors = [self._logits_processor]
+        # Case in which we have a single structured output for the dataset
+        if self._structured_output_logits_processor:
+            logits_processors.append(self._structured_output_logits_processor)
 
         batched_outputs = []
 
         for prepared_inputs, structured_output in prepared_batches:
             if structured_output:
-                logits_processors = [self._prepare_structured_output(structured_output)]
+                logits_processors.append(
+                    self._prepare_structured_output(structured_output)
+                )
 
             sampling_params = SamplingParams(  # type: ignore
                 n=num_generations,
                 presence_penalty=presence_penalty,
                 frequency_penalty=frequency_penalty,
+                repetition_penalty=repetition_penalty,
                 temperature=temperature,
                 top_p=top_p,
                 top_k=top_k,
+                min_p=min_p,
                 max_tokens=max_new_tokens,
+                stop=stop,
+                stop_token_ids=stop_token_ids,
+                include_stop_str_in_output=include_stop_str_in_output,
                 logits_processors=logits_processors,
                 **extra_sampling_params,
             )
