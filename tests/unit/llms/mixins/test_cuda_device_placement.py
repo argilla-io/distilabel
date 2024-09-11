@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Generator, List, Union
 from unittest import mock
 
 import pytest
+
 from distilabel.llms.base import LLM
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 

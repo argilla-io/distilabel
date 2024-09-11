@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
 from typing import TYPE_CHECKING, Dict, List
 
 import pytest
+
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.ray import RayPipeline
 from distilabel.steps.base import Step, StepInput
@@ -148,9 +148,7 @@ class GenerateResponse(Step):
         return ["response"]
 
 
-@pytest.mark.skipif(
-    sys.version_info >= (3, 12), reason="`ray` is not compatible with `python>=3.12`"
-)
+@pytest.mark.skip_python_versions(["3.12"])
 def test_run_pipeline() -> None:
     import ray
     from ray.cluster_utils import Cluster

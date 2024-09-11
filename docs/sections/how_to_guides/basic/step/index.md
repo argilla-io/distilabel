@@ -50,7 +50,7 @@ next(step.process([{"input_field": "value"}]))
 
 ### Runtime parameters
 
-`Step`s can also have `RuntimeParameter`, which are parameters that can only used after the pipeline initialisation when calling the `Pipeline.run`.
+`Step`s can also have `RuntimeParameter`, which are parameters that can only be used after the pipeline initialisation when calling the `Pipeline.run`.
 
 ```python
 from distilabel.mixins.runtime_parameters import RuntimeParameter

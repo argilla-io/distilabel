@@ -15,13 +15,14 @@
 from typing import Any, Dict, Literal, Type, Union
 
 import pytest
+from pydantic import BaseModel
+
 from distilabel.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
     # StructuredOutputType,
     model_to_schema,
 )
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
-from pydantic import BaseModel
 
 
 class DummyUserTest(BaseModel):
@@ -34,6 +35,9 @@ DUMP_JSON = {
     "cuda_devices": "auto",
     "generation_kwargs": {},
     "magpie_pre_query_template": None,
+    "jobs_ids": None,
+    "offline_batch_generation_block_until_done": None,
+    "use_offline_batch_generation": False,
     "structured_output": {
         "format": "json",
         "schema": {
@@ -70,6 +74,9 @@ DUMP_REGEX = {
     "cuda_devices": "auto",
     "generation_kwargs": {},
     "magpie_pre_query_template": None,
+    "jobs_ids": None,
+    "offline_batch_generation_block_until_done": None,
+    "use_offline_batch_generation": False,
     "structured_output": {
         "format": "regex",
         "schema": "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)",

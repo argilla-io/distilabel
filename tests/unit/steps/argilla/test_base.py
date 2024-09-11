@@ -17,6 +17,7 @@ import sys
 from typing import TYPE_CHECKING, List
 
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput

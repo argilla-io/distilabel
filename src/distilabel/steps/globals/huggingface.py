@@ -58,7 +58,6 @@ class PushToHub(GlobalStep):
         - huggingface
 
     Examples:
-
         Push batches of your dataset to the Hugging Face Hub repository:
 
         ```python

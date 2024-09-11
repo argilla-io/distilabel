@@ -22,7 +22,6 @@ from distilabel.pipeline.routing_batch_function import (
     sample_n_steps,
 )
 from distilabel.utils.serialization import TYPE_INFO_KEY
-
 from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
 

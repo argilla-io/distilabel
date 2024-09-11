@@ -14,6 +14,7 @@
 
 from typing import TYPE_CHECKING, Any, Dict
 
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.base import LLM
 from distilabel.steps.base import Step, StepInput
 from distilabel.utils.chat import is_openai_format
@@ -49,7 +50,6 @@ class GenerateEmbeddings(Step):
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)
 
     Examples:
-
         Rank LLM candidates:
 
         ```python
@@ -76,7 +76,6 @@ class GenerateEmbeddings(Step):
         ```
 
     Citations:
-
         ```
         @misc{liu2024makesgooddataalignment,
             title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},
@@ -130,9 +129,10 @@ class GenerateEmbeddings(Step):
         if is_openai_format(text):
             return text
 
-        raise ValueError(
+        raise DistilabelUserError(
             f"Couldn't format input for step {self.name}. The `text` input column has to"
-            " be a string or a list of dictionaries in OpenAI chat-like format."
+            " be a string or a list of dictionaries in OpenAI chat-like format.",
+            page="components-gallery/tasks/generateembeddings/",
         )
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore

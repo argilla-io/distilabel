@@ -13,32 +13,48 @@
 # limitations under the License.
 
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
-
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import DummyAsyncLLM
 
 
 class TestTextGeneration:
     def test_format_input(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
-        task = TextGeneration(
-            name="task", llm=llm, pipeline=pipeline, use_system_prompt=False
-        )
+        llm = DummyAsyncLLM()
+        task = TextGeneration(name="task", llm=llm)
 
-        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
+        assert task.format_input({"instruction": "test"}) == [
             {"role": "user", "content": "test"}
         ]
 
     def test_format_input_with_system_prompt(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = TextGeneration(
-            name="task",
-            llm=llm,
-            pipeline=pipeline,
-            use_system_prompt=True,
+            name="task", llm=llm, pipeline=pipeline, system_prompt="test"
+        )
+
+        assert task.format_input({"instruction": "test"}) == [
+            {"role": "system", "content": "test"},
+            {"role": "user", "content": "test"},
+        ]
+
+    def test_format_input_with_row_system_prompt(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyAsyncLLM()
+        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
+
+        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
+            {"role": "system", "content": "test"},
+            {"role": "user", "content": "test"},
+        ]
+
+    def test_format_input_with_row_system_prompt_and_system_prompt(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyAsyncLLM()
+        task = TextGeneration(
+            name="task", llm=llm, pipeline=pipeline, system_prompt="i won't be used"
         )
 
         assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
@@ -48,7 +64,7 @@ class TestTextGeneration:
 
     def test_format_input_errors(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = TextGeneration(
             name="task", llm=llm, pipeline=pipeline, use_system_prompt=True
         )
@@ -64,17 +80,9 @@ class TestTextGeneration:
         ):
             task.format_input({"instruction": 1})
 
-        with pytest.warns(
-            UserWarning,
-            match=r"\`use_system_prompt\` is set to \`True\`, but no \`system_prompt\` in input batch, so it will be ignored.",
-        ):
-            assert task.format_input({"instruction": "test"}) == [
-                {"role": "user", "content": "test"}
-            ]
-
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = TextGeneration(
             name="task", llm=llm, pipeline=pipeline, add_raw_input=False
         )
@@ -94,7 +102,7 @@ class TestTextGeneration:
 class TestChatGeneration:
     def test_format_input(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = ChatGeneration(name="task", llm=llm, pipeline=pipeline)
 
         assert task.format_input(
@@ -111,7 +119,7 @@ class TestChatGeneration:
 
     def test_format_input_errors(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = ChatGeneration(name="task", llm=llm, pipeline=pipeline)
 
         with pytest.raises(ValueError, match="The last message must be from the user"):
@@ -126,7 +134,7 @@ class TestChatGeneration:
 
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = ChatGeneration(
             name="task", llm=llm, pipeline=pipeline, add_raw_input=False
         )

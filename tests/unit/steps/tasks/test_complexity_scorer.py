@@ -15,17 +15,17 @@
 from typing import Any, Dict, Union
 
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
-
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import DummyAsyncLLM
 
 
 class TestComplexityScorer:
     def test_format_input(self) -> None:
         task = ComplexityScorer(
             name="complexity_scorer",
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -78,7 +78,8 @@ class TestComplexityScorer:
         expected: Dict[str, Any],
     ) -> None:
         task = ComplexityScorer(
-            llm=DummyLLM(), use_default_structured_output=use_default_structured_output
+            llm=DummyAsyncLLM(),
+            use_default_structured_output=use_default_structured_output,
         )
         task.load()
 

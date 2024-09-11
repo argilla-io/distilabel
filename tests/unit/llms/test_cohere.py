@@ -19,6 +19,7 @@ from unittest import mock
 
 import nest_asyncio
 import pytest
+
 from distilabel.llms.cohere import CohereLLM
 
 from .utils import DummyUserDetail
@@ -140,6 +141,9 @@ class TestCohereLLM:
                     "timeout": 120,
                     "client_name": "distilabel",
                     "structured_output": None,
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.cohere",
                         "name": "CohereLLM",
@@ -163,6 +167,9 @@ class TestCohereLLM:
                         "mode": "tool_call",
                         "max_retries": 1,
                     },
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.cohere",
                         "name": "CohereLLM",

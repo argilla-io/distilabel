@@ -207,11 +207,6 @@ class CudaDevicePlacementMixin(BaseModel):
                 return device
 
         return None
-        raise RuntimeError(
-            "Couldn't find an available CUDA device automatically to be used by the LLM"
-            f" '{self._llm_identifier}'. For forcing the use of a specific device, set the"
-            " `cuda_devices` attribute to a list with the desired device(s)."
-        )
 
     def _set_cuda_visible_devices(self) -> None:
         """Sets the `CUDA_VISIBLE_DEVICES` environment variable to the list of CUDA devices

@@ -21,6 +21,7 @@ from distilabel.steps.base import (
     StepInput,
     StepResources,
 )
+from distilabel.steps.columns.combine import CombineOutputs
 from distilabel.steps.columns.expand import ExpandColumns
 from distilabel.steps.columns.group import CombineColumns, GroupColumns
 from distilabel.steps.columns.keep import KeepColumns
@@ -29,6 +30,8 @@ from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
 from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
 from distilabel.steps.embeddings.nearest_neighbour import FaissNearestNeighbour
+from distilabel.steps.filtering.embedding import EmbeddingDedup
+from distilabel.steps.filtering.minhash import MinHashDedup
 from distilabel.steps.formatting.conversation import ConversationTemplate
 from distilabel.steps.formatting.dpo import (
     FormatChatGenerationDPO,
@@ -53,33 +56,36 @@ from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 __all__ = [
     "PreferenceToArgilla",
     "TextGenerationToArgilla",
+    "GeneratorStep",
+    "GlobalStep",
+    "Step",
+    "StepInput",
     "StepResources",
-    "GroupColumns",
-    "MergeColumns",
+    "CombineOutputs",
+    "ExpandColumns",
     "CombineColumns",
-    "ConversationTemplate",
+    "GroupColumns",
+    "KeepColumns",
+    "MergeColumns",
+    "step",
     "DeitaFiltering",
     "EmbeddingGeneration",
     "FaissNearestNeighbour",
-    "ExpandColumns",
+    "ConversationTemplate",
     "FormatChatGenerationDPO",
-    "FormatChatGenerationSFT",
     "FormatTextGenerationDPO",
+    "FormatChatGenerationSFT",
     "FormatTextGenerationSFT",
-    "GeneratorStep",
-    "GlobalStep",
-    "KeepColumns",
     "LoadDataFromDicts",
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
+    "EmbeddingDedup",
+    "MinHashDedup",
     "make_generator_step",
     "PushToHub",
-    "Step",
-    "StepInput",
     "RewardModelScore",
     "TruncateTextColumn",
     "GeneratorStepOutput",
     "StepOutput",
-    "step",
 ]

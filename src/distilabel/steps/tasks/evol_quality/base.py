@@ -67,7 +67,6 @@ class EvolQuality(Task):
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
 
     Examples:
-
         Evolve the quality of the responses given a prompt:
 
         ```python
@@ -103,7 +102,6 @@ class EvolQuality(Task):
         ```
 
     Citations:
-
         ```
         @misc{liu2024makesgooddataalignment,
             title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},

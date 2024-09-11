@@ -50,7 +50,6 @@ class FormatTextGenerationSFT(Step):
         - generation
 
     Examples:
-
         Format your dataset for SFT fine tuning:
 
         ```python
@@ -143,8 +142,7 @@ class FormatTextGenerationSFT(Step):
 
 
 class FormatChatGenerationSFT(Step):
-    """Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT) following the
-    standard formatting from frameworks such as `axolotl` or `alignment-handbook`.
+    """Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT).
 
     `FormatChatGenerationSFT` is a `Step` that formats the output of a `ChatGeneration` task for
     Supervised Fine-Tuning (SFT) following the standard formatting from frameworks such as `axolotl`
@@ -172,8 +170,7 @@ class FormatChatGenerationSFT(Step):
         - generation
 
     Examples:
-
-        Format your dataset for Supervised Fine Tuning (SFT):
+        Format your dataset for SFT:
 
         ```python
         from distilabel.steps import FormatChatGenerationSFT

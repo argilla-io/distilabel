@@ -11,13 +11,31 @@ hide: toc
 
 <div class="grid cards" markdown>
 
+-   __Generate a preference dataset__
+
+    ---
+
+    Learn about synthetic data generation for ORPO and DPO.
+
+    [:octicons-arrow-right-24: Tutorial](tutorials/generate_preference_dataset.ipynb)
+
+
+-   __Clean an existing preference dataset__
+
+    ---
+
+    Learn about how to provide AI feedback to clean an existing dataset.
+
+    [:octicons-arrow-right-24: Tutorial](tutorials/clean_existing_dataset.ipynb)
+
+
 -   __Retrieval and reranking models__
 
     ---
 
     Learn about synthetic data generation for fine-tuning custom retrieval and reranking models.
 
-    [:octicons-arrow-right-24: Tutorial](../tutorials/GenerateSentencePair.ipynb)
+    [:octicons-arrow-right-24: Tutorial](tutorials/GenerateSentencePair.ipynb)
 
 </div>
 
@@ -31,7 +49,7 @@ hide: toc
 
     Learn about an approach to generate mathematical proofs for theorems generated from informal math problems.
 
-    [:octicons-arrow-right-24: Example](../papers/deepseek_prover.md)
+    [:octicons-arrow-right-24: Example](papers/deepseek_prover.md)
 
 -   __DEITA__
 
@@ -39,7 +57,7 @@ hide: toc
 
     Learn about prompt, response tuning for complexity and quality and LLMs as judges for automatic data selection.
 
-    [:octicons-arrow-right-24: Paper](../papers/deita.md)
+    [:octicons-arrow-right-24: Paper](papers/deita.md)
 
 -   __Instruction Backtranslation__
 
@@ -47,7 +65,7 @@ hide: toc
 
     Learn about automatically labeling human-written text with corresponding instructions.
 
-    [:octicons-arrow-right-24: Paper](../papers/instruction_backtranslation.md)
+    [:octicons-arrow-right-24: Paper](papers/instruction_backtranslation.md)
 
 -   __Prometheus 2__
 
@@ -55,7 +73,7 @@ hide: toc
 
     Learn about using open-source models as judges for direct assessment and pair-wise ranking.
 
-    [:octicons-arrow-right-24: Paper](../papers/prometheus.md)
+    [:octicons-arrow-right-24: Paper](papers/prometheus.md)
 
 -   __UltraFeedback__
 
@@ -63,7 +81,7 @@ hide: toc
 
     Learn about a large-scale, fine-grained, diverse preference dataset, used for training powerful reward and critic models.
 
-    [:octicons-arrow-right-24: Paper](../papers/ultrafeedback.md)
+    [:octicons-arrow-right-24: Paper](papers/ultrafeedback.md)
 
 </div>
 
@@ -77,7 +95,7 @@ hide: toc
 
     Learn about reproducing the Arena Hard benchmark with disitlabel.
 
-    [:octicons-arrow-right-24: Example](./benchmarking_with_distilabel.md)
+    [:octicons-arrow-right-24: Example](examples/benchmarking_with_distilabel.md)
 
 -   __llama.cpp with outlines__
 
@@ -85,7 +103,7 @@ hide: toc
 
     Learn about generating RPG characters following a pydantic.BaseModel with outlines in distilabel.
 
-    [:octicons-arrow-right-24: Example](./llama_cpp_with_outlines.md)
+    [:octicons-arrow-right-24: Example](examples/llama_cpp_with_outlines.md)
 
 -   __MistralAI with instructor__
 
@@ -93,7 +111,7 @@ hide: toc
 
     Learn about answering instructions with knowledge graphs defined as pydantic.BaseModel objects using instructor in distilabel.
 
-    [:octicons-arrow-right-24: Example](../papers/prometheus.md)
+    [:octicons-arrow-right-24: Example](examples/mistralai_with_instructor.md)
 
 
 </div>

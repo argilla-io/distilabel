@@ -61,7 +61,6 @@ class MixtureOfAgentsLLM(AsyncLLM):
         - [Mixture-of-Agents Enhances Large Language Model Capabilities](https://arxiv.org/abs/2406.04692)
 
     Examples:
-
         Generate text:
 
         ```python
@@ -91,7 +90,7 @@ class MixtureOfAgentsLLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(
+        output = llm.generate_outputs(
             inputs=[
                 [
                     {

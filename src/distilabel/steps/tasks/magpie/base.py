@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import Field, PositiveInt
 
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.base import LLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import (
@@ -45,7 +46,6 @@ class MagpieBase(RuntimeParametersMixin):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
 
     Citations:
-
         ```
         @misc{xu2024magpiealignmentdatasynthesis,
             title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
@@ -164,6 +164,13 @@ class MagpieBase(RuntimeParametersMixin):
         """
         outputs = []
         for conversation in conversations:
+            # Something went wrong with the `LLM` and it didn't generate any message
+            if len(conversation) == 0:
+                if self.n_turns == 1:
+                    outputs.append({"instruction": None, "response": None})
+                else:
+                    outputs.append({"conversation": []})
+                continue
             if not self.include_system_prompt and conversation[0]["role"] == "system":
                 conversation.pop(0)
             if self.n_turns == 1 and len(conversation) == 2:
@@ -327,7 +334,6 @@ class Magpie(Task, MagpieBase):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
 
     Examples:
-
         Generating instructions with Llama 3 8B Instruct and TransformersLLM:
 
         ```python
@@ -440,9 +446,10 @@ class Magpie(Task, MagpieBase):
         super().model_post_init(__context)
 
         if not isinstance(self.llm, MagpieChatTemplateMixin):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"`Magpie` task can only be used with an `LLM` that uses the `MagpieChatTemplateMixin`."
-                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin."
+                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin.",
+                page="components-gallery/tasks/magpie/",
             )
 
         self.llm.use_magpie_template = True

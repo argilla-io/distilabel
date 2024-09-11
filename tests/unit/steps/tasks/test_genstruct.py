@@ -15,17 +15,17 @@
 from typing import Any, Dict, Union
 
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.genstruct import Genstruct
-
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import DummyAsyncLLM
 
 
 class TestGenstruct:
     def test_format_input(self) -> None:
         task = Genstruct(
             name="genstruct",
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -62,7 +62,7 @@ class TestGenstruct:
     ) -> None:
         task = Genstruct(
             name="genstruct",
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()

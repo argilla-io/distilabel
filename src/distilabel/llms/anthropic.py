@@ -75,7 +75,6 @@ class AnthropicLLM(AsyncLLM):
             Defaults to `6`.
 
     Examples:
-
         Generate text:
 
         ```python
@@ -85,11 +84,7 @@ class AnthropicLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Generate structured data:
@@ -111,7 +106,7 @@ class AnthropicLLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
         ```
     """
 

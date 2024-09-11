@@ -16,6 +16,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
+
 from distilabel.llms.ollama import OllamaLLM
 
 
@@ -81,6 +82,9 @@ class TestOllamaLLM:
             "follow_redirects": True,
             "generation_kwargs": {},
             "structured_output": None,
+            "jobs_ids": None,
+            "offline_batch_generation_block_until_done": None,
+            "use_offline_batch_generation": False,
             "type_info": {
                 "module": "distilabel.llms.ollama",
                 "name": "OllamaLLM",

@@ -33,6 +33,7 @@ from typing import (
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, Self
 
+from distilabel.errors import DistilabelTypeError, DistilabelUserError
 from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
@@ -439,9 +440,10 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         for parameter in self.process_parameters:
             if is_parameter_annotated_with(parameter, _STEP_INPUT_ANNOTATION):
                 if step_input_parameter is not None:
-                    raise TypeError(
+                    raise DistilabelTypeError(
                         f"Step '{self.name}' should have only one parameter with type"
-                        " hint `StepInput`."
+                        " hint `StepInput`.",
+                        page="sections/how_to_guides/basic/step/#defining-custom-steps",
                     )
                 step_input_parameter = parameter
         return step_input_parameter
@@ -458,10 +460,11 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
 
         for input in self.input_mappings:
             if input not in self.inputs:
-                raise ValueError(
+                raise DistilabelUserError(
                     f"The input column '{input}' doesn't exist in the inputs of the"
                     f" step '{self.name}'. Inputs of the step are: {self.inputs}."
-                    " Please, review the `inputs_mappings` argument of the step."
+                    " Please, review the `inputs_mappings` argument of the step.",
+                    page="sections/how_to_guides/basic/step/#arguments",
                 )
 
     def verify_outputs_mappings(self) -> None:
@@ -476,10 +479,11 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
 
         for output in self.output_mappings:
             if output not in self.outputs:
-                raise ValueError(
+                raise DistilabelUserError(
                     f"The output column '{output}' doesn't exist in the outputs of the"
                     f" step '{self.name}'. Outputs of the step are: {self.outputs}."
-                    " Please, review the `outputs_mappings` argument of the step."
+                    " Please, review the `outputs_mappings` argument of the step.",
+                    page="sections/how_to_guides/basic/step/#arguments",
                 )
 
     def get_inputs(self) -> Dict[str, bool]:
@@ -624,7 +628,11 @@ class Step(_Step, ABC):
             The output rows.
         """
 
-        inputs = self._apply_input_mappings(args) if self.input_mappings else args
+        inputs, overriden_inputs = (
+            self._apply_input_mappings(args)
+            if self.input_mappings
+            else (args, [{} for _ in range(len(args[0]))])
+        )
 
         # If the `Step` was built using the `@step` decorator, then we need to pass
         # the runtime parameters as kwargs, so they can be used within the processing
@@ -637,47 +645,76 @@ class Step(_Step, ABC):
 
         for output_rows in generator:
             yield [
-                {
-                    # Apply output mapping and revert input mapping
-                    self.output_mappings.get(k, None)
-                    or self.input_mappings.get(k, None)
-                    or k: v
-                    for k, v in row.items()
-                }
-                for row in output_rows
+                self._apply_mappings_and_restore_overriden(row, overriden_inputs[i])
+                for i, row in enumerate(output_rows)
             ]
-
-    def _revert_input_mappings(self, input: Dict[str, Any]) -> Dict[str, Any]:
-        """Reverts the `input_mappings` of the step to the input row.
-
-        Args:
-            input: The input row.
-
-        Returns:
-            The input row with the `input_mappings` reverted.
-        """
-        return {self.input_mappings.get(k, k): v for k, v in input.items()}
 
     def _apply_input_mappings(
         self, inputs: Tuple[List[Dict[str, Any]], ...]
-    ) -> List[List[Dict[str, Any]]]:
+    ) -> Tuple[Tuple[List[Dict[str, Any]], ...], List[Dict[str, Any]]]:
         """Applies the `input_mappings` to the input rows.
 
         Args:
             inputs: The input rows.
 
         Returns:
-            The input rows with the `input_mappings` applied.
+            The input rows with the `input_mappings` applied and the overriden values
+                that were replaced by the `input_mappings`.
         """
         reverted_input_mappings = {v: k for k, v in self.input_mappings.items()}
 
-        return [
-            [
-                {reverted_input_mappings.get(k, k): v for k, v in row.items()}
-                for row in row_inputs
-            ]
-            for row_inputs in inputs
-        ]
+        renamed_inputs = []
+        overriden_inputs = []
+        for i, row_inputs in enumerate(inputs):
+            renamed_row_inputs = []
+            for row in row_inputs:
+                overriden_keys = {}
+                renamed_row = {}
+                for k, v in row.items():
+                    renamed_key = reverted_input_mappings.get(k, k)
+
+                    if renamed_key not in renamed_row or k != renamed_key:
+                        renamed_row[renamed_key] = v
+
+                        if k != renamed_key and renamed_key in row and len(inputs) == 1:
+                            overriden_keys[renamed_key] = row[renamed_key]
+
+                if i == 0:
+                    overriden_inputs.append(overriden_keys)
+                renamed_row_inputs.append(renamed_row)
+            renamed_inputs.append(renamed_row_inputs)
+        return tuple(renamed_inputs), overriden_inputs
+
+    def _apply_mappings_and_restore_overriden(
+        self, row: Dict[str, Any], overriden: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Reverts the `input_mappings` applied to the input rows and applies the `output_mappings`
+        to the output rows. In addition, it restores the overriden values that were replaced
+        by the `input_mappings`.
+
+        Args:
+            row: The output row.
+            overriden: The overriden values that were replaced by the `input_mappings`.
+
+        Returns:
+            The output row with the `output_mappings` applied and the overriden values
+            restored.
+        """
+        result = {}
+        for k, v in row.items():
+            mapped_key = (
+                self.output_mappings.get(k, None)
+                or self.input_mappings.get(k, None)
+                or k
+            )
+            result[mapped_key] = v
+
+        # Restore overriden values
+        for k, v in overriden.items():
+            if k not in result:
+                result[k] = v
+
+        return result
 
 
 class GeneratorStep(_Step, ABC):

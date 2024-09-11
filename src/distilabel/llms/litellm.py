@@ -41,7 +41,6 @@ class LiteLLM(AsyncLLM):
         - `verbose`: whether to log the LiteLLM client's logs. Defaults to `False`.
 
     Examples:
-
         Generate text:
 
         ```python
@@ -73,7 +72,7 @@ class LiteLLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
         ```
     """
 

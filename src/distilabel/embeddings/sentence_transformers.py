@@ -55,7 +55,6 @@ class SentenceTransformerEmbeddings(Embeddings, CudaDevicePlacementMixin):
             of 1. Defaults to `None`.
 
     Examples:
-
         Generating sentence embeddings:
 
         ```python

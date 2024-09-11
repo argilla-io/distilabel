@@ -74,7 +74,6 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         `:hugging:`
 
     Examples:
-
         Free serverless Inference API:
 
         ```python
@@ -86,7 +85,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Dedicated Inference Endpoints:
@@ -102,7 +101,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Dedicated Inference Endpoints or TGI:
@@ -117,7 +116,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Generate structured data:
@@ -140,7 +139,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the Tour De France"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the Tour De France"}]])
         ```
     """
 
@@ -281,7 +280,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             self._model_name = client.repository
 
         self._aclient = AsyncInferenceClient(
-            model=self.base_url,
+            base_url=self.base_url,
             token=self.api_key.get_secret_value(),
         )
 

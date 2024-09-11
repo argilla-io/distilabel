@@ -2,11 +2,13 @@ sources = src/distilabel tests
 
 .PHONY: format
 format:
+	ruff --version
 	ruff check --fix $(sources)
 	ruff format $(sources)
 
 .PHONY: lint
 lint:
+	ruff --version
 	ruff check $(sources)
 	ruff format --check $(sources)
 

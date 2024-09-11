@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pytest
+
 from distilabel.steps.reward_model import RewardModelScore
 
 
