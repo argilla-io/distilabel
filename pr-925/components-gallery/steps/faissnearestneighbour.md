@@ -28,6 +28,8 @@ Create a `faiss` index to get the nearest neighbours.
 
 - **search_batch_size**: the number of rows to include in a search batch. The value can  be adjusted to maximize the resources usage or to avoid OOM issues. Defaults  to `50`.
 
+- **train_size**: If the index needs a training step, specifies how many vectors will be  used to train the index.
+
 
 
 
@@ -42,6 +44,8 @@ Create a `faiss` index to get the nearest neighbours.
 - **k**: the number of nearest neighbours to search for each input row. Defaults to `1`.
 
 - **search_batch_size**: the number of rows to include in a search batch. The value  can be adjusted to maximize the resources usage or to avoid OOM issues. Defaults  to `50`.
+
+- **train_size**: If the index needs a training step, specifies how many vectors will  be used to train the index.
 
 
 

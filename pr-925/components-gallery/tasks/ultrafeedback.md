@@ -151,27 +151,7 @@ result = next(
 #   'rationales_for_rating': ['Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.',
 #    'Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question.'],
 #   'types': [1, 3, 1],
-#   'distilabel_metadata': {'raw_output_ultra_feedback_0': '{ 
-  "ratings": [
-    1,
-    5
-  ]
- ,
-  "rationales": [
-    "Text 1 is clear and relevant, providing the correct answer to the question. It is also not lengthy and does not contain repetition. However, it lacks comprehensive information or detailed description.",
-    "Text 2 is neither clear nor relevant to the task. It does not provide any useful information and seems unrelated to the question."
-  ]
- ,
-  "rationales_for_rating": [
-    "Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.",
-    "Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question."
-  ]
- ,
-  "types": [
-    1, 3,
-    1
-  ]
-  }'},
+#   'distilabel_metadata': {'raw_output_ultra_feedback_0': '{ \n  "ratings": [\n    1,\n    5\n  ]\n ,\n  "rationales": [\n    "Text 1 is clear and relevant, providing the correct answer to the question. It is also not lengthy and does not contain repetition. However, it lacks comprehensive information or detailed description.",\n    "Text 2 is neither clear nor relevant to the task. It does not provide any useful information and seems unrelated to the question."\n  ]\n ,\n  "rationales_for_rating": [\n    "Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.",\n    "Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question."\n  ]\n ,\n  "types": [\n    1, 3,\n    1\n  ]\n  }'},
 #   'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]
 ```
 

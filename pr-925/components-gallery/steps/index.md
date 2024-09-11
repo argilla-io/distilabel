@@ -26,6 +26,14 @@ hide:
 
     [:octicons-arrow-right-24: FaissNearestNeighbour](faissnearestneighbour.md){ .bottom }
 
+-   :material-filter:{ .lg .middle } __EmbeddingDedup__
+
+    ---
+
+    Deduplicates text using embeddings.
+
+    [:octicons-arrow-right-24: EmbeddingDedup](embeddingdedup.md){ .bottom }
+
 -   :material-content-save:{ .lg .middle } __PushToHub__
 
     ---
@@ -50,7 +58,15 @@ hide:
 
     [:octicons-arrow-right-24: TextGenerationToArgilla](textgenerationtoargilla.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __ExpandColumns__
+-   :material-table-column:{ .lg .middle } __CombineOutputs__
+
+    ---
+
+    Combine the outputs of several upstream steps.
+
+    [:octicons-arrow-right-24: CombineOutputs](combineoutputs.md){ .bottom }
+
+-   :material-table-column:{ .lg .middle } __ExpandColumns__
 
     ---
 
@@ -58,15 +74,7 @@ hide:
 
     [:octicons-arrow-right-24: ExpandColumns](expandcolumns.md){ .bottom }
 
--   :material-receipt-text-edit:{ .lg .middle } __APIGenTransform__
-
-    ---
-
-    Helper step to transform a dataset like
-
-    [:octicons-arrow-right-24: APIGenTransform](apigentransform.md){ .bottom }
-
--   :material-step-forward:{ .lg .middle } __GroupColumns__
+-   :material-table-column:{ .lg .middle } __GroupColumns__
 
     ---
 
@@ -78,11 +86,11 @@ hide:
 
     ---
 
-    
+    `CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead.
 
     [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __KeepColumns__
+-   :material-table-column:{ .lg .middle } __KeepColumns__
 
     ---
 
@@ -90,7 +98,7 @@ hide:
 
     [:octicons-arrow-right-24: KeepColumns](keepcolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __MergeColumns__
+-   :material-table-column:{ .lg .middle } __MergeColumns__
 
     ---
 
@@ -98,13 +106,21 @@ hide:
 
     [:octicons-arrow-right-24: MergeColumns](mergecolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __EmbeddingGeneration__
+-   :material-vector-line:{ .lg .middle } __EmbeddingGeneration__
 
     ---
 
     Generate embeddings using an `Embeddings` model.
 
     [:octicons-arrow-right-24: EmbeddingGeneration](embeddinggeneration.md){ .bottom }
+
+-   :material-filter:{ .lg .middle } __MinHashDedup__
+
+    ---
+
+    Deduplicates text using `MinHash` and `MinHashLSH`.
+
+    [:octicons-arrow-right-24: MinHashDedup](minhashdedup.md){ .bottom }
 
 -   :material-format-list-bulleted:{ .lg .middle } __ConversationTemplate__
 
@@ -126,7 +142,7 @@ hide:
 
     ---
 
-    Format the output of a combination of a `ChatGeneration` + a preference task such as
+    Format the output of a combination of a `ChatGeneration` + a preference task for Direct Preference Optimization (DPO).
 
     [:octicons-arrow-right-24: FormatChatGenerationDPO](formatchatgenerationdpo.md){ .bottom }
 
@@ -142,7 +158,7 @@ hide:
 
     ---
 
-    Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT) following the
+    Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT).
 
     [:octicons-arrow-right-24: FormatChatGenerationSFT](formatchatgenerationsft.md){ .bottom }
 
@@ -161,6 +177,14 @@ hide:
     Truncate a row using a tokenizer or the number of characters.
 
     [:octicons-arrow-right-24: TruncateTextColumn](truncatetextcolumn.md){ .bottom }
+
+-   :material-receipt-text-edit:{ .lg .middle } __APIGenTransform__
+
+    ---
+
+    Helper step to transform a dataset like
+
+    [:octicons-arrow-right-24: APIGenTransform](apigentransform.md){ .bottom }
 
 -   :material-file-download:{ .lg .middle } __LoadDataFromDicts__
 
