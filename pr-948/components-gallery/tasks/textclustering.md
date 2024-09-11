@@ -97,12 +97,12 @@ from distilabel.llms import InferenceEndpointsLLM
 from distilabel.steps import UMAP, DBSCAN, TextClustering
 from distilabel.pipeline import Pipeline
 
-ds_name = "plaguss/personahub-fineweb-edu-4-sample"
+ds_name = "argilla-warehouse/personahub-fineweb-edu-4-clustering-100k"
 
 with Pipeline(name="Text clustering dataset") as pipeline:
     batch_size = 500
 
-    ds = load_dataset(ds_name, split="train").select(range(1500))
+    ds = load_dataset(ds_name, split="train").select(range(10000))
     loader = make_generator_step(ds, batch_size=batch_size, repo_id=ds_name)
 
     umap = UMAP(n_components=2, metric="cosine")

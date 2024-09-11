@@ -346,7 +346,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../sections/getting_started/installation/" class="md-tabs__link">
+        <a href="../../../sections/getting_started/quickstart/" class="md-tabs__link">
           
   
   Getting started
@@ -556,11 +556,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/getting_started/installation/" class="md-nav__link">
+      <a href="../../../sections/getting_started/quickstart/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Installation
+    Quickstart
   </span>
   
 
@@ -577,11 +577,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/getting_started/quickstart/" class="md-nav__link">
+      <a href="../../../sections/getting_started/installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Quickstart
+    Installation
   </span>
   
 
@@ -5172,7 +5172,7 @@ of the step.</p>
 
 
 <h3 id="distilabel.steps.generators.utils.make_generator_step" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">make_generator_step</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">input_mappings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_mappings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="n">StepResources</span><span class="p">(),</span> <span class="n">repo_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">make_generator_step</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">input_mappings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_mappings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="n">StepResources</span><span class="p">(),</span> <span class="n">repo_id</span><span class="o">=</span><span class="s1">&#39;default_name&#39;</span><span class="p">)</span></code>
 
 <a href="#distilabel.steps.generators.utils.make_generator_step" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -5277,7 +5277,7 @@ using <code>load_dataset</code> internally. If that case happens, the <code>repo
               </div>
             </td>
             <td>
-                  <code>None</code>
+                  <code>&#39;default_name&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -5411,7 +5411,7 @@ using <code>load_dataset</code> internally. If that case happens, the <code>repo
 </span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a>    <span class="n">input_mappings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="n">output_mappings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="n">resources</span><span class="p">:</span> <span class="n">StepResources</span> <span class="o">=</span> <span class="n">StepResources</span><span class="p">(),</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">repo_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">repo_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default_name&quot;</span><span class="p">,</span>
 </span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;GeneratorStep&quot;</span><span class="p">:</span>
 </span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper method to create a `GeneratorStep` from a dataset, to simplify</span>
 </span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>
