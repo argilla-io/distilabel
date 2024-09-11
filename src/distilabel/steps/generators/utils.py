@@ -32,7 +32,7 @@ def make_generator_step(
     input_mappings: Optional[Dict[str, str]] = None,
     output_mappings: Optional[Dict[str, str]] = None,
     resources: StepResources = StepResources(),
-    repo_id: Optional[str] = None,
+    repo_id: Optional[str] = "default_name",
 ) -> "GeneratorStep":
     """Helper method to create a `GeneratorStep` from a dataset, to simplify
 
