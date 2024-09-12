@@ -10934,7 +10934,7 @@ Defaults to None.</p>
 </details>
 
 <p><span class="doc-section-title">Examples:</span></p>
-    <p>Free serverless Inference API (set the <code>input_batch_size=1</code> to avoid overloadings!):</p>
+    <p>Free serverless Inference API, set the input_batch_size of the Task that uses this to avoid Model is overloaded:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms.huggingface</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
@@ -11579,7 +11579,7 @@ Defaults to None.</p>
 </span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        `:hugging:`</span>
 </span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a>
 </span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">    Examples:</span>
-</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        Free serverless Inference API (set the `input_batch_size=1` to avoid overloadings!):</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        Free serverless Inference API, set the input_batch_size of the Task that uses this to avoid Model is overloaded:</span>
 </span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a>
 </span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">        ```python</span>
 </span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">        from distilabel.llms.huggingface import InferenceEndpointsLLM</span>

@@ -46,7 +46,7 @@ This LLM will internally use `huggingface_hub.AsyncInferenceClient`.
 ### Examples
 
 
-#### Free serverless Inference API (set the `input_batch_size=1` to avoid overloadings!)
+#### Free serverless Inference API, set the input_batch_size of the Task that uses this to avoid Model is overloaded
 ```python
 from distilabel.llms.huggingface import InferenceEndpointsLLM
 
