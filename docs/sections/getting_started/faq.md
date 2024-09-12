@@ -45,3 +45,18 @@ hide:
 
 ??? faq "Can `distilabel` be used with [OpenAI Batch API](https://platform.openai.com/docs/guides/batch)?"
     Yes, `distilabel` is integrated with OpenAI Batch API via [OpenAILLM][distilabel.llms.openai.OpenAILLM]. Check [LLMs - Offline Batch Generation](../how_to_guides/basic/llm/index.md#offline-batch-generation) for a small example on how to use it and [Advanced - Offline Batch Generation](../how_to_guides/advanced/offline_batch_generation.md) for a more detailed guide.
+
+??? faq "Prevent overloads on [Free Serverless Endpoints][distilabel.llms.huggingface.InferenceEndpointsLLM]"
+    When running a task using the [InferenceEndpointsLLM][distilabel.llms.huggingface.InferenceEndpointsLLM] with Free Serverless Endpoints, you may be facing some errors if you let the batch size to the default (set at 50 by default). Try to lower the value, or even better set `input_batch_size=1` in your task. It may take a longer time to finish, but please remember this is a free service.
+
+    ```python
+    from distilabel.llms.huggingface import InferenceEndpointsLLM
+    from distilabel.steps import TextGeneration
+
+    TextGeneration(
+        llm=InferenceEndpointsLLM(
+            model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+        ),
+        input_batch_size=1
+    )
+    ```
