@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import Field
+from jinja2 import Template
+from pydantic import Field, PrivateAttr
 
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
@@ -85,13 +86,36 @@ class TextGeneration(Task):
 
     system_prompt: Union[str, None] = None
     use_system_prompt: bool = Field(default=True, deprecated=True)
+    template: Optional[str] = Field(
+        default=None,
+        description=(
+            "This is a template or prompt to use for the generation. "
+            "If not provided the instruction will be used as is."
+        ),
+    )
+    extra_columns: Optional[List[str]] = Field(
+        default=None,
+        description=(
+            "Extra columns to include in the input. If a `template` is provided which needs "
+            "additional columns, then they should be provided here."
+        ),
+    )
 
     _can_be_used_with_offline_batch_generation = True
+    _template: Optional[Template] = PrivateAttr(default=None)
+
+    def load(self) -> None:
+        super().load()
+        self._template = Template(self.template or "{{ instruction }}")
+        # TODO: Make a quick check for the extra columns here
 
     @property
     def inputs(self) -> "StepColumns":
         """The input for the task is the `instruction`."""
-        return {"instruction": True, "system_prompt": False}
+        columns = {"instruction": True, "system_prompt": False}
+        if self.extra_columns:
+            columns.update({column: True for column in self.extra_columns})
+        return columns
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -110,7 +134,9 @@ class TextGeneration(Task):
                 page="components-gallery/tasks/textgeneration/",
             )
 
-        messages = [{"role": "user", "content": input["instruction"]}]
+        fields = {"instruction": input["instruction"]}
+        fields.update({column: input[column] for column in self.extra_columns or []})
+        messages = [{"role": "user", "content": self._template.render(**fields)}]
 
         row_system_prompt = input.get("system_prompt")
         if row_system_prompt:
