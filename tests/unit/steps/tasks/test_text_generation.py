@@ -23,6 +23,7 @@ class TestTextGeneration:
     def test_format_input(self) -> None:
         llm = DummyAsyncLLM()
         task = TextGeneration(name="task", llm=llm)
+        task.load()
 
         assert task.format_input({"instruction": "test"}) == [
             {"role": "user", "content": "test"}
@@ -34,6 +35,7 @@ class TestTextGeneration:
         task = TextGeneration(
             name="task", llm=llm, pipeline=pipeline, system_prompt="test"
         )
+        task.load()
 
         assert task.format_input({"instruction": "test"}) == [
             {"role": "system", "content": "test"},
@@ -44,6 +46,7 @@ class TestTextGeneration:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyAsyncLLM()
         task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
+        task.load()
 
         assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
             {"role": "system", "content": "test"},
@@ -56,6 +59,7 @@ class TestTextGeneration:
         task = TextGeneration(
             name="task", llm=llm, pipeline=pipeline, system_prompt="i won't be used"
         )
+        task.load()
 
         assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
             {"role": "system", "content": "test"},
@@ -68,6 +72,7 @@ class TestTextGeneration:
         task = TextGeneration(
             name="task", llm=llm, pipeline=pipeline, use_system_prompt=True
         )
+        task.load()
 
         with pytest.raises(
             ValueError,
@@ -86,6 +91,7 @@ class TestTextGeneration:
         task = TextGeneration(
             name="task", llm=llm, pipeline=pipeline, add_raw_input=False
         )
+        task.load()
 
         assert next(task.process([{"instruction": "test"}])) == [
             {
