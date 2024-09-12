@@ -74,7 +74,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         `:hugging:`
 
     Examples:
-        Free serverless Inference API:
+        Free serverless Inference API (set the `input_batch_size=1` to avoid overloadings!):
 
         ```python
         from distilabel.llms.huggingface import InferenceEndpointsLLM
