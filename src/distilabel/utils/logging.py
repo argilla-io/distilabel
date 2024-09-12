@@ -18,7 +18,7 @@ import warnings
 from logging import FileHandler
 from logging.handlers import QueueHandler, QueueListener
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from rich.logging import RichHandler
 
@@ -47,7 +47,9 @@ queue_listener: Union[QueueListener, None] = None
 
 
 def setup_logging(
-    log_queue: Optional["Queue[Any]"] = None, filename: Optional[str] = None
+    log_queue: Optional["Queue[Any]"] = None,
+    filename: Optional[str] = None,
+    logging_handlers: Optional[List[logging.Handler]] = None,
 ) -> None:
     """Sets up logging to use a queue across all processes."""
     global queue_listener
@@ -60,21 +62,26 @@ def setup_logging(
     # If the current process is the main process, set up a `QueueListener`
     # to handle logs from all subprocesses
     if mp.current_process().name == "MainProcess" and filename:
+        if logging_handlers is None:
+            logging_handlers = []
+
         formatter = logging.Formatter("['%(name)s'] %(message)s")
         handler = RichHandler(rich_tracebacks=True)
         handler.setFormatter(formatter)
+        logging_handlers.append(handler)
+
         if not Path(filename).parent.exists():
             Path(filename).parent.mkdir(parents=True, exist_ok=True)
-
         file_handler = FileHandler(filename, delay=True, encoding="utf-8")
         file_formatter = logging.Formatter(
             "[%(asctime)s] %(levelname)-8s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
         file_handler.setFormatter(file_formatter)
+        logging_handlers.append(file_handler)
 
         if log_queue is not None:
             queue_listener = QueueListener(
-                log_queue, handler, file_handler, respect_handler_level=True
+                log_queue, *logging_handlers, respect_handler_level=True
             )
             queue_listener.start()
 
