@@ -80,7 +80,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
         llm = InferenceEndpointsLLM(
-            model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
         )
 
         llm.load()
