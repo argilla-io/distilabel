@@ -37,7 +37,7 @@ Do not pass if:
 3. The number of function calls does not correspond to the user’s intentions.
 4. The execution results are irrelevant and do not match the function’s purpose.
 5. The execution results contain errors or reflect that the function calls were not executed successfully.
-"""
+""".rstrip()
 
 
 class APIGenSemanticChecker(Task):
