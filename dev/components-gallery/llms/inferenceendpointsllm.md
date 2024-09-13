@@ -46,12 +46,12 @@ This LLM will internally use `huggingface_hub.AsyncInferenceClient`.
 ### Examples
 
 
-#### Free serverless Inference API
+#### Free serverless Inference API, set the input_batch_size of the Task that uses this to avoid Model is overloaded
 ```python
 from distilabel.llms.huggingface import InferenceEndpointsLLM
 
 llm = InferenceEndpointsLLM(
-    model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
 )
 
 llm.load()

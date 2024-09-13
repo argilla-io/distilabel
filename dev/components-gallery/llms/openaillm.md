@@ -93,5 +93,21 @@ llm.load()
 output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
 ```
 
+#### Generate with Batch API (offline batch generation)
+```python
+from distilabel.llms import OpenAILLM
+
+load = llm = OpenAILLM(
+    model="gpt-3.5-turbo",
+    use_offline_batch_generation=True,
+    offline_batch_generation_block_until_done=5,  # poll for results every 5 seconds
+)
+
+llm.load()
+
+output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
+# [['Hello! How can I assist you today?']]
+```
+
 
 
