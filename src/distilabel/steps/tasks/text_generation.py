@@ -212,6 +212,7 @@ class TextGeneration(Task):
     _template: Optional[Template] = PrivateAttr(default=None)
 
     def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
         self.columns = [self.columns] if isinstance(self.columns, str) else self.columns
 
     def load(self) -> None:
