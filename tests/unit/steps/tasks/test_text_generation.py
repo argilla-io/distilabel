@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any, Dict, List, Union
+
 import pytest
 
+from distilabel.errors import DistilabelUserError
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
 from tests.unit.conftest import DummyAsyncLLM
@@ -103,6 +106,73 @@ class TestTextGeneration:
                 },
             }
         ]
+
+    @pytest.mark.parametrize(
+        "template, columns, sample",
+        [
+            (None, "instruction", {"instruction": "INSTRUCTION"}),
+            (
+                "Document:\n{{ document }}\n\nQuestion: {{ question }}\n\nPlease provide a clear and concise answer to the question based on the information in the document and your general knowledge:",
+                ["document", "question"],
+                {"document": "DOCUMENT", "question": "QUESTION"},
+            ),
+            (
+                "Generate a clear, single-sentence instruction based on the following examples:\n\n{% for example in examples %}\nExample {{ loop.index }}:\nInstruction: {{ example }}\n\n{% endfor %}\nNow, generate a new instruction in a similar style:\n",
+                "examples",
+                {"examples": ["example1", "example2"]},
+            ),
+        ],
+    )
+    def test_format_input_custom_columns(
+        self,
+        template: str,
+        columns: Union[str, List[str]],
+        sample: Dict[str, Any],
+    ) -> None:
+        task = TextGeneration(
+            llm=DummyAsyncLLM(),
+            system_prompt=None,
+            template=template,
+            columns=columns,
+            add_raw_input=False,
+            add_raw_output=False,
+        )
+        task.load()
+
+        # Check the input from the sample are present in the formatted input
+        result = task.format_input(sample)[0]["content"]
+        values = list(sample.values())
+
+        if isinstance(values[0], list):
+            values = values[0]
+        assert all(v in result for v in values)
+
+    @pytest.mark.parametrize(
+        "template, columns, sample",
+        [
+            (
+                "This is a {{ custom }} template",
+                "instruction",
+                {"other": "INSTRUCTION"},
+            ),
+        ],
+    )
+    def test_format_input_custom_columns_expected_errors(
+        self,
+        template: str,
+        columns: Union[str, List[str]],
+        sample: Dict[str, Any],
+    ) -> None:
+        task = TextGeneration(
+            llm=DummyAsyncLLM(),
+            system_prompt=None,
+            template=template,
+            columns=columns,
+            add_raw_input=False,
+            add_raw_output=False,
+        )
+        with pytest.raises(DistilabelUserError):
+            task.load()
 
 
 class TestChatGeneration:
