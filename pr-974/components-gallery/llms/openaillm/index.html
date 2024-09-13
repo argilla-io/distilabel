@@ -4507,6 +4507,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#generate-with-batch-api-offline-batch-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate with Batch API (offline batch generation)
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4605,6 +4614,20 @@
 </span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 </span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
 </span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="n">output</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate_outputs</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Create a user profile for the following marathon&quot;</span><span class="p">}]])</span>
+</span></code></pre></div>
+<h4 id="generate-with-batch-api-offline-batch-generation">Generate with Batch API (offline batch generation)<a class="headerlink" href="#generate-with-batch-api-offline-batch-generation" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">load</span> <span class="o">=</span> <span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">use_offline_batch_generation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">offline_batch_generation_block_until_done</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># poll for results every 5 seconds</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="n">output</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate_outputs</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">}]])</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># [[&#39;Hello! How can I assist you today?&#39;]]</span>
 </span></code></pre></div>
 
 
