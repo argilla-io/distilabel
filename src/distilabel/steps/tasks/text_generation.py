@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from jinja2 import Template
@@ -62,7 +63,7 @@ class TextGeneration(Task):
         # Consider this as a placeholder for your actual LLM.
         text_gen = TextGeneration(
             llm=InferenceEndpointsLLM(
-                model_id="mistralai/Mistral-7B-Instruct-v0.2",
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
             )
         )
 
@@ -77,8 +78,103 @@ class TextGeneration(Task):
         # [
         #     {
         #         'instruction': 'your instruction',
-        #         'model_name': 'mistralai/Mistral-7B-Instruct-v0.2',
+        #         'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct',
         #         'generation': 'generation',
+        #     }
+        # ]
+        ```
+
+        Use a custom template to generate text:
+
+        ```python
+        from distilabel.steps.tasks import TextGeneration
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        CUSTOM_TEMPLATE = '''\
+        Document:
+        {{ document }}
+
+        Question: {{ question }}
+
+        Please provide a clear and concise answer to the question based on the information in the document and your general knowledge:
+        '''.rstrip()
+
+        text_gen = TextGeneration(
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            ),
+            system_prompt="You are a helpful AI assistant. Your task is to answer the following question based on the provided document. If the answer is not explicitly stated in the document, use your knowledge to provide the most relevant and accurate answer possible. If you cannot answer the question based on the given information, state that clearly.",
+            template=CUSTOM_TEMPLATE,
+            columns=["document", "question"],
+        )
+
+        text_gen.load()
+
+        result = next(
+            text_gen.process(
+                [
+                    {
+                        "document": "The Great Barrier Reef, located off the coast of Australia, is the world's largest coral reef system. It stretches over 2,300 kilometers and is home to a diverse array of marine life, including over 1,500 species of fish. However, in recent years, the reef has faced significant challenges due to climate change, with rising sea temperatures causing coral bleaching events.",
+                        "question": "What is the main threat to the Great Barrier Reef mentioned in the document?"
+                    }
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'document': 'The Great Barrier Reef, located off the coast of Australia, is the world's largest coral reef system. It stretches over 2,300 kilometers and is home to a diverse array of marine life, including over 1,500 species of fish. However, in recent years, the reef has faced significant challenges due to climate change, with rising sea temperatures causing coral bleaching events.',
+        #         'question': 'What is the main threat to the Great Barrier Reef mentioned in the document?',
+        #         'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct',
+        #         'generation': 'According to the document, the main threat to the Great Barrier Reef is climate change, specifically rising sea temperatures causing coral bleaching events.',
+        #     }
+        # ]
+        ```
+
+        Few-shot learning with different system prompts:
+
+        ```python
+        from distilabel.steps.tasks import TextGeneration
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        CUSTOM_TEMPLATE = '''\
+        Generate a clear, single-sentence instruction based on the following examples:
+
+        {% for example in examples %}
+        Example {{ loop.index }}:
+        Instruction: {{ example }}
+
+        {% endfor %}
+        Now, generate a new instruction in a similar style:
+        '''.rstrip()
+
+        text_gen = TextGeneration(
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            ),
+            template=CUSTOM_TEMPLATE,
+            columns="examples",
+        )
+
+        text_gen.load()
+
+        result = next(
+            text_gen.process(
+                [
+                    {
+                        "examples": ["This is an example", "Another relevant example"],
+                        "system_prompt": "You are an AI assisstant specialised in cybersecurity and computing in general, you make your point clear without any explanations."
+                    }
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'examples': ['This is an example', 'Another relevant example'],
+        #         'system_prompt': 'You are an AI assisstant specialised in cybersecurity and computing in general, you make your point clear without any explanations.',
+        #         'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct',
+        #         'generation': 'Disable the firewall on the router',
         #     }
         # ]
         ```
@@ -90,53 +186,82 @@ class TextGeneration(Task):
         default=None,
         description=(
             "This is a template or prompt to use for the generation. "
-            "If not provided the instruction will be used as is."
+            "If not provided, it is assumed a `instruction` is placed in the inputs, "
+            "to be used as is."
         ),
     )
-    extra_columns: Optional[List[str]] = Field(
-        default=None,
+    columns: Optional[Union[str, List[str]]] = Field(
+        default="instruction",
         description=(
-            "Extra columns to include in the input. If a `template` is provided which needs "
-            "additional columns, then they should be provided here."
+            "Custom column or list of columns to include in the input. "
+            "If a `template` is provided which needs custom column names, "
+            "then they should be provided here. By default it will use `instruction`."
         ),
     )
 
     _can_be_used_with_offline_batch_generation = True
     _template: Optional[Template] = PrivateAttr(default=None)
 
+    def model_post_init(self, __context: Any) -> None:
+        self.columns = [self.columns] if isinstance(self.columns, str) else self.columns
+
     def load(self) -> None:
         super().load()
-        self._template = Template(self.template or "{{ instruction }}")
-        # TODO: Make a quick check for the extra columns here
+        self.template = self.template or "{{ instruction }}"
+        self._template = Template(self.template)
+
+        def check_column_in_template(column, template):
+            pattern = (
+                r"(?:{%.*?\b"
+                + re.escape(column)
+                + r"\b.*?%}|{{\s*"
+                + re.escape(column)
+                + r"\s*}})"
+            )
+            if not re.search(pattern, template):
+                raise DistilabelUserError(
+                    (
+                        f"You required column name '{column}', but is not present in the template, "
+                        "ensure the 'columns' match with the 'template' to avoid errors."
+                    ),
+                    page="components-gallery/tasks/textgeneration/",
+                )
+
+        for column in self.columns:
+            check_column_in_template(column, self.template)
 
     @property
     def inputs(self) -> "StepColumns":
-        """The input for the task is the `instruction`."""
-        columns = {"instruction": True, "system_prompt": False}
-        if self.extra_columns:
-            columns.update({column: True for column in self.extra_columns})
+        """The input for the task is the `instruction` by default, or the `columns` given as input."""
+        columns = {column: True for column in self.columns}
+        columns["system_prompt"] = False
         return columns
+
+    def _prepare_message_content(self, input: Dict[str, Any]) -> "ChatType":
+        """Prepares the content for the template and returns the formatted messages."""
+        fields = {column: input[column] for column in self.columns}
+        return [{"role": "user", "content": self._template.render(**fields)}]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
+        # Handle the previous expected errors, in case of custom columns there's more freedom
+        # and we cannot check it so easily.
+        if self.columns == ["instruction"]:
+            if is_openai_format(input["instruction"]):
+                raise DistilabelUserError(
+                    "Providing `instruction` formatted as an OpenAI chat / conversation is"
+                    " deprecated, you should use `ChatGeneration` with `messages` as input instead.",
+                    page="components-gallery/tasks/textgeneration/",
+                )
 
-        if is_openai_format(input["instruction"]):
-            raise DistilabelUserError(
-                "Providing `instruction` formatted as an OpenAI chat / conversation is"
-                " deprecated, you should use `ChatGeneration` with `messages` as input instead.",
-                page="components-gallery/tasks/textgeneration/",
-            )
+            if not isinstance(input["instruction"], str):
+                raise DistilabelUserError(
+                    f"Input `instruction` must be a string. Got: {input['instruction']}.",
+                    page="components-gallery/tasks/textgeneration/",
+                )
 
-        if not isinstance(input["instruction"], str):
-            raise DistilabelUserError(
-                f"Input `instruction` must be a string. Got: {input['instruction']}.",
-                page="components-gallery/tasks/textgeneration/",
-            )
-
-        fields = {"instruction": input["instruction"]}
-        fields.update({column: input[column] for column in self.extra_columns or []})
-        messages = [{"role": "user", "content": self._template.render(**fields)}]
+        messages = self._prepare_message_content(input)
 
         row_system_prompt = input.get("system_prompt")
         if row_system_prompt:
