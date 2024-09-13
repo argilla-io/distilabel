@@ -199,7 +199,7 @@ class TextGeneration(Task):
             "to be used as is."
         ),
     )
-    columns: Optional[Union[str, List[str]]] = Field(
+    columns: Union[str, List[str]] = Field(
         default="instruction",
         description=(
             "Custom column or list of columns to include in the input. "
@@ -209,16 +209,14 @@ class TextGeneration(Task):
     )
 
     _can_be_used_with_offline_batch_generation = True
-    _template: Optional[Template] = PrivateAttr(default=None)
+    _template: Optional["Template"] = PrivateAttr(default=...)
 
     def model_post_init(self, __context: Any) -> None:
-        super().model_post_init(__context)
         self.columns = [self.columns] if isinstance(self.columns, str) else self.columns
+        super().model_post_init(__context)
 
     def load(self) -> None:
         super().load()
-        # self.template = self.template or "{{ instruction }}"
-        self._template = Template(self.template)
 
         def check_column_in_template(column, template):
             pattern = (
@@ -239,6 +237,8 @@ class TextGeneration(Task):
 
         for column in self.columns:
             check_column_in_template(column, self.template)
+
+        self._template = Template(self.template)
 
     @property
     def inputs(self) -> "StepColumns":
