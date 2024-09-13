@@ -83,7 +83,7 @@ from distilabel.llms.huggingface import InferenceEndpointsLLM
 # Consider this as a placeholder for your actual LLM.
 text_gen = TextGeneration(
     llm=InferenceEndpointsLLM(
-        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+        model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
     )
 )
 
@@ -98,8 +98,99 @@ result = next(
 # [
 #     {
 #         'instruction': 'your instruction',
-#         'model_name': 'mistralai/Mistral-7B-Instruct-v0.2',
+#         'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct',
 #         'generation': 'generation',
+#     }
+# ]
+```
+
+#### Use a custom template to generate text
+```python
+from distilabel.steps.tasks import TextGeneration
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+CUSTOM_TEMPLATE = '''        Document:
+{{ document }}
+
+Question: {{ question }}
+
+Please provide a clear and concise answer to the question based on the information in the document and your general knowledge:
+'''.rstrip()
+
+text_gen = TextGeneration(
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+    ),
+    system_prompt="You are a helpful AI assistant. Your task is to answer the following question based on the provided document. If the answer is not explicitly stated in the document, use your knowledge to provide the most relevant and accurate answer possible. If you cannot answer the question based on the given information, state that clearly.",
+    template=CUSTOM_TEMPLATE,
+    columns=["document", "question"],
+)
+
+text_gen.load()
+
+result = next(
+    text_gen.process(
+        [
+            {
+                "document": "The Great Barrier Reef, located off the coast of Australia, is the world's largest coral reef system. It stretches over 2,300 kilometers and is home to a diverse array of marine life, including over 1,500 species of fish. However, in recent years, the reef has faced significant challenges due to climate change, with rising sea temperatures causing coral bleaching events.",
+                "question": "What is the main threat to the Great Barrier Reef mentioned in the document?"
+            }
+        ]
+    )
+)
+# result
+# [
+#     {
+#         'document': 'The Great Barrier Reef, located off the coast of Australia, is the world's largest coral reef system. It stretches over 2,300 kilometers and is home to a diverse array of marine life, including over 1,500 species of fish. However, in recent years, the reef has faced significant challenges due to climate change, with rising sea temperatures causing coral bleaching events.',
+#         'question': 'What is the main threat to the Great Barrier Reef mentioned in the document?',
+#         'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct',
+#         'generation': 'According to the document, the main threat to the Great Barrier Reef is climate change, specifically rising sea temperatures causing coral bleaching events.',
+#     }
+# ]
+```
+
+#### shot learning with different system prompts
+```python
+from distilabel.steps.tasks import TextGeneration
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+CUSTOM_TEMPLATE = '''        Generate a clear, single-sentence instruction based on the following examples:
+
+{% for example in examples %}
+Example {{ loop.index }}:
+Instruction: {{ example }}
+
+{% endfor %}
+Now, generate a new instruction in a similar style:
+'''.rstrip()
+
+text_gen = TextGeneration(
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+    ),
+    template=CUSTOM_TEMPLATE,
+    columns="examples",
+)
+
+text_gen.load()
+
+result = next(
+    text_gen.process(
+        [
+            {
+                "examples": ["This is an example", "Another relevant example"],
+                "system_prompt": "You are an AI assisstant specialised in cybersecurity and computing in general, you make your point clear without any explanations."
+            }
+        ]
+    )
+)
+# result
+# [
+#     {
+#         'examples': ['This is an example', 'Another relevant example'],
+#         'system_prompt': 'You are an AI assisstant specialised in cybersecurity and computing in general, you make your point clear without any explanations.',
+#         'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct',
+#         'generation': 'Disable the firewall on the router',
 #     }
 # ]
 ```
