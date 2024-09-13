@@ -237,8 +237,9 @@ class TextGeneration(Task):
 
         for column in self.columns:
             check_column_in_template(column, self.template)
-
-        self._template = Template(self.template)
+        # NOTE: This should work, but when running on use_offline_batch_generation fails with a
+        # pickling error. This is a workaround to avoid the error.
+        # self._template = Template(self.template)
 
     @property
     def inputs(self) -> "StepColumns":
@@ -250,7 +251,8 @@ class TextGeneration(Task):
     def _prepare_message_content(self, input: Dict[str, Any]) -> "ChatType":
         """Prepares the content for the template and returns the formatted messages."""
         fields = {column: input[column] for column in self.columns}
-        return [{"role": "user", "content": self._template.render(**fields)}]
+        # return [{"role": "user", "content": self._template.render(**fields)}]
+        return [{"role": "user", "content": Template(self.template).render(**fields)}]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
