@@ -110,7 +110,7 @@ class TestTextGeneration:
     @pytest.mark.parametrize(
         "template, columns, sample",
         [
-            (None, "instruction", {"instruction": "INSTRUCTION"}),
+            ("{{ instruction }}", "instruction", {"instruction": "INSTRUCTION"}),
             (
                 "Document:\n{{ document }}\n\nQuestion: {{ question }}\n\nPlease provide a clear and concise answer to the question based on the information in the document and your general knowledge:",
                 ["document", "question"],

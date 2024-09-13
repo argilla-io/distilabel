@@ -191,8 +191,8 @@ class TextGeneration(Task):
 
     system_prompt: Union[str, None] = None
     use_system_prompt: bool = Field(default=True, deprecated=True)
-    template: Optional[str] = Field(
-        default=None,
+    template: str = Field(
+        default="{{ instruction }}",
         description=(
             "This is a template or prompt to use for the generation. "
             "If not provided, it is assumed a `instruction` is placed in the inputs, "
@@ -217,7 +217,7 @@ class TextGeneration(Task):
 
     def load(self) -> None:
         super().load()
-        self.template = self.template or "{{ instruction }}"
+        # self.template = self.template or "{{ instruction }}"
         self._template = Template(self.template)
 
         def check_column_in_template(column, template):
