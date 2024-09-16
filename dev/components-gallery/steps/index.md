@@ -10,6 +10,22 @@ hide:
 <div class="grid cards" markdown>
 
 
+-   :material-scatter-plot:{ .lg .middle } __DBSCAN__
+
+    ---
+
+    DBSCAN (Density-Based Spatial Clustering of Applications with Noise) finds core
+
+    [:octicons-arrow-right-24: DBSCAN](dbscan.md){ .bottom }
+
+-   :material-scatter-plot:{ .lg .middle } __UMAP__
+
+    ---
+
+    UMAP is a general purpose manifold learning and dimension reduction algorithm.
+
+    [:octicons-arrow-right-24: UMAP](umap.md){ .bottom }
+
 -   :material-filter:{ .lg .middle } __DeitaFiltering__
 
     ---

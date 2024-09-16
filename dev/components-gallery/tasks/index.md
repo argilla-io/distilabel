@@ -138,6 +138,22 @@ hide:
 
     [:octicons-arrow-right-24: StructuredGeneration](structuredgeneration.md){ .bottom }
 
+-   :material-label:{ .lg .middle } __TextClassification__
+
+    ---
+
+    Classifies text into one or more categories or labels.
+
+    [:octicons-arrow-right-24: TextClassification](textclassification.md){ .bottom }
+
+-   :material-scatter-plot:{ .lg .middle } __TextClustering__
+
+    ---
+
+    Task that clusters a set of texts and generates summary labels for each cluster.
+
+    [:octicons-arrow-right-24: TextClustering](textclustering.md){ .bottom }
+
 -   :material-text-box-edit:{ .lg .middle } __TextGeneration__
 
     ---
@@ -217,6 +233,14 @@ hide:
     Generator task the generates instructions or conversations using Magpie.
 
     [:octicons-arrow-right-24: MagpieGenerator](magpiegenerator.md){ .bottom }
+
+-   :material-scatter-plot:{ .lg .middle } __TextClustering__
+
+    ---
+
+    Task that clusters a set of texts and generates summary labels for each cluster.
+
+    [:octicons-arrow-right-24: TextClustering](textclustering.md){ .bottom }
 
 -   :material-poll:{ .lg .middle } __PairRM__
 
