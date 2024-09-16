@@ -1,7 +1,7 @@
 ---
 hide: toc
 ---
-# Pipeline Samples
+# Tutorials
 
 - **Tutorials** provide detailed step-by-step explanations and the code used for end-to-end workflows.
 - **Paper implementations** provide reproductions of fundamental papers in the synthetic data domain.
