@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Union
 
+import pandas as pd
 from jinja2 import Template
 from mkdocs.config.base import Config
 from mkdocs.config.config_options import Type
@@ -304,10 +305,30 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
             paths.append(task_path)
 
+        global _STEP_CATEGORY_TO_DESCRIPTION
+        categories = list(_STEP_CATEGORY_TO_DESCRIPTION.keys())
+        table = pd.DataFrame(
+            {
+                "Category": categories,
+                "Icon": [_STEPS_CATEGORY_TO_ICON[category] for category in categories],
+                "Description": [
+                    _STEP_CATEGORY_TO_DESCRIPTION[category] for category in categories
+                ],
+            }
+        ).to_markdown(index=False)
+
+        description = [
+            '??? info "Task Category Overview"',
+            "    The tasks gallery page showcases the different types of tasks that can be performed with `distilabel`.",
+            "",
+        ]
+        for row in table.split("\n"):
+            description.append(f"    {row}")
+
         # Create the `components-gallery/steps/index.md` file
         content = _COMPONENTS_LIST_TEMPLATE.render(
             title="Tasks Gallery",
-            description="",
+            description="\n".join(description),
             components=tasks,
             default_icon=":material-check-outline:",
         )
