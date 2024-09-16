@@ -1496,7 +1496,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         with self._steps_load_status_lock:
             for step_name, replicas in self._steps_load_status.items():
                 if replicas > 0:
-                    self._send_to_step(step_name, None)
+                    for _ in range(replicas):
+                        self._send_to_step(step_name, None)
 
     def _get_successors(self, batch: "_Batch") -> Tuple[List[str], List[str], bool]:
         """Gets the successors and the successors to which the batch has to be routed.
