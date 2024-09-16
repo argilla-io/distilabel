@@ -95,6 +95,11 @@ vllm = [
 sentence-transformers = ["sentence-transformers >= 3.0.0"]
 faiss-cpu = ["faiss-cpu >= 1.8.0"]
 faiss-gpu = ["faiss-gpu >= 1.7.2"]
+text-clustering = [
+    "umap-learn >= 0.5.6",
+    "scikit-learn >= 1.4.1",
+    "matplotlib >= 3.8.3"  # For the figure (even though it's optional)
+]
 
 # minhash
 minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]
