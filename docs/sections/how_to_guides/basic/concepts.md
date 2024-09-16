@@ -4,9 +4,9 @@
 
 Distilabel provides all the tools you need to your scalable and reliable pipelines for synthetic data generation and AI-feedback. Pipelines are used to generate data, evaluate models, manipulate data, or any other general task. They are made up of different components: Steps, Tasks and LLMs, which are chained together in a directed acyclic graph (DAG).
 
-- Steps are the building blocks of your pipeline. Normal steps are used for basic executions like loading data, applying some transformations, or any other general task.
-- Tasks are steps that rely on LLMs and prompts to perform more specific tasks. For example, they can be used to generate data, evaluate models or manipulate data.
-- LLMs are the models that will perform the task. They can be local or remote models, and open-source or commercial models.
+- **Steps**: These are the building blocks of your pipeline. Normal steps are used for basic executions like loading data, applying some transformations, or any other general task.
+- **Tasks**: These are steps that rely on LLMs and prompts to perform generative tasks. For example, they can be used to generate data, evaluate models or manipulate data.
+- **LLMs**: These are the models that will perform the task. They can be local or remote models, and open-source or commercial models.
 
 Pipelines are designed to be scalable and reliable. They can be executed in a distributed manner, and they can be cached and recovered. This is useful when dealing with large datasets or when you want to ensure that your pipeline is reproducible.
 
@@ -51,11 +51,11 @@ if __name__ == "__main__":
     distiset.push_to_hub(repo_id="distilabel-example")
 ```
 
-1. The [`Pipeline`][distilabel.pipeline.Pipeline].
+1. The [`Pipeline`][distilabel.pipeline.Pipeline] gathers all steps and tasks to be executed.
 
 2. The [`Step`][distilabel.steps.base.Step] that loads data from a dictionary.
 
-3. The [`Task`][distilabel.steps.tasks.base.Task] that executes a prompt.
+3. This [`Task`][distilabel.steps.tasks.base.Task] uses the instructions from the loaded dataset and the provided template to prompt an LLM.
 
 ## Types of synthetic data generation
 
