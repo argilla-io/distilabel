@@ -778,27 +778,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/concepts/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Basic Concepts
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -812,7 +791,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_1" >
         
           
           
@@ -821,23 +800,23 @@
               
   
   <span class="md-ellipsis">
-    Steps for data operations
+    Steps for processing data
   </span>
   
 
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3_1_1" id="__nav_3_1_1_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_1_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_1">
             <span class="md-nav__icon md-icon"></span>
-            Steps for data operations
+            Steps for processing data
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -910,7 +889,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" >
         
           
           
@@ -919,23 +898,23 @@
               
   
   <span class="md-ellipsis">
-    Tasks for prompting
+    Tasks for generating and judging with LLMs
   </span>
   
 
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_1_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
-            Tasks for prompting
+            Tasks for generating and judging with LLMs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -979,7 +958,7 @@
         
   
   <span class="md-ellipsis">
-    LLMs for inference
+    Executing Tasks with LLMs
   </span>
   
 
@@ -1000,7 +979,7 @@
         
   
   <span class="md-ellipsis">
-    Pipeline for orchestration
+    Execute Steps and Tasks in a Pipeline
   </span>
   
 
@@ -4692,7 +4671,14 @@
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a></p>
 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
-<p>To start off, <code>distilabel</code> is a framework for building pipelines for generating synthetic data using LLMs, that defines a <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> which orchestrates the execution of the <a class="autorefs autorefs-internal" href="../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses, and those will be connected as nodes in a Direct Acyclic Graph (DAG).</p>
+<p>Distilabel provides all the tools you need to your scalable and reliable pipelines for synthetic data generation and AI-feedback. Pipelines are used to generate data, evaluate models, manipulate data, or any other general task. They are made up of different components: Steps, Tasks and LLMs, which are chained together in a directed acyclic graph (DAG).</p>
+<ul>
+<li><strong>Steps</strong>: These are the building blocks of your pipeline. Normal steps are used for basic executions like loading data, applying some transformations, or any other general task.</li>
+<li><strong>Tasks</strong>: These are steps that rely on LLMs and prompts to perform generative tasks. For example, they can be used to generate data, evaluate models or manipulate data.</li>
+<li><strong>LLMs</strong>: These are the models that will perform the task. They can be local or remote models, and open-source or commercial models.</li>
+</ul>
+<p>Pipelines are designed to be scalable and reliable. They can be executed in a distributed manner, and they can be cached and recovered. This is useful when dealing with large datasets or when you want to ensure that your pipeline is reproducible.</p>
+<p>Besides that, pipelines are designed to be modular and flexible. You can easily add new steps, tasks, or LLMs to your pipeline, and you can also easily modify or remove them. An example architecture of a pipeline to generate a dataset of preferences is the following:</p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <p>To install the latest release with <code>hf-inference-endpoints</code> extra of the package from PyPI you can use the following command:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>distilabel<span class="o">[</span>hf-inference-endpoints<span class="o">]</span><span class="w"> </span>--upgrade
