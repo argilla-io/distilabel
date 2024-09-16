@@ -78,15 +78,18 @@ class MagpieBase(RuntimeParametersMixin):
         description="Whether to generate only the instruction. If this argument"
         " is `True`, then `n_turns` will be ignored.",
     )
-    system_prompt: Optional[RuntimeParameter[Union[List[str], str]]] = Field(
-        default=None,
-        description="An optional system prompt or list of system prompts that can be used"
-        " to steer the LLM to generate content of certain topic, guide the style, etc.",
+    system_prompt: Optional[RuntimeParameter[Union[List[str], Dict[str, str], str]]] = (
+        Field(
+            default=None,
+            description="An optional system prompt or list or dict of system prompts that"
+            " can be used to steer the LLM to generate content of certain topic, guide the"
+            " style, etc.",
+        )
     )
 
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
-    ) -> List["ChatType"]:
+    ) -> Tuple[List["ChatType"], Union[str, None]]:
         """Prepares the inputs adding the system (if required) prompt provided in each row,
         or if the conversations to generate have more than one turn, then adding the system
         prompt for multi-turn conversation from the paper.
@@ -98,6 +101,7 @@ class MagpieBase(RuntimeParametersMixin):
             The prepared inputs.
         """
         prepared_inputs = []
+        system_prompt_key = None
         for input in inputs:
             conversation = []
             if "system_prompt" in input:
@@ -107,6 +111,9 @@ class MagpieBase(RuntimeParametersMixin):
             elif self.system_prompt is not None:
                 if isinstance(self.system_prompt, list):
                     system_prompt = random.choice(self.system_prompt)
+                elif isinstance(self.system_prompt, dict):
+                    system_prompt_key = random.choice(list(self.system_prompt.keys()))
+                    system_prompt = self.system_prompt[system_prompt_key]
                 else:
                     system_prompt = self.system_prompt
                 conversation.append({"role": "system", "content": system_prompt})
@@ -117,7 +124,7 @@ class MagpieBase(RuntimeParametersMixin):
 
             prepared_inputs.append(conversation)
 
-        return prepared_inputs
+        return prepared_inputs, system_prompt_key
 
     def _append_messages_to_conversations(
         self, role: str, messages: List[str], conversations: List["ChatType"]
@@ -140,16 +147,24 @@ class MagpieBase(RuntimeParametersMixin):
     def _generate_instruction(
         self, inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        prepared_inputs = self._prepare_inputs_for_instruction_generation(inputs)
+        prepared_inputs, system_prompt_key = (
+            self._prepare_inputs_for_instruction_generation(inputs)
+        )
         outputs = self.llm.generate(
             inputs=prepared_inputs,
             num_generations=1,
             **self.llm.generation_kwargs,  # type: ignore
         )
-        return [{"instruction": output[0]} for output in outputs]
+        rows = []
+        for output in outputs:
+            row = {"instruction": output[0]}
+            if system_prompt_key is not None:
+                row["system_prompt_key"] = system_prompt_key
+            rows.append(row)
+        return rows
 
     def _prepare_conversation_outputs(
-        self, conversations: List["ChatType"]
+        self, conversations: List["ChatType"], system_prompt_key: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """Prepare the output conversation removing the system prompt if necessary. If
         `n_turns==1`, then it will return a dictionary with "instruction" and "response"
@@ -157,6 +172,7 @@ class MagpieBase(RuntimeParametersMixin):
 
         Args:
             conversations: the list of generated conversations.
+            system_prompt_key: the key of the system prompt used to generate the conversation.
 
         Returns:
             A list of dictionaries containing a "conversation" key or "instruction" and
@@ -174,14 +190,15 @@ class MagpieBase(RuntimeParametersMixin):
             if not self.include_system_prompt and conversation[0]["role"] == "system":
                 conversation.pop(0)
             if self.n_turns == 1 and len(conversation) == 2:
-                outputs.append(
-                    {
-                        "instruction": conversation[0]["content"],
-                        "response": conversation[1]["content"],
-                    }
-                )
+                output: Dict[str, Any] = {
+                    "instruction": conversation[0]["content"],
+                    "response": conversation[1]["content"],
+                }
             else:
-                outputs.append({"conversation": conversation})
+                output = {"conversation": conversation}
+            if system_prompt_key is not None:
+                output["system_prompt_key"] = system_prompt_key
+            outputs.append(output)
         return outputs
 
     def _generate_conversation_turn(
@@ -213,7 +230,7 @@ class MagpieBase(RuntimeParametersMixin):
     def _generate_multi_turn_conversation(
         self, inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        conversations: List["ChatType"] = (
+        conversations, system_prompt_key = (
             self._prepare_inputs_for_instruction_generation(inputs)
         )
         # Keep track of the active conversations, as it could happen that for some conversation
@@ -291,12 +308,12 @@ class Magpie(Task, MagpieBase):
             conversation. Defaults to `False`.
         only_instruction: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        system_prompt: an optional system prompt or list of system prompts that can
-            be used to steer the LLM to generate content of certain topic, guide the style,
-            etc. If it's a list of system prompts, then a random system prompt will be chosen
-            per input/output batch. If the provided inputs contains a `system_prompt` column,
-            then this runtime parameter will be ignored and the one from the column will
-            be used. Defaults to `None`.
+        system_prompt: an optional system prompt or list or dict  of system prompts that
+            can be used to steer the LLM to generate content of certain topic, guide the
+            style, etc. If it's a list of system prompts, then a random system prompt will
+            be chosen per input/output batch. If the provided inputs contains a `system_prompt`
+            column, then this runtime parameter will be ignored and the one from the column
+            will be used. Defaults to `None`.
 
     Runtime parameters:
         - `n_turns`: the number of turns that the generated conversation will have. Defaults
