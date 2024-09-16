@@ -10,6 +10,22 @@ hide:
 <div class="grid cards" markdown>
 
 
+-   :material-scatter-plot:{ .lg .middle } __DBSCAN__
+
+    ---
+
+    DBSCAN (Density-Based Spatial Clustering of Applications with Noise) finds core
+
+    [:octicons-arrow-right-24: DBSCAN](dbscan.md){ .bottom }
+
+-   :material-scatter-plot:{ .lg .middle } __UMAP__
+
+    ---
+
+    UMAP is a general purpose manifold learning and dimension reduction algorithm.
+
+    [:octicons-arrow-right-24: UMAP](umap.md){ .bottom }
+
 -   :material-filter:{ .lg .middle } __DeitaFiltering__
 
     ---
@@ -57,6 +73,14 @@ hide:
     Creates a text generation dataset in Argilla.
 
     [:octicons-arrow-right-24: TextGenerationToArgilla](textgenerationtoargilla.md){ .bottom }
+
+-   :material-receipt-text-edit:{ .lg .middle } __APIGenTransform__
+
+    ---
+
+    Helper step to transform a dataset like
+
+    [:octicons-arrow-right-24: APIGenTransform](apigentransform.md){ .bottom }
 
 -   :material-table-column:{ .lg .middle } __CombineOutputs__
 
@@ -177,14 +201,6 @@ hide:
     Truncate a row using a tokenizer or the number of characters.
 
     [:octicons-arrow-right-24: TruncateTextColumn](truncatetextcolumn.md){ .bottom }
-
--   :material-receipt-text-edit:{ .lg .middle } __APIGenTransform__
-
-    ---
-
-    Helper step to transform a dataset like
-
-    [:octicons-arrow-right-24: APIGenTransform](apigentransform.md){ .bottom }
 
 -   :material-file-download:{ .lg .middle } __LoadDataFromDicts__
 

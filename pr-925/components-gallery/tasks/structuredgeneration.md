@@ -134,6 +134,36 @@ result = next(
 )
 ```
 
+#### Generate structured output from a regex pattern (only works with LLMs that support regex, the providers using outlines)
+```python
+from distilabel.steps.tasks import StructuredGeneration
+from distilabel.llms import InferenceEndpointsLLM
+
+structured_gen = StructuredGeneration(
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+        tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+    ),
+)
+
+structured_gen.load()
+
+result = next(
+    structured_gen.process(
+        [
+            {
+                "instruction": "What's the weather like today in Seattle in Celsius degrees?",
+                "structured_output": {
+                    "format": "regex",
+                    "schema": r"(\d{1,2})°C"
+                },
+
+            }
+        ]
+    )
+)
+```
+
 
 
 
