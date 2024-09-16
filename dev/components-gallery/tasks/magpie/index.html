@@ -4693,7 +4693,7 @@
 <p><strong>only_instruction</strong>: whether to generate only the instruction. If this argument is  <code>True</code>, then <code>n_turns</code> will be ignored. Defaults to <code>False</code>.</p>
 </li>
 <li>
-<p><strong>system_prompt</strong>: an optional system prompt or list of system prompts that can  be used to steer the LLM to generate content of certain topic, guide the style,  etc. If it's a list of system prompts, then a random system prompt will be chosen  per input/output batch. If the provided inputs contains a <code>system_prompt</code> column,  then this runtime parameter will be ignored and the one from the column will  be used. Defaults to <code>None</code>.</p>
+<p><strong>system_prompt</strong>: an optional system prompt, or a list of system prompts from which  a random one will be chosen, or a dictionary of system prompts from which a  random one will be choosen, or a dictionary of system prompts with their probability  of being chosen. The random system prompt will be chosen per input/output batch.  This system prompt can be used to guide the generation of the instruct LLM and  steer it to generate instructions of a certain topic. Defaults to <code>None</code>.</p>
 </li>
 </ul>
 <h3 id="runtime-parameters">Runtime Parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
@@ -4711,7 +4711,7 @@
 <p><strong>only_instruction</strong>: whether to generate only the instruction. If this argument is  <code>True</code>, then <code>n_turns</code> will be ignored. Defaults to <code>False</code>.</p>
 </li>
 <li>
-<p><strong>system_prompt</strong>: an optional system prompt or list of system prompts that can  be used to steer the LLM to generate content of certain topic, guide the style,  etc. If it's a list of system prompts, then a random system prompt will be chosen  per input/output batch. If the provided inputs contains a <code>system_prompt</code> column,  then this runtime parameter will be ignored and the one from the column will  be used. Defaults to <code>None</code>.</p>
+<p><strong>system_prompt</strong>: an optional system prompt, or a list of system prompts from which  a random one will be chosen, or a dictionary of system prompts from which a  random one will be choosen, or a dictionary of system prompts with their probability  of being chosen. The random system prompt will be chosen per input/output batch.  This system prompt can be used to guide the generation of the instruct LLM and  steer it to generate instructions of a certain topic.</p>
 </li>
 </ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
@@ -4724,13 +4724,14 @@
             OCOL0[conversation]
             OCOL1[instruction]
             OCOL2[response]
-            OCOL3[model_name]
+            OCOL3[system_prompt_key]
+            OCOL4[model_name]
         end
     end
 
     subgraph Magpie
         StepInput[Input Columns: system_prompt]
-        StepOutput[Output Columns: conversation, instruction, response, model_name]
+        StepOutput[Output Columns: conversation, instruction, response, system_prompt_key, model_name]
     end
 
     ICOL0 --&gt; StepInput
@@ -4738,6 +4739,7 @@
     StepOutput --&gt; OCOL1
     StepOutput --&gt; OCOL2
     StepOutput --&gt; OCOL3
+    StepOutput --&gt; OCOL4
     StepInput --&gt; StepOutput
 </code></pre>
 <h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
@@ -4754,6 +4756,9 @@
 </li>
 <li>
 <p><strong>response</strong> (<code>str</code>): the generated response if <code>n_turns==1</code>.</p>
+</li>
+<li>
+<p><strong>system_prompt_key</strong> (<code>str</code>, optional): the key of the system prompt used to generate  the conversation or instruction. Only if <code>system_prompt</code> is a dictionary.</p>
 </li>
 <li>
 <p><strong>model_name</strong> (<code>str</code>): The model name used to generate the <code>conversation</code> or <code>instruction</code>.</p>
