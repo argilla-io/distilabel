@@ -134,14 +134,23 @@ class _StepWrapper:
 
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
+        self.step._logger.debug(
+            f"Notifying load of step '{self.step.name}' (replica ID {self.replica})..."
+        )
         self.load_queue.put({"name": self.step.name, "status": "loaded"})  # type: ignore
 
     def _notify_unload(self) -> None:
         """Notifies that the step has been unloaded."""
+        self.step._logger.debug(
+            f"Notifying unload of step '{self.step.name}' (replica ID {self.replica})..."
+        )
         self.load_queue.put({"name": self.step.name, "status": "unloaded"})  # type: ignore
 
     def _notify_load_failed(self) -> None:
         """Notifies that the step failed to load."""
+        self.step._logger.debug(
+            f"Notifying load failed of step '{self.step.name}' (replica ID {self.replica})..."
+        )
         self.load_queue.put({"name": self.step.name, "status": "load_failed"})  # type: ignore
 
     def _generator_step_process_loop(self) -> None:
