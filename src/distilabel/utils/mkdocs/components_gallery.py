@@ -90,18 +90,18 @@ _STEPS_CATEGORY_TO_ICON = {
 }
 
 _STEP_CATEGORY_TO_DESCRIPTION = {
-    "critique": "Critique steps are used to provide feedback on the quality of the data.",
+    "text-generation": "Text generation steps are used to generate text based on a given prompt.",
+    "evol": "Evol steps are used to rewrite input text and evolve it to a higher quality.",
+    "text-manipulation": "Text manipulation steps are used to manipulate or rewrite an input text.",
+    "critique": "Critique steps are used to provide feedback on the quality of the data with a written explanation.",
+    "scorer": "Scorer steps are used to evaluate and score the data with a numerical value.",
+    "preference": "Preference steps are used to collect preferences on the data with numerical values or ranks.",
     "embedding": "Embedding steps are used to generate embeddings for the data.",
-    "evol": "Evol steps are used to evolve the data.",
-    "filtering": "Filtering steps are used to filter the data.",
+    "columns": "Columns steps are used to manipulate columns in the data.",
+    "filtering": "Filtering steps are used to filter the data based on some criteria.",
     "format": "Format steps are used to format the data.",
     "load": "Load steps are used to load the data.",
-    "preference": "Preference steps are used to collect preferences on the data.",
     "save": "Save steps are used to save the data.",
-    "scorer": "Scorer steps are used to score the data.",
-    "text-generation": "Text generation steps are used to generate text.",
-    "text-manipulation": "Text manipulation steps are used to manipulate the text.",
-    "tasks": "Tasks are used to define a specific use case.",
 }
 
 

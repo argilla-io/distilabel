@@ -174,16 +174,15 @@ nav:
   - How-to guides:
       - "sections/how_to_guides/index.md"
       - Basic:
-          - Basic Concepts: "sections/how_to_guides/basic/concepts.md"
-          - Steps for data operations:
+          - Steps for processing data:
               - "sections/how_to_guides/basic/step/index.md"
               - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
               - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
-          - Tasks for prompting:
+          - Tasks for generating and judging with LLMs:
               - "sections/how_to_guides/basic/task/index.md"
               - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
-          - LLMs for inference: "sections/how_to_guides/basic/llm/index.md"
-          - Pipeline for orchestration: "sections/how_to_guides/basic/pipeline/index.md"
+          - Executing Tasks with LLMs: "sections/how_to_guides/basic/llm/index.md"
+          - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
       - Advanced:
           - The Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
           - Cachinc and recovering pipelines: "sections/how_to_guides/advanced/caching.md"
