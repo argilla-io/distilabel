@@ -123,6 +123,9 @@ class UMAP(GlobalStep):
             random_state=self.random_state,
         )
 
+    def unload(self) -> None:
+        self._umap = None
+
     @property
     def inputs(self) -> List[str]:
         return ["embedding"]

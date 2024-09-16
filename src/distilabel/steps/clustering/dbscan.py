@@ -135,6 +135,9 @@ class DBSCAN(GlobalStep):
             n_jobs=self.n_jobs,
         )
 
+    def unload(self) -> None:
+        self._clusterer = None
+
     @property
     def inputs(self) -> List[str]:
         return ["projection"]
