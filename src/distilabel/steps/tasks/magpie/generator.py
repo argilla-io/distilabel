@@ -23,10 +23,10 @@ from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.magpie.base import MagpieBase
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepColumns
 
 
-class MagpieGenerator(MagpieBase, GeneratorTask):
+class MagpieGenerator(GeneratorTask, MagpieBase):
     """Generator task the generates instructions or conversations using Magpie.
 
     Magpie is a neat method that allows generating user instructions with no seed data
@@ -264,6 +264,25 @@ class MagpieGenerator(MagpieBase, GeneratorTask):
             )
 
         self.llm.use_magpie_template = True
+
+    @property
+    def outputs(self) -> "StepColumns":
+        """Either a multi-turn conversation or the instruction generated."""
+        outputs = []
+
+        if self.only_instruction:
+            outputs.append("instruction")
+        elif self.n_turns == 1:
+            outputs.extend(["instruction", "response"])
+        else:
+            outputs.append("conversation")
+
+        if isinstance(self.system_prompt, dict):
+            outputs.append("system_prompt_key")
+
+        outputs.append("model_name")
+
+        return outputs
 
     def format_output(
         self,

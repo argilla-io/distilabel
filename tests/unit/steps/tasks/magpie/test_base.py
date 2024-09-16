@@ -592,17 +592,6 @@ class TestMagpie:
         )
 
         assert task.dump() == {
-            "name": None,
-            "resources": {
-                "replicas": 1,
-                "cpus": None,
-                "gpus": None,
-                "memory": None,
-                "resources": None,
-            },
-            "input_mappings": {},
-            "output_mappings": {},
-            "input_batch_size": 50,
             "llm": {
                 "use_magpie_template": True,
                 "magpie_pre_query_template": "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n",
@@ -615,17 +604,73 @@ class TestMagpie:
                     "name": "DummyMagpieLLM",
                 },
             },
-            "group_generations": False,
-            "add_raw_output": True,
-            "add_raw_input": True,
-            "num_generations": 1,
-            "use_default_structured_output": False,
             "n_turns": 1,
             "end_with_user": False,
             "include_system_prompt": False,
             "only_instruction": True,
             "system_prompt": None,
+            "name": "magpie_0",
+            "resources": {
+                "replicas": 1,
+                "cpus": None,
+                "gpus": None,
+                "memory": None,
+                "resources": None,
+            },
+            "input_mappings": {},
+            "output_mappings": {},
+            "input_batch_size": 50,
+            "group_generations": False,
+            "add_raw_output": True,
+            "add_raw_input": True,
+            "num_generations": 1,
+            "use_default_structured_output": False,
             "runtime_parameters_info": [
+                {
+                    "name": "llm",
+                    "runtime_parameters_info": [
+                        {
+                            "name": "generation_kwargs",
+                            "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
+                            "keys": [{"name": "kwargs", "optional": False}],
+                        },
+                        {
+                            "name": "use_offline_batch_generation",
+                            "optional": True,
+                            "description": "Whether to use the `offline_batch_generate` method to generate the responses.",
+                        },
+                        {
+                            "name": "offline_batch_generation_block_until_done",
+                            "optional": True,
+                            "description": "If provided, then polling will be done until the `ofline_batch_generate` method is able to retrieve the results. The value indicate the time to wait between each polling.",
+                        },
+                    ],
+                },
+                {
+                    "name": "n_turns",
+                    "optional": True,
+                    "description": "The number of turns to generate for the conversation.",
+                },
+                {
+                    "name": "end_with_user",
+                    "optional": True,
+                    "description": "Whether the conversation should end with a user message.",
+                },
+                {
+                    "name": "include_system_prompt",
+                    "optional": True,
+                    "description": "Whether to include the system prompt used in the generated conversation.",
+                },
+                {
+                    "name": "only_instruction",
+                    "optional": True,
+                    "description": "Whether to generate only the instruction. If this argument is `True`, then `n_turns` will be ignored.",
+                },
+                {
+                    "name": "system_prompt",
+                    "optional": True,
+                    "description": "An optional system prompt, or a list of system prompts from which a random one will be chosen, or a dictionary of system prompts from which a random one will be choosen, or a dictionary of system prompts with their probability of being chosen. The random system prompt will be chosen per input/output batch. This system prompt can be used to guide the generation of the instruct LLM and steer it to generate instructions of a certain topic.",
+                },
                 {
                     "name": "resources",
                     "runtime_parameters_info": [
@@ -662,26 +707,6 @@ class TestMagpie:
                     "description": "The number of rows that will contain the batches processed by the step.",
                 },
                 {
-                    "name": "llm",
-                    "runtime_parameters_info": [
-                        {
-                            "name": "generation_kwargs",
-                            "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
-                            "keys": [{"name": "kwargs", "optional": False}],
-                        },
-                        {
-                            "name": "use_offline_batch_generation",
-                            "optional": True,
-                            "description": "Whether to use the `offline_batch_generate` method to generate the responses.",
-                        },
-                        {
-                            "name": "offline_batch_generation_block_until_done",
-                            "optional": True,
-                            "description": "If provided, then polling will be done until the `ofline_batch_generate` method is able to retrieve the results. The value indicate the time to wait between each polling.",
-                        },
-                    ],
-                },
-                {
                     "name": "add_raw_output",
                     "optional": True,
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
@@ -695,31 +720,6 @@ class TestMagpie:
                     "name": "num_generations",
                     "optional": True,
                     "description": "The number of generations to be produced per input.",
-                },
-                {
-                    "name": "n_turns",
-                    "optional": True,
-                    "description": "The number of turns to generate for the conversation.",
-                },
-                {
-                    "name": "end_with_user",
-                    "optional": True,
-                    "description": "Whether the conversation should end with a user message.",
-                },
-                {
-                    "name": "include_system_prompt",
-                    "optional": True,
-                    "description": "Whether to include the system prompt used in the generated conversation.",
-                },
-                {
-                    "name": "only_instruction",
-                    "optional": True,
-                    "description": "Whether to generate only the instruction. If this argument is `True`, then `n_turns` will be ignored.",
-                },
-                {
-                    "name": "system_prompt",
-                    "optional": True,
-                    "description": "An optional system prompt, or a list of system prompts from which a random one will be chosen, or a dictionary of system prompts from which a random one will be choosen, or a dictionary of system prompts with their probability of being chosen. The random system prompt will be chosen per input/output batch. This system prompt can be used to guide the generation of the instruct LLM and steer it to generate instructions of a certain topic.",
                 },
             ],
             "type_info": {

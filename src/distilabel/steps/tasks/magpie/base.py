@@ -113,25 +113,6 @@ class MagpieBase(RuntimeParametersMixin):
                     )
         return system_prompts
 
-    @property
-    def outputs(self) -> "StepColumns":
-        """Either a multi-turn conversation or the instruction generated."""
-        outputs = []
-
-        if self.only_instruction:
-            outputs.append("instruction")
-        elif self.n_turns == 1:
-            outputs.extend(["instruction", "response"])
-        else:
-            outputs.append("conversation")
-
-        if isinstance(self.system_prompt, dict):
-            outputs.append("system_prompt_key")
-
-        outputs.append("model_name")
-
-        return outputs
-
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
     ) -> Tuple[List["ChatType"], Union[str, None]]:
@@ -338,7 +319,7 @@ class MagpieBase(RuntimeParametersMixin):
         ]
 
 
-class Magpie(MagpieBase, Task):
+class Magpie(Task, MagpieBase):
     """Generates conversations using an instruct fine-tuned LLM.
 
     Magpie is a neat method that allows generating user instructions with no seed data
@@ -540,6 +521,25 @@ class Magpie(MagpieBase, Task):
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Does nothing."""
         return []
+
+    @property
+    def outputs(self) -> "StepColumns":
+        """Either a multi-turn conversation or the instruction generated."""
+        outputs = []
+
+        if self.only_instruction:
+            outputs.append("instruction")
+        elif self.n_turns == 1:
+            outputs.extend(["instruction", "response"])
+        else:
+            outputs.append("conversation")
+
+        if isinstance(self.system_prompt, dict):
+            outputs.append("system_prompt_key")
+
+        outputs.append("model_name")
+
+        return outputs
 
     def format_output(
         self,
