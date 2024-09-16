@@ -27,26 +27,6 @@ class TestMagpieGenerator:
         ):
             MagpieGenerator(llm=OpenAILLM(model="gpt-4", api_key="fake"))  # type: ignore
 
-    def test_outputs(self) -> None:
-        task = MagpieGenerator(
-            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=1
-        )
-
-        assert task.outputs == ["instruction", "response", "model_name"]
-
-        task = MagpieGenerator(
-            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2
-        )
-
-        assert task.outputs == ["conversation", "model_name"]
-
-        task = MagpieGenerator(
-            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
-            only_instruction=True,
-        )
-
-        assert task.outputs == ["instruction", "model_name"]
-
     def test_serialization(self) -> None:
         task = MagpieGenerator(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"))
 

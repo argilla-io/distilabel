@@ -31,7 +31,28 @@ class TestMagpie:
         ):
             Magpie(llm=OpenAILLM(model="gpt-4", api_key="fake"))  # type: ignore
 
+    def test_raise_error_if_system_prompts_weights_do_not_sum_to_one(self) -> None:
+        with pytest.raises(
+            ValueError,
+            match="`*If `system_prompts` attribute is a dictionary containing tuples with"
+            " the system prompts and their probability of being chosen",
+        ):
+            Magpie(
+                llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+                system_prompt={
+                    "system_prompt_1": ("system_prompt", 0.5),
+                    "system_prompt_2": ("system_prompt", 0.4),
+                },
+            )
+
     def test_outputs(self) -> None:
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            only_instruction=True,
+        )
+
+        assert task.outputs == ["instruction", "model_name"]
+
         task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=1)
 
         assert task.outputs == ["instruction", "response", "model_name"]
@@ -42,10 +63,18 @@ class TestMagpie:
 
         task = Magpie(
             llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
-            only_instruction=True,
+            system_prompt={
+                "system_prompt_1": ("system_prompt", 0.5),
+                "system_prompt_2": ("system_prompt", 0.5),
+            },
         )
 
-        assert task.outputs == ["instruction", "model_name"]
+        assert task.outputs == [
+            "instruction",
+            "response",
+            "system_prompt_key",
+            "model_name",
+        ]
 
     def test_process(self) -> None:
         task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=1)
@@ -131,27 +160,27 @@ class TestMagpie:
         assert next(task.process(inputs=[{}, {}, {}])) == [
             {
                 "conversation": [
-                    {"role": "system", "content": "This is a system prompt."},
-                    {"role": "user", "content": "Hello Magpie"},
-                    {"role": "assistant", "content": "Hello Magpie"},
-                    {"role": "user", "content": "Hello Magpie"},
-                    {"role": "assistant", "content": "Hello Magpie"},
-                ],
-                "model_name": "test",
-            },
-            {
-                "conversation": [
-                    {"role": "system", "content": "This is a system prompt."},
-                    {"role": "user", "content": "Hello Magpie"},
-                    {"role": "assistant", "content": "Hello Magpie"},
-                    {"role": "user", "content": "Hello Magpie"},
-                    {"role": "assistant", "content": "Hello Magpie"},
-                ],
-                "model_name": "test",
-            },
-            {
-                "conversation": [
                     {"role": "system", "content": "This is another system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "system", "content": "This is a system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "system", "content": "This is a system prompt."},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
@@ -477,6 +506,85 @@ class TestMagpie:
         )
         assert task._prepare_conversation_outputs([conversation]) == [expected]
 
+    @pytest.mark.parametrize(
+        "system_prompt, n_turns, inputs, random_choices_return, expected_prepared_inputs, expected_system_prompt_key",
+        [
+            (
+                None,
+                1,
+                [{"system_prompt": "Custom system prompt."}],
+                None,
+                [[{"role": "system", "content": "Custom system prompt."}]],
+                None,
+            ),
+            (
+                ["Prompt A", "Prompt B"],
+                1,
+                [{}],
+                ["Prompt A"],
+                [[{"role": "system", "content": "Prompt A"}]],
+                None,
+            ),
+            (
+                {"Key1": "Prompt 1", "Key2": "Prompt 2"},
+                1,
+                [{}],
+                ["Key1"],
+                [[{"role": "system", "content": "Prompt 1"}]],
+                "Key1",
+            ),
+            (
+                {"Key1": ("Prompt 1", 0.7), "Key2": ("Prompt 2", 0.3)},
+                1,
+                [{}],
+                ["Key1"],
+                [[{"role": "system", "content": "Prompt 1"}]],
+                "Key1",
+            ),
+            (
+                None,
+                2,
+                [{}],
+                None,
+                [[{"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT}]],
+                None,
+            ),
+            (
+                None,
+                1,
+                [{}],
+                None,
+                [[]],
+                None,
+            ),
+        ],
+    )
+    def test_prepare_inputs_for_instruction_generation(
+        self,
+        system_prompt,
+        n_turns,
+        inputs,
+        random_choices_return,
+        expected_prepared_inputs,
+        expected_system_prompt_key,
+    ):
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=n_turns,
+            system_prompt=system_prompt,
+        )
+
+        with mock.patch("random.choices") as mock_choices:
+            if random_choices_return is not None:
+                mock_choices.return_value = random_choices_return
+
+            prepared_inputs, system_prompt_key = (
+                task._prepare_inputs_for_instruction_generation(inputs)
+            )
+
+        assert prepared_inputs == expected_prepared_inputs
+        assert system_prompt_key == expected_system_prompt_key
+
     def test_serialization(self) -> None:
         task = Magpie(
             llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
@@ -484,24 +592,7 @@ class TestMagpie:
         )
 
         assert task.dump() == {
-            "llm": {
-                "use_magpie_template": True,
-                "magpie_pre_query_template": "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n",
-                "generation_kwargs": {},
-                "jobs_ids": None,
-                "offline_batch_generation_block_until_done": None,
-                "use_offline_batch_generation": False,
-                "type_info": {
-                    "module": "tests.unit.conftest",
-                    "name": "DummyMagpieLLM",
-                },
-            },
-            "n_turns": 1,
-            "end_with_user": False,
-            "include_system_prompt": False,
-            "only_instruction": True,
-            "system_prompt": None,
-            "name": "magpie_0",
+            "name": None,
             "resources": {
                 "replicas": 1,
                 "cpus": None,
@@ -512,61 +603,29 @@ class TestMagpie:
             "input_mappings": {},
             "output_mappings": {},
             "input_batch_size": 50,
+            "llm": {
+                "use_magpie_template": True,
+                "magpie_pre_query_template": "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n",
+                "generation_kwargs": {},
+                "use_offline_batch_generation": False,
+                "offline_batch_generation_block_until_done": None,
+                "jobs_ids": None,
+                "type_info": {
+                    "module": "tests.unit.conftest",
+                    "name": "DummyMagpieLLM",
+                },
+            },
             "group_generations": False,
             "add_raw_output": True,
             "add_raw_input": True,
             "num_generations": 1,
             "use_default_structured_output": False,
+            "n_turns": 1,
+            "end_with_user": False,
+            "include_system_prompt": False,
+            "only_instruction": True,
+            "system_prompt": None,
             "runtime_parameters_info": [
-                {
-                    "name": "llm",
-                    "runtime_parameters_info": [
-                        {
-                            "name": "generation_kwargs",
-                            "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
-                            "keys": [{"name": "kwargs", "optional": False}],
-                        },
-                        {
-                            "description": "Whether to use the `offline_batch_generate` method to "
-                            "generate the responses.",
-                            "name": "use_offline_batch_generation",
-                            "optional": True,
-                        },
-                        {
-                            "description": "If provided, then polling will be done until the "
-                            "`ofline_batch_generate` method is able to retrieve the "
-                            "results. The value indicate the time to wait between each "
-                            "polling.",
-                            "name": "offline_batch_generation_block_until_done",
-                            "optional": True,
-                        },
-                    ],
-                },
-                {
-                    "name": "n_turns",
-                    "optional": True,
-                    "description": "The number of turns to generate for the conversation.",
-                },
-                {
-                    "name": "end_with_user",
-                    "optional": True,
-                    "description": "Whether the conversation should end with a user message.",
-                },
-                {
-                    "name": "include_system_prompt",
-                    "optional": True,
-                    "description": "Whether to include the system prompt used in the generated conversation.",
-                },
-                {
-                    "name": "only_instruction",
-                    "optional": True,
-                    "description": "Whether to generate only the instruction. If this argument is `True`, then `n_turns` will be ignored.",
-                },
-                {
-                    "name": "system_prompt",
-                    "optional": True,
-                    "description": "An optional system prompt or list of system prompts that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
-                },
                 {
                     "name": "resources",
                     "runtime_parameters_info": [
@@ -603,19 +662,64 @@ class TestMagpie:
                     "description": "The number of rows that will contain the batches processed by the step.",
                 },
                 {
+                    "name": "llm",
+                    "runtime_parameters_info": [
+                        {
+                            "name": "generation_kwargs",
+                            "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
+                            "keys": [{"name": "kwargs", "optional": False}],
+                        },
+                        {
+                            "name": "use_offline_batch_generation",
+                            "optional": True,
+                            "description": "Whether to use the `offline_batch_generate` method to generate the responses.",
+                        },
+                        {
+                            "name": "offline_batch_generation_block_until_done",
+                            "optional": True,
+                            "description": "If provided, then polling will be done until the `ofline_batch_generate` method is able to retrieve the results. The value indicate the time to wait between each polling.",
+                        },
+                    ],
+                },
+                {
                     "name": "add_raw_output",
                     "optional": True,
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
                 },
                 {
-                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
                     "name": "add_raw_input",
                     "optional": True,
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
                 },
                 {
                     "name": "num_generations",
                     "optional": True,
                     "description": "The number of generations to be produced per input.",
+                },
+                {
+                    "name": "n_turns",
+                    "optional": True,
+                    "description": "The number of turns to generate for the conversation.",
+                },
+                {
+                    "name": "end_with_user",
+                    "optional": True,
+                    "description": "Whether the conversation should end with a user message.",
+                },
+                {
+                    "name": "include_system_prompt",
+                    "optional": True,
+                    "description": "Whether to include the system prompt used in the generated conversation.",
+                },
+                {
+                    "name": "only_instruction",
+                    "optional": True,
+                    "description": "Whether to generate only the instruction. If this argument is `True`, then `n_turns` will be ignored.",
+                },
+                {
+                    "name": "system_prompt",
+                    "optional": True,
+                    "description": "An optional system prompt, or a list of system prompts from which a random one will be chosen, or a dictionary of system prompts from which a random one will be choosen, or a dictionary of system prompts with their probability of being chosen. The random system prompt will be chosen per input/output batch. This system prompt can be used to guide the generation of the instruct LLM and steer it to generate instructions of a certain topic.",
                 },
             ],
             "type_info": {
