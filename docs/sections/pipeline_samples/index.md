@@ -3,11 +3,11 @@ hide: toc
 ---
 # Tutorials
 
-- **Tutorials** provide detailed step-by-step explanations and the code used for end-to-end workflows.
+- **End-to-end tutorials** provide detailed step-by-step explanations and the code used for end-to-end workflows.
 - **Paper implementations** provide reproductions of fundamental papers in the synthetic data domain.
 - **Examples** don't provide explenations but simply show code for different tasks.
 
-## Tutorials
+## End-to-end tutorials
 
 <div class="grid cards" markdown>
 
