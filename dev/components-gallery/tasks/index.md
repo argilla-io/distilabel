@@ -158,7 +158,7 @@ hide:
 
     ---
 
-    Simple text generation with an `LLM` given an instruction.
+    Text generation with an `LLM` given a prompt.
 
     [:octicons-arrow-right-24: TextGeneration](textgeneration.md){ .bottom }
 
