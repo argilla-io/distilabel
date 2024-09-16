@@ -294,7 +294,7 @@ class MagpieBase(RuntimeParametersMixin):
                 active_indices=active_indices,
             )
 
-        return self._prepare_conversation_outputs(conversations)
+        return self._prepare_conversation_outputs(conversations, system_prompt_key)
 
     def _generate_with_pre_query_template(
         self, inputs: List[Dict[str, Any]]
