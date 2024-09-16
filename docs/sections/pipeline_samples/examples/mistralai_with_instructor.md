@@ -1,11 +1,13 @@
 ---
 hide: toc
 ---
-# MistralAI with `instructor`
+# Structured generation with `instructor`
 
 Answer instructions with knowledge graphs defined as `pydantic.BaseModel` objects using `instructor` in `distilabel`.
 
 This script makes use of [`MistralLLM`][distilabel.llms.mistral.MistralLLM] and the structured output capabilities thanks to [`instructor`](https://python.useinstructor.com/) to generate knowledge graphs from complex topics.
+
+![Knowledge graph figure](../../../assets/pipelines/knowledge_graphs.png)
 
 This example is translated from this [awesome example](https://python.useinstructor.com/examples/knowledge_graph/) from `instructor` cookbook.
 

@@ -8,6 +8,8 @@ The authors propose a method for generating [Lean 4](https://github.com/leanprov
 
 Here we show how to deal with steps 1 and 2, but the authors ensure the theorems are checked using the [lean4](https://github.com/leanprover/lean4) program on the generated proofs, and iterate for a series of steps, fine-tuning a model on the synthetic data (DeepSeek prover 7B), regenerating the dataset, and continue the process until no further improvement is found.
 
+![DEITA pipeline overview](../../../assets/pipelines/deepseek.png)
+
 ### Replication
 
 !!! Note
@@ -32,7 +34,7 @@ There are three components we needed to define for this pipeline, for the differ
 !!! Note
 
     We will use the same `LLM` for all the tasks, so we will define once and reuse it for the different tasks:
-    
+
     ```python
     llm = InferenceEndpointsLLM(
         model_id="meta-llama/Meta-Llama-3-70B-Instruct",

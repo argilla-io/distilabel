@@ -1,4 +1,4 @@
-# Define Steps for your Pipeline
+# Steps for processing data
 
 ## Working with Steps
 

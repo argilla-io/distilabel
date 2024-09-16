@@ -2,6 +2,8 @@
 
 ["Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models"](https://arxiv.org/pdf/2405.01535) presents Prometheus 2, a new and more powerful evaluator LLM compared to Prometheus (its predecessor) presented in ["Prometheus: Inducing Fine-grained Evaluation Capability in Language Models"](https://arxiv.org/abs/2310.08491); since GPT-4, as well as other proprietary LLMs, are commonly used to assess the quality of the responses for various LLMs, but there are concerns about transparency, controllability, and affordability, that motivate the need of open-source LLMs specialized in evaluations.
 
+![Prometheus 2 pipeline overview](../../../assets/pipelines/prometheus.png)
+
 Existing open evaluator LMs exhibit critical shortcomings:
 
 1. They issue scores that significantly diverge from those assigned by humans.
