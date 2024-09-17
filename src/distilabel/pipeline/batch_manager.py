@@ -245,7 +245,7 @@ class _BatchManagerStep(_Serializable):
             data={predecessor: [] for predecessor in predecessors},
             convergence_step=convergence_step,
             next_expected_seq_no={predecessor: (0, 0) for predecessor in predecessors},
-            step_signature=step._create_signature(),
+            step_signature=step.signature,
             use_cache=step.use_cache,
             step_offset={
                 predecessor: {"batch": "batch_0", "offset": 0}
@@ -768,7 +768,7 @@ class _BatchManager(_Serializable):
 
         if path:
             step = self._steps[batch.step_name]
-            step_name_signed = step._create_signature()
+            step_name_signed = step.signature
             batch_manager_data_dir = (
                 Path(path).parent / "batch_manager_data" / step_name_signed
             )
@@ -952,7 +952,7 @@ class _BatchManager(_Serializable):
             "last_batch_flag_sent_to": self._last_batch_flag_sent_to,
         }
 
-    def get_data_directories(self, path: "StrOrPath") -> Dict[str, str]:
+    def get_data_directories(self, path: Path) -> Dict[str, str]:
         """Helper function to generate the cached_data_dir for each `_BatchManagerStep`.
 
         Args:
@@ -964,14 +964,14 @@ class _BatchManager(_Serializable):
         """
         batch_manager_data_dirs = {}
         for step_name, step in self._steps.items():
-            step_name_signed = step._create_signature()
+            step_name_signed = step.signature
             batch_manager_data_dirs[step_name] = str(
                 path.parent / "batch_manager_data" / step_name_signed
             )
 
         return batch_manager_data_dirs
 
-    def cache(self, path: "StrOrPath") -> None:  # noqa: C901
+    def cache(self, path: Path) -> None:  # noqa: C901
         """Cache the `_BatchManager` to a file.
 
         Args:

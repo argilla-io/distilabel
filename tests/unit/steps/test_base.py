@@ -29,6 +29,8 @@ from distilabel.utils.serialization import TYPE_INFO_KEY
 
 
 class DummyStep(Step):
+    attr1: int = 5
+
     @property
     def inputs(self) -> List[str]:
         return ["instruction"]
@@ -66,6 +68,16 @@ class DummyGlobalStep(GlobalStep):
 
 
 class TestStep:
+    def test_signature(self) -> None:
+        step = DummyStep(attr1=5)
+        assert step.signature == "a0ce83adedabec3fba270ec7bc8a52a62cbbee40"
+
+        step = DummyStep(attr1=5)
+        assert step.signature == "a0ce83adedabec3fba270ec7bc8a52a62cbbee40"
+
+        step = DummyStep(attr1=1234)
+        assert step.signature == "c00e67df4f7ed97a2bf8d9b1178d6c728e577c3b"
+
     def test_create_step_with_invalid_name(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
 
@@ -397,6 +409,7 @@ class TestStepSerialization:
         step = DummyStep(name="dummy", pipeline=pipeline)
         assert step.dump() == {
             "name": "dummy",
+            "attr1": 5,
             "input_batch_size": 50,
             "input_mappings": {},
             "output_mappings": {},
@@ -406,6 +419,14 @@ class TestStepSerialization:
                 "memory": None,
                 "replicas": 1,
                 "resources": None,
+            },
+            "exclude_from_signature": {
+                "disable_cuda_device_placement",
+                "gpu_memory_utilization",
+                "input_batch_size",
+                "resources",
+                "type_info",
+                "exclude_from_signature",
             },
             "runtime_parameters_info": [
                 {
@@ -482,11 +503,3 @@ class TestStepSerialization:
             }
         )
         assert f"Step '{dummy_step.name}' hasn't received a pipeline" in caplog.text
-
-    def test_equality(self):
-        assert (
-            DummyStep()._create_signature()
-            == "77fb21017fd082a4f1dfb27ada4613cc7db69804"
-        )
-        assert DummyStep() == DummyStep()
-        assert DummyStep(name="dummy") != DummyStep(name="other")

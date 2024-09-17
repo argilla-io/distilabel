@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import hashlib
 import importlib
 import os
 import sys
@@ -352,51 +351,6 @@ class _Serializable:
         raise ValueError(
             f"Invalid file format: '{path.suffix}', must be one of {get_args(SaveFormats)}."
         )
-
-    def _create_signature(self) -> str:
-        """Makes a signature (hash) of a Step, to check equality when reading cached steps
-        of a pipeline.
-
-        Returns:
-            Signature of the `Step`.
-        """
-
-        def flatten_dump(d, parent_key="", sep="_"):
-            items = []
-            for k, v in d.items():
-                new_key = parent_key + sep + k if parent_key else k
-                if isinstance(v, dict):
-                    items.extend(flatten_dump(v, new_key, sep=sep))
-                elif isinstance(v, list):
-                    if len(v) == 0:
-                        items.append((new_key, ""))
-                    elif isinstance(v[0], str):
-                        items.append((new_key, "-".join(v)))
-                    else:
-                        for i, x in enumerate(v):
-                            items.extend(flatten_dump(x, f"{new_key}-{i}", sep=sep))
-                else:
-                    items.append((new_key, v))
-            return items
-
-        info = []
-        for name, value in flatten_dump(self.dump()):
-            info.append(f"{name}-{str(value)}")
-
-        return hashlib.sha1("-".join(info).encode()).hexdigest()
-
-    def __eq__(self, other: Self) -> bool:
-        """Implements equality operator for serializable objects (intended to be used between steps).
-
-        Args:
-            other: Step to compare against.
-
-        Returns:
-            True if both objects have the same signature.
-        """
-        if not isinstance(other, _Serializable):
-            return False
-        return self._create_signature() == other._create_signature()
 
 
 def _check_is_dir(path: StrOrPath) -> None:

@@ -1403,7 +1403,7 @@ class TestPipelineSerialization:
             dummy_generator.connect(dummy_step_1)
             dummy_step_1.connect(dummy_step_2)
 
-            signature_1 = pipeline_1._create_signature()
+            signature_1 = pipeline_1.signature
 
         with Pipeline(name="unit-test-pipeline-3") as pipeline_2:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -1412,7 +1412,7 @@ class TestPipelineSerialization:
 
             dummy_generator >> dummy_step_1 >> dummy_step_2
 
-            signature_2 = pipeline_2._create_signature()
+            signature_2 = pipeline_2.signature
 
         assert signature_1 == signature_2
 
@@ -1429,7 +1429,7 @@ class TestPipelineSerialization:
             dummy_generator.connect(dummy_step_1)
             dummy_generator.connect(dummy_step_2)
 
-            signature_1 = pipeline_1._create_signature()
+            signature_1 = pipeline_1.signature
 
         with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -1438,7 +1438,7 @@ class TestPipelineSerialization:
 
             dummy_generator >> [dummy_step_1, dummy_step_2]
 
-            signature_2 = pipeline_2._create_signature()
+            signature_2 = pipeline_2.signature
 
         assert signature_1 == signature_2
 
@@ -1458,7 +1458,7 @@ class TestPipelineSerialization:
             dummy_step_1.connect(dummy_global)
             dummy_step_2.connect(dummy_global)
 
-            signature_1 = pipeline_1._create_signature()
+            signature_1 = pipeline_1.signature
 
         with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
             dummy_step_1 = DummyStep1(name="dummy_step_1")
@@ -1466,7 +1466,7 @@ class TestPipelineSerialization:
             dummy_global = DummyGlobalStep(name="dummy_global_step")
 
             [dummy_step_1, dummy_step_2] >> dummy_global
-            signature_2 = pipeline_2._create_signature()
+            signature_2 = pipeline_2.signature
 
         assert signature_1 == signature_2
 
@@ -1492,7 +1492,7 @@ class TestPipelineSerialization:
             dummy_step_1.connect(dummy_global)
             dummy_step_2.connect(dummy_global)
 
-            signature_1 = pipeline_1._create_signature()
+            signature_1 = pipeline_1.signature
 
         with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -1501,6 +1501,6 @@ class TestPipelineSerialization:
             dummy_global = DummyGlobalStep(name="dummy_global_step")
 
             dummy_generator >> [dummy_step_1, dummy_step_2] >> dummy_global
-            signature_2 = pipeline_2._create_signature()
+            signature_2 = pipeline_2.signature
 
         assert signature_1 == signature_2
