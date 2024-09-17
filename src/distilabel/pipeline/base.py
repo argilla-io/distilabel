@@ -86,6 +86,7 @@ if TYPE_CHECKING:
 
         pipeline: Path
         batch_manager: Path
+        steps_data: Path
         data: Path
         batch_input_data: Path
         log_file: Path
@@ -651,14 +652,30 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             Path: Filenames where the pipeline content will be serialized.
         """
         folder = self._cache_dir / self.name / self.signature
+        pipeline_execution_dir = folder / "executions" / self.aggregated_steps_signature
         return {
-            "pipeline": folder / "pipeline.yaml",
-            "batch_manager": folder / "batch_manager.json",
-            "data": folder / "data",
-            "batch_input_data": folder / "batch_input_data",
-            "log_file": folder / "pipeline.log",
-            "stages_file": folder / "stages.json",
+            "pipeline": pipeline_execution_dir / "pipeline.yaml",
+            "batch_manager": pipeline_execution_dir / "batch_manager.json",
+            "steps_data": folder / "steps_data",
+            "data": pipeline_execution_dir / "data",
+            "batch_input_data": pipeline_execution_dir / "batch_input_data",
+            "log_file": pipeline_execution_dir / "pipeline.log",
+            "stages_file": pipeline_execution_dir / "stages.json",
         }
+
+    @property
+    def aggregated_steps_signature(self) -> str:
+        """Creates an aggregated signature using `Step`s signature that will be used for
+        the `_BatchManager`.
+
+        Returns:
+            The aggregated signature.
+        """
+        signatures = []
+        for step_name in self.dag:
+            step: "_Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
+            signatures.append(step.signature)
+        return hashlib.sha1("".join(signatures).encode()).hexdigest()
 
     def _cache(self) -> None:
         """Saves the `BasePipeline` using the `_cache_filename`."""
@@ -671,7 +688,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         )
 
         if self._batch_manager is not None:
-            self._batch_manager.cache(self._cache_location["batch_manager"])
+            self._batch_manager.cache(
+                path=self._cache_location["batch_manager"],
+                steps_data_path=self._cache_location["steps_data"],
+            )
 
         self._save_stages_status()
 
@@ -776,9 +796,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
             step: "_Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
             batch_manager_step = self._batch_manager._steps[step_name]  # type: ignore
-            step_signature_changed = (
-                step._create_signature() != batch_manager_step.step_signature
-            )
+            step_signature_changed = step.signature != batch_manager_step.step_signature
             if step_signature_changed or not step.use_cache:
                 self._batch_manager.invalidate_cache_for(step.name, self.dag)  # type: ignore
                 if step_signature_changed:
@@ -1411,7 +1429,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             batch: The batch to register.
         """
         self._batch_manager.register_batch(
-            batch, path=self._cache_location["batch_manager"]
+            batch, steps_data_path=self._cache_location["steps_data"]
         )  # type: ignore
         self._logger.debug(
             f"Batch {batch.seq_no} from step '{batch.step_name}' registered in batch"

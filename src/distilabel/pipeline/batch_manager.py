@@ -686,10 +686,8 @@ class _BatchManagerStep(_Serializable):
             "step_offset": self.step_offset,
         }
 
-    def _create_signature(self) -> str:
-        """The signature of a `_BathManagerStep` corresponds to the name of the step with
-        it's signature, as we just need to match them.
-        """
+    @property
+    def signature(self) -> str:
         return f"{self.step_name}_{self.step_signature}"
 
 
@@ -754,24 +752,24 @@ class _BatchManager(_Serializable):
 
         return False
 
-    def register_batch(self, batch: _Batch, path: Optional["StrOrPath"] = None) -> None:
+    def register_batch(
+        self, batch: _Batch, steps_data_path: Optional["StrOrPath"] = None
+    ) -> None:
         """Method to register a batch received from a step. It will keep track of the
         sequence number and the last batch received from the step in the internal maps.
 
         Args:
             batch: _Batch from which we will register the sequence number and the last batch received.
-            path: Path where the data will be saved.
+            steps_data_path: The path where the outputs of each `Step` (considering its
+                signature) will be saved for later reuse in another pipelines executions.
         """
         last_batch = self._last_batch_received[batch.step_name]
         if not last_batch or (last_batch and last_batch.seq_no < batch.seq_no):
             self._last_batch_received[batch.step_name] = batch
 
-        if path:
+        if steps_data_path:
             step = self._steps[batch.step_name]
-            step_name_signed = step.signature
-            batch_manager_data_dir = (
-                Path(path).parent / "batch_manager_data" / step_name_signed
-            )
+            batch_manager_data_dir = Path(steps_data_path) / step.signature
             batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
             filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
             if not filename.exists():
@@ -952,11 +950,12 @@ class _BatchManager(_Serializable):
             "last_batch_flag_sent_to": self._last_batch_flag_sent_to,
         }
 
-    def get_data_directories(self, path: Path) -> Dict[str, str]:
+    def get_data_directories(self, steps_data_path: Path) -> Dict[str, str]:
         """Helper function to generate the cached_data_dir for each `_BatchManagerStep`.
 
         Args:
-            path: Path where the `_BatchManager` is being serialized.
+            steps_data_path: The path where the outputs of each `Step` (considering its
+                signature) will be saved for later reuse in another pipelines executions.
 
         Returns:
             Dictionary with the name of the step and the path where the batches
@@ -964,19 +963,18 @@ class _BatchManager(_Serializable):
         """
         batch_manager_data_dirs = {}
         for step_name, step in self._steps.items():
-            step_name_signed = step.signature
-            batch_manager_data_dirs[step_name] = str(
-                path.parent / "batch_manager_data" / step_name_signed
-            )
+            batch_manager_data_dirs[step_name] = str(steps_data_path / step.signature)
 
         return batch_manager_data_dirs
 
-    def cache(self, path: Path) -> None:  # noqa: C901
+    def cache(self, path: Path, steps_data_path: Path) -> None:  # noqa: C901
         """Cache the `_BatchManager` to a file.
 
         Args:
             path: The path to the file where the `_BatchManager` will be cached. If `None`,
                 then the `_BatchManager` will be cached in the default cache folder.
+            steps_data_path: The path where the outputs of each `Step` (considering its
+                signature) will be saved for later reuse in another pipelines executions.
         """
 
         def save_batch(
@@ -1004,7 +1002,7 @@ class _BatchManager(_Serializable):
         path = Path(path)
 
         # Set the data directories in the `_BatchManagerSteps` before dumping them
-        data_directories = self.get_data_directories(path)
+        data_directories = self.get_data_directories(steps_data_path)
         for step_name, data_dir in data_directories.items():
             self._steps[step_name].cached_data_dir = data_dir
 
