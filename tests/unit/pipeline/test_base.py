@@ -1304,8 +1304,7 @@ class TestPipelineSerialization:
         pipeline = DummyPipeline(name="unit-test-pipeline")
         # Doesn't matter if it's exactly this or not, the test should fail if we change the
         # way this is created.
-        signature = pipeline._create_signature()
-        assert signature == "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+        assert pipeline.signature == "da39a3ee5e6b4b0d3255bfef95601890afd80709"
 
         # Maybe not the best place for this test, but does the work for now
         from distilabel.pipeline.local import Pipeline
@@ -1315,11 +1314,11 @@ class TestPipelineSerialization:
         sample_two_steps = sample_n_steps(2)
 
         with Pipeline(name="unit-test-pipeline") as pipeline:
-            dummy_generator = DummyGeneratorStep()
-            dummy_step_1_0 = DummyStep1()
-            dummy_step_1_1 = DummyStep1()
-            dummy_step_1_2 = DummyStep1()
-            dummy_step_2 = DummyStep2()
+            dummy_generator = DummyGeneratorStep(name="dummy_generator")
+            dummy_step_1_0 = DummyStep1(name="dummy_step_1_0")
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1")
+            dummy_step_1_2 = DummyStep1(name="dummy_step_1_2")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
 
             (
                 dummy_generator
@@ -1328,17 +1327,15 @@ class TestPipelineSerialization:
                 >> dummy_step_2
             )
 
-        assert (
-            pipeline._create_signature() == "20fa5838debf739de3277fbdb59209cc23617402"
-        )
+        assert pipeline.signature == "edff8f5bb8b51da406ff274e640f87264f014e3b"
 
-        # Update just the names to check the signature stays the same
-        with Pipeline(name="unit-test-pipeline") as pipe:
-            dummy_generator = DummyGeneratorStep()
-            dummy_step_1_0 = DummyStep1(input_batch_size=100)
-            dummy_step_1_1 = DummyStep1(input_batch_size=100)
-            dummy_step_1_2 = DummyStep1(input_batch_size=100)
-            dummy_step_2 = DummyStep2(input_batch_size=100)
+        # attributes shouldn't affect in pipeline signature
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator")
+            dummy_step_1_0 = DummyStep1(name="dummy_step_1_0", attr1=17238497128934)
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1")
+            dummy_step_1_2 = DummyStep1(name="dummy_step_1_2")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
 
             (
                 dummy_generator
@@ -1347,7 +1344,51 @@ class TestPipelineSerialization:
                 >> dummy_step_2
             )
 
-        assert pipe._create_signature() == "62ee5fb7002bb84e4e459e615d4f818a017c0ab2"
+        assert pipeline.signature == "edff8f5bb8b51da406ff274e640f87264f014e3b"
+
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator")
+            dummy_step_1_0 = DummyStep1(name="dummy_step_1_0")
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1")
+            dummy_step_1_2 = DummyStep1(name="dummy_step_1_2")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+            (
+                dummy_generator
+                >> [dummy_step_1_0, dummy_step_1_1, dummy_step_1_2]
+                >> dummy_step_2
+            )
+
+        assert pipeline.signature == "5634172be496319d50848b1679b2a8781cc5581f"
+
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_second_time")
+            dummy_step_1_0 = DummyStep1(
+                name="dummy_step_1_0_second_time", attr1=17238497128934
+            )
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1_second_time")
+            dummy_step_1_2 = DummyStep1(name="dummy_step_1_2_second_time")
+            dummy_step_2 = DummyStep2(name="dummy_step_2_second_time")
+
+            (
+                dummy_generator
+                >> sample_two_steps
+                >> [dummy_step_1_0, dummy_step_1_1, dummy_step_1_2]
+                >> dummy_step_2
+            )
+
+        assert pipeline.signature == "806dad3fca0f8274af0f374660d4e3eb25d62d12"
+
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_second_time")
+            dummy_step_1_0 = DummyStep1(
+                name="dummy_step_1_0_second_time", attr1=17238497128934
+            )
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1_second_time")
+
+            (dummy_generator >> sample_two_steps >> [dummy_step_1_0, dummy_step_1_1])
+
+        assert pipeline.signature == "7222ce34c677bea3720ef3d08c2673b29b61ff9b"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.

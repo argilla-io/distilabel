@@ -51,7 +51,6 @@ from distilabel.steps.base import GeneratorStep
 from distilabel.steps.generators.utils import make_generator_step
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import (
-    TYPE_INFO_KEY,
     _Serializable,
     read_json,
 )
@@ -242,7 +241,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         if self.name == _PIPELINE_DEFAULT_NAME:
             self.name = f"pipeline_{'_'.join(self.dag)}"
 
-    def _create_signature(self) -> str:
+    @property
+    def signature(self) -> str:
         """Makes a signature (hash) of a pipeline, using the step ids and the adjacency between them.
 
         The main use is to find the pipeline in the cache folder.
@@ -252,40 +252,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
 
         pipeline_dump = self.dump()["pipeline"]
-
-        # From the steps we will only take into account the name and how many they are,
-        # as we will control them in the internal folder
-        steps_info = list(self.dag)
-
-        for step in pipeline_dump["steps"]:
-            step_info = step["name"]
-            for argument, value in sorted(step[constants.STEP_ATTR_NAME].items()):
-                if (argument == TYPE_INFO_KEY) or (value is None):
-                    continue
-
-                if isinstance(value, dict):
-                    # input_mappings/output_mappings
-                    step_info += "-".join(
-                        [
-                            f"{str(k)}={str(v)}"
-                            for k, v in value.items()
-                            if k not in _ATTRIBUTES_IGNORED_CACHE
-                        ]
-                    )
-                elif isinstance(value, (list, tuple)):
-                    # runtime_parameters_info
-                    step_info += "-".join([str(v) for v in value])
-                elif isinstance(value, (int, str, float, bool)):
-                    if argument not in _ATTRIBUTES_IGNORED_CACHE:
-                        # batch_size/name
-                        step_info += str(value)
-                else:
-                    raise ValueError(
-                        f"Field '{argument}' in step '{step['name']}' has type {type(value)}, explicitly cast the type to 'str'."
-                    )
-
-            steps_info.append(step_info)
-
+        steps_names = list(self.dag)
         connections_info = [
             f"{c['from']}-{'-'.join(c['to'])}" for c in pipeline_dump["connections"]
         ]
@@ -298,10 +265,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             ]
             if type_info := routing_batch_function._get_type_info():
                 step += f"-{type_info}"
+            routing_batch_functions_info.append(step)
 
         return hashlib.sha1(
             ",".join(
-                steps_info + connections_info + routing_batch_functions_info
+                steps_names + connections_info + routing_batch_functions_info
             ).encode()
         ).hexdigest()
 
@@ -682,7 +650,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Returns:
             Path: Filenames where the pipeline content will be serialized.
         """
-        folder = self._cache_dir / self.name / self._create_signature()
+        folder = self._cache_dir / self.name / self.signature
         return {
             "pipeline": folder / "pipeline.yaml",
             "batch_manager": folder / "batch_manager.json",
