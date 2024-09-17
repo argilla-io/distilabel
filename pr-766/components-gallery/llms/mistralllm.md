@@ -31,7 +31,7 @@ Mistral LLM implementation running the async API client.
 
 - **_api_key_env_var**: the name of the environment variable to use for the API key. It is meant to  be used internally.
 
-- **_aclient**: the `MistralAsyncClient` to use for the Mistral API. It is meant to be used internally.  Set in the `load` method.
+- **_aclient**: the `Mistral` to use for the Mistral API. It is meant to be used internally.  Set in the `load` method.
 
 
 

@@ -61,11 +61,7 @@ llm = AnthropicLLM(model="claude-3-opus-20240229", api_key="api.key")
 
 llm.load()
 
-# Synchronous request
-output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-# Asynchronous request
-output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
 ```
 
 #### Generate structured data
@@ -86,7 +82,7 @@ llm = AnthropicLLM(
 
 llm.load()
 
-output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
 ```
 
 

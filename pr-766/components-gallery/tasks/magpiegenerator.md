@@ -34,7 +34,7 @@ Magpie is a neat method that allows generating user instructions with no seed da
 
 - **only_instruction**: whether to generate only the instruction. If this argument is  `True`, then `n_turns` will be ignored. Defaults to `False`.
 
-- **system_prompt**: an optional system prompt or list of system prompts that can  be used to steer the LLM to generate content of certain topic, guide the style,  etc. If it's a list of system prompts, then a random system prompt will be chosen  per input/output batch. If the provided inputs contains a `system_prompt` column,  then this runtime parameter will be ignored and the one from the column will  be used. Defaults to `None`.
+- **system_prompt**: an optional system prompt, or a list of system prompts from which  a random one will be chosen, or a dictionary of system prompts from which a  random one will be choosen, or a dictionary of system prompts with their probability  of being chosen. The random system prompt will be chosen per input/output batch.  This system prompt can be used to guide the generation of the instruct LLM and  steer it to generate instructions of a certain topic. Defaults to `None`.
 
 - **num_rows**: the number of rows to be generated.
 
@@ -51,7 +51,7 @@ Magpie is a neat method that allows generating user instructions with no seed da
 
 - **only_instruction**: whether to generate only the instruction. If this argument is  `True`, then `n_turns` will be ignored. Defaults to `False`.
 
-- **system_prompt**: an optional system prompt or list of system prompts that can  be used to steer the LLM to generate content of certain topic, guide the style,  etc. If it's a list of system prompts, then a random system prompt will be chosen  per input/output batch. If the provided inputs contains a `system_prompt` column,  then this runtime parameter will be ignored and the one from the column will  be used. Defaults to `None`.
+- **system_prompt**: an optional system prompt, or a list of system prompts from which  a random one will be chosen, or a dictionary of system prompts from which a  random one will be choosen, or a dictionary of system prompts with their probability  of being chosen. The random system prompt will be chosen per input/output batch.  This system prompt can be used to guide the generation of the instruct LLM and  steer it to generate instructions of a certain topic.
 
 - **num_rows**: the number of rows to be generated.
 
@@ -66,18 +66,20 @@ graph TD
 			OCOL0[conversation]
 			OCOL1[instruction]
 			OCOL2[response]
-			OCOL3[model_name]
+			OCOL3[system_prompt_key]
+			OCOL4[model_name]
 		end
 	end
 
 	subgraph MagpieGenerator
-		StepOutput[Output Columns: conversation, instruction, response, model_name]
+		StepOutput[Output Columns: conversation, instruction, response, system_prompt_key, model_name]
 	end
 
 	StepOutput --> OCOL0
 	StepOutput --> OCOL1
 	StepOutput --> OCOL2
 	StepOutput --> OCOL3
+	StepOutput --> OCOL4
 
 ```
 
@@ -92,6 +94,8 @@ graph TD
 - **instruction** (`str`): the generated instructions if `only_instruction=True`.
 
 - **response** (`str`): the generated response if `n_turns==1`.
+
+- **system_prompt_key** (`str`, optional): the key of the system prompt used to generate  the conversation or instruction. Only if `system_prompt` is a dictionary.
 
 - **model_name** (`str`): The model name used to generate the `conversation` or `instruction`.
 
@@ -210,6 +214,33 @@ result = next(generator.process())
 #     ],
 #     True
 # )
+```
+
+#### Generating with system prompts with probabilities
+```python
+from distilabel.llms import InferenceEndpointsLLM
+from distilabel.steps.tasks import MagpieGenerator
+
+magpie = MagpieGenerator(
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3-8B-Instruct",
+        tokenizer_id="meta-llama/Meta-Llama-3-8B-Instruct",
+        magpie_pre_query_template="llama3",
+        generation_kwargs={
+            "temperature": 0.8,
+            "max_new_tokens": 256,
+        },
+    ),
+    n_turns=2,
+    system_prompt={
+        "math": ("You're an expert AI assistant.", 0.8),
+        "writing": ("You're an expert writing assistant.", 0.2),
+    },
+)
+
+magpie.load()
+
+result = next(magpie.process())
 ```
 
 

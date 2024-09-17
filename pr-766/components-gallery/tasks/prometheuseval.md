@@ -9,15 +9,11 @@ Critique and rank the quality of generations from an `LLM` using Prometheus 2.0.
 
 
 `PrometheusEval` is a task created for Prometheus 2.0, covering both the absolute and relative
-    evaluations.
-
-    - The absolute evaluation i.e. `mode="absolute"` is used to evaluate a single generation from
-        an LLM for a given instruction.
-    - The relative evaluation i.e. `mode="relative"` is used to evaluate two generations from an LLM
-        for a given instruction.
-
-    Both evaluations provide the possibility whether to use a reference answer to compare with or not
-    via the `reference` attribute, and both are based on a score rubric that critiques the generation/s
+    evaluations. The absolute evaluation i.e. `mode="absolute"` is used to evaluate a single generation from
+    an LLM for a given instruction. The relative evaluation i.e. `mode="relative"` is used to evaluate two generations from an LLM
+    for a given instruction.
+    Both evaluations provide the possibility of using a reference answer to compare with or withoug
+    the `reference` attribute, and both are based on a score rubric that critiques the generation/s
     based on the following default aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`,
     and `reasoning`, that can be overridden via `rubrics`, and the selected rubric is set via the attribute
     `rubric`.
@@ -114,7 +110,7 @@ graph TD
 ### Examples
 
 
-#### 0
+#### Critique and evaluate LLM generation quality using Prometheus 2_0
 ```python
 from distilabel.steps.tasks import PrometheusEval
 from distilabel.llms import vLLM
@@ -123,8 +119,7 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]"content" }}
-{{ messages[1]"content" }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}\n{{ messages[1]"content" }}[/INST]",
     ),
     mode="absolute",
     rubric="factual-validity"
@@ -160,8 +155,7 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]"content" }}
-{{ messages[1]"content" }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}\n{{ messages[1]"content" }}[/INST]",
     ),
     mode="relative",
     rubric="honesty"
@@ -197,18 +191,12 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]"content" }}
-{{ messages[1]"content" }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}\n{{ messages[1]"content" }}[/INST]",
     ),
     mode="absolute",
     rubric="custom",
     rubrics={
-        "custom": "[A]
-Score 1: A
-Score 2: B
-Score 3: C
-Score 4: D
-Score 5: E"
+        "custom": "[A]\nScore 1: A\nScore 2: B\nScore 3: C\nScore 4: D\nScore 5: E"
     }
 )
 
@@ -242,8 +230,7 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]"content" }}
-{{ messages[1]"content" }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}\n{{ messages[1]"content" }}[/INST]",
     ),
     mode="absolute",
     rubric="helpfulness",

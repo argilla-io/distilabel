@@ -21,7 +21,7 @@ If you previously saved your dataset using the `save_to_disk` method, or
 
 - **split**: The split of the dataset to load (typically will be `train`, `test` or `validation`).
 
-- **config**: The configuration of the dataset to load. This is optional and only needed  if the dataset has multiple configurations.
+- **config**: The configuration of the dataset to load. Defaults to `default`, if there are  multiple configurations in the dataset this must be suplied or an error is raised.
 
 
 
@@ -36,7 +36,7 @@ If you previously saved your dataset using the `save_to_disk` method, or
 
 - **split**: The split of the dataset to load. Defaults to 'train'.
 
-- **config**: The configuration of the dataset to load. This is optional and only  needed if the dataset has multiple configurations.
+- **config**: The configuration of the dataset to load. Defaults to `default`, if there are  multiple configurations in the dataset this must be suplied or an error is raised.
 
 - **num_examples**: The number of examples to load from the dataset.  By default will load all examples.
 
