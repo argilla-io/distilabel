@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Union
 
+import pandas as pd
 from jinja2 import Template
 from mkdocs.config.base import Config
 from mkdocs.config.config_options import Type
@@ -86,6 +87,24 @@ _STEPS_CATEGORY_TO_ICON = {
     "scorer": ":octicons-number-16:",
     "text-generation": ":material-text-box-edit:",
     "text-manipulation": ":material-receipt-text-edit:",
+    "columns": ":material-table-column:",
+    "text-classification": ":material-label:",
+    "clustering": ":material-scatter-plot:",
+}
+
+_STEP_CATEGORY_TO_DESCRIPTION = {
+    "text-generation": "Text generation steps are used to generate text based on a given prompt.",
+    "evol": "Evol steps are used to rewrite input text and evolve it to a higher quality.",
+    "text-manipulation": "Text manipulation steps are used to manipulate or rewrite an input text.",
+    "critique": "Critique steps are used to provide feedback on the quality of the data with a written explanation.",
+    "scorer": "Scorer steps are used to evaluate and score the data with a numerical value.",
+    "preference": "Preference steps are used to collect preferences on the data with numerical values or ranks.",
+    "embedding": "Embedding steps are used to generate embeddings for the data.",
+    "columns": "Columns steps are used to manipulate columns in the data.",
+    "filtering": "Filtering steps are used to filter the data based on some criteria.",
+    "format": "Format steps are used to format the data.",
+    "load": "Load steps are used to load the data.",
+    "save": "Save steps are used to save the data.",
 }
 
 
@@ -288,10 +307,30 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
             paths.append(task_path)
 
+        global _STEP_CATEGORY_TO_DESCRIPTION
+        categories = list(_STEP_CATEGORY_TO_DESCRIPTION.keys())
+        table = pd.DataFrame(
+            {
+                "Category": categories,
+                "Icon": [_STEPS_CATEGORY_TO_ICON[category] for category in categories],
+                "Description": [
+                    _STEP_CATEGORY_TO_DESCRIPTION[category] for category in categories
+                ],
+            }
+        ).to_markdown(index=False)
+
+        description = [
+            '??? info "Task Category Overview"',
+            "    The tasks gallery page showcases the different types of tasks that can be performed with `distilabel`.",
+            "",
+        ]
+        for row in table.split("\n"):
+            description.append(f"    {row}")
+
         # Create the `components-gallery/steps/index.md` file
         content = _COMPONENTS_LIST_TEMPLATE.render(
             title="Tasks Gallery",
-            description="",
+            description="\n".join(description),
             components=tasks,
             default_icon=":material-check-outline:",
         )

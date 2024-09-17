@@ -26,7 +26,7 @@ from distilabel.steps.tasks.typing import (
 )
 
 if TYPE_CHECKING:
-    from mistralai.async_client import MistralAsyncClient
+    from mistralai import Mistral
 
 
 _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
@@ -50,7 +50,7 @@ class MistralLLM(AsyncLLM):
             `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
         _api_key_env_var: the name of the environment variable to use for the API key. It is meant to
             be used internally.
-        _aclient: the `MistralAsyncClient` to use for the Mistral API. It is meant to be used internally.
+        _aclient: the `Mistral` to use for the Mistral API. It is meant to be used internally.
             Set in the `load` method.
 
     Runtime parameters:
@@ -62,7 +62,6 @@ class MistralLLM(AsyncLLM):
             Defaults to `64`.
 
     Examples:
-
         Generate text:
 
         ```python
@@ -94,7 +93,7 @@ class MistralLLM(AsyncLLM):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
         ```
     """
 
@@ -126,14 +125,14 @@ class MistralLLM(AsyncLLM):
     _num_generations_param_supported = False
 
     _api_key_env_var: str = PrivateAttr(_MISTRALAI_API_KEY_ENV_VAR_NAME)
-    _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)
+    _aclient: Optional["Mistral"] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Loads the `MistralAsyncClient` client to benefit from async requests."""
+        """Loads the `Mistral` client to benefit from async requests."""
         super().load()
 
         try:
-            from mistralai.async_client import MistralAsyncClient
+            from mistralai import Mistral
         except ImportError as ie:
             raise ImportError(
                 "MistralAI Python client is not installed. Please install it using"
@@ -146,7 +145,7 @@ class MistralLLM(AsyncLLM):
                 f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
             )
 
-        self._aclient = MistralAsyncClient(
+        self._aclient = Mistral(
             api_key=self.api_key.get_secret_value(),
             endpoint=self.endpoint,
             max_retries=self.max_retries,  # type: ignore
@@ -218,7 +217,8 @@ class MistralLLM(AsyncLLM):
             # We need to check instructor and see if we can create a PR.
             completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
         else:
-            completion = await self._aclient.chat(**kwargs)  # type: ignore
+            # completion = await self._aclient.chat(**kwargs)  # type: ignore
+            completion = await self._aclient.chat.complete_async(**kwargs)  # type: ignore
 
         if structured_output:
             generations.append(completion.model_dump_json())

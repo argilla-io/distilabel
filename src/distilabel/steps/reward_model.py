@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from transformers import PreTrainedModel, PreTrainedTokenizer
 
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class RewardModelScore(Step, CudaDevicePlacementMixin):
@@ -68,7 +68,6 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
         - scorer
 
     Examples:
-
         Assigning an score for an instruction-response pair:
 
         ```python
@@ -179,12 +178,16 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
         )
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """Either `response` and `instruction`, or a `conversation` columns."""
-        return []
+        return {
+            "response": False,
+            "instruction": False,
+            "conversation": False,
+        }
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The `score` given by the reward model."""
         return ["score"]
 

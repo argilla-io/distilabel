@@ -97,7 +97,9 @@ class TestMistralLLM:
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient.chat = AsyncMock(return_value=mocked_completion)
+        llm._aclient.chat = Mock(
+            complete_async=AsyncMock(return_value=mocked_completion)
+        )
 
         nest_asyncio.apply()
 
@@ -126,6 +128,9 @@ class TestMistralLLM:
                     "timeout": 120,
                     "max_concurrent_requests": 64,
                     "structured_output": None,
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.mistral",
                         "name": "MistralLLM",
@@ -150,6 +155,9 @@ class TestMistralLLM:
                         "mode": "tool_call",
                         "max_retries": 1,
                     },
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
                     "type_info": {
                         "module": "distilabel.llms.mistral",
                         "name": "MistralLLM",
@@ -172,6 +180,9 @@ class TestMistralLLM:
             "timeout": 120,
             "max_concurrent_requests": 64,
             "structured_output": None,
+            "jobs_ids": None,
+            "offline_batch_generation_block_until_done": None,
+            "use_offline_batch_generation": False,
             "type_info": {
                 "module": "distilabel.llms.mistral",
                 "name": "MistralLLM",

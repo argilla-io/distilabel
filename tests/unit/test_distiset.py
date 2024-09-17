@@ -21,9 +21,10 @@ from typing import Any, Dict, Optional
 import pytest
 import yaml
 from datasets import Dataset, DatasetDict
+from upath import UPath
+
 from distilabel.distiset import Distiset
 from distilabel.utils.serialization import write_json
-from upath import UPath
 
 
 @pytest.fixture(scope="function")

@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 GenerationAction = Literal["paraphrase", "semantically-similar", "query", "answer"]
 
 POSITIVE_NEGATIVE_PAIR_REGEX = re.compile(
-    r"## Positive\s+(.*?)(?:\s+## Negative\s+(.*?))?\s*$",
+    r"\s*## Positive\s+(.*?)(?:\s+## Negative\s+(.*?))?\s*$",
     re.DOTALL,
 )
 
@@ -104,7 +104,6 @@ class GenerateSentencePair(Task):
         - embedding
 
     Examples:
-
         Paraphrasing:
 
         ```python
@@ -358,9 +357,11 @@ class GenerateSentencePair(Task):
         if self.triplet:
             return {
                 "positive": groups[0].strip(),
-                "negative": groups[1].strip()
-                if len(groups) > 1 and groups[1] is not None
-                else None,
+                "negative": (
+                    groups[1].strip()
+                    if len(groups) > 1 and groups[1] is not None
+                    else None
+                ),
             }
 
         return {"positive": groups[0].strip()}

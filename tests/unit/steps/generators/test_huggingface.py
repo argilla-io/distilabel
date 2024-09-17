@@ -19,6 +19,7 @@ from typing import Generator, Union
 
 import pytest
 from datasets import Dataset, IterableDataset
+
 from distilabel.distiset import Distiset
 from distilabel.pipeline import Pipeline
 from distilabel.steps.generators.huggingface import (
@@ -26,7 +27,6 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromFileSystem,
     LoadDataFromHub,
 )
-
 from tests.unit.pipeline.utils import DummyStep1
 
 DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)
@@ -167,6 +167,32 @@ class TestLoadDataFromDisk:
             assert isinstance(generator_step_output, tuple)
             assert isinstance(generator_step_output[1], bool)
             assert len(generator_step_output[0]) == 3
+
+    @pytest.mark.parametrize("config_name", ["default", "missnamed_config"])
+    def test_load_distiset_from_disk_default(self, config_name: str) -> None:
+        distiset = Distiset(
+            {
+                "default": Dataset.from_dict({"a": [1, 2, 3]}),
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_path = str(Path(tmpdir) / "dataset_path")
+            distiset.save_to_disk(dataset_path)
+
+            loader = LoadDataFromDisk(
+                dataset_path=dataset_path,
+                is_distiset=True,
+                config=config_name,
+            )
+            if config_name != "default":
+                with pytest.raises(ValueError):
+                    loader.load()
+            else:
+                loader.load()
+                generator_step_output = next(loader.process())
+                assert isinstance(generator_step_output, tuple)
+                assert isinstance(generator_step_output[1], bool)
+                assert len(generator_step_output[0]) == 3
 
     def test_load_distiset_from_disk(self) -> None:
         distiset = Distiset(

@@ -12,18 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 from typing import Final
 
 # Steps related constants
 DISTILABEL_METADATA_KEY: Final[str] = "distilabel_metadata"
 
-# Pipeline related constants
+# Cache
+BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel"
+PIPELINES_CACHE_DIR = BASE_CACHE_DIR / "pipelines"
+
+# Pipeline dag related constants
 STEP_ATTR_NAME: Final[str] = "step"
 INPUT_QUEUE_ATTR_NAME: Final[str] = "input_queue"
 RECEIVES_ROUTED_BATCHES_ATTR_NAME: Final[str] = "receives_routed_batches"
 ROUTING_BATCH_FUNCTION_ATTR_NAME: Final[str] = "routing_batch_function"
 CONVERGENCE_STEP_ATTR_NAME: Final[str] = "convergence_step"
 LAST_BATCH_SENT_FLAG: Final[str] = "last_batch_sent"
+
+# Pipeline execution related constants
+PIPELINE_NAME_ENV_NAME = "DISTILABEL_PIPELINE_NAME"
+PIPELINE_CACHE_ID_ENV_NAME = "DISTILABEL_PIPELINE_CACHE_ID"
+SIGINT_HANDLER_CALLED_ENV_NAME = "sigint_handler_called"
 
 # Data paths constants
 STEPS_OUTPUTS_PATH = "steps_outputs"
@@ -35,13 +45,26 @@ DISTISET_ARTIFACTS_FOLDER: Final[str] = "artifacts"
 PIPELINE_CONFIG_FILENAME: Final[str] = "pipeline.yaml"
 PIPELINE_LOG_FILENAME: Final[str] = "pipeline.log"
 
+# Docs page for the custom errors
+DISTILABEL_DOCS_URL: Final[str] = "https://distilabel.argilla.io/latest/"
+
 
 __all__ = [
+    "DISTILABEL_METADATA_KEY",
+    "BASE_CACHE_DIR",
+    "PIPELINES_CACHE_DIR",
     "STEP_ATTR_NAME",
     "INPUT_QUEUE_ATTR_NAME",
     "RECEIVES_ROUTED_BATCHES_ATTR_NAME",
     "ROUTING_BATCH_FUNCTION_ATTR_NAME",
     "CONVERGENCE_STEP_ATTR_NAME",
     "LAST_BATCH_SENT_FLAG",
-    "DISTILABEL_METADATA_KEY",
+    "SIGINT_HANDLER_CALLED_ENV_NAME",
+    "STEPS_OUTPUTS_PATH",
+    "STEPS_ARTIFACTS_PATH",
+    "DISTISET_CONFIG_FOLDER",
+    "DISTISET_ARTIFACTS_FOLDER",
+    "PIPELINE_CONFIG_FILENAME",
+    "PIPELINE_LOG_FILENAME",
+    "DISTILABEL_DOCS_URL",
 ]

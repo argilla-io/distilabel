@@ -1,6 +1,11 @@
 # Extra
 
-::: distilabel.steps.generators.data
-::: distilabel.steps.deita
-::: distilabel.steps.formatting
-::: distilabel.steps.typing
+::: distilabel.steps
+    options:
+        filters:
+        - "!Argilla"
+        - "!Columns"
+        - "!From(Disk|FileSystem)"
+        - "!Hub"
+        - "![Ss]tep"
+        - "!typing"

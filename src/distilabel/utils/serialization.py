@@ -20,6 +20,8 @@ from enum import Enum
 
 import orjson
 
+from distilabel.mixins.runtime_parameters import RuntimeParametersMixin
+
 if sys.version_info < (3, 11):
     from enum import EnumMeta as EnumType
 else:
@@ -206,7 +208,11 @@ class _Serializable:
                     "_values": {x.name: x.value for x in v},  # type: ignore
                 }
             elif isinstance(v, list):
-                dump[k] = {str(i): list_v for i, list_v in enumerate(v)}
+                obj_list = getattr(obj, k)
+                if isinstance(obj_list, list) and isinstance(
+                    obj_list[0], RuntimeParametersMixin
+                ):
+                    dump[k] = {str(i): list_v for i, list_v in enumerate(v)}
 
         # Grab the fields that need extra care (LLMs from inside tasks)
         to_update = _extra_serializable_fields(obj)

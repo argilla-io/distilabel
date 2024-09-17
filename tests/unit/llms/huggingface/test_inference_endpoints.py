@@ -20,13 +20,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
 from huggingface_hub import (
     ChatCompletionOutput,
     ChatCompletionOutputComplete,
     ChatCompletionOutputMessage,
     ChatCompletionOutputUsage,
 )
+
+from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
 
 
 @pytest.fixture(autouse=True)
@@ -310,6 +311,9 @@ class TestInferenceEndpointsLLM:
             "structured_output": None,
             "model_display_name": None,
             "use_magpie_template": False,
+            "jobs_ids": None,
+            "offline_batch_generation_block_until_done": None,
+            "use_offline_batch_generation": False,
             "type_info": {
                 "module": "distilabel.llms.huggingface.inference_endpoints",
                 "name": "InferenceEndpointsLLM",

@@ -36,6 +36,7 @@ from distilabel.constants import (
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
+from distilabel.errors import DistilabelUserError
 from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
 from distilabel.steps.base import GeneratorStep
 from distilabel.utils.serialization import (
@@ -154,8 +155,9 @@ class DAG(_Serializable):
         Args:
             step: The generator step that will be set as the new root.
         """
-        self.add_step(step)
-        self.add_edge(step.name, next(iter(self)))
+        for other_step, level in self.trophic_levels.items():
+            if level == 1 and other_step != step.name:
+                self.add_edge(step.name, other_step)  # type: ignore
 
     @cached_property
     def root_steps(self) -> Set[str]:
@@ -175,14 +177,14 @@ class DAG(_Serializable):
         """
         return {node for node, degree in self.G.out_degree() if degree == 0}
 
-    @cached_property
+    @property
     def trophic_levels(self) -> Dict[str, int]:
         """The trophic level of each step in the DAG.
 
         Returns:
             A dictionary with the trophic level of each step.
         """
-        return {step: int(level) for step, level in nx.trophic_levels(self.G).items()}
+        return nx.trophic_levels(self.G)
 
     def get_step_predecessors(self, step_name: str) -> Iterable[str]:
         """Gets the predecessors of a step.
@@ -308,13 +310,19 @@ class DAG(_Serializable):
         current_stage = []
         stages_last_steps = []
 
-        for step_name in nx.topological_sort(self.G):
+        steps_sorted = list(nx.topological_sort(self.G))
+        for i, step_name in enumerate(steps_sorted):
             step: "_Step" = self.get_step(step_name)[STEP_ATTR_NAME]
             if not step.is_global:
                 current_stage.append(step_name)
             else:
-                stages.append(current_stage)
-                stages_last_steps.append(_get_stage_last_steps(current_stage))
+                previous_step = None
+                if i > 0:
+                    previous_step_name = steps_sorted[i - 1]
+                    previous_step = self.get_step(previous_step_name)[STEP_ATTR_NAME]
+                if not previous_step or not previous_step.is_global:
+                    stages.append(current_stage)
+                    stages_last_steps.append(_get_stage_last_steps(current_stage))
                 stages.append([step_name])
                 stages_last_steps.append([step_name])
                 current_stage = []
@@ -355,9 +363,10 @@ class DAG(_Serializable):
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
                 if trophic_level == 1:
                     if not isinstance(step, GeneratorStep):
-                        raise ValueError(
+                        raise DistilabelUserError(
                             f"Step '{step_name}' cannot be a root step because it is not"
-                            " a `GeneratorStep`. It should have a previous step in the pipeline."
+                            " a `GeneratorStep`. It should have a previous step in the pipeline.",
+                            page="sections/how_to_guides/basic/step/#types-of-steps",
                         )
                     self._validate_generator_step_process_signature(step)
                 else:
@@ -390,9 +399,10 @@ class DAG(_Serializable):
             for output in self.get_step(step_name)[STEP_ATTR_NAME].get_outputs()  # type: ignore
         ]
         step_inputs = step.get_inputs()
-        if not all(input in inputs_available_for_step for input in step_inputs):
+        required_inputs = [input for input, required in step_inputs.items() if required]
+        if not all(input in inputs_available_for_step for input in required_inputs):
             raise ValueError(
-                f"Step '{step.name}' requires inputs {step_inputs}, but only the inputs"
+                f"Step '{step.name}' requires inputs {required_inputs}, but only the inputs"
                 f"={inputs_available_for_step} are available, which means that the inputs"
                 f"={list(set(step_inputs) - set(inputs_available_for_step))} are missing or not"
                 " available when the step gets to be executed in the pipeline."
@@ -494,9 +504,10 @@ class DAG(_Serializable):
             node = self.get_step(predecessor)
             routing_batch_function = node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME)
             if routing_batch_function is not None and len(predecessors) > 1:
-                raise ValueError(
+                raise DistilabelUserError(
                     f"Step '{step.name}' cannot have multiple predecessors when the batches"
-                    " of one are being routed with a `routing_batch_function`."
+                    " of one are being routed with a `routing_batch_function`.",
+                    page="sections/how_to_guides/basic/pipeline/?h=routing#routing-batches-to-specific-downstream-steps",
                 )
 
         if routing_batch_function is None:
@@ -557,24 +568,27 @@ class DAG(_Serializable):
         if step_input_parameter is None:
             if num_predecessors > 1:
                 prev_steps = ", ".join([f"'{step_name}'" for step_name in predecessors])
-                raise ValueError(
+                raise DistilabelUserError(
                     f"Step '{step_name}' should have a `*args` parameter with type hint"
-                    f" `StepInput` to receive outputs from previous steps: {prev_steps}."
+                    f" `StepInput` to receive outputs from previous steps: {prev_steps}.",
+                    page="sections/how_to_guides/basic/step/#define-steps-for-your-pipeline",
                 )
 
             prev_step_name = next(iter(predecessors))
-            raise ValueError(
+            raise DistilabelUserError(
                 f"Step '{step_name}' should have a parameter with type hint `StepInput`"
-                f" to receive the output from the previous step: '{prev_step_name}'."
+                f" to receive the output from the previous step: '{prev_step_name}'.",
+                page="sections/how_to_guides/basic/step/#define-steps-for-your-pipeline",
             )
 
         if (
             num_predecessors > 1
             and step_input_parameter.kind != inspect.Parameter.VAR_POSITIONAL
         ):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"Step '{step_name}' should have a `*args` parameter with type hint `StepInput`"
-                f" to receive outputs from previous steps."
+                f" to receive outputs from previous steps.",
+                page="sections/how_to_guides/basic/step/#define-steps-for-your-pipeline",
             )
 
     def _validate_step_process_runtime_parameters(  # noqa: C901

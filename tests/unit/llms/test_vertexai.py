@@ -16,12 +16,13 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llms.vertexai import VertexAILLM
 from vertexai.generative_models import (
     Content,
     GenerationConfig,
     Part,
 )
+
+from distilabel.llms.vertexai import VertexAILLM
 
 
 @patch("vertexai.generative_models.GenerativeModel.generate_content_async")
@@ -115,6 +116,9 @@ class TestVertexAILLM:
         _dump = {
             "model": "gemini-1.0-pro",
             "generation_kwargs": {},
+            "jobs_ids": None,
+            "offline_batch_generation_block_until_done": None,
+            "use_offline_batch_generation": False,
             "type_info": {
                 "module": "distilabel.llms.vertexai",
                 "name": "VertexAILLM",

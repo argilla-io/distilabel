@@ -16,6 +16,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
+
 from distilabel.llms.litellm import LiteLLM
 
 
@@ -82,6 +83,9 @@ class TestLiteLLM:
             "model": model,
             "verbose": False,
             "structured_output": None,
+            "jobs_ids": None,
+            "offline_batch_generation_block_until_done": None,
+            "use_offline_batch_generation": False,
             "type_info": {
                 "module": "distilabel.llms.litellm",
                 "name": "LiteLLM",

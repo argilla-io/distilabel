@@ -22,8 +22,8 @@ extra:
     - icon: fontawesome/brands/discord
       link: http://hf.co/join/discord
   analytics:
-    provider: google
-    property: G-PPKL7LMWCE
+    provider: plausible
+    domain: distilabel.argilla.io
     feedback:
       title: Was this page helpful?
       ratings:
@@ -136,61 +136,82 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          selection:
-            inherited_members: true # Allow looking up inherited methods
+          setup_commands:
+            - import sys; sys.path.insert(0, 'src') # API references are built from source
           options:
-            show_protected_members: true
-            show_private_members: true
-          rendering:
-            show_root_heading: true # actually display anything at all...
-            # show_root_full_path: true  # display "diffrax.asdf" not just "asdf"
-            show_if_no_docstring: true
-            show_signature_annotations: true
-            show_source: false # don't include source code
+            show_inheritance_diagram: false
+            show_source: true # include source code
+            # Headings
+            heading_level: 3
+            show_root_heading: true # show the python path of the class
+            show_root_toc_entry: true # show the toc entry for the root class
+            show_root_full_path: false # display "diffrax.asdf" not just "asdf"
+            show_object_full_path: false # display "diffrax.asdf" not just "asdf"
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            # Members
+            inherited_members: false # allow looking up inherited methods
             members_order: source # order methods according to their order of definition in the source code, not alphabetical order
-            heading_level: 4
+            show_labels: true
+            # Docstring
+            docstring_style: google # more info: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+            show_if_no_docstring: false
+            # Signature
+            separate_signature: false
+            show_signature_annotations: false
   - social
+  - mknotebooks
+  - material-plausible
   - distilabel/components-gallery:
       add_after_page: How-to guides
 
 nav:
   - Distilabel: "index.md"
   - Getting started:
-      - Installation: "sections/getting_started/installation.md"
       - Quickstart: "sections/getting_started/quickstart.md"
+      - Installation: "sections/getting_started/installation.md"
       - FAQ: "sections/getting_started/faq.md"
   - How-to guides:
       - "sections/how_to_guides/index.md"
       - Basic:
-          - Define Steps for your Pipeline:
+          - Steps for processing data:
               - "sections/how_to_guides/basic/step/index.md"
               - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
               - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
-          - Define Tasks that rely on LLMs:
+          - Tasks for generating and judging with LLMs:
               - "sections/how_to_guides/basic/task/index.md"
               - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
-          - Define LLMs as local or remote models: "sections/how_to_guides/basic/llm/index.md"
+          - Executing Tasks with LLMs: "sections/how_to_guides/basic/llm/index.md"
           - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
       - Advanced:
-          - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
-          - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
-          - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
+          - The Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
+          - Cachinc and recovering pipelines: "sections/how_to_guides/advanced/caching.md"
+          - Exporting data to Argilla: "sections/how_to_guides/advanced/argilla.md"
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
-          - Specify requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
+          - Offline Batch Generation: "sections/how_to_guides/advanced/offline_batch_generation.md"
+          - Specifying requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
           - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
           - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
           - Assigning resources to a step: "sections/how_to_guides/advanced/assigning_resources_to_step.md"
           - Saving step generated artifacts: "sections/how_to_guides/advanced/saving_step_generated_artifacts.md"
           - Serving an LLM for sharing it between several tasks: "sections/how_to_guides/advanced/serving_an_llm_for_reuse.md"
           - Scaling and distributing a pipeline with Ray: "sections/how_to_guides/advanced/scaling_with_ray.md"
-  - Pipeline Samples:
-      - Examples: "sections/pipeline_samples/examples/index.md"
+  - Tutorials:
+      - "sections/pipeline_samples/index.md"
+      - Tutorials:
+          - Generate a preference dataset: "sections/pipeline_samples/tutorials/generate_preference_dataset.ipynb"
+          - Clean an existing preference dataset: "sections/pipeline_samples/tutorials/clean_existing_dataset.ipynb"
+          - Synthetic data generation for fine-tuning custom retrieval and reranking models: "sections/pipeline_samples/tutorials/GenerateSentencePair.ipynb"
       - Papers:
-          - "sections/pipeline_samples/papers/index.md"
+          - DeepSeek Prover: "sections/pipeline_samples/papers/deepseek_prover.md"
           - DEITA: "sections/pipeline_samples/papers/deita.md"
           - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
           - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
+      - Examples:
+          - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
+          - Structured generation with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"
+          - Structured generation with instructor: "sections/pipeline_samples/examples/mistralai_with_instructor.md"
   - API Reference:
       - Step:
           - "api/step/index.md"
@@ -203,38 +224,31 @@ nav:
               - Hugging Face: "api/step_gallery/hugging_face.md"
               - Columns: "api/step_gallery/columns.md"
               - Extra: "api/step_gallery/extra.md"
+          - Typing: "api/step/typing.md"
       - Task:
           - "api/task/index.md"
           - GeneratorTask: "api/task/generator_task.md"
-          - Task Gallery: "api/task_gallery/index.md"
+          - Task Gallery: "api/task/task_gallery.md"
           - Typing: "api/task/typing.md"
       - LLM:
           - "api/llm/index.md"
-          - LLM Gallery:
-              - Anthropic: "api/llm/anthropic.md"
-              - Anyscale: "api/llm/anyscale.md"
-              - Azure (via OpenAI): "api/llm/azure.md"
-              - Cohere: "api/llm/cohere.md"
-              - Groq: "api/llm/groq.md"
-              - Hugging Face: "api/llm/huggingface.md"
-              - LiteLLM: "api/llm/litellm.md"
-              - llama.cpp: "api/llm/llamacpp.md"
-              - Mistral: "api/llm/mistral.md"
-              - Ollama: "api/llm/ollama.md"
-              - OpenAI: "api/llm/openai.md"
-              - Together AI: "api/llm/together.md"
-              - Google Vertex AI: "api/llm/vertexai.md"
-              - vLLM: "api/llm/vllm.md"
+          - LLM Gallery: "api/llm/llm_gallery.md"
+      - Embedding:
+          - "api/embedding/index.md"
+          - Embedding Gallery: "api/embedding/embedding_gallery.md"
       - Pipeline:
           - "api/pipeline/index.md"
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
           - Typing: "api/pipeline/typing.md"
-          - Utils: "api/pipeline/utils.md"
+          - Step Wrapper: "api/pipeline/step_wrapper.md"
       - Mixins:
           - RuntimeParametersMixin: "api/mixins/runtime_parameters.md"
           - RequirementsMixin: "api/mixins/requirements.md"
+      - Exceptions: "api/exceptions.md"
+      - Errors: "api/errors.md"
       - Distiset: "api/distiset.md"
       - CLI: "api/cli.md"
   - Community:
       - sections/community/index.md
+      - How to contribute?: sections/community/contributor.md
       - Issue dashboard: sections/community/popular_issues.md

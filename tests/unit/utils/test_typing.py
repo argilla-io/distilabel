@@ -14,8 +14,9 @@
 
 import inspect
 
-from distilabel.utils.typing_ import is_parameter_annotated_with
 from typing_extensions import Annotated
+
+from distilabel.utils.typing_ import is_parameter_annotated_with
 
 
 def test_is_parameter_annotated_with() -> None:

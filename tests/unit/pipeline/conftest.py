@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pytest
+
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.local import Pipeline

@@ -17,6 +17,8 @@ from queue import Queue
 from typing import Any, Dict, List, Optional, Union, cast
 
 from distilabel.constants import LAST_BATCH_SENT_FLAG
+from distilabel.errors import DISTILABEL_DOCS_URL
+from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.typing import StepLoadStatus
@@ -74,7 +76,7 @@ class _StepWrapper:
                 attr.disable_cuda_device_placement = True
             else:
                 desired_num_gpus = self.step.resources.gpus or 1
-                attr._llm_identifier = self.step.name
+                attr._llm_identifier = f"{self.step.name}-replica-{self.replica}"
                 attr._desired_num_gpus = desired_num_gpus
 
         for field_name in self.step.model_fields_set:
@@ -132,14 +134,23 @@ class _StepWrapper:
 
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
+        self.step._logger.debug(
+            f"Notifying load of step '{self.step.name}' (replica ID {self.replica})..."
+        )
         self.load_queue.put({"name": self.step.name, "status": "loaded"})  # type: ignore
 
     def _notify_unload(self) -> None:
         """Notifies that the step has been unloaded."""
+        self.step._logger.debug(
+            f"Notifying unload of step '{self.step.name}' (replica ID {self.replica})..."
+        )
         self.load_queue.put({"name": self.step.name, "status": "unloaded"})  # type: ignore
 
     def _notify_load_failed(self) -> None:
         """Notifies that the step failed to load."""
+        self.step._logger.debug(
+            f"Notifying load failed of step '{self.step.name}' (replica ID {self.replica})..."
+        )
         self.load_queue.put({"name": self.step.name, "status": "load_failed"})  # type: ignore
 
     def _generator_step_process_loop(self) -> None:
@@ -231,7 +242,16 @@ class _StepWrapper:
                     result = next(step.process_applying_mappings(batch.data[0]))
             except Exception as e:
                 if self.step.is_global:
-                    raise _StepWrapperException(str(e), self.step, 2, e) from e
+                    self.step.unload()
+                    self._notify_unload()
+                    data = (
+                        batch.data
+                        if isinstance(
+                            e, DistilabelOfflineBatchGenerationNotFinishedException
+                        )
+                        else None
+                    )
+                    raise _StepWrapperException(str(e), self.step, 2, e, data) from e
 
                 # Impute step outputs columns with `None`
                 result = self._impute_step_outputs(batch)
@@ -285,7 +305,8 @@ class _StepWrapperException(Exception):
         message: The error message.
         step: The `Step` that raised the error.
         code: The error code.
-        subprocess_exception: The exception raised by the subprocess. Defaults to `None`.
+        subprocess_exception: The exception raised by the subprocess.
+        data: The data that caused the error. Defaults to `None`.
     """
 
     def __init__(
@@ -293,15 +314,21 @@ class _StepWrapperException(Exception):
         message: str,
         step: "_Step",
         code: int,
-        subprocess_exception: Optional[Exception] = None,
+        subprocess_exception: Exception,
+        data: Optional[List[List[Dict[str, Any]]]] = None,
     ) -> None:
-        self.message = message
+        self.message = f"{message}\n\nFor further information visit '{DISTILABEL_DOCS_URL}api/pipeline/step_wrapper'"
         self.step = step
         self.code = code
         self.subprocess_exception = subprocess_exception
         self.formatted_traceback = "".join(
-            traceback.format_exception(subprocess_exception)
+            traceback.format_exception(
+                type(subprocess_exception),
+                subprocess_exception,
+                subprocess_exception.__traceback__,
+            )
         )
+        self.data = data
 
     @classmethod
     def create_load_error(
@@ -320,7 +347,7 @@ class _StepWrapperException(Exception):
         Returns:
             The `_StepWrapperException` instance.
         """
-        return cls(message, step, 1, subprocess_exception)
+        return cls(message, step, 1, subprocess_exception, None)
 
     @property
     def is_load_error(self) -> bool:

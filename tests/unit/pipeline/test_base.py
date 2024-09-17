@@ -21,6 +21,10 @@ from typing import Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
+from fsspec.implementations.local import LocalFileSystem
+from pydantic import Field
+from upath import UPath
+
 from distilabel.constants import (
     INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
@@ -44,9 +48,6 @@ from distilabel.steps.base import Step, StepInput, StepResources, _Step
 from distilabel.steps.typing import StepOutput
 from distilabel.utils.requirements import requirements
 from distilabel.utils.serialization import TYPE_INFO_KEY
-from fsspec.implementations.local import LocalFileSystem
-from pydantic import Field
-from upath import UPath
 
 from .utils import (
     DummyGeneratorStep,
@@ -105,28 +106,29 @@ class TestBasePipeline:
 
     @pytest.mark.parametrize("use_cache", [False, True])
     def test_load_batch_manager(self, use_cache: bool) -> None:
-        pipeline = DummyPipeline(name="unit-test-pipeline")
-        pipeline._load_batch_manager(use_cache=True)
-        pipeline._cache()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            pipeline = DummyPipeline(name="unit-test-pipeline", cache_dir=temp_dir)
+            pipeline._load_batch_manager(use_cache=True)
+            pipeline._cache()
 
-        with (
-            mock.patch(
-                "distilabel.pipeline.base._BatchManager.load_from_cache"
-            ) as mock_load_from_cache,
-            mock.patch(
-                "distilabel.pipeline.base._BatchManager.from_dag"
-            ) as mock_from_dag,
-        ):
-            pipeline._load_batch_manager(use_cache=use_cache)
+            with (
+                mock.patch(
+                    "distilabel.pipeline.base._BatchManager.load_from_cache"
+                ) as mock_load_from_cache,
+                mock.patch(
+                    "distilabel.pipeline.base._BatchManager.from_dag"
+                ) as mock_from_dag,
+            ):
+                pipeline._load_batch_manager(use_cache=use_cache)
 
-        if use_cache:
-            mock_load_from_cache.assert_called_once_with(
-                pipeline._cache_location["batch_manager"]
-            )
-            mock_from_dag.assert_not_called()
-        else:
-            mock_load_from_cache.assert_not_called()
-            mock_from_dag.assert_called_once_with(pipeline.dag)
+            if use_cache:
+                mock_load_from_cache.assert_called_once_with(
+                    pipeline._cache_location["batch_manager"]
+                )
+                mock_from_dag.assert_not_called()
+            else:
+                mock_load_from_cache.assert_not_called()
+                mock_from_dag.assert_called_once_with(pipeline.dag)
 
     def test_setup_write_buffer(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
@@ -227,6 +229,15 @@ class TestBasePipeline:
         pipeline._batch_manager.can_generate.return_value = False
 
         assert not pipeline._should_continue_processing()
+
+    def test_set_step_for_recovering_offline_batch_generation(self) -> None:
+        with DummyPipeline() as pipeline:
+            step = DummyStep1()
+
+        data = [[{"a": 0}, {"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]]
+        pipeline._set_step_for_recovering_offline_batch_generation(step=step, data=data)
+
+        assert pipeline._recover_offline_batch_generate_for_step == (step.name, data)
 
     def test_should_load_next_stage(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
@@ -1191,13 +1202,16 @@ class TestBasePipeline:
             )
 
     def test_optional_name(self):
-        import random
+        from distilabel.pipeline.base import _PIPELINE_DEFAULT_NAME
 
-        random.seed(42)
+        assert DummyPipeline().name == _PIPELINE_DEFAULT_NAME
+
         with DummyPipeline() as pipeline:
-            name = pipeline.name
-            assert name.startswith("pipeline")
-            assert len(name.split("_")[-1]) == 8
+            gen_step = DummyGeneratorStep()
+            step1_0 = DummyStep1()
+            gen_step >> step1_0
+
+        assert pipeline.name == "pipeline_dummy_generator_step_0_dummy_step1_0"
 
 
 class TestPipelineSerialization:
@@ -1296,7 +1310,6 @@ class TestPipelineSerialization:
         # Maybe not the best place for this test, but does the work for now
         from distilabel.pipeline.local import Pipeline
         from distilabel.pipeline.routing_batch_function import sample_n_steps
-
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         sample_two_steps = sample_n_steps(2)
@@ -1339,7 +1352,6 @@ class TestPipelineSerialization:
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.
         from distilabel.pipeline.local import Pipeline
-
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
@@ -1366,7 +1378,6 @@ class TestPipelineSerialization:
     def test_binary_rshift_operator_with_list(self) -> None:
         # Tests the steps can be connected using the >> operator when using a list.
         from distilabel.pipeline.local import Pipeline
-
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
@@ -1396,7 +1407,6 @@ class TestPipelineSerialization:
         # instead of the Step.
 
         from distilabel.pipeline.local import Pipeline
-
         from tests.unit.pipeline.utils import DummyGlobalStep, DummyStep1, DummyStep2
 
         with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
@@ -1423,7 +1433,6 @@ class TestPipelineSerialization:
         # Tests the steps can be connected with the binary operators,
         # the general case of step1 >> [step2, step3] >> step4
         from distilabel.pipeline.local import Pipeline
-
         from tests.unit.pipeline.utils import (
             DummyGeneratorStep,
             DummyGlobalStep,

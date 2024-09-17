@@ -17,13 +17,14 @@ from unittest import mock
 
 import numpy as np
 import pytest
-from distilabel.llms import vLLM
-from distilabel.llms.vllm import ClientvLLM, _sort_batches
 from openai.pagination import SyncPage
 from openai.types import Model
 from openai.types.completion import Completion
 from openai.types.completion_choice import CompletionChoice
 from pydantic import BaseModel
+
+from distilabel.llms import vLLM
+from distilabel.llms.vllm import ClientvLLM, _sort_batches
 
 
 class Character(BaseModel):
