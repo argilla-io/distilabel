@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import random
+from itertools import zip_longest
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import Field, PositiveInt, field_validator
@@ -115,7 +116,7 @@ class MagpieBase(RuntimeParametersMixin):
 
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
-    ) -> Tuple[List["ChatType"], Union[str, None]]:
+    ) -> Tuple[List["ChatType"], List[str]]:
         """Prepares the inputs adding the system (if required) prompt provided in each row,
         or if the conversations to generate have more than one turn, then adding the system
         prompt for multi-turn conversation from the paper.
@@ -124,10 +125,10 @@ class MagpieBase(RuntimeParametersMixin):
             inputs: the inputs to prepare.
 
         Returns:
-            The prepared inputs.
+            The prepared inputs and the system prompt keys used for each input.
         """
         prepared_inputs = []
-        system_prompt_key = None
+        system_prompt_keys = []
         for input in inputs:
             conversation = []
             if "system_prompt" in input:
@@ -146,6 +147,7 @@ class MagpieBase(RuntimeParametersMixin):
                     system_prompt_key = random.choices(
                         system_prompts_keys, weights, k=1
                     )[0]
+                    system_prompt_keys.append(system_prompt_key)
                     system_prompt = self.system_prompt[system_prompt_key]
                     if isinstance(system_prompt, tuple):
                         system_prompt = system_prompt[0]
@@ -159,7 +161,7 @@ class MagpieBase(RuntimeParametersMixin):
 
             prepared_inputs.append(conversation)
 
-        return prepared_inputs, system_prompt_key
+        return prepared_inputs, system_prompt_keys
 
     def _append_messages_to_conversations(
         self, role: str, messages: List[str], conversations: List["ChatType"]
@@ -182,7 +184,7 @@ class MagpieBase(RuntimeParametersMixin):
     def _generate_instruction(
         self, inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        prepared_inputs, system_prompt_key = (
+        prepared_inputs, system_prompt_keys = (
             self._prepare_inputs_for_instruction_generation(inputs)
         )
         outputs = self.llm.generate(
@@ -191,15 +193,17 @@ class MagpieBase(RuntimeParametersMixin):
             **self.llm.generation_kwargs,  # type: ignore
         )
         rows = []
-        for output in outputs:
-            row = {"instruction": output[0]}
+        for output, system_prompt_key in zip_longest(
+            outputs, system_prompt_keys, fillvalue=None
+        ):
+            row = {"instruction": output[0]}  # type: ignore
             if system_prompt_key is not None:
                 row["system_prompt_key"] = system_prompt_key
             rows.append(row)
         return rows
 
     def _prepare_conversation_outputs(
-        self, conversations: List["ChatType"], system_prompt_key: Optional[str] = None
+        self, conversations: List["ChatType"], system_prompt_keys: List[str]
     ) -> List[Dict[str, Any]]:
         """Prepare the output conversation removing the system prompt if necessary. If
         `n_turns==1`, then it will return a dictionary with "instruction" and "response"
@@ -207,14 +211,17 @@ class MagpieBase(RuntimeParametersMixin):
 
         Args:
             conversations: the list of generated conversations.
-            system_prompt_key: the key of the system prompt used to generate the conversation.
+            system_prompt_keys: the list of system prompt keys used to generate the conversations.
 
         Returns:
             A list of dictionaries containing a "conversation" key or "instruction" and
             "responses" key.
         """
         outputs = []
-        for conversation in conversations:
+        for conversation, system_prompt_key in zip_longest(
+            conversations, system_prompt_keys, fillvalue=None
+        ):
+            assert conversation is not None
             # Something went wrong with the `LLM` and it didn't generate any message
             if len(conversation) == 0:
                 if self.n_turns == 1:
@@ -265,7 +272,7 @@ class MagpieBase(RuntimeParametersMixin):
     def _generate_multi_turn_conversation(
         self, inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        conversations, system_prompt_key = (
+        conversations, system_prompt_keys = (
             self._prepare_inputs_for_instruction_generation(inputs)
         )
         # Keep track of the active conversations, as it could happen that for some conversation
@@ -294,7 +301,7 @@ class MagpieBase(RuntimeParametersMixin):
                 active_indices=active_indices,
             )
 
-        return self._prepare_conversation_outputs(conversations)
+        return self._prepare_conversation_outputs(conversations, system_prompt_keys)
 
     def _generate_with_pre_query_template(
         self, inputs: List[Dict[str, Any]]

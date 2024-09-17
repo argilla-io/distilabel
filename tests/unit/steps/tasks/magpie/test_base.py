@@ -395,6 +395,46 @@ class TestMagpie:
             },
         ]
 
+    def test_process_with_system_prompt_and_probabilities(self) -> None:
+        with mock.patch(
+            "random.choices",
+            side_effect=[
+                ["system_prompt_1"],
+                ["system_prompt_2"],
+                ["system_prompt_1"],
+            ],
+        ):
+            task = Magpie(
+                llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+                system_prompt={
+                    "system_prompt_1": ("system_prompt", 0.6),
+                    "system_prompt_2": ("system_prompt", 0.4),
+                },
+            )
+
+            task.load()
+
+            assert next(task.process(inputs=[{}, {}, {}])) == [
+                {
+                    "instruction": "Hello Magpie",
+                    "response": "Hello Magpie",
+                    "system_prompt_key": "system_prompt_1",
+                    "model_name": "test",
+                },
+                {
+                    "instruction": "Hello Magpie",
+                    "response": "Hello Magpie",
+                    "system_prompt_key": "system_prompt_2",
+                    "model_name": "test",
+                },
+                {
+                    "instruction": "Hello Magpie",
+                    "response": "Hello Magpie",
+                    "system_prompt_key": "system_prompt_1",
+                    "model_name": "test",
+                },
+            ]
+
     def test_process_only_instruction(self) -> None:
         task = Magpie(
             llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
@@ -504,10 +544,10 @@ class TestMagpie:
             n_turns=n_turns,
             include_system_prompt=include_system_prompt,
         )
-        assert task._prepare_conversation_outputs([conversation]) == [expected]
+        assert task._prepare_conversation_outputs([conversation], []) == [expected]
 
     @pytest.mark.parametrize(
-        "system_prompt, n_turns, inputs, random_choices_return, expected_prepared_inputs, expected_system_prompt_key",
+        "system_prompt, n_turns, inputs, random_choices_return, expected_prepared_inputs, expected_system_prompt_keys",
         [
             (
                 None,
@@ -515,7 +555,7 @@ class TestMagpie:
                 [{"system_prompt": "Custom system prompt."}],
                 None,
                 [[{"role": "system", "content": "Custom system prompt."}]],
-                None,
+                [],
             ),
             (
                 ["Prompt A", "Prompt B"],
@@ -523,7 +563,7 @@ class TestMagpie:
                 [{}],
                 ["Prompt A"],
                 [[{"role": "system", "content": "Prompt A"}]],
-                None,
+                [],
             ),
             (
                 {"Key1": "Prompt 1", "Key2": "Prompt 2"},
@@ -531,7 +571,7 @@ class TestMagpie:
                 [{}],
                 ["Key1"],
                 [[{"role": "system", "content": "Prompt 1"}]],
-                "Key1",
+                ["Key1"],
             ),
             (
                 {"Key1": ("Prompt 1", 0.7), "Key2": ("Prompt 2", 0.3)},
@@ -539,7 +579,7 @@ class TestMagpie:
                 [{}],
                 ["Key1"],
                 [[{"role": "system", "content": "Prompt 1"}]],
-                "Key1",
+                ["Key1"],
             ),
             (
                 None,
@@ -547,7 +587,7 @@ class TestMagpie:
                 [{}],
                 None,
                 [[{"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT}]],
-                None,
+                [],
             ),
             (
                 None,
@@ -555,7 +595,7 @@ class TestMagpie:
                 [{}],
                 None,
                 [[]],
-                None,
+                [],
             ),
         ],
     )
@@ -566,7 +606,7 @@ class TestMagpie:
         inputs,
         random_choices_return,
         expected_prepared_inputs,
-        expected_system_prompt_key,
+        expected_system_prompt_keys,
     ):
         task = Magpie(
             llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
@@ -578,12 +618,12 @@ class TestMagpie:
             if random_choices_return is not None:
                 mock_choices.return_value = random_choices_return
 
-            prepared_inputs, system_prompt_key = (
+            prepared_inputs, system_prompt_keys = (
                 task._prepare_inputs_for_instruction_generation(inputs)
             )
 
         assert prepared_inputs == expected_prepared_inputs
-        assert system_prompt_key == expected_system_prompt_key
+        assert system_prompt_keys == expected_system_prompt_keys
 
     def test_serialization(self) -> None:
         task = Magpie(
