@@ -166,7 +166,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#benchmarking-with-distilabel-arena-hard" class="md-skip">
+        <a href="#benchmarking-with-distilabel" class="md-skip">
           Skip to content
         </a>
       
@@ -403,7 +403,7 @@
   
     
   
-  Pipeline Samples
+  Tutorials
 
       </a>
     </li>
@@ -737,7 +737,7 @@
               
   
   <span class="md-ellipsis">
-    Define Steps for your Pipeline
+    Steps for processing data
   </span>
   
 
@@ -753,7 +753,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_1">
             <span class="md-nav__icon md-icon"></span>
-            Define Steps for your Pipeline
+            Steps for processing data
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -835,7 +835,7 @@
               
   
   <span class="md-ellipsis">
-    Define Tasks that rely on LLMs
+    Tasks for generating and judging with LLMs
   </span>
   
 
@@ -851,7 +851,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
-            Define Tasks that rely on LLMs
+            Tasks for generating and judging with LLMs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -895,7 +895,7 @@
         
   
   <span class="md-ellipsis">
-    Define LLMs as local or remote models
+    Executing Tasks with LLMs
   </span>
   
 
@@ -985,7 +985,7 @@
         
   
   <span class="md-ellipsis">
-    Using the Distiset dataset object
+    The Distiset dataset object
   </span>
   
 
@@ -1006,7 +1006,7 @@
         
   
   <span class="md-ellipsis">
-    Cache and recover pipeline executions
+    Cachinc and recovering pipelines
   </span>
   
 
@@ -1027,7 +1027,7 @@
         
   
   <span class="md-ellipsis">
-    Export data to Argilla
+    Exporting data to Argilla
   </span>
   
 
@@ -1090,7 +1090,7 @@
         
   
   <span class="md-ellipsis">
-    Specify requirements for pipelines and steps
+    Specifying requirements for pipelines and steps
   </span>
   
 
@@ -3135,7 +3135,7 @@
               
   
   <span class="md-ellipsis">
-    Pipeline Samples
+    Tutorials
   </span>
   
 
@@ -3151,7 +3151,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
-            Pipeline Samples
+            Tutorials
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -3512,7 +3512,7 @@
         
   
   <span class="md-ellipsis">
-    Llama cpp with outlines
+    Structured generation with outlines
   </span>
   
 
@@ -3533,7 +3533,7 @@
         
   
   <span class="md-ellipsis">
-    MistralAI with instructor
+    Structured generation with instructor
   </span>
   
 
@@ -4604,9 +4604,10 @@
   
 
 
-<h1 id="benchmarking-with-distilabel-arena-hard">Benchmarking with <code>distilabel</code>: Arena Hard<a class="headerlink" href="#benchmarking-with-distilabel-arena-hard" title="Permanent link">&para;</a></h1>
+<h1 id="benchmarking-with-distilabel">Benchmarking with <code>distilabel</code><a class="headerlink" href="#benchmarking-with-distilabel" title="Permanent link">&para;</a></h1>
 <p>Benchmark LLMs with <code>distilabel</code>: reproducing the Arena Hard benchmark.</p>
 <p>The script below first defines both the <code>ArenaHard</code> and the <code>ArenaHardResults</code> tasks, so as to generate responses for a given collection of prompts/questions with up to two LLMs, and then calculate the results as per the original implementation, respectively. Additionally, the second part of the example builds a <code>Pipeline</code> to run the generation on top of the prompts with <code>InferenceEndpointsLLM</code> while streaming the rest of the generations from a pre-computed set of GPT-4 generations, and then evaluate one against the other with <code>OpenAILLM</code> generating an alternate response, a comparison between the responses, and a result as A&gt;&gt;B, A&gt;B, B&gt;A, B&gt;&gt;A, or tie.</p>
+<p><img alt="Arena Hard" src="../../../../assets/pipelines/arena-hard.png" /></p>
 <p>To run this example you will first need to install the Arena Hard optional dependencies, being <code>pandas</code>, <code>scikit-learn</code>, and <code>numpy</code>.</p>
 <details class="run">
 <summary>Run</summary>
@@ -5175,13 +5176,13 @@
         
         
           
-          <a href="../llama_cpp_with_outlines/" class="md-footer__link md-footer__link--next" aria-label="Next: Llama cpp with outlines">
+          <a href="../llama_cpp_with_outlines/" class="md-footer__link md-footer__link--next" aria-label="Next: Structured generation with outlines">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Llama cpp with outlines
+                Structured generation with outlines
               </div>
             </div>
             <div class="md-footer__button md-icon">

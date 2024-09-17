@@ -5,7 +5,23 @@ hide:
 ---
 # Tasks Gallery
 
+??? info "Task Category Overview"
+    The tasks gallery page showcases the different types of tasks that can be performed with `distilabel`.
 
+    | Category          | Icon                            | Description                                                                                        |
+    |:------------------|:--------------------------------|:---------------------------------------------------------------------------------------------------|
+    | text-generation   | :material-text-box-edit:        | Text generation steps are used to generate text based on a given prompt.                           |
+    | evol              | :material-dna:                  | Evol steps are used to rewrite input text and evolve it to a higher quality.                       |
+    | text-manipulation | :material-receipt-text-edit:    | Text manipulation steps are used to manipulate or rewrite an input text.                           |
+    | critique          | :material-comment-edit:         | Critique steps are used to provide feedback on the quality of the data with a written explanation. |
+    | scorer            | :octicons-number-16:            | Scorer steps are used to evaluate and score the data with a numerical value.                       |
+    | preference        | :material-poll:                 | Preference steps are used to collect preferences on the data with numerical values or ranks.       |
+    | embedding         | :material-vector-line:          | Embedding steps are used to generate embeddings for the data.                                      |
+    | columns           | :material-table-column:         | Columns steps are used to manipulate columns in the data.                                          |
+    | filtering         | :material-filter:               | Filtering steps are used to filter the data based on some criteria.                                |
+    | format            | :material-format-list-bulleted: | Format steps are used to format the data.                                                          |
+    | load              | :material-file-download:        | Load steps are used to load the data.                                                              |
+    | save              | :material-content-save:         | Save steps are used to save the data.                                                              |
 
 <div class="grid cards" markdown>
 

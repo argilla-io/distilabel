@@ -403,7 +403,7 @@
   
     
   
-  Pipeline Samples
+  Tutorials
 
       </a>
     </li>
@@ -735,7 +735,7 @@
               
   
   <span class="md-ellipsis">
-    Define Steps for your Pipeline
+    Steps for processing data
   </span>
   
 
@@ -751,7 +751,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_1">
             <span class="md-nav__icon md-icon"></span>
-            Define Steps for your Pipeline
+            Steps for processing data
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -833,7 +833,7 @@
               
   
   <span class="md-ellipsis">
-    Define Tasks that rely on LLMs
+    Tasks for generating and judging with LLMs
   </span>
   
 
@@ -849,7 +849,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
-            Define Tasks that rely on LLMs
+            Tasks for generating and judging with LLMs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -893,7 +893,7 @@
         
   
   <span class="md-ellipsis">
-    Define LLMs as local or remote models
+    Executing Tasks with LLMs
   </span>
   
 
@@ -983,7 +983,7 @@
         
   
   <span class="md-ellipsis">
-    Using the Distiset dataset object
+    The Distiset dataset object
   </span>
   
 
@@ -1004,7 +1004,7 @@
         
   
   <span class="md-ellipsis">
-    Cache and recover pipeline executions
+    Cachinc and recovering pipelines
   </span>
   
 
@@ -1025,7 +1025,7 @@
         
   
   <span class="md-ellipsis">
-    Export data to Argilla
+    Exporting data to Argilla
   </span>
   
 
@@ -1088,7 +1088,7 @@
         
   
   <span class="md-ellipsis">
-    Specify requirements for pipelines and steps
+    Specifying requirements for pipelines and steps
   </span>
   
 
@@ -3133,7 +3133,7 @@
               
   
   <span class="md-ellipsis">
-    Pipeline Samples
+    Tutorials
   </span>
   
 
@@ -3149,7 +3149,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
-            Pipeline Samples
+            Tutorials
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -3582,7 +3582,7 @@
         
   
   <span class="md-ellipsis">
-    Llama cpp with outlines
+    Structured generation with outlines
   </span>
   
 
@@ -3603,7 +3603,7 @@
         
   
   <span class="md-ellipsis">
-    MistralAI with instructor
+    Structured generation with instructor
   </span>
   
 
@@ -4724,6 +4724,7 @@
 
 <h1 id="instruction-backtranslation">Instruction Backtranslation<a class="headerlink" href="#instruction-backtranslation" title="Permanent link">&para;</a></h1>
 <p><a href="https://arxiv.org/abs/2308.06259">"Self Alignment with Instruction Backtranslation"</a> presents a scalable method to build high-quality instruction following a language model by automatically labeling human-written text with corresponding instructions. Their approach, named instruction backtranslation, starts with a language model finetuned on a small amount of seed data, and a given web corpus. The seed model is used to construct training examples by generating instruction prompts for web documents (self-augmentation), and then selecting high-quality examples from among these candidates (self-curation). This data is then used to finetune a stronger model.</p>
+<p><img alt="Instruction Backtranslation pipeline overview" src="../../../../assets/pipelines/instruction_backtranslation.png" /></p>
 <p>Their self-training approach assumes access to a base language model, a small amount of seed data, and a collection of unlabelled examples, e.g. a web corpus. The unlabelled data is a large, diverse set of human-written documents that includes writing about all manner of topics humans are interested in – but crucially is not paired with instructions.</p>
 <p>A first key assumption is that there exists some subset of this very large human-written text that would be suitable as gold generations for some user instructions. A second key assumption is that they can predict instructions for these candidate gold answers that can be used as high-quality example pairs to train an instruction-following model.</p>
 <p>Their overall process, called instruction back translation performs two core steps:</p>
