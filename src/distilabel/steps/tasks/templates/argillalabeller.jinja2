@@ -1,0 +1,32 @@
+Please provide an answer to the question based on the input fields.
+
+# Input Fields
+{% for field in fields %}
+
+    {% if field.title %}
+        title: {{ field.title }}
+    {% endif %}
+    {% if field.description %}
+        description: {{ field.description }}
+    {% endif %}
+    {% if field.value %}
+        value: {{ field.value }}
+    {% endif %}
+{% endfor %}
+
+# Question
+{% if question.title %}
+    title: {{ question.title }}
+{% endif %}
+{% if question.description %}
+    description: {{ question.description }}
+{% endif %}
+{% if question.labels %}
+    labels: {{ question.labels }}
+{% endif %}
+{% if allow_overlapping %}
+    allow_overlapping_spans_allowed: {{ allow_overlapping }}
+{% endif %}
+{% if label_instruction %}
+    label_instruction: {{ label_instruction }}
+{% endif %}
