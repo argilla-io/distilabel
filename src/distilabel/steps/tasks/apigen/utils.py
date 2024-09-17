@@ -1,0 +1,138 @@
+# Copyright 2023-present, Argilla, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import importlib.util
+from typing import TYPE_CHECKING, Any, Callable, Dict, TypedDict, Union
+
+from distilabel.steps.base import Step, StepInput
+
+if TYPE_CHECKING:
+    from types import ModuleType
+
+    from distilabel.steps.typing import StepColumns, StepOutput
+
+
+class PrepareExamples(Step):
+    """Helper step to create examples from `query` and `answers` pairs used as Few Shots in APIGen.
+
+    Attributes:
+        template (str): The template to format the examples.
+
+    Input columns:
+        - query (`str`): The query to generate examples from.
+        - answers (`str`): The answers to the query.
+
+    Output columns:
+        - examples (`str`): The formatted examples.
+
+    Categories:
+        -
+
+    Examples:
+        Generate examples for APIGen:
+
+        ```python
+        from distilabel.steps.tasks.apigen.utils import PrepareExamples
+
+        prepare_examples = PrepareExamples()
+        result = next(prepare_examples.process(
+            [
+                {
+                    "query": ['I need the area of circles with radius 2.5, 5, and 7.5 inches, please.', 'Can you provide the current locations of buses and trolleys on route 12?'],
+                    "answers": ['[{"name": "circle_area", "arguments": {"radius": 2.5}}, {"name": "circle_area", "arguments": {"radius": 5}}, {"name": "circle_area", "arguments": {"radius": 7.5}}]', '[{"name": "bus_trolley_locations", "arguments": {"route": "12"}}]']
+                }
+            ]
+        )
+        # result
+        # [{'examples': '## Query:\nI need the area of circles with radius 2.5, 5, and 7.5 inches, please.\n## Answers:\n[{"name": "circle_area", "arguments": {"radius": 2.5}}, {"name": "circle_area", "arguments": {"radius": 5}}, {"name": "circle_area", "arguments": {"radius": 7.5}}]\n\n## Query:\nCan you provide the current locations of buses and trolleys on route 12?\n## Answers:\n[{"name": "bus_trolley_locations", "arguments": {"route": "12"}}]'}, {'examples': '## Query:\nI need the area of circles with radius 2.5, 5, and 7.5 inches, please.\n## Answers:\n[{"name": "circle_area", "arguments": {"radius": 2.5}}, {"name": "circle_area", "arguments": {"radius": 5}}, {"name": "circle_area", "arguments": {"radius": 7.5}}]\n\n## Query:\nCan you provide the current locations of buses and trolleys on route 12?\n## Answers:\n[{"name": "bus_trolley_locations", "arguments": {"route": "12"}}]'}]
+        ```
+    """
+
+    template: str = "## Query:\n{query}\n## Answers:\n{answers}"
+
+    @property
+    def inputs(self) -> "StepColumns":
+        return ["query", "answers"]
+
+    @property
+    def outputs(self) -> "StepColumns":
+        return ["examples"]
+
+    def process(self, inputs: StepInput) -> "StepOutput":
+        """The process prepares the data for the `APIGenGenerator` task.
+
+        If a single example is provided, it is copied to avoid raising an error.
+
+        Args:
+            inputs: A list of dictionaries with the input data.
+
+        Yields:
+            A list of dictionaries with the output data.
+        """
+        outputs = []
+        for input in inputs:
+            example_list = []
+            for query, answers in zip(input["query"], input["answers"]):
+                example_list.append(self.template.format(query=query, answers=answers))
+            outputs.append({"examples": "\n\n".join(example_list)})
+
+        yield outputs
+
+
+def load_module_from_path(path: str) -> "ModuleType":
+    """Loads a python module from a given path.
+
+    Args:
+        path: Path pointing to the module.
+
+    Returns:
+        ModuleType
+
+    Example:
+        ```python
+        path = "/path/to/module.py"
+        module = load_module_from_path(path)
+        # And you can load functions from the module like this:
+        function = getattr(module, "function_name")
+        function(*args, **kwargs)
+        ```
+    """
+    spec = importlib.util.spec_from_file_location("module.name", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class FunctionResult(TypedDict):
+    keep: bool
+    error: Union[None, str]
+
+
+def execute_from_response(
+    function: Callable, call_answer: Dict[str, Any]
+) -> Dict[str, Any]:
+    """_summary_
+
+    Args:
+        function: A callable object.
+        call_answer: The arguments to call the function, as generated by the model.
+
+    Returns:
+        Whathever the function returns.
+    """
+    try:
+        function(*call_answer.values())
+        return FunctionResult(keep=True, error=None)
+    except Exception as e:
+        return FunctionResult(keep=False, error=str(e))
