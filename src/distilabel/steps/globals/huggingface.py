@@ -97,8 +97,8 @@ class PushToHub(GlobalStep):
     token: Optional[RuntimeParameter[str]] = Field(
         default=None,
         description="The token used to authenticate with the Hub. If not provided,"
-                    " it will be obtained from the environment variable `HF_TOKEN`"
-                    " or the local Hugging Face CLI configuration. Defaults to `None`.",
+        " it will be obtained from the environment variable `HF_TOKEN`"
+        " or the local Hugging Face CLI configuration. Defaults to `None`.",
     )
     merge_with_existing: RuntimeParameter[bool] = Field(
         default=False,
@@ -135,9 +135,7 @@ class PushToHub(GlobalStep):
                 )
                 dataset = new_dataset
             except Exception as e:
-                self._logger.error(
-                    f"Error during merging process: {e}"
-                )
+                self._logger.error(f"Error during merging process: {e}")
                 raise
         else:
             dataset = new_dataset
