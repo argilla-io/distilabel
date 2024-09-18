@@ -751,16 +751,17 @@ class DAG(_Serializable):
 
         return dag
 
-    def draw(self, top_to_bottom: bool = False) -> str:
+    def draw(self, top_to_bottom: bool = False, show_edge_labels: bool = True) -> str:
         """Draws the DAG and returns the image content.
 
         Parameters:
             top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `False`.
-
+            show_edge_labels: Whether to show the edge labels. Defaults to `True`.
         Returns:
             The image content.
         """
         dump = self.dump()
+        self.validate()
         step_name_to_class = {
             step["step"].get("name"): step["step"].get("type_info", {}).get("name")
             for step in dump["steps"]
@@ -772,13 +773,50 @@ class DAG(_Serializable):
             to_step for con in connections for to_step in con["to"]
         }
 
+        step_inputs = {
+            step["name"]: self.get_step(step["name"])[STEP_ATTR_NAME].get_inputs()
+            for step in dump["steps"]
+        }
+        step_outputs = {
+            step["name"]: self.get_step(step["name"])[STEP_ATTR_NAME].get_outputs()
+            for step in dump["steps"]
+        }
+        step_input_mappings = {
+            step["name"]: {
+                **{input: input for input in step_inputs[step["name"]]},
+                **step["step"]["input_mappings"],
+            }
+            for step in dump["steps"]
+        }
+        step_output_mappings = {
+            step["name"]: {
+                **{output: output for output in step_outputs[step["name"]]},
+                **step["step"]["output_mappings"],
+            }
+            for step in dump["steps"]
+        }
+        print(step_input_mappings)
+        print(step_output_mappings)
+
         for step in all_steps:
             graph.append(f'    {step}["{step_name_to_class[step]}"]')
 
-        for connection in connections:
-            from_step = connection["from"]
-            for to_step in connection["to"]:
-                graph.append(f"    {from_step} --> {to_step}")
+        if show_edge_labels:
+            for connection in connections:
+                from_step = connection["from"]
+                for to_step in connection["to"]:
+                    for output in step_outputs[from_step]:
+                        print(output)
+                        import pdb
+
+                        pdb.set_trace()
+
+                    graph.append(f"    {from_step} --> {to_step}")
+        else:
+            for connection in connections:
+                from_step = connection["from"]
+                for to_step in connection["to"]:
+                    graph.append(f"    {from_step} --> {to_step}")
 
         graph.append("classDef component text-align:center;")
         graph_styled = "\n".join(graph)
