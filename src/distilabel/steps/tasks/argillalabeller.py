@@ -14,6 +14,7 @@
 
 import json
 import sys
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
@@ -165,12 +166,17 @@ class ArgillaLabeller(Task):
     def process(self, inputs: StepInput) -> "StepOutput":
         runtime_parameters = self.llm._runtime_parameters
         if "structured_output" in runtime_parameters:
-            raise ValueError(
-                "Structured output is handled by ArgillaLabeler internally."
+            warnings.warn(
+                "Structured output is handled by ArgillaLabeler internally. Setting structured output to json with schema.",
+                stacklevel=2,
             )
         generation_kwargs = runtime_parameters.get("generation_kwargs", {})
         if "temperature" in generation_kwargs:
-            raise ValueError("Temperature is handled by ArgillaLabeler internally.")
+            warnings.warn(
+                "Temperature is handled by ArgillaLabeler internally. Setting temperature to 0.",
+                stacklevel=2,
+            )
+
         generation_kwargs.update({"temperature": 0, "max_new_tokens": 2000})
         runtime_parameters.update(
             {
