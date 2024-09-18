@@ -8169,7 +8169,23 @@
 <span class="normal"><a href="#__codelineno-0-265">265</a></span>
 <span class="normal"><a href="#__codelineno-0-266">266</a></span>
 <span class="normal"><a href="#__codelineno-0-267">267</a></span>
-<span class="normal"><a href="#__codelineno-0-268">268</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="k">class</span> <span class="nc">ArgillaLabeller</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="normal"><a href="#__codelineno-0-268">268</a></span>
+<span class="normal"><a href="#__codelineno-0-269">269</a></span>
+<span class="normal"><a href="#__codelineno-0-270">270</a></span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span>
+<span class="normal"><a href="#__codelineno-0-272">272</a></span>
+<span class="normal"><a href="#__codelineno-0-273">273</a></span>
+<span class="normal"><a href="#__codelineno-0-274">274</a></span>
+<span class="normal"><a href="#__codelineno-0-275">275</a></span>
+<span class="normal"><a href="#__codelineno-0-276">276</a></span>
+<span class="normal"><a href="#__codelineno-0-277">277</a></span>
+<span class="normal"><a href="#__codelineno-0-278">278</a></span>
+<span class="normal"><a href="#__codelineno-0-279">279</a></span>
+<span class="normal"><a href="#__codelineno-0-280">280</a></span>
+<span class="normal"><a href="#__codelineno-0-281">281</a></span>
+<span class="normal"><a href="#__codelineno-0-282">282</a></span>
+<span class="normal"><a href="#__codelineno-0-283">283</a></span>
+<span class="normal"><a href="#__codelineno-0-284">284</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="k">class</span> <span class="nc">ArgillaLabeller</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 </span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">    Base class for all tasks in ArgiLabel.</span>
 </span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="sd">    &quot;&quot;&quot;</span>
@@ -8360,36 +8376,52 @@
 </span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">SpanQuestion</span><span class="p">):</span>
 </span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a>
 </span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a>            <span class="k">class</span> <span class="nc">Span</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a>                <span class="n">exact_text</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-0-240"><a id="__codelineno-0-240" name="__codelineno-0-240"></a>                <span class="n">label</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a>
-</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a>            <span class="k">class</span> <span class="nc">QuestionValueModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>                <span class="n">spans</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Span</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a>
-</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">MultiLabelQuestion</span><span class="p">):</span>
-</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a>
-</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a>            <span class="k">class</span> <span class="nc">QuestionValueModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>                <span class="n">labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a>
-</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">LabelQuestion</span><span class="p">):</span>
+</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a>                <span class="n">exact_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="__span-0-240"><a id="__codelineno-0-240" name="__codelineno-0-240"></a>                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The exact text to be selected from the input field value.&quot;</span>
+</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a>                <span class="p">)</span>
+</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a>                <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The label to be assigned to the selected text.&quot;</span>
+</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a>                <span class="p">)</span>
+</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a>
+</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a>            <span class="k">class</span> <span class="nc">QuestionValueModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a>                <span class="n">spans</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Span</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>                    <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span>
+</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a>                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The extracted spans from the input field value and their labels.&quot;</span><span class="p">,</span>
+</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a>                <span class="p">)</span>
 </span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a>
-</span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a>            <span class="k">class</span> <span class="nc">QuestionValueModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a>                <span class="n">label</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a>
-</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">TextQuestion</span><span class="p">):</span>
-</span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a>
-</span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a>            <span class="k">class</span> <span class="nc">QuestionValueModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a>                <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">MultiLabelQuestion</span><span class="p">):</span>
+</span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a>
+</span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a>            <span class="k">class</span> <span class="nc">QuestionValueModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a>                <span class="n">labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a>                    <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span>
+</span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a>                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The labels to be selected from the list of provided labels.&quot;</span><span class="p">,</span>
+</span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a>                <span class="p">)</span>
 </span><span id="__span-0-259"><a id="__codelineno-0-259" name="__codelineno-0-259"></a>
-</span><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">RatingQuestion</span><span class="p">):</span>
+</span><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">LabelQuestion</span><span class="p">):</span>
 </span><span id="__span-0-261"><a id="__codelineno-0-261" name="__codelineno-0-261"></a>
 </span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a>            <span class="k">class</span> <span class="nc">QuestionValueModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a>                <span class="n">rating</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a>
-</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported question type: </span><span class="si">{</span><span class="n">question</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a>
-</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a>        <span class="k">return</span> <span class="n">QuestionValueModel</span>
+</span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a>                <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a>                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The label to be selected from the list of provided labels.&quot;</span>
+</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a>                <span class="p">)</span>
+</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a>
+</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">TextQuestion</span><span class="p">):</span>
+</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a>
+</span><span id="__span-0-269"><a id="__codelineno-0-269" name="__codelineno-0-269"></a>            <span class="k">class</span> <span class="nc">QuestionValueModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-0-270"><a id="__codelineno-0-270" name="__codelineno-0-270"></a>                <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a>                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The text to be used to answer the question.&quot;</span>
+</span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a>                <span class="p">)</span>
+</span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a>
+</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">RatingQuestion</span><span class="p">):</span>
+</span><span id="__span-0-275"><a id="__codelineno-0-275" name="__codelineno-0-275"></a>
+</span><span id="__span-0-276"><a id="__codelineno-0-276" name="__codelineno-0-276"></a>            <span class="k">class</span> <span class="nc">QuestionValueModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-0-277"><a id="__codelineno-0-277" name="__codelineno-0-277"></a>                <span class="n">rating</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="__span-0-278"><a id="__codelineno-0-278" name="__codelineno-0-278"></a>                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The rating to be provided for the question.&quot;</span>
+</span><span id="__span-0-279"><a id="__codelineno-0-279" name="__codelineno-0-279"></a>                <span class="p">)</span>
+</span><span id="__span-0-280"><a id="__codelineno-0-280" name="__codelineno-0-280"></a>
+</span><span id="__span-0-281"><a id="__codelineno-0-281" name="__codelineno-0-281"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-282"><a id="__codelineno-0-282" name="__codelineno-0-282"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported question type: </span><span class="si">{</span><span class="n">question</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-0-283"><a id="__codelineno-0-283" name="__codelineno-0-283"></a>
+</span><span id="__span-0-284"><a id="__codelineno-0-284" name="__codelineno-0-284"></a>        <span class="k">return</span> <span class="n">QuestionValueModel</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 
