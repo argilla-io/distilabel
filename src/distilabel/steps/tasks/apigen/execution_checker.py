@@ -36,14 +36,8 @@ if TYPE_CHECKING:
 
 class APIGenExecutionChecker(Step):
     """
-    Implements a CodeAgent?
-    # TODO: Maybe the implementation from does the job here?
-    # https://huggingface.co/docs/transformers/en/agents#code-agent
-
-    # NOTE: In load() we may need to add 'pip install transformers[agents]'
 
     The answer is a list of dictionaries with the following keys:
-    pass
 
     Attributes:
         libpath (str): The path to the library where we will retrieve the functions.
@@ -62,7 +56,6 @@ class APIGenExecutionChecker(Step):
         self._toolbox = load_module_from_path(self.libpath)
 
     def unload(self) -> None:
-        # TODO: Unload the variables setting them to None.
         self._toolbox = None
 
     @property
@@ -96,14 +89,22 @@ class APIGenExecutionChecker(Step):
                 function_name = answer.get("name", None)
                 arguments = answer.get("arguments", None)
 
-                function: Callable = getattr(self._toolbox, function_name)
-                execution = execute_from_response(function, arguments)
-                _output.append(
-                    {
-                        "keep": execution["keep"],
-                        "reason": execution["error"],
-                    }
-                )
+                function: Callable = getattr(self._toolbox, function_name, None)
+                if function is None:
+                    _output.append(
+                        {
+                            "keep": False,
+                            "reason": f"Function '{function_name}' not found.",
+                        }
+                    )
+                else:
+                    execution = execute_from_response(function, arguments)
+                    _output.append(
+                        {
+                            "keep": execution["keep"],
+                            "reason": execution["error"],
+                        }
+                    )
             # We only consider a good response if all the answers were executed successfully, but keep the reasons
             # for further review if needed.
             outputs.append(
