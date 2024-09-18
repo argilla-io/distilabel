@@ -236,31 +236,47 @@ class ArgillaLabeller(Task):
         if isinstance(question, SpanQuestion):
 
             class Span(BaseModel):
-                exact_text: str
-                label: str
+                exact_text: str = Field(
+                    description="The exact text to be selected from the input field value."
+                )
+                label: str = Field(
+                    description="The label to be assigned to the selected text."
+                )
 
             class QuestionValueModel(BaseModel):
-                spans: List[Span] = []
+                spans: List[Span] = Field(
+                    default_factory=list,
+                    description="The extracted spans from the input field value and their labels.",
+                )
 
         elif isinstance(question, MultiLabelQuestion):
 
             class QuestionValueModel(BaseModel):
-                labels: Optional[List[str]] = []
+                labels: Optional[List[str]] = Field(
+                    default_factory=list,
+                    description="The labels to be selected from the list of provided labels.",
+                )
 
         elif isinstance(question, LabelQuestion):
 
             class QuestionValueModel(BaseModel):
-                label: str
+                label: str = Field(
+                    description="The label to be selected from the list of provided labels."
+                )
 
         elif isinstance(question, TextQuestion):
 
             class QuestionValueModel(BaseModel):
-                text: str
+                text: str = Field(
+                    description="The text to be used to answer the question."
+                )
 
         elif isinstance(question, RatingQuestion):
 
             class QuestionValueModel(BaseModel):
-                rating: int
+                rating: int = Field(
+                    description="The rating to be provided for the question."
+                )
 
         else:
             raise ValueError(f"Unsupported question type: {question}")
