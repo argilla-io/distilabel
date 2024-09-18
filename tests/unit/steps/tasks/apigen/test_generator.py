@@ -17,7 +17,7 @@ from typing import List, Union
 
 import pytest
 
-from distilabel.steps.tasks.apigen.base import APIGenGenerator
+from distilabel.steps.tasks.apigen.generator import APIGenGenerator
 from tests.unit.conftest import DummySyncLLM
 
 # Example of 3 rows from Salesforce/xlam-function-calling-60k
