@@ -380,7 +380,7 @@ class APIGenGenerator(Task):
 
         class QueryAnswer(BaseModel):
             query: str
-            answers: List[Answer]
+            answers: Answer
 
         class QueryAnswerPairs(BaseModel):
             pairs: List[QueryAnswer]
@@ -409,11 +409,7 @@ class APIGenGenerator(Task):
                 "QueryAnswer": {
                     "properties": {
                         "query": {"title": "Query", "type": "string"},
-                        "answers": {
-                            "items": {"$ref": "#/$defs/Answer"},
-                            "title": "Answers",
-                            "type": "array",
-                        },
+                        "answers": {"$ref": "#/$defs/Answer"},
                     },
                     "required": ["query", "answers"],
                     "title": "QueryAnswer",
@@ -431,121 +427,3 @@ class APIGenGenerator(Task):
             "title": "QueryAnswerPairs",
             "type": "object",
         }
-
-
-# NOTE: This step seems unnecessary, use PrepareExamples from utils instead.
-# class APIGenTransform(Step):
-#     """Helper step to transform a dataset like
-#     https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k in into examples
-#     for the `APIGenGenerator` task.
-
-#     Given the rows in formatted as in that dataset, this step prepares the input to be
-#     passed to the `APIGenGenerator` task by sampling at the batch size.
-
-#     Attributes:
-#         example_template: String template to format the examples, comes with a default.
-
-#     Input columns:
-#         - query (`str`): The query that requires an answer in tool format.
-#         - answers (`str`): String formatted dict.
-#         - tools (`str`): String with formatted list of dictionaries containing the available
-#             tools.
-
-#     Output columns:
-#         - examples (`str`): Query and answer formatted as an example to be feed
-#             to the prompt.
-#         - func_name (`str`): Example name for a function.
-#         - func_desc (`str`): Description of the function `func_name`.
-
-#     Categories:
-#         - text-manipulation
-
-#     References:
-#         - [APIGen: Automated Pipeline for Generating Verifiable and Diverse Function-Calling Datasets](https://arxiv.org/abs/2406.18518)
-#         - [Salesforce/xlam-function-calling-60k](https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k)
-
-#     Examples:
-
-#         Transform the data for APIGenGenerator:
-
-#         ```python
-#         from datasets import load_dataset
-#         from distilabel.steps.tasks.apigen.base import APIGenTransform
-
-#         samples = load_dataset("Salesforce/xlam-function-calling-60k", split="train").select(range(3)).to_list()
-#         transform = APIGenTransform()
-#         transform.load()
-#         outputs = next(transform.process(samples))
-#         outputs
-#         # [{'examples': '## Query:\nWhat is the T3MA for \'ETH/BTC\' using a 1h interval and a time period of 14?\n## Answer:\n[{"name": "t3ma", "arguments": {"symbol": "ETH/BTC", "interval": "1h", "time_period": 14}}]',
-#         # 'func_name': 'live_giveaways_by_type',
-#         # 'func_desc': 'Retrieve live giveaways from the GamerPower API based on the specified type.'},
-#         # {'examples': '## Query:\nWhere can I find live giveaways for beta access and games?\n## Answer:\n[{"name": "live_giveaways_by_type", "arguments": {"type": "beta"}}, {"name": "live_giveaways_by_type", "arguments": {"type": "game"}}]',
-#         # 'func_name': 'web_chain_details',
-#         # 'func_desc': 'python'},
-#         # {'examples': '## Query:\nWhere can I find live giveaways for beta access and games?\n## Answer:\n[{"name": "live_giveaways_by_type", "arguments": {"type": "beta"}}, {"name": "live_giveaways_by_type", "arguments": {"type": "game"}}]',
-#         # 'func_name': 't3ma',
-#         # 'func_desc': 'Fetches the Triple Exponential Moving Average (T3MA) for a given financial instrument.'}]
-#         ```
-
-#     Citations:
-
-#         ```
-#         @misc{liu2024apigenautomatedpipelinegenerating,
-#             title={APIGen: Automated Pipeline for Generating Verifiable and Diverse Function-Calling Datasets},
-#             author={Zuxin Liu and Thai Hoang and Jianguo Zhang and Ming Zhu and Tian Lan and Shirley Kokane and Juntao Tan and Weiran Yao and Zhiwei Liu and Yihao Feng and Rithesh Murthy and Liangwei Yang and Silvio Savarese and Juan Carlos Niebles and Huan Wang and Shelby Heinecke and Caiming Xiong},
-#             year={2024},
-#             eprint={2406.18518},
-#             archivePrefix={arXiv},
-#             primaryClass={cs.CL},
-#             url={https://arxiv.org/abs/2406.18518},
-#         }
-#         ```
-#     """
-
-#     example_template: str = "## Query:\n{query}\n## Answer:\n{answers}"
-
-#     @property
-#     def inputs(self) -> "StepColumns":
-#         """The inputs for the task are those found in the original dataset."""
-#         return ["query", "answers", "tools"]
-
-#     @property
-#     def outputs(self) -> "StepColumns":
-#         """The outputs are the columns required by `APIGenGenerator` task."""
-#         return ["examples", "func_name", "func_desc"]
-
-#     @override
-#     def process(self, inputs: StepInput) -> "StepOutput":
-#         """The process prepares the data for the `APIGenGenerator` task.
-
-#         If a single example is provided, it is copied to avoid raising an error.
-
-#         Args:
-#             inputs: A list of dictionaries with the input data.
-
-#         Yields:
-#             A list of dictionaries with the output data.
-#         """
-#         if len(inputs) < 2:
-#             self._logger.warning(
-#                 "The batch must have at least 2 examples, copying to avoid raising an error."
-#             )
-#             inputs = inputs * 2
-
-#         outputs = []
-#         for _ in range(len(inputs)):
-#             # Selects 2 random examples without replacement
-#             selection = random.sample(inputs, 2)
-#             tools = orjson.loads(selection[1]["tools"])
-#             tool = random.choice(tools)
-#             outputs.append(
-#                 {
-#                     "examples": self.example_template.format(
-#                         query=selection[0]["query"], answers=selection[0]["answers"]
-#                     ),
-#                     "func_name": tool["name"],
-#                     "func_desc": tool["description"],
-#                 }
-#             )
-#         yield outputs
