@@ -636,6 +636,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self,
         path: Optional[Union[str, Path]] = "pipeline.png",
         top_to_bottom: bool = False,
+        show_edge_labels: bool = True,
     ):
         """
         Draws the pipeline.
@@ -643,11 +644,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Parameters:
             path: The path to save the image to.
             top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `False`.
+            show_edge_labels: Whether to show the edge labels. Defaults to `True`.
 
         Returns:
             The path to the saved image.
         """
-        png = self.dag.draw(top_to_bottom=top_to_bottom)
+        png = self.dag.draw(
+            top_to_bottom=top_to_bottom, show_edge_labels=show_edge_labels
+        )
         with open(path, "wb") as f:
             f.write(png)
         return path

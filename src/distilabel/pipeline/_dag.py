@@ -751,6 +751,58 @@ class DAG(_Serializable):
 
         return dag
 
+    def _get_graph_info_for_draw(self) -> Dict[str, Any]:
+        """Returns the graph info.
+
+        Returns:
+            The graph info.
+        """
+        dump = self.dump()
+        step_name_to_class = {
+            step["step"].get("name"): step["step"].get("type_info", {}).get("name")
+            for step in dump["steps"]
+        }
+        connections = dump["connections"]
+        leaf_steps = self.leaf_steps
+        for idx, leaf_step in enumerate(leaf_steps):
+            connections.append({"from": leaf_step, "to": [f"distiset{idx}"]})
+            step_name_to_class[f"distiset{idx}"] = "Distiset"
+
+        all_steps = {con["from"] for con in connections} | {
+            to_step for con in connections for to_step in con["to"]
+        }
+        step_outputs = {
+            step["name"]: self.get_step(step["name"])[STEP_ATTR_NAME].get_outputs()
+            for step in dump["steps"]
+        }
+        step_output_mappings = {
+            step["name"]: {
+                k: v
+                for k, v in {
+                    **{output: output for output in step_outputs[step["name"]]},
+                    **step["step"]["output_mappings"],
+                }.items()
+                if list(
+                    dict(
+                        {
+                            **{output: output for output in step_outputs[step["name"]]},
+                            **step["step"]["output_mappings"],
+                        }.items()
+                    ).values()
+                ).count(v)
+                == 1
+                or k != v
+            }
+            for step in dump["steps"]
+        }
+        return (
+            all_steps,
+            step_name_to_class,
+            connections,
+            step_outputs,
+            step_output_mappings,
+        )
+
     def draw(self, top_to_bottom: bool = False, show_edge_labels: bool = True) -> str:
         """Draws the DAG and returns the image content.
 
@@ -760,43 +812,14 @@ class DAG(_Serializable):
         Returns:
             The image content.
         """
-        dump = self.dump()
-        self.validate()
-        step_name_to_class = {
-            step["step"].get("name"): step["step"].get("type_info", {}).get("name")
-            for step in dump["steps"]
-        }
-        connections = dump["connections"]
-
+        (
+            all_steps,
+            step_name_to_class,
+            connections,
+            step_outputs,
+            step_output_mappings,
+        ) = self._get_graph_info_for_draw()
         graph = [f"flowchart {'TD' if top_to_bottom else 'LR'}"]
-        all_steps = {con["from"] for con in connections} | {
-            to_step for con in connections for to_step in con["to"]
-        }
-
-        step_inputs = {
-            step["name"]: self.get_step(step["name"])[STEP_ATTR_NAME].get_inputs()
-            for step in dump["steps"]
-        }
-        step_outputs = {
-            step["name"]: self.get_step(step["name"])[STEP_ATTR_NAME].get_outputs()
-            for step in dump["steps"]
-        }
-        step_input_mappings = {
-            step["name"]: {
-                **{input: input for input in step_inputs[step["name"]]},
-                **step["step"]["input_mappings"],
-            }
-            for step in dump["steps"]
-        }
-        step_output_mappings = {
-            step["name"]: {
-                **{output: output for output in step_outputs[step["name"]]},
-                **step["step"]["output_mappings"],
-            }
-            for step in dump["steps"]
-        }
-        print(step_input_mappings)
-        print(step_output_mappings)
 
         for step in all_steps:
             graph.append(f'    {step}["{step_name_to_class[step]}"]')
@@ -804,14 +827,21 @@ class DAG(_Serializable):
         if show_edge_labels:
             for connection in connections:
                 from_step = connection["from"]
+                mapping = step_output_mappings[from_step]
                 for to_step in connection["to"]:
-                    for output in step_outputs[from_step]:
-                        print(output)
-                        import pdb
+                    for from_column in set(
+                        list(step_outputs[from_step].keys())
+                        + list(step_output_mappings[from_step].keys())
+                    ):
+                        if from_column not in mapping:
+                            continue
+                        to_column = mapping.get(from_column)
+                        if from_column == to_column:
+                            edge_label = from_column
+                        else:
+                            edge_label = f"{from_column}:{to_column}"
+                        graph.append(f"    {from_step} --> |{edge_label}| {to_step}")
 
-                        pdb.set_trace()
-
-                    graph.append(f"    {from_step} --> {to_step}")
         else:
             for connection in connections:
                 from_step = connection["from"]
