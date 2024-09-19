@@ -20,6 +20,7 @@ from jinja2 import Template
 from pydantic import BaseModel, Field, PositiveInt, PrivateAttr
 from typing_extensions import override
 
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks import Task
 
 if TYPE_CHECKING:
@@ -193,41 +194,46 @@ class TextClassification(Task):
         ```
     """
 
-    system_prompt: Optional[str] = (
+    system_prompt: Optional[RuntimeParameter[str]] = Field(
         "You are an AI system specialized in generating labels to classify pieces of text. "
         "Your sole purpose is to analyze the given text and provide appropriate classification labels."
     )
-    n: PositiveInt = Field(
+    n: RuntimeParameter[PositiveInt] = Field(
         default=1,
         description="Number of labels to generate. Defaults to 1.",
     )
-    context: Optional[str] = Field(
+    context: Optional[RuntimeParameter[str]] = Field(
         default="Generate concise, relevant labels that accurately represent the text's main themes, topics, or categories.",
         description="Context to use when generating the labels.",
     )
-    examples: Optional[List[str]] = Field(
+    examples: Optional[RuntimeParameter[List[str]]] = Field(
         default=None,
         description="List of examples to help the model understand the task, few shots.",
     )
-    available_labels: Optional[Union[List[str], Dict[str, str]]] = Field(
-        default=None,
-        description=(
-            "List of available labels to choose from when classifying the text, or "
-            "a dictionary with the labels and their descriptions."
-        ),
+    available_labels: Optional[RuntimeParameter[Union[List[str], Dict[str, str]]]] = (
+        Field(
+            default=None,
+            description=(
+                "List of available labels to choose from when classifying the text, or "
+                "a dictionary with the labels and their descriptions."
+            ),
+        )
     )
-    default_label: Optional[Union[str, List[str]]] = Field(
+    default_label: Optional[RuntimeParameter[Union[str, List[str]]]] = Field(
         default="Unclassified",
         description=(
             "Default label to use when the text is ambiguous or lacks sufficient information for "
             "classification. Can be a list in case of multiple labels (n>1)."
         ),
     )
-    query_title: str = Field(
+    query_title: RuntimeParameter[str] = Field(
         default="User Query",
         description="Title of the query used to show the example/s to classify.",
     )
-    use_default_structured_output: bool = True
+    use_default_structured_output: RuntimeParameter[bool] = Field(
+        default=True,
+        description="Whether to use the default structured output.",
+    )
 
     _template: Optional[Template] = PrivateAttr(default=None)
 
