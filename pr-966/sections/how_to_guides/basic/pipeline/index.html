@@ -5331,11 +5331,10 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 </span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    <span class="n">show_edge_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>Within notebooks, we can simply call <code>pipeline</code> and the graph will be displayed. Alternatively, we can use the <code>Pipeline.show()</code> method to have more control over the graph visualization.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">pipeline</span><span class="o">.</span><span class="n">show</span><span class="p">(</span>
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    <span class="n">top_to_bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="n">show_edge_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="p">)</span>
+<p>Within notebooks, we can simply call <code>pipeline</code> and the graph will be displayed. Alternatively, we can use the <code>Pipeline.draw()</code> method to have more control over the graph visualization and use <code>IPython</code> to display it.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">display</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="n">path_to_image</span><span class="p">))</span>
 </span></code></pre></div>
 <p>Let's now see how the pipeline of the <a href="#fully-working-example">fully working example</a> looks like.</p>
 <p><img alt="Pipeline" src="../../../../assets/images/sections/how_to_guides/basic/pipeline.png" /></p>
