@@ -30,14 +30,14 @@ graph TD
 			ICOL2[func_desc]
 		end
 		subgraph New columns
-			OCOL0[queries]
+			OCOL0[query]
 			OCOL1[answers]
 		end
 	end
 
 	subgraph APIGenGenerator
 		StepInput[Input Columns: examples, func_name, func_desc]
-		StepOutput[Output Columns: queries, answers]
+		StepOutput[Output Columns: query, answers]
 	end
 
 	ICOL0 --> StepInput
@@ -65,7 +65,7 @@ graph TD
 #### Outputs
 
 
-- **queries** (`List[str]`): The list of queries.
+- **query** (`List[str]`): The list of queries.
 
 - **answers** (`List[str]`): The list of answers.
 

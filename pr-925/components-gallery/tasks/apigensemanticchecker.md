@@ -16,6 +16,11 @@ The `APIGenGenerator` is inspired by the APIGen pipeline, which was designed to 
 
 
 
+### Attributes
+
+- **system_prompt**: System prompt for the task. Has a default one.  - exclude_failed_execution: Whether to exclude failed executions (won't run on those  rows that have a False in `keep_row_after_execution_check` column, which  comes from running `APIGenExecutionChecker`). Defaults to True.
+
+
 
 
 
@@ -27,7 +32,7 @@ graph TD
 		subgraph Columns
 			ICOL0[func_desc]
 			ICOL1[query]
-			ICOL2[func_call]
+			ICOL2[answers]
 			ICOL3[execution_result]
 		end
 		subgraph New columns
@@ -37,7 +42,7 @@ graph TD
 	end
 
 	subgraph APIGenSemanticChecker
-		StepInput[Input Columns: func_desc, query, func_call, execution_result]
+		StepInput[Input Columns: func_desc, query, answers, execution_result]
 		StepOutput[Output Columns: thought, passes]
 	end
 
@@ -59,7 +64,7 @@ graph TD
 
 - **query** (`str`): Instruction from the user.
 
-- **func_call** (`str`): JSON encoded list with arguments to be passed to the function/API.
+- **answers** (`str`): JSON encoded list with arguments to be passed to the function/API.
 
 - **execution_result** (`str`): Result of the function/API executed.
 
