@@ -767,6 +767,14 @@ class DAG(_Serializable):
             step["name"]: self.get_step(step["name"])[STEP_ATTR_NAME].get_outputs()
             for step in dump["steps"]
         }
+        step_outputs = {}
+        for step in dump["steps"]:
+            try:
+                step_outputs[step["name"]] = self.get_step(step["name"])[
+                    STEP_ATTR_NAME
+                ].get_outputs()
+            except AttributeError:
+                step_outputs[step["name"]] = {"dynamic": True}
 
         # Add Argilla and Distiset steps to the graph
         leaf_steps = self.leaf_steps
