@@ -761,6 +761,7 @@ class DAG(_Serializable):
         List[Dict[str, Any]],
         Dict[str, Dict[str, Any]],
         Dict[str, Dict[str, Any]],
+        Dict[str, Dict[str, Any]],
     ]:
         """Returns the graph info.
 
@@ -786,6 +787,14 @@ class DAG(_Serializable):
                 ].get_outputs()
             except AttributeError:
                 step_outputs[step["name"]] = {"dynamic": True}
+        step_inputs = {}
+        for step in dump["steps"]:
+            try:
+                step_inputs[step["name"]] = self.get_step(step["name"])[
+                    STEP_ATTR_NAME
+                ].get_inputs()
+            except AttributeError:
+                step_inputs[step["name"]] = {"dynamic": True}
 
         # Add Argilla and Distiset steps to the graph
         leaf_steps = self.leaf_steps
@@ -824,6 +833,15 @@ class DAG(_Serializable):
             }
             for step in dump["steps"]
         }
+        step_input_mappings = {
+            step["name"]: dict(
+                {
+                    **{input: input for input in step_inputs[step["name"]]},
+                    **step["step"]["input_mappings"],
+                }.items()
+            )
+            for step in dump["steps"]
+        }
 
         return (
             all_steps,
@@ -831,9 +849,10 @@ class DAG(_Serializable):
             connections,
             step_outputs,
             step_output_mappings,
+            step_input_mappings,
         )
 
-    def draw(self, top_to_bottom: bool = False, show_edge_labels: bool = True) -> str:
+    def draw(self, top_to_bottom: bool = False, show_edge_labels: bool = True) -> str:  # noqa: C901
         """Draws the DAG and returns the image content.
 
         Parameters:
@@ -849,28 +868,39 @@ class DAG(_Serializable):
             connections,
             step_outputs,
             step_output_mappings,
+            step_input_mappings,
         ) = self._get_graph_info_for_draw()
         graph = [f"flowchart {'TD' if top_to_bottom else 'LR'}"]
-
         for step in all_steps:
             graph.append(f'    {step}["{step_name_to_class[step]}"]')
 
         if show_edge_labels:
             for connection in connections:
                 from_step = connection["from"]
-                mapping = step_output_mappings[from_step]
+                from_mapping = step_output_mappings[from_step]
                 for to_step in connection["to"]:
                     for from_column in set(
                         list(step_outputs[from_step].keys())
                         + list(step_output_mappings[from_step].keys())
                     ):
-                        if from_column not in mapping:
+                        if from_column not in from_mapping:
                             continue
-                        to_column = mapping.get(from_column)
-                        if from_column == to_column:
-                            edge_label = from_column
-                        else:
-                            edge_label = f"{from_column}:{to_column}"
+                        to_column = from_mapping.get(from_column)
+
+                        # walk through mappings
+                        to_mapping = step_input_mappings.get(to_step, {})
+                        edge_label = [from_column]
+                        if from_column != to_column:
+                            edge_label.append(to_column)
+                        if edge_label[-1] in to_mapping:
+                            edge_label.append(to_mapping[edge_label[-1]])
+
+                        if (
+                            edge_label[-1] not in to_mapping
+                            and from_step not in self.leaf_steps
+                        ):
+                            edge_label.append("**_pass_**")
+                        edge_label = ":".join(list(dict.fromkeys(edge_label)))
                         graph.append(f"    {from_step} --> |{edge_label}| {to_step}")
 
         else:
