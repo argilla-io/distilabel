@@ -637,7 +637,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         path: Optional[Union[str, Path]] = "pipeline.png",
         top_to_bottom: bool = False,
         show_edge_labels: bool = True,
-    ):
+    ) -> None:
         """
         Draws the pipeline.
 
@@ -656,7 +656,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             f.write(png)
         return path
 
-    def show(self, top_to_bottom: bool = False, show_edge_labels: bool = True):
+    def show(self, top_to_bottom: bool = False, show_edge_labels: bool = True) -> None:
         """
         Shows the pipeline.
         """
