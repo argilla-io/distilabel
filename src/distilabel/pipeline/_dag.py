@@ -763,18 +763,28 @@ class DAG(_Serializable):
             for step in dump["steps"]
         }
         connections = dump["connections"]
-        leaf_steps = self.leaf_steps
-        for idx, leaf_step in enumerate(leaf_steps):
-            connections.append({"from": leaf_step, "to": [f"distiset{idx}"]})
-            step_name_to_class[f"distiset{idx}"] = "Distiset"
-
-        all_steps = {con["from"] for con in connections} | {
-            to_step for con in connections for to_step in con["to"]
-        }
         step_outputs = {
             step["name"]: self.get_step(step["name"])[STEP_ATTR_NAME].get_outputs()
             for step in dump["steps"]
         }
+
+        # Add Argilla and Distiset steps to the graph
+        leaf_steps = self.leaf_steps
+        for idx, leaf_step in enumerate(leaf_steps):
+            if "to_argilla" in leaf_step:
+                connections.append({"from": leaf_step, "to": [f"to_argilla_{idx}"]})
+                step_name_to_class[f"to_argilla_{idx}"] = "Argilla"
+                step_outputs[leaf_step] = {"records": True}
+            else:
+                connections.append({"from": leaf_step, "to": [f"distiset_{idx}"]})
+                step_name_to_class[f"distiset_{idx}"] = "Distiset"
+
+        # Create a set of all steps in the graph
+        all_steps = {con["from"] for con in connections} | {
+            to_step for con in connections for to_step in con["to"]
+        }
+
+        # Create a mapping of step outputs
         step_output_mappings = {
             step["name"]: {
                 k: v
@@ -795,6 +805,7 @@ class DAG(_Serializable):
             }
             for step in dump["steps"]
         }
+
         return (
             all_steps,
             step_name_to_class,
