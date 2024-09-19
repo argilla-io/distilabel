@@ -461,12 +461,21 @@ Serializing the pipeline is very useful when we want to share the pipeline with 
 
 ## Visualizing the pipeline
 
-We can visualize the pipeline using the `Pipeline.draw()` method. This will create a `mermaid` graph, and return the path to the image. This also works in notebooks, so we can simply print the pipeline as an image and `Display` it.
+We can visualize the pipeline using the `Pipeline.draw()` method. This will create a `mermaid` graph, and return the path to the image.
 
 ```python
 path_to_image = pipeline.draw(
     top_to_bottom=True,
     show_edge_labels=True,
+)
+```
+
+Within notebooks, we can simply call `pipeline` and the graph will be displayed. Alternatively, we can use the `Pipeline.show()` method to have more control over the graph visualization.
+
+```python
+pipeline.show(
+    top_to_bottom=True,
+    show_edge_labels=False,
 )
 ```
 
