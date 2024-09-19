@@ -33,6 +33,11 @@ if TYPE_CHECKING:
         StepOutput,
     )
 
+import base64
+from unittest.mock import MagicMock, patch
+
+import requests
+
 
 class TestDAG:
     def test_add_step(self, dummy_step_1: "Step") -> None:
@@ -807,3 +812,126 @@ class TestDagSerialization:
                 with Pipeline(name="unit-test-pipeline"):
                     dag_from_file = loader(filename)
                     assert isinstance(dag_from_file, DAG)
+
+
+class TestDAGDraw:
+    @patch("distilabel.pipeline._dag.requests.get")
+    def test_draw_basic(self, mock_get):
+        # Mock the response from mermaid.ink
+        mock_response = MagicMock()
+        mock_response.content = b"mocked_image_content"
+        mock_get.return_value = mock_response
+
+        dag = DAG()
+        generator_step = DummyGeneratorStep(name="generator")
+        step1 = DummyStep1(name="step1")
+        step2 = DummyStep2(name="step2")
+
+        dag.add_step(generator_step)
+        dag.add_step(step1)
+        dag.add_step(step2)
+        dag.add_edge("generator", "step1")
+        dag.add_edge("step1", "step2")
+
+        image_content = dag.draw()
+
+        assert image_content == b"mocked_image_content"
+        mock_get.assert_called_once()
+        called_url = mock_get.call_args[0][0]
+        assert "https://mermaid.ink/img/" in called_url
+
+    @patch("distilabel.pipeline._dag.requests.get")
+    def test_draw_top_to_bottom(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.content = b"mocked_image_content"
+        mock_get.return_value = mock_response
+
+        dag = DAG()
+        generator_step = DummyGeneratorStep(name="generator")
+        step1 = DummyStep1(name="step1")
+        dag.add_step(generator_step)
+        dag.add_step(step1)
+        dag.add_edge("generator", "step1")
+
+        dag.draw(top_to_bottom=True)
+
+        called_url = mock_get.call_args[0][0]
+        decoded_graph = base64.b64decode(
+            called_url.split("/")[-1].split("?")[0]
+        ).decode("ascii")
+        assert "flowchart TD" in decoded_graph
+
+    @patch("distilabel.pipeline._dag.requests.get")
+    def test_draw_without_edge_labels(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.content = b"mocked_image_content"
+        mock_get.return_value = mock_response
+
+        dag = DAG()
+        generator_step = DummyGeneratorStep(name="generator")
+        step1 = DummyStep1(name="step1")
+        dag.add_step(generator_step)
+        dag.add_step(step1)
+        dag.add_edge("generator", "step1")
+
+        dag.draw(show_edge_labels=False)
+
+        called_url = mock_get.call_args[0][0]
+        decoded_graph = base64.b64decode(
+            called_url.split("/")[-1].split("?")[0]
+        ).decode("ascii")
+        assert "generator --> step1" in decoded_graph
+        assert "|" not in decoded_graph  # No edge labels
+
+    @patch("distilabel.pipeline._dag.requests.get")
+    def test_draw_with_argilla_step(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.content = b"mocked_image_content"
+        mock_get.return_value = mock_response
+
+        dag = DAG()
+        generator_step = DummyGeneratorStep(name="generator")
+        step1 = DummyStep1(name="to_argilla")
+        dag.add_step(generator_step)
+        dag.add_step(step1)
+        dag.add_edge("generator", "to_argilla")
+
+        dag.draw()
+
+        called_url = mock_get.call_args[0][0]
+        decoded_graph = base64.b64decode(
+            called_url.split("/")[-1].split("?")[0]
+        ).decode("ascii")
+        assert 'to_argilla_0["Argilla"]' in decoded_graph
+
+    @patch("distilabel.pipeline._dag.requests.get")
+    def test_draw_with_distiset_step(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.content = b"mocked_image_content"
+        mock_get.return_value = mock_response
+
+        dag = DAG()
+        generator_step = DummyGeneratorStep(name="generator")
+        step1 = DummyStep1(name="step1")
+        dag.add_step(generator_step)
+        dag.add_step(step1)
+        dag.add_edge("generator", "step1")
+
+        dag.draw()
+
+        called_url = mock_get.call_args[0][0]
+        decoded_graph = base64.b64decode(
+            called_url.split("/")[-1].split("?")[0]
+        ).decode("ascii")
+        assert 'distiset_0["Distiset"]' in decoded_graph
+
+    @patch("distilabel.pipeline._dag.requests.get")
+    def test_draw_error_handling(self, mock_get):
+        mock_get.side_effect = requests.RequestException("Mocked error")
+
+        dag = DAG()
+        generator_step = DummyGeneratorStep(name="generator")
+        dag.add_step(generator_step)
+
+        with pytest.raises(ValueError, match="Error accessing https://mermaid.ink/"):
+            dag.draw()
