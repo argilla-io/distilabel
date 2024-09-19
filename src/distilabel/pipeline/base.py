@@ -661,11 +661,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         If running in a Jupyter notebook, display an image representing this `Pipeline`.
         """
         if in_notebook():
-            from IPython.display import Image, display  # type: ignore
+            try:
+                from IPython.display import Image, display  # type: ignore
 
-            image_data = self.dag.draw()
+                image_data = self.dag.draw()
 
-            display(Image(image_data))
+                display(Image(image_data))
+            except Exception:
+                pass
         return super().__repr__()
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
