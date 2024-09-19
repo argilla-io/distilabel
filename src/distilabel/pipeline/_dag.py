@@ -49,6 +49,8 @@ if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.base import GeneratorStep, Step, _Step
 
+_MERMAID_URL = "https://mermaid.ink/img/"
+
 
 class DAG(_Serializable):
     """A Directed Acyclic Graph (DAG) to represent the pipeline.
@@ -763,7 +765,11 @@ class DAG(_Serializable):
         """Returns the graph info.
 
         Returns:
-            The graph info.
+            all_steps: The set of all steps in the graph.
+            step_name_to_class: The mapping of step names to their classes.
+            connections: The list of connections in the graph.
+            step_outputs: The mapping of step names to their outputs.
+            step_output_mappings: The mapping of step names to their output mappings.
         """
         dump = self.dump()
         step_name_to_class = {
@@ -888,7 +894,7 @@ def _to_mermaid_image(graph_styled: str) -> str:
         The image content.
     """
     base64_string = base64.b64encode(graph_styled.encode("ascii")).decode("ascii")
-    url = f"https://mermaid.ink/img/{base64_string}?type=png"
+    url = f"{_MERMAID_URL}{base64_string}?type=png"
 
     try:
         response = requests.get(url, timeout=10)
