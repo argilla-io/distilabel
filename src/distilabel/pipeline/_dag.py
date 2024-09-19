@@ -771,6 +771,7 @@ class DAG(_Serializable):
             connections: The list of connections in the graph.
             step_outputs: The mapping of step names to their outputs.
             step_output_mappings: The mapping of step names to their output mappings.
+            step_input_mappings: The mapping of step names to their input mappings.
         """
         dump = self.dump()
         step_name_to_class = {
