@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import sys
 import warnings
 from pathlib import Path
@@ -19,9 +20,10 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import orjson as json
 from jinja2 import Template
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import BaseModel, Field, PrivateAttr, SecretStr
 from typing_extensions import override
 
+from distilabel.errors import DistilabelUserError
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
@@ -36,6 +38,9 @@ if TYPE_CHECKING:
     from argilla import Record
 
     from distilabel.steps.typing import StepOutput
+
+_ARGILLA_API_URL_ENV_VAR_NAME = "ARGILLA_API_URL"
+_ARGILLA_API_KEY_ENV_VAR_NAME = "ARGILLA_API_KEY"
 
 
 class ArgillaLabeller(Task):
@@ -55,7 +60,7 @@ class ArgillaLabeller(Task):
         "You are an expert annotator and labelling assistant that understands complex domains and natural language processing. "
         "You are given input fields and a question. "
         "You should create a valid QuestionValue JSON object as an answer to the question based on the input fields. "
-        "Reason through your response step-by-step. <think> <reason> <respond>."
+        "Reason through your response step-by-step."
     )
     question_to_label_instruction: Dict[str, str] = {
         "LabelQuestion": "Select the appropriate label from the list of provided labels.",
@@ -64,9 +69,21 @@ class ArgillaLabeller(Task):
         "RatingQuestion": "Provide a rating for the question.",
         "SpanQuestion": "Provide a list of none, one or multiple spans containing of an exact text from the input field value and a label from the list of provided labels.",
     }
-    settings: RuntimeParameter[Optional[Any]] = Field(
+    api_url: Optional[str] = Field(
+        default_factory=lambda: os.getenv(_ARGILLA_API_URL_ENV_VAR_NAME),
+        description="The base URL to use for the Argilla API requests.",
+    )
+    api_key: Optional[SecretStr] = Field(
+        default_factory=lambda: os.getenv(_ARGILLA_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the Argilla API.",
+    )
+    dataset_name: RuntimeParameter[str] = Field(
         default=None,
-        description="The Argilla settings to be used to answer the question.",
+        description="The name of the dataset to be used to answer the question.",
+    )
+    workspace_name: RuntimeParameter[str] = Field(
+        default=None,
+        description="The workspace of the dataset to be used to answer the question.",
     )
     fields: RuntimeParameter[List[str]] = Field(
         default=None,
@@ -78,6 +95,7 @@ class ArgillaLabeller(Task):
     )
 
     _template: Union[Template, None] = PrivateAttr(...)
+    _client: Optional[Any] = PrivateAttr(None)
 
     def load(self) -> None:
         """Loads the Jinja2 template."""
@@ -87,6 +105,33 @@ class ArgillaLabeller(Task):
             self.template_path = Path(self.template_path)
 
         self._template = Template(open(self.template_path).read())
+        self._client_init()
+
+    def _client_init(self) -> None:
+        """Initializes the Argilla API client with the provided `api_url` and `api_key`."""
+        import argilla as rg
+
+        try:
+            self._client = rg.Argilla(  # type: ignore
+                api_url=self.api_url,
+                api_key=self.api_key.get_secret_value(),  # type: ignore
+                headers={"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+                if isinstance(self.api_url, str)
+                and "hf.space" in self.api_url
+                and "HF_TOKEN" in os.environ
+                else {},
+            )
+        except Exception as e:
+            raise DistilabelUserError(
+                f"Failed to initialize the Argilla API: {e}",
+                page="sections/how_to_guides/advanced/argilla/",
+            ) from e
+
+    @property
+    def settings(self):
+        return self._client.datasets(
+            name=self.dataset_name, workspace=self.workspace_name
+        ).settings
 
     @property
     def label_instruction(self) -> str:
@@ -137,14 +182,24 @@ class ArgillaLabeller(Task):
         return "\n".join(base)
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
+        import argilla as rg
+
         record = input[self.inputs[0]]
+        if isinstance(record, dict):
+            record = rg.Record.from_dict(record)
+        if self.optional_inputs[0] in input:
+            if isinstance(input[self.optional_inputs[0]][0], dict):
+                example_records = input[self.optional_inputs[0]]
+            else:
+                example_records = []
+        else:
+            example_records = []
+
         fields = self._format_record(record)
         question = self._format_question()
 
         examples = (
-            self._format_example_records(input[self.optional_inputs[0]])
-            if self.optional_inputs[0] in input
-            else False
+            self._format_example_records(example_records) if example_records else False
         )
 
         prompt = self._template.render(
@@ -267,7 +322,11 @@ class ArgillaLabeller(Task):
             TextQuestion,
         )
 
-        question = self.settings.questions[self.question]
+        if self._client is None:
+            question = LabelQuestion(name="class", labels=["mock"])
+        else:
+            question = self.settings.questions[self.question]
+
         if isinstance(question, SpanQuestion):
 
             class Span(BaseModel):
