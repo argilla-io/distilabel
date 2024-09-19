@@ -763,10 +763,7 @@ class DAG(_Serializable):
             for step in dump["steps"]
         }
         connections = dump["connections"]
-        step_outputs = {
-            step["name"]: self.get_step(step["name"])[STEP_ATTR_NAME].get_outputs()
-            for step in dump["steps"]
-        }
+
         step_outputs = {}
         for step in dump["steps"]:
             try:
