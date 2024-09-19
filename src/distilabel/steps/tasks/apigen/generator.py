@@ -43,8 +43,7 @@ Ensure the query:
 Ensure the answer:
 - Is a list of function calls in JSON format
 - The length of the answer list should be equal to the number of requests in the query
-- Can solve all the requests in the query effectively
-"""
+- Can solve all the requests in the query effectively"""
 
 
 class APIGenGenerator(Task):
@@ -60,7 +59,7 @@ class APIGenGenerator(Task):
         - func_desc (`str`): Description of what the function should do.
 
     Output columns:
-        - queries (`List[str]`): The list of queries.
+        - query (`List[str]`): The list of queries.
         - answers (`List[str]`): The list of answers.
 
     Categories:
@@ -300,7 +299,7 @@ class APIGenGenerator(Task):
     @property
     def outputs(self) -> "StepColumns":
         """The output for the task are the queries and corresponding answers."""
-        return ["queries", "answers", "model_name"]
+        return ["query", "answers", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -321,15 +320,15 @@ class APIGenGenerator(Task):
             value is the corresponding value.
         """
         if output is None:
-            return self._default_error()
+            return self._default_error(input)
 
         try:
             pairs = orjson.loads(output)
         except orjson.JSONDecodeError:
-            return self._default_error()
+            return self._default_error(input)
 
-        if self.use_default_structured_output:
-            pairs = pairs["pairs"]
+        pairs = pairs["pairs"] if self.use_default_structured_output else pairs
+
         return self._format_output(pairs, input)
 
     def _format_output(
@@ -346,21 +345,27 @@ class APIGenGenerator(Task):
             are a list of objects.
         """
         try:
-            result = {"queries": [], "answers": []}
+            query = []
+            answers = []
             for pair in pairs:
-                result["queries"].append(pair["query"])
-                result["answers"].append(pair["answers"])
-            return result
+                query.append(pair["query"])
+                answers.append(pair["answers"])
+
+            input.update(**{"query": query, "answers": answers})
+            return input
         except Exception as e:
             self._logger.error(f"Error formatting output: {e}")
-            return self._default_error()
+            return self._default_error(input)
 
-    def _default_error(self) -> Dict[str, Any]:
+    def _default_error(self, input: Dict[str, Any]) -> Dict[str, Any]:
         """Returns a default error output, to fill the responses in case of failure."""
-        return {
-            "queries": [None] * self._number,
-            "answers": [None] * self._number,
-        }
+        input.update(
+            **{
+                "query": [None] * self._number,
+                "answers": [None] * self._number,
+            }
+        )
+        return input
 
     @override
     def get_structured_output(self) -> Dict[str, Any]:

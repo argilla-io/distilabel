@@ -29,20 +29,32 @@ from distilabel.steps.tasks.apigen.utils import (
         (
             "final_velocity",
             {"initial_velocity": 10, "acceleration": 5, "time": 2},
-            {"execution_results": "20", "keep": True},
+            {"execution_result": "20.0", "keep": True},
+        ),
+        # In this case, internally we should cast the arguments
+        (
+            "final_velocity",
+            {"initial_velocity": "10", "acceleration": "5", "time": "2"},
+            {"execution_result": "20.0", "keep": True},
+        ),
+        # Fail casting one of the values
+        (
+            "final_velocity",
+            {"initial_velocity": "10", "acceleration": "5", "time": "1m/s"},
+            {"execution_result": "Argument types not respected", "keep": False},
         ),
         (
             "final_velocity",
             {"initial_velocity": 10, "acceleration": 5},
             {
-                "execution_results": "final_velocity() missing 1 required positional argument: 'time'",
+                "execution_result": "final_velocity() missing 1 required positional argument: 'time'",
                 "keep": False,
             },
         ),
         (
             "unknwown_function",
             {"initial_velocity": 10, "acceleration": 5, "time": 2},
-            {"execution_results": "'NoneType' object is not callable", "keep": False},
+            {"execution_result": "Function not found", "keep": False},
         ),
     ],
 )

@@ -24,19 +24,19 @@ SAMPLE_DATA = [
     {
         "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
         "query": "What information can be obtained about the Maine Coon cat breed?",
-        "func_call": '[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
+        "answers": '[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
         "execution_result": "Hopefully some info about the Maine Coon",
     },
     {
         "func_desc": "Checks if an email domain is valid or a disposable/temporary address.",
         "query": "Check if the email domains 'protonmail.com' and 'mail.com' are valid and not temporary. Get the products from category 'furniture' in my store, skipping the first 20 items and limiting to 25 items.",
-        "func_call": '[{"name": "mailcheck", "arguments": {"domain": "protonmail.com"}}, {"name": "mailcheck", "arguments": {"domain": "mail.com"}}, {"name": "get_products_in_category", "arguments": {"skip": 20, "limit": 25, "category": "furniture"}}]',
+        "answers": '[{"name": "mailcheck", "arguments": {"domain": "protonmail.com"}}, {"name": "mailcheck", "arguments": {"domain": "mail.com"}}, {"name": "get_products_in_category", "arguments": {"skip": 20, "limit": 25, "category": "furniture"}}]',
         "execution_result": "Response for the emails",
     },
     {
         "func_desc": "Fetches the content of a node in a navigation hierarchy.",
         "query": "What are the node contents for category IDs 8899 and 7766 in English and for category IDs 5544 and 3322 in French?",
-        "func_call": '[{"name": "navigations_get_node_content", "arguments": {"is_id": 8899, "cat_id": 8899, "language": "en"}}, {"name": "navigations_get_node_content", "arguments": {"is_id": 7766, "cat_id": 7766, "language": "en"}}, {"name": "navigations_get_node_content", "arguments": {"is_id": 5544, "cat_id": 5544, "language": "fr"}}, {"name": "navigations_get_node_content", "arguments": {"is_id": 3322, "cat_id": 3322, "language": "fr"}}]',
+        "answers": '[{"name": "navigations_get_node_content", "arguments": {"is_id": 8899, "cat_id": 8899, "language": "en"}}, {"name": "navigations_get_node_content", "arguments": {"is_id": 7766, "cat_id": 7766, "language": "en"}}, {"name": "navigations_get_node_content", "arguments": {"is_id": 5544, "cat_id": 5544, "language": "fr"}}, {"name": "navigations_get_node_content", "arguments": {"is_id": 3322, "cat_id": 3322, "language": "fr"}}]',
         "execution_result": "Response for the node contents",
     },
 ]
@@ -76,7 +76,7 @@ class TestAPIGenSemanticChecker:
         "result, expected",
         [
             (
-                '{"thought": "thought", "keep_row_after_semantic_check": "no"}',
+                '{"thought": "thought", "keep_row_after_semantic_check": "no", "passes": "no"}',
                 {"thought": "thought", "keep_row_after_semantic_check": False},
             ),
             (None, {"thought": None, "keep_row_after_semantic_check": None}),

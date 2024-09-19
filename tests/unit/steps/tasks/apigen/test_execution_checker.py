@@ -46,7 +46,7 @@ class TestAPIGenExecutionChecker:
                 [
                     {
                         "keep_row_after_execution_check": True,
-                        "execution_results": ["0.25"],
+                        "execution_result": ["0.25"],
                     }
                 ],
             ),
@@ -77,7 +77,7 @@ class TestAPIGenExecutionChecker:
                 [
                     {
                         "keep_row_after_execution_check": True,
-                        "execution_results": ["0.25", "0.25"],
+                        "execution_result": ["0.25", "0.25"],
                     }
                 ],
             ),
@@ -100,7 +100,7 @@ class TestAPIGenExecutionChecker:
                 [
                     {
                         "keep_row_after_execution_check": False,
-                        "execution_results": ["Function 'unknown_function' not found."],
+                        "execution_result": ["Function 'unknown_function' not found."],
                     }
                 ],
             ),
@@ -130,7 +130,7 @@ class TestAPIGenExecutionChecker:
                 [
                     {
                         "keep_row_after_execution_check": False,
-                        "execution_results": [
+                        "execution_result": [
                             "0.25",
                             "final_velocity() missing 1 required positional argument: 'time'",
                         ],

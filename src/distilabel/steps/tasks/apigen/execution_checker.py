@@ -18,7 +18,6 @@
 
 from typing import TYPE_CHECKING, Callable, Union
 
-import orjson
 from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
@@ -53,6 +52,7 @@ class APIGenExecutionChecker(Step):
     def load(self) -> None:
         """Loads the library where the functions will be extracted from."""
         # TODO: Place a user error in case the path is not valid, to show what this really is.
+        super().load()
         self._toolbox = load_module_from_path(self.libpath)
 
     def unload(self) -> None:
@@ -66,7 +66,7 @@ class APIGenExecutionChecker(Step):
     @property
     def outputs(self) -> "StepColumns":
         """The outputs are the columns required by `APIGenGenerator` task."""
-        return ["keep_row_after_execution_check", "reason"]
+        return ["keep_row_after_execution_check", "execution_result"]
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":
@@ -81,38 +81,40 @@ class APIGenExecutionChecker(Step):
         Yields:
             A list of dictionaries with the output data.
         """
-        outputs = []
         for input in inputs:
-            answers = orjson.loads(input["answers"])
-            _output = []
-            for answer in answers:
+            output = []
+            for answer in input["answers"]:
+                # TODO: Currently if the generator throws a None, it will raise an error here.
+                # Set the results to None first
                 function_name = answer.get("name", None)
                 arguments = answer.get("arguments", None)
 
                 function: Callable = getattr(self._toolbox, function_name, None)
                 if function is None:
-                    _output.append(
+                    output.append(
                         {
                             "keep": False,
-                            "execution_results": f"Function '{function_name}' not found.",
+                            "execution_result": f"Function '{function_name}' not found.",
                         }
                     )
                 else:
+                    # TODO: Based on the signature, try to cast the values before passing them to the function.
                     execution = execute_from_response(function, arguments)
-                    _output.append(
+                    output.append(
                         {
                             "keep": execution["keep"],
-                            "execution_results": execution["execution_results"],
+                            "execution_result": execution["execution_result"],
                         }
                     )
-            # We only consider a good response if all the answers were executed successfully, but keep the reasons
-            # for further review if needed.
-            outputs.append(
-                {
+            # We only consider a good response if all the answers were executed successfully,
+            # but keep the reasons for further review if needed.
+            input.update(
+                **{
                     "keep_row_after_execution_check": all(
-                        o["keep"] is True for o in _output
+                        o["keep"] is True for o in output
                     ),
-                    "execution_results": [o["execution_results"] for o in _output],
+                    "execution_result": [o["execution_result"] for o in output],
                 }
             )
-        yield outputs
+
+        yield inputs

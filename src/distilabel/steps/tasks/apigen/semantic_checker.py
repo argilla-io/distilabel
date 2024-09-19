@@ -56,7 +56,7 @@ class APIGenSemanticChecker(Task):
     Input columns:
         - func_desc (`str`): Description of what the function should do.
         - query (`str`): Instruction from the user.
-        - func_call (`str`): JSON encoded list with arguments to be passed to the function/API.
+        - answers (`str`): JSON encoded list with arguments to be passed to the function/API.
         - execution_result (`str`): Result of the function/API executed.
 
     Output columns:
@@ -168,7 +168,6 @@ class APIGenSemanticChecker(Task):
 
     system_prompt: str = SYSTEM_PROMPT_SEMANTIC_CHECKER
     use_default_structured_output: bool = False
-    exclude_failed_execution: bool = True
 
     _format_inst: Union[str, None] = PrivateAttr(None)
 
@@ -201,7 +200,7 @@ class APIGenSemanticChecker(Task):
             "```\n"
             "{\n"
             '   "thought": "Concisely describe your reasoning here",\n'
-            '   "pass": "yes" or "no"\n'
+            '   "passes": "yes" or "no"\n'
             "}\n"
             "```\n"
         )
@@ -211,10 +210,10 @@ class APIGenSemanticChecker(Task):
         """The inputs for the task."""
         return {
             "func_desc": True,
-            "queries": True,
-            "func_call": True,
+            "query": True,
+            "answers": True,
             "execution_result": True,
-            "keep_row_after_execution_check": False,
+            "keep_row_after_execution_check": True,
         }
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
@@ -226,7 +225,7 @@ class APIGenSemanticChecker(Task):
                 "content": self._template.render(
                     func_desc=input["func_desc"],
                     query=input["query"],
-                    func_call=input["func_call"],
+                    func_call=input["answers"],
                     execution_result=input["execution_result"],
                     format_inst=self._format_inst,
                 ),
@@ -236,7 +235,7 @@ class APIGenSemanticChecker(Task):
     @property
     def outputs(self) -> "StepColumns":
         """The output for the task are the queries and corresponding answers."""
-        return ["thought", "keep_row_after_semantic_check"]
+        return ["keep_row_after_semantic_check", "thought"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -257,17 +256,23 @@ class APIGenSemanticChecker(Task):
             value is the corresponding value.
         """
         if output is None:
-            return {"thought": None, "keep_row_after_semantic_check": None}
+            return self._default_error(input)
 
         try:
             result = orjson.loads(output)
             # Update the column name and change to bool
             result["keep_row_after_semantic_check"] = (
-                result.get("thought").lower() == "yes"
+                result.pop("passes").lower() == "yes"
             )
-            return result
+            input.update(**result)
+            return input
         except orjson.JSONDecodeError:
-            return {"thought": None, "keep_row_after_semantic_check": None}
+            return self._default_error(input)
+
+    def _default_error(self, input: Dict[str, Any]) -> Dict[str, Any]:
+        """Default error message for the task."""
+        input.update({"thought": None, "keep_row_after_semantic_check": None})
+        return input
 
     @override
     def get_structured_output(self) -> Dict[str, Any]:
