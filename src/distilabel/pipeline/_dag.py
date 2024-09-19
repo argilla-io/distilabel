@@ -751,7 +751,15 @@ class DAG(_Serializable):
 
         return dag
 
-    def _get_graph_info_for_draw(self) -> Dict[str, Any]:
+    def _get_graph_info_for_draw(
+        self,
+    ) -> Tuple[
+        Set[str],
+        Dict[str, str],
+        List[Dict[str, Any]],
+        Dict[str, Dict[str, Any]],
+        Dict[str, Dict[str, Any]],
+    ]:
         """Returns the graph info.
 
         Returns:
@@ -819,33 +827,13 @@ class DAG(_Serializable):
             step_output_mappings,
         )
 
-    def _to_mermaid_image(self, graph_styled: str) -> str:
-        """Converts a Mermaid graph to an image using the Mermaid Ink service.
-
-        Parameters:
-            graph_styled: The Mermaid graph to convert to an image.
-
-        Returns:
-            The image content.
-        """
-        base64_string = base64.b64encode(graph_styled.encode("ascii")).decode("ascii")
-        url = f"https://mermaid.ink/img/{base64_string}?type=png"
-
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            return response.content
-        except requests.RequestException as e:
-            raise ValueError(
-                "Error accessing https://mermaid.ink/. See stacktrace for details."
-            ) from e
-
     def draw(self, top_to_bottom: bool = False, show_edge_labels: bool = True) -> str:
         """Draws the DAG and returns the image content.
 
         Parameters:
             top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `False`.
             show_edge_labels: Whether to show the edge labels. Defaults to `True`.
+
         Returns:
             The image content.
         """
@@ -887,4 +875,26 @@ class DAG(_Serializable):
 
         graph.append("classDef component text-align:center;")
         graph_styled = "\n".join(graph)
-        return self._to_mermaid_image(graph_styled)
+        return _to_mermaid_image(graph_styled)
+
+
+def _to_mermaid_image(graph_styled: str) -> str:
+    """Converts a Mermaid graph to an image using the Mermaid Ink service.
+
+    Parameters:
+        graph_styled: The Mermaid graph to convert to an image.
+
+    Returns:
+        The image content.
+    """
+    base64_string = base64.b64encode(graph_styled.encode("ascii")).decode("ascii")
+    url = f"https://mermaid.ink/img/{base64_string}?type=png"
+
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.content
+    except requests.RequestException as e:
+        raise ValueError(
+            "Error accessing https://mermaid.ink/. See stacktrace for details."
+        ) from e

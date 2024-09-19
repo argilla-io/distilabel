@@ -637,7 +637,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         path: Optional[Union[str, Path]] = "pipeline.png",
         top_to_bottom: bool = False,
         show_edge_labels: bool = True,
-    ):
+    ) -> str:
         """
         Draws the pipeline.
 
@@ -655,22 +655,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         with open(path, "wb") as f:
             f.write(png)
         return path
-
-    def show(self, top_to_bottom: bool = False, show_edge_labels: bool = True):
-        """
-        Shows the pipeline.
-        """
-        image_data = self.dag.draw(
-            top_to_bottom=top_to_bottom, show_edge_labels=show_edge_labels
-        )
-        if in_notebook():
-            from IPython.display import Image, display
-
-            display(Image(image_data))
-        else:
-            raise NotImplementedError(
-                "Showing the pipeline directly is not implemented. Use `Pipeline.draw()` to get a png file path instead."
-            )
 
     def __repr__(self) -> str:
         """

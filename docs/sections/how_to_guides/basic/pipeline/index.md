@@ -470,13 +470,12 @@ path_to_image = pipeline.draw(
 )
 ```
 
-Within notebooks, we can simply call `pipeline` and the graph will be displayed. Alternatively, we can use the `Pipeline.show()` method to have more control over the graph visualization.
+Within notebooks, we can simply call `pipeline` and the graph will be displayed. Alternatively, we can use the `Pipeline.draw()` method to have more control over the graph visualization and use `IPython` to display it.
 
 ```python
-pipeline.show(
-    top_to_bottom=True,
-    show_edge_labels=False,
-)
+from IPython.display import Image, display
+
+display(Image(path_to_image))
 ```
 
 Let's now see how the pipeline of the [fully working example](#fully-working-example) looks like.
