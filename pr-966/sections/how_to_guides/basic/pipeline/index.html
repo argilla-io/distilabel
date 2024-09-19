@@ -1092,6 +1092,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#visualizing-the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualizing the pipeline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#fully-working-example" class="md-nav__link">
     <span class="md-ellipsis">
       Fully working example
@@ -4874,6 +4883,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#visualizing-the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualizing the pipeline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#fully-working-example" class="md-nav__link">
     <span class="md-ellipsis">
       Fully working example
@@ -5269,7 +5287,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 </span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>        <span class="n">VertexAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-1.5-pro&quot;</span><span class="p">),</span>
 </span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>    <span class="p">):</span>
 </span><span id="__span-18-18"><a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>        <span class="n">task</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
-</span><span id="__span-18-19"><a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;text_generation_with_</span><span class="si">{</span><span class="n">llm</span><span class="o">.</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-18-19"><a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;text_generation_with_</span><span class="si">{</span><span class="n">llm</span><span class="o">.</span><span class="n">model_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
 </span><span id="__span-18-20"><a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>            <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
 </span><span id="__span-18-21"><a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a>            <span class="n">input_batch_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 </span><span id="__span-18-22"><a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a>        <span class="p">)</span>
@@ -5306,72 +5324,83 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 </div>
 </div>
 <p>Serializing the pipeline is very useful when we want to share the pipeline with others, or when we want to store the pipeline for future use. It can even be hosted online, so the pipeline can be executed directly using the <a href="../../advanced/cli/">CLI</a>.</p>
+<h2 id="visualizing-the-pipeline">Visualizing the pipeline<a class="headerlink" href="#visualizing-the-pipeline" title="Permanent link">&para;</a></h2>
+<p>We can visualize the pipeline using the <code>Pipeline.draw()</code> method. This will create a <code>mermaid</code> graph, and return the path to the image. This also works in notebooks, so we can simply print the pipeline as an image and <code>Display</code> it.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">path_to_image</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    <span class="n">top_to_bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    <span class="n">show_edge_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>Let's now see how the pipeline of the <a href="#fully-working-example">fully working example</a> looks like.</p>
+<p><img alt="Pipeline" src="../../../../assets/images/sections/how_to_guides/basic/pipeline.png" /></p>
 <h2 id="fully-working-example">Fully working example<a class="headerlink" href="#fully-working-example" title="Permanent link">&para;</a></h2>
 <p>To sum up, here is the full code of the pipeline we have created in this section. Note that you will need to change the name of the Hugging Face repository where the resulting will be pushed, set <code>OPENAI_API_KEY</code> environment variable, set <code>MISTRAL_API_KEY</code> and have <code>gcloud</code> installed and configured:</p>
 <details class="code">
 <summary>Code</summary>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
-</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GroupColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
-</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
-</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>
-</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;pipe-name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;My first pipe&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span>
-</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_dataset&quot;</span><span class="p">,</span>
-</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>        <span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">},</span>
-</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>    <span class="p">)</span>
-</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>
-</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
-</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;combine_generations&quot;</span><span class="p">,</span>
-</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
-</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>
-</span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>    <span class="p">)</span>
-</span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>
-</span><span id="__span-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a>    <span class="k">for</span> <span class="n">llm</span> <span class="ow">in</span> <span class="p">(</span>
-</span><span id="__span-23-19"><a id="__codelineno-23-19" name="__codelineno-23-19" href="#__codelineno-23-19"></a>        <span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4-0125-preview&quot;</span><span class="p">),</span>
-</span><span id="__span-23-20"><a id="__codelineno-23-20" name="__codelineno-23-20" href="#__codelineno-23-20"></a>        <span class="n">MistralLLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;mistral-large-2402&quot;</span><span class="p">),</span>
-</span><span id="__span-23-21"><a id="__codelineno-23-21" name="__codelineno-23-21" href="#__codelineno-23-21"></a>        <span class="n">VertexAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-1.0-pro&quot;</span><span class="p">),</span>
-</span><span id="__span-23-22"><a id="__codelineno-23-22" name="__codelineno-23-22" href="#__codelineno-23-22"></a>    <span class="p">):</span>
-</span><span id="__span-23-23"><a id="__codelineno-23-23" name="__codelineno-23-23" href="#__codelineno-23-23"></a>        <span class="n">task</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;text_generation_with_</span><span class="si">{</span><span class="n">llm</span><span class="o">.</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
-</span><span id="__span-23-24"><a id="__codelineno-23-24" name="__codelineno-23-24" href="#__codelineno-23-24"></a>        <span class="n">load_dataset</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-</span><span id="__span-23-25"><a id="__codelineno-23-25" name="__codelineno-23-25" href="#__codelineno-23-25"></a>        <span class="n">task</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">combine_generations</span><span class="p">)</span>
-</span><span id="__span-23-26"><a id="__codelineno-23-26" name="__codelineno-23-26" href="#__codelineno-23-26"></a>
-</span><span id="__span-23-27"><a id="__codelineno-23-27" name="__codelineno-23-27" href="#__codelineno-23-27"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="__span-23-28"><a id="__codelineno-23-28" name="__codelineno-23-28" href="#__codelineno-23-28"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-</span><span id="__span-23-29"><a id="__codelineno-23-29" name="__codelineno-23-29" href="#__codelineno-23-29"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-23-30"><a id="__codelineno-23-30" name="__codelineno-23-30" href="#__codelineno-23-30"></a>            <span class="s2">&quot;load_dataset&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-31"><a id="__codelineno-23-31" name="__codelineno-23-31" href="#__codelineno-23-31"></a>                <span class="s2">&quot;repo_id&quot;</span><span class="p">:</span> <span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini&quot;</span><span class="p">,</span>
-</span><span id="__span-23-32"><a id="__codelineno-23-32" name="__codelineno-23-32" href="#__codelineno-23-32"></a>                <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
-</span><span id="__span-23-33"><a id="__codelineno-23-33" name="__codelineno-23-33" href="#__codelineno-23-33"></a>            <span class="p">},</span>
-</span><span id="__span-23-34"><a id="__codelineno-23-34" name="__codelineno-23-34" href="#__codelineno-23-34"></a>            <span class="s2">&quot;text_generation_with_gpt-4-0125-preview&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-35"><a id="__codelineno-23-35" name="__codelineno-23-35" href="#__codelineno-23-35"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-36"><a id="__codelineno-23-36" name="__codelineno-23-36" href="#__codelineno-23-36"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-37"><a id="__codelineno-23-37" name="__codelineno-23-37" href="#__codelineno-23-37"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-23-38"><a id="__codelineno-23-38" name="__codelineno-23-38" href="#__codelineno-23-38"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
-</span><span id="__span-23-39"><a id="__codelineno-23-39" name="__codelineno-23-39" href="#__codelineno-23-39"></a>                    <span class="p">}</span>
-</span><span id="__span-23-40"><a id="__codelineno-23-40" name="__codelineno-23-40" href="#__codelineno-23-40"></a>                <span class="p">}</span>
-</span><span id="__span-23-41"><a id="__codelineno-23-41" name="__codelineno-23-41" href="#__codelineno-23-41"></a>            <span class="p">},</span>
-</span><span id="__span-23-42"><a id="__codelineno-23-42" name="__codelineno-23-42" href="#__codelineno-23-42"></a>            <span class="s2">&quot;text_generation_with_mistral-large-2402&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-43"><a id="__codelineno-23-43" name="__codelineno-23-43" href="#__codelineno-23-43"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-44"><a id="__codelineno-23-44" name="__codelineno-23-44" href="#__codelineno-23-44"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-45"><a id="__codelineno-23-45" name="__codelineno-23-45" href="#__codelineno-23-45"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-23-46"><a id="__codelineno-23-46" name="__codelineno-23-46" href="#__codelineno-23-46"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
-</span><span id="__span-23-47"><a id="__codelineno-23-47" name="__codelineno-23-47" href="#__codelineno-23-47"></a>                    <span class="p">}</span>
-</span><span id="__span-23-48"><a id="__codelineno-23-48" name="__codelineno-23-48" href="#__codelineno-23-48"></a>                <span class="p">}</span>
-</span><span id="__span-23-49"><a id="__codelineno-23-49" name="__codelineno-23-49" href="#__codelineno-23-49"></a>            <span class="p">},</span>
-</span><span id="__span-23-50"><a id="__codelineno-23-50" name="__codelineno-23-50" href="#__codelineno-23-50"></a>            <span class="s2">&quot;text_generation_with_gemini-1.0-pro&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-51"><a id="__codelineno-23-51" name="__codelineno-23-51" href="#__codelineno-23-51"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-52"><a id="__codelineno-23-52" name="__codelineno-23-52" href="#__codelineno-23-52"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-23-53"><a id="__codelineno-23-53" name="__codelineno-23-53" href="#__codelineno-23-53"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-23-54"><a id="__codelineno-23-54" name="__codelineno-23-54" href="#__codelineno-23-54"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
-</span><span id="__span-23-55"><a id="__codelineno-23-55" name="__codelineno-23-55" href="#__codelineno-23-55"></a>                    <span class="p">}</span>
-</span><span id="__span-23-56"><a id="__codelineno-23-56" name="__codelineno-23-56" href="#__codelineno-23-56"></a>                <span class="p">}</span>
-</span><span id="__span-23-57"><a id="__codelineno-23-57" name="__codelineno-23-57" href="#__codelineno-23-57"></a>            <span class="p">},</span>
-</span><span id="__span-23-58"><a id="__codelineno-23-58" name="__codelineno-23-58" href="#__codelineno-23-58"></a>        <span class="p">},</span>
-</span><span id="__span-23-59"><a id="__codelineno-23-59" name="__codelineno-23-59" href="#__codelineno-23-59"></a>    <span class="p">)</span>
-</span><span id="__span-23-60"><a id="__codelineno-23-60" name="__codelineno-23-60" href="#__codelineno-23-60"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span>
-</span><span id="__span-23-61"><a id="__codelineno-23-61" name="__codelineno-23-61" href="#__codelineno-23-61"></a>        <span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini-with-generations&quot;</span>
-</span><span id="__span-23-62"><a id="__codelineno-23-62" name="__codelineno-23-62" href="#__codelineno-23-62"></a>    <span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GroupColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;pipe-name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;My first pipe&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_dataset&quot;</span><span class="p">,</span>
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>        <span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">},</span>
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>    <span class="p">)</span>
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>
+</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
+</span><span id="__span-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;combine_generations&quot;</span><span class="p">,</span>
+</span><span id="__span-24-14"><a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
+</span><span id="__span-24-15"><a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>
+</span><span id="__span-24-16"><a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a>    <span class="p">)</span>
+</span><span id="__span-24-17"><a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a>
+</span><span id="__span-24-18"><a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a>    <span class="k">for</span> <span class="n">llm</span> <span class="ow">in</span> <span class="p">(</span>
+</span><span id="__span-24-19"><a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a>        <span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4-0125-preview&quot;</span><span class="p">),</span>
+</span><span id="__span-24-20"><a id="__codelineno-24-20" name="__codelineno-24-20" href="#__codelineno-24-20"></a>        <span class="n">MistralLLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;mistral-large-2402&quot;</span><span class="p">),</span>
+</span><span id="__span-24-21"><a id="__codelineno-24-21" name="__codelineno-24-21" href="#__codelineno-24-21"></a>        <span class="n">VertexAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-1.0-pro&quot;</span><span class="p">),</span>
+</span><span id="__span-24-22"><a id="__codelineno-24-22" name="__codelineno-24-22" href="#__codelineno-24-22"></a>    <span class="p">):</span>
+</span><span id="__span-24-23"><a id="__codelineno-24-23" name="__codelineno-24-23" href="#__codelineno-24-23"></a>        <span class="n">task</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
+</span><span id="__span-24-24"><a id="__codelineno-24-24" name="__codelineno-24-24" href="#__codelineno-24-24"></a>            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;text_generation_with_</span><span class="si">{</span><span class="n">llm</span><span class="o">.</span><span class="n">model_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span>
+</span><span id="__span-24-25"><a id="__codelineno-24-25" name="__codelineno-24-25" href="#__codelineno-24-25"></a>        <span class="p">)</span>
+</span><span id="__span-24-26"><a id="__codelineno-24-26" name="__codelineno-24-26" href="#__codelineno-24-26"></a>        <span class="n">load_dataset</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-24-27"><a id="__codelineno-24-27" name="__codelineno-24-27" href="#__codelineno-24-27"></a>        <span class="n">task</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">combine_generations</span><span class="p">)</span>
+</span><span id="__span-24-28"><a id="__codelineno-24-28" name="__codelineno-24-28" href="#__codelineno-24-28"></a>
+</span><span id="__span-24-29"><a id="__codelineno-24-29" name="__codelineno-24-29" href="#__codelineno-24-29"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-24-30"><a id="__codelineno-24-30" name="__codelineno-24-30" href="#__codelineno-24-30"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-24-31"><a id="__codelineno-24-31" name="__codelineno-24-31" href="#__codelineno-24-31"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-24-32"><a id="__codelineno-24-32" name="__codelineno-24-32" href="#__codelineno-24-32"></a>            <span class="s2">&quot;load_dataset&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-33"><a id="__codelineno-24-33" name="__codelineno-24-33" href="#__codelineno-24-33"></a>                <span class="s2">&quot;repo_id&quot;</span><span class="p">:</span> <span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini&quot;</span><span class="p">,</span>
+</span><span id="__span-24-34"><a id="__codelineno-24-34" name="__codelineno-24-34" href="#__codelineno-24-34"></a>                <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+</span><span id="__span-24-35"><a id="__codelineno-24-35" name="__codelineno-24-35" href="#__codelineno-24-35"></a>            <span class="p">},</span>
+</span><span id="__span-24-36"><a id="__codelineno-24-36" name="__codelineno-24-36" href="#__codelineno-24-36"></a>            <span class="s2">&quot;text_generation_with_gpt-4-0125-preview&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-37"><a id="__codelineno-24-37" name="__codelineno-24-37" href="#__codelineno-24-37"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-38"><a id="__codelineno-24-38" name="__codelineno-24-38" href="#__codelineno-24-38"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-39"><a id="__codelineno-24-39" name="__codelineno-24-39" href="#__codelineno-24-39"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-24-40"><a id="__codelineno-24-40" name="__codelineno-24-40" href="#__codelineno-24-40"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-24-41"><a id="__codelineno-24-41" name="__codelineno-24-41" href="#__codelineno-24-41"></a>                    <span class="p">}</span>
+</span><span id="__span-24-42"><a id="__codelineno-24-42" name="__codelineno-24-42" href="#__codelineno-24-42"></a>                <span class="p">}</span>
+</span><span id="__span-24-43"><a id="__codelineno-24-43" name="__codelineno-24-43" href="#__codelineno-24-43"></a>            <span class="p">},</span>
+</span><span id="__span-24-44"><a id="__codelineno-24-44" name="__codelineno-24-44" href="#__codelineno-24-44"></a>            <span class="s2">&quot;text_generation_with_mistral-large-2402&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-45"><a id="__codelineno-24-45" name="__codelineno-24-45" href="#__codelineno-24-45"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-46"><a id="__codelineno-24-46" name="__codelineno-24-46" href="#__codelineno-24-46"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-47"><a id="__codelineno-24-47" name="__codelineno-24-47" href="#__codelineno-24-47"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-24-48"><a id="__codelineno-24-48" name="__codelineno-24-48" href="#__codelineno-24-48"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-24-49"><a id="__codelineno-24-49" name="__codelineno-24-49" href="#__codelineno-24-49"></a>                    <span class="p">}</span>
+</span><span id="__span-24-50"><a id="__codelineno-24-50" name="__codelineno-24-50" href="#__codelineno-24-50"></a>                <span class="p">}</span>
+</span><span id="__span-24-51"><a id="__codelineno-24-51" name="__codelineno-24-51" href="#__codelineno-24-51"></a>            <span class="p">},</span>
+</span><span id="__span-24-52"><a id="__codelineno-24-52" name="__codelineno-24-52" href="#__codelineno-24-52"></a>            <span class="s2">&quot;text_generation_with_gemini-1.0-pro&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-53"><a id="__codelineno-24-53" name="__codelineno-24-53" href="#__codelineno-24-53"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-54"><a id="__codelineno-24-54" name="__codelineno-24-54" href="#__codelineno-24-54"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-24-55"><a id="__codelineno-24-55" name="__codelineno-24-55" href="#__codelineno-24-55"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-24-56"><a id="__codelineno-24-56" name="__codelineno-24-56" href="#__codelineno-24-56"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-24-57"><a id="__codelineno-24-57" name="__codelineno-24-57" href="#__codelineno-24-57"></a>                    <span class="p">}</span>
+</span><span id="__span-24-58"><a id="__codelineno-24-58" name="__codelineno-24-58" href="#__codelineno-24-58"></a>                <span class="p">}</span>
+</span><span id="__span-24-59"><a id="__codelineno-24-59" name="__codelineno-24-59" href="#__codelineno-24-59"></a>            <span class="p">},</span>
+</span><span id="__span-24-60"><a id="__codelineno-24-60" name="__codelineno-24-60" href="#__codelineno-24-60"></a>        <span class="p">},</span>
+</span><span id="__span-24-61"><a id="__codelineno-24-61" name="__codelineno-24-61" href="#__codelineno-24-61"></a>    <span class="p">)</span>
+</span><span id="__span-24-62"><a id="__codelineno-24-62" name="__codelineno-24-62" href="#__codelineno-24-62"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span>
+</span><span id="__span-24-63"><a id="__codelineno-24-63" name="__codelineno-24-63" href="#__codelineno-24-63"></a>        <span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini-with-generations&quot;</span>
+</span><span id="__span-24-64"><a id="__codelineno-24-64" name="__codelineno-24-64" href="#__codelineno-24-64"></a>    <span class="p">)</span>
 </span></code></pre></div>
 </details>
 
