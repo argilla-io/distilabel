@@ -248,8 +248,6 @@ class LoadDataFromHub(GeneratorStep):
         try:
             return get_dataset_infos(self.repo_id)
         except Exception as e:
-            # The previous could fail in case of a internet connection issues.
-            # Assuming the dataset is already loaded and we can get the info from the loaded dataset, otherwise it will fail anyway.
             warnings.warn(
                 f"Failed to get dataset info from Hugging Face Hub, trying to get it loading the dataset. Error: {e}",
                 UserWarning,
