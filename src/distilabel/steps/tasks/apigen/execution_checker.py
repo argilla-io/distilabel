@@ -94,7 +94,7 @@ class APIGenExecutionChecker(Step):
                     _output.append(
                         {
                             "keep": False,
-                            "reason": f"Function '{function_name}' not found.",
+                            "execution_results": f"Function '{function_name}' not found.",
                         }
                     )
                 else:
@@ -102,7 +102,7 @@ class APIGenExecutionChecker(Step):
                     _output.append(
                         {
                             "keep": execution["keep"],
-                            "reason": execution["error"],
+                            "execution_results": execution["execution_results"],
                         }
                     )
             # We only consider a good response if all the answers were executed successfully, but keep the reasons
@@ -112,7 +112,7 @@ class APIGenExecutionChecker(Step):
                     "keep_row_after_execution_check": all(
                         o["keep"] is True for o in _output
                     ),
-                    "reason": [o["reason"] for o in _output],
+                    "execution_results": [o["execution_results"] for o in _output],
                 }
             )
         yield outputs

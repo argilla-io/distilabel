@@ -18,14 +18,9 @@ from typing import Any, Dict
 
 import pytest
 
-from distilabel.steps.tasks.apigen.execution_checker import (
-    APIGenExecutionChecker,
-)
+from distilabel.steps.tasks.apigen.execution_checker import APIGenExecutionChecker
 
 SAMPLE_LIB = Path(__file__).parent / "_sample_module.py"
-
-
-# TODO: THE APIGenGenerator is generating an extra nested list?
 
 
 class TestAPIGenExecutionChecker:
@@ -39,7 +34,7 @@ class TestAPIGenExecutionChecker:
                         [
                             {
                                 "arguments": {
-                                    "initial_velocity": 0.01,
+                                    "initial_velocity": 0.2,
                                     "acceleration": 0.1,
                                     "time": 0.5,
                                 },
@@ -48,7 +43,12 @@ class TestAPIGenExecutionChecker:
                         ]
                     ),
                 },
-                [{"keep_row_after_execution_check": True, "reason": [None]}],
+                [
+                    {
+                        "keep_row_after_execution_check": True,
+                        "execution_results": ["0.25"],
+                    }
+                ],
             ),
             (
                 {
@@ -57,7 +57,7 @@ class TestAPIGenExecutionChecker:
                         [
                             {
                                 "arguments": {
-                                    "initial_velocity": 0.01,
+                                    "initial_velocity": 0.2,
                                     "acceleration": 0.1,
                                     "time": 0.5,
                                 },
@@ -65,7 +65,7 @@ class TestAPIGenExecutionChecker:
                             },
                             {
                                 "arguments": {
-                                    "initial_velocity": 0.01,
+                                    "initial_velocity": 0.2,
                                     "acceleration": 0.1,
                                     "time": 0.5,
                                 },
@@ -74,7 +74,12 @@ class TestAPIGenExecutionChecker:
                         ]
                     ),
                 },
-                [{"keep_row_after_execution_check": True, "reason": [None, None]}],
+                [
+                    {
+                        "keep_row_after_execution_check": True,
+                        "execution_results": ["0.25", "0.25"],
+                    }
+                ],
             ),
             (
                 {
@@ -83,7 +88,7 @@ class TestAPIGenExecutionChecker:
                         [
                             {
                                 "arguments": {
-                                    "initial_velocity": 0.01,
+                                    "initial_velocity": 0.2,
                                     "acceleration": 0.1,
                                     "time": 0.5,
                                 },
@@ -95,7 +100,7 @@ class TestAPIGenExecutionChecker:
                 [
                     {
                         "keep_row_after_execution_check": False,
-                        "reason": ["Function 'unknown_function' not found."],
+                        "execution_results": ["Function 'unknown_function' not found."],
                     }
                 ],
             ),
@@ -106,7 +111,7 @@ class TestAPIGenExecutionChecker:
                         [
                             {
                                 "arguments": {
-                                    "initial_velocity": 0.01,
+                                    "initial_velocity": 0.2,
                                     "acceleration": 0.1,
                                     "time": 0.5,
                                 },
@@ -114,7 +119,7 @@ class TestAPIGenExecutionChecker:
                             },
                             {
                                 "arguments": {
-                                    "initial_velocity": 0.01,
+                                    "initial_velocity": 0.2,
                                     "acceleration": 0.1,
                                 },
                                 "name": "final_velocity",
@@ -125,8 +130,8 @@ class TestAPIGenExecutionChecker:
                 [
                     {
                         "keep_row_after_execution_check": False,
-                        "reason": [
-                            None,
+                        "execution_results": [
+                            "0.25",
                             "final_velocity() missing 1 required positional argument: 'time'",
                         ],
                     }

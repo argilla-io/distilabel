@@ -47,6 +47,12 @@ class APIGenSemanticChecker(Task):
     verifiable and diverse function-calling datasets. The task generates a set of diverse queries
     and corresponding answers for the given functions in JSON format.
 
+    Attributes:
+        - system_prompt: System prompt for the task. Has a default one.
+        - exclude_failed_execution: Whether to exclude failed executions (won't run on those
+            rows that have a False in `keep_row_after_execution_check` column, which
+            comes from running `APIGenExecutionChecker`). Defaults to True.
+
     Input columns:
         - func_desc (`str`): Description of what the function should do.
         - query (`str`): Instruction from the user.
@@ -58,7 +64,7 @@ class APIGenSemanticChecker(Task):
         - passes (`str`): "yes" or "no".
 
     Categories:
-        - llm
+        - filtering
         - text-generation
 
     References:
@@ -162,6 +168,7 @@ class APIGenSemanticChecker(Task):
 
     system_prompt: str = SYSTEM_PROMPT_SEMANTIC_CHECKER
     use_default_structured_output: bool = False
+    exclude_failed_execution: bool = True
 
     _format_inst: Union[str, None] = PrivateAttr(None)
 
@@ -204,9 +211,10 @@ class APIGenSemanticChecker(Task):
         """The inputs for the task."""
         return {
             "func_desc": True,
-            "query": True,
+            "queries": True,
             "func_call": True,
             "execution_result": True,
+            "keep_row_after_execution_check": False,
         }
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
@@ -228,7 +236,7 @@ class APIGenSemanticChecker(Task):
     @property
     def outputs(self) -> "StepColumns":
         """The output for the task are the queries and corresponding answers."""
-        return ["thought", "passes"]
+        return ["thought", "keep_row_after_semantic_check"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -249,12 +257,17 @@ class APIGenSemanticChecker(Task):
             value is the corresponding value.
         """
         if output is None:
-            return {"thought": None, "passes": None}
+            return {"thought": None, "keep_row_after_semantic_check": None}
 
         try:
-            return orjson.loads(output)
+            result = orjson.loads(output)
+            # Update the column name and change to bool
+            result["keep_row_after_semantic_check"] = (
+                result.get("thought").lower() == "yes"
+            )
+            return result
         except orjson.JSONDecodeError:
-            return {"thought": None, "passes": None}
+            return {"thought": None, "keep_row_after_semantic_check": None}
 
     @override
     def get_structured_output(self) -> Dict[str, Any]:

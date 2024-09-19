@@ -29,20 +29,20 @@ from distilabel.steps.tasks.apigen.utils import (
         (
             "final_velocity",
             {"initial_velocity": 10, "acceleration": 5, "time": 2},
-            {"error": None, "keep": True},
+            {"execution_results": "20", "keep": True},
         ),
         (
             "final_velocity",
             {"initial_velocity": 10, "acceleration": 5},
             {
-                "error": "final_velocity() missing 1 required positional argument: 'time'",
+                "execution_results": "final_velocity() missing 1 required positional argument: 'time'",
                 "keep": False,
             },
         ),
         (
             "unknwown_function",
             {"initial_velocity": 10, "acceleration": 5, "time": 2},
-            {"error": "'NoneType' object is not callable", "keep": False},
+            {"execution_results": "'NoneType' object is not callable", "keep": False},
         ),
     ],
 )

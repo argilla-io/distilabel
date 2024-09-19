@@ -15,8 +15,8 @@
 from typing import Any, Dict
 
 import pytest
-from distilabel.steps.tasks.apigen.semantic_checker import APIGenSemanticChecker
 
+from distilabel.steps.tasks.apigen.semantic_checker import APIGenSemanticChecker
 from tests.unit.conftest import DummySyncLLM
 
 SAMPLE_DATA = [
@@ -76,11 +76,11 @@ class TestAPIGenSemanticChecker:
         "result, expected",
         [
             (
-                '{"thought": "thought", "passes": "no"}',
-                {"thought": "thought", "passes": "no"},
+                '{"thought": "thought", "keep_row_after_semantic_check": "no"}',
+                {"thought": "thought", "keep_row_after_semantic_check": False},
             ),
-            (None, {"thought": None, "passes": None}),
-            ("wrong", {"thought": None, "passes": None}),
+            (None, {"thought": None, "keep_row_after_semantic_check": None}),
+            ("wrong", {"thought": None, "keep_row_after_semantic_check": None}),
         ],
     )
     def test_format_output(self, result: str, expected: Dict[str, Any]) -> None:

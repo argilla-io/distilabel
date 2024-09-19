@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import importlib.util
-from typing import TYPE_CHECKING, Any, Callable, Dict, TypedDict, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, TypedDict
 
 from distilabel.steps.base import Step, StepInput
 
@@ -116,7 +116,7 @@ def load_module_from_path(path: str) -> "ModuleType":
 
 class FunctionResult(TypedDict):
     keep: bool
-    error: Union[None, str]
+    execution_results: str
 
 
 def execute_from_response(
@@ -132,7 +132,7 @@ def execute_from_response(
         Whathever the function returns.
     """
     try:
-        function(*call_answer.values())
-        return FunctionResult(keep=True, error=None)
+        result = function(*call_answer.values())
+        return FunctionResult(keep=True, execution_results=str(result))
     except Exception as e:
-        return FunctionResult(keep=False, error=str(e))
+        return FunctionResult(keep=False, execution_results=str(e))
