@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import sys
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
+import orjson as json
 from jinja2 import Template
 from pydantic import BaseModel, Field, PrivateAttr
 from typing_extensions import override
@@ -26,7 +26,6 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
-from distilabel.steps.typing import StepOutput
 
 if sys.version_info < (3, 9):
     import importlib_resources
@@ -34,13 +33,7 @@ else:
     import importlib.resources as importlib_resources
 
 if TYPE_CHECKING:
-    from argilla import (
-        LabelQuestion,
-        MultiLabelQuestion,
-        RatingQuestion,
-        SpanQuestion,
-        TextQuestion,
-    )
+    from argilla import Record
 
     from distilabel.steps.typing import StepOutput
 
@@ -105,55 +98,83 @@ class ArgillaLabeller(Task):
     def inputs(self) -> List[str]:
         return ["records"]
 
+    @property
+    def optional_inputs(self) -> List[str]:
+        return ["example_records"]
+
+    def _format_record(self, record: "Record") -> str:
+        output = []
+        for field in self.fields:
+            title = self.settings.fields[field].title
+            if title:
+                output.append(f"title: {title}")
+            description = self.settings.fields[field].description
+            if description:
+                output.append(f"description: {description}")
+            output.append(record.fields.get(field))
+        return "\n".join(output)
+
+    def _format_question(self) -> str:
+        question = self.settings.questions[self.question]
+        output = []
+        output.append(f"title: {question.title}")
+        output.append(f"description: {question.description}")
+        output.append(f"label_instruction: {self.label_instruction}")
+        if hasattr(question, "labels"):
+            output.append(f"labels: {question.labels}")
+        if hasattr(question, "allow_overlapping"):
+            output.append(f"allow_overlapping: {question.allow_overlapping}")
+        return "\n".join(output)
+
+    def _format_example_records(self, records: List["Record"]) -> List[Dict[str, Any]]:
+        base = []
+        for record in records:
+            if record.responses:
+                base.append(self.format_record(record))
+                base.append(
+                    self._assign_value_to_question_value_model(record.responses[0])
+                )
+        return "\n".join(base)
+
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         record = input[self.inputs[0]]
-        field_data = [
-            {
-                "title": self.settings.fields[field].title,
-                "description": self.settings.fields[field].description,
-                "value": record.fields.get(field),
-            }
-            for field in self.fields
-            if record.fields.get(field) is not None
-        ]
+        fields = self._format_record(record)
+        question = self._format_question()
 
-        question_instance = self.settings.questions[self.question]
-        question_data = {
-            "title": question_instance.title,
-            "description": question_instance.description,
-        }
-        if hasattr(question_instance, "labels"):
-            question_data["labels"] = question_instance.labels
-        if hasattr(question_instance, "allow_overlapping"):
-            question_data["allow_overlapping"] = question_instance.allow_overlapping
+        examples = (
+            self._format_example_records(input[self.optional_inputs[0]])
+            if self.optional_inputs[0] in input
+            else False
+        )
 
         prompt = self._template.render(
-            fields=field_data,
-            question=question_data,
-            label_instruction=self.label_instruction,
+            fields=fields,
+            question=question,
+            examples=examples,
         )
-        return [
-            {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": prompt},
-        ]
 
-    @property
-    def schema(self) -> BaseModel:
-        return self._get_question_value_model(self.settings.questions[self.question])
+        messages = []
+        if self.system_prompt:
+            messages.append({"role": "system", "content": self.system_prompt})
+        messages.append({"role": "user", "content": prompt})
+        return messages
 
     @property
     def outputs(self) -> List[str]:
-        return ["suggestion"]
+        return ["suggestions"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
         from argilla import SpanQuestion, Suggestion
 
-        output = self.schema(**json.loads(output))
-        value = self._get_value_from_question_value_model(output)
+        model = self._get_pydantic_model_of_structured_output()
+        validated_output = model(**json.loads(output))
+        value = self._get_value_from_question_value_model(validated_output)
         if isinstance(self.settings.questions[self.question], SpanQuestion):
-            value = self._resolve_spans(value, input["records"].fields[self.fields[0]])
+            value = self._resolve_spans(
+                value, input[self.inputs[0]].fields[self.fields[0]]
+            )
         suggestion = Suggestion(
             value=value,
             question_name=self.question,
@@ -181,7 +202,10 @@ class ArgillaLabeller(Task):
         runtime_parameters.update(
             {
                 "generation_kwargs": generation_kwargs,
-                "structured_output": {"format": "json", "schema": self.schema},
+                "structured_output": {
+                    "format": "json",
+                    "schema": self._get_pydantic_model_of_structured_output(),
+                },
             }
         )
         self.llm.set_runtime_parameters(runtime_parameters)
@@ -215,16 +239,26 @@ class ArgillaLabeller(Task):
                 return getattr(question_value_model, attr)
         raise ValueError(f"Unsupported question type: {question_value_model}")
 
-    def _get_question_value_model(
-        self,
-        question: Union[
-            "LabelQuestion",
-            "MultiLabelQuestion",
-            "SpanQuestion",
-            "RatingQuestion",
-            "TextQuestion",
-        ],
-    ) -> BaseModel:
+    def _assign_value_to_question_value_model(self, value: Any) -> BaseModel:
+        question_value_model = self._get_pydantic_model_of_structured_output()
+        for attr in ["label", "labels", "spans", "rating", "text"]:
+            if hasattr(question_value_model, attr):
+                setattr(question_value_model, attr, value)
+                return question_value_model
+        raise ValueError(f"Unsupported question type: {question_value_model}")
+
+    @override
+    def get_structured_output(self) -> Dict[str, Any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        model = self._get_pydantic_model_of_structured_output()
+        return model.model_json_schema()
+
+    def _get_pydantic_model_of_structured_output(self) -> BaseModel:
         from argilla import (
             LabelQuestion,
             MultiLabelQuestion,
@@ -233,51 +267,35 @@ class ArgillaLabeller(Task):
             TextQuestion,
         )
 
+        question = self.settings.questions[self.question]
         if isinstance(question, SpanQuestion):
 
             class Span(BaseModel):
-                exact_text: str = Field(
-                    description="The exact text to be selected from the input field value."
-                )
-                label: str = Field(
-                    description="The label to be assigned to the selected text."
-                )
+                exact_text: str
+                label: str
 
             class QuestionValueModel(BaseModel):
-                spans: List[Span] = Field(
-                    default_factory=list,
-                    description="The extracted spans from the input field value and their labels.",
-                )
+                spans: Optional[List[Span]] = Field(default_factory=list)
 
         elif isinstance(question, MultiLabelQuestion):
 
             class QuestionValueModel(BaseModel):
-                labels: Optional[List[str]] = Field(
-                    default_factory=list,
-                    description="The labels to be selected from the list of provided labels.",
-                )
+                labels: Optional[List[str]] = Field(default_factory=list)
 
         elif isinstance(question, LabelQuestion):
 
             class QuestionValueModel(BaseModel):
-                label: str = Field(
-                    description="The label to be selected from the list of provided labels."
-                )
+                label: str
 
         elif isinstance(question, TextQuestion):
 
             class QuestionValueModel(BaseModel):
-                text: str = Field(
-                    description="The text to be used to answer the question."
-                )
+                text: str
 
         elif isinstance(question, RatingQuestion):
 
             class QuestionValueModel(BaseModel):
-                rating: int = Field(
-                    description="The rating to be provided for the question."
-                )
-
+                rating: int
         else:
             raise ValueError(f"Unsupported question type: {question}")
 
