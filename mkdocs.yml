@@ -212,6 +212,7 @@ nav:
           - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
           - Structured generation with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"
           - Structured generation with instructor: "sections/pipeline_samples/examples/mistralai_with_instructor.md"
+          - Synthesize a social network with FinePersonas: "sections/pipeline_samples/examples/fine_personas_social_network.md"
   - API Reference:
       - Step:
           - "api/step/index.md"
