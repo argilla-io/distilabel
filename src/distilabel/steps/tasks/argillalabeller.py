@@ -299,8 +299,8 @@ class ArgillaLabeller(Task):
                 "Temperature is handled by ArgillaLabeler internally. Setting temperature to 0.",
                 stacklevel=2,
             )
-
-        generation_kwargs.update({"temperature": 0, "max_new_tokens": 4000})
+        # Set temperature to a value extremely close to zero
+        generation_kwargs.update({"temperature": 1e-10, "max_new_tokens": 4000})
         runtime_parameters.update(
             {
                 "generation_kwargs": generation_kwargs,
