@@ -3586,9 +3586,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#intromotivation" class="md-nav__link">
+  <a href="#introduction" class="md-nav__link">
     <span class="md-ellipsis">
-      Intro/Motivation
+      Introduction
     </span>
   </a>
   
@@ -3604,9 +3604,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#preparing-the-data" class="md-nav__link">
+  <a href="#data-preparation" class="md-nav__link">
     <span class="md-ellipsis">
-      Preparing the data
+      Data preparation
     </span>
   </a>
   
@@ -3622,9 +3622,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pipeline-and-final-dataset" class="md-nav__link">
+  <a href="#building-our-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
-      Pipeline and final dataset
+      Building our Pipeline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#script-and-final-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Script and final dataset
     </span>
   </a>
   
@@ -4686,9 +4695,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#intromotivation" class="md-nav__link">
+  <a href="#introduction" class="md-nav__link">
     <span class="md-ellipsis">
-      Intro/Motivation
+      Introduction
     </span>
   </a>
   
@@ -4704,9 +4713,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#preparing-the-data" class="md-nav__link">
+  <a href="#data-preparation" class="md-nav__link">
     <span class="md-ellipsis">
-      Preparing the data
+      Data preparation
     </span>
   </a>
   
@@ -4722,9 +4731,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pipeline-and-final-dataset" class="md-nav__link">
+  <a href="#building-our-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
-      Pipeline and final dataset
+      Building our Pipeline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#script-and-final-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Script and final dataset
     </span>
   </a>
   
@@ -4754,10 +4772,14 @@
 
 
 <h1 id="synthesize-a-social-network-with-finepersonas">Synthesize a social network with FinePersonas<a class="headerlink" href="#synthesize-a-social-network-with-finepersonas" title="Permanent link">&para;</a></h1>
-<p>This example will show how we can create social network interactions from FinePersonas, and fine tune different loras <a href="https://huggingface.co/blog/multi-lora-serving">MULTILORA</a> to have concrete traits. <a href="https://x.com/michaelsayman">SocialAI posts from author</a></p>
-<h2 id="intromotivation">Intro/Motivation<a class="headerlink" href="#intromotivation" title="Permanent link">&para;</a></h2>
+<p>In this example, we'll explore the creation of specialized user personas for social network interactions using the <a href="https://huggingface.co/datasets/argilla/FinePersonas-v0.1">FinePersonas-v0.1</a> dataset from Hugging Face. The final dataset will be ready to fine-tune a chat model with specific traits and characteristics.</p>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>We'll delve into the process of fine-tuning different LoRA (Low-Rank Adaptation) models to imbue these personas with specific traits and characteristics.</p>
+<p>This approach draws inspiration from Michael Sayman's work on <a href="https://apps.apple.com/us/app/socialai-ai-social-network/id6670229993">SocialAI</a> (visit the <a href="https://x.com/michaelsayman">profile</a> to see some examples), to leverage <a href="https://huggingface.co/datasets/argilla/FinePersonas-v0.1">FinePersonas-v0.1</a> for building models that can emulate bots with specific behaviour.</p>
+<p>By fine-tuning these adapters, we can potentially create AI personas with distinct characteristics, communication styles, and areas of expertise. The result? AI interactions that feel more natural and tailored to specific contexts or user needs. For those interested in the technical aspects of this approach, we recommend the insightful blog post on <a href="https://huggingface.co/blog/multi-lora-serving">Multi-LoRA serving</a>. It provides a clear and comprehensive explanation of the technology behind this innovative method.</p>
+<p>Let's jump to the demo.</p>
 <h2 id="creating-our-socialai-task">Creating our SocialAI Task<a class="headerlink" href="#creating-our-socialai-task" title="Permanent link">&para;</a></h2>
-<p>Building on the new <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> is easier than ever to create some custom task to generate text.</p>
+<p>Building on the new <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a>, creating custom tasks is easier than ever before. This powerful tool opens up a world of possibilities for creating tailored text-based content with ease and precision. We will create a <code>SocialAI</code> task that will be in charge of generating responses to user interactions, taking into account a given <code>follower_type</code>, and use the perspective from a given <code>persona</code>:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">class</span> <span class="nc">SocialAI</span><span class="p">(</span><span class="n">TextGeneration</span><span class="p">):</span>
@@ -4767,9 +4789,9 @@
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="s2">&quot;You must answer as if you were a &#39;</span><span class="si">{follower_type}</span><span class="s2">&#39;, be concise answer with no more than 200 characters, nothing else.&quot;</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="s2">&quot;Here are some traits to use for your personality:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="s2">&quot;</span><span class="si">{traits}</span><span class="s2">&quot;</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="p">)</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">template</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;You are the folowing persona:</span><span class="se">\n\n</span><span class="s2">{{ persona }}</span><span class="se">\n\n</span><span class="s2">What would you say to the following?</span><span class="se">\n\n</span><span class="s2"> {{ post }}&quot;</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;persona&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">]</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="p">)</span>  <span class="c1"># (1)</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">template</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;You are the folowing persona:</span><span class="se">\n\n</span><span class="s2">{{ persona }}</span><span class="se">\n\n</span><span class="s2">What would you say to the following?</span><span class="se">\n\n</span><span class="s2"> {{ post }}&quot;</span>  <span class="c1"># (2)</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;persona&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">]</span>  <span class="c1"># (3)</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">_follower_traits</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="s2">&quot;supporter&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -4800,11 +4822,25 @@
 </span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">system_prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
 </span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>            <span class="n">follower_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">follower_type</span><span class="p">,</span>
 </span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>            <span class="n">traits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_follower_traits</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">follower_type</span><span class="p">]</span>
-</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>        <span class="p">)</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>        <span class="p">)</span>  <span class="c1"># (4)</span>
 </span></code></pre></div>
-<h2 id="preparing-the-data">Preparing the data<a class="headerlink" href="#preparing-the-data" title="Permanent link">&para;</a></h2>
-<p>This is an example, so let's keep it short. We will use 3 posts, and 3 different types of personas. We could improve this by randomly selecting personas, or select them by their semantic similarity, but let's do it the direct way:</p>
-<p>For each post, we will have an LLM answering it as if it was impersonating a given <code>persona</code>, 9 post-persona examples in total.</p>
+<ol>
+<li>
+<p>We have a custom system prompt that will depend on the <code>follower_type</code> we decide for our model.</p>
+</li>
+<li>
+<p>The base template or prompt will answert to the <code>post</code> we have, from the point of view of a <code>persona</code>.</p>
+</li>
+<li>
+<p>We will need our dataset to have both <code>persona</code> and <code>post</code> columns to populate the prompt.</p>
+</li>
+<li>
+<p>In the load method we place the specific traits for our follower type in the system prompt.</p>
+</li>
+</ol>
+<h2 id="data-preparation">Data preparation<a class="headerlink" href="#data-preparation" title="Permanent link">&para;</a></h2>
+<p>This is an example, so let's keep it short. We will use 3 posts, and 3 different types of personas. While there's potential to enhance this process (perhaps by implementing random persona selection or leveraging semantic similarity) we'll opt for a straightforward method in this demonstration.</p>
+<p>Our goal is to create a set of nine examples, each pairing a post with a persona. To achieve this, we'll employ an LLM to respond to each post from the perspective of a specific <code>persona</code>, effectively simulating how different characters might engage with the content.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">posts</span> <span class="o">=</span> <span class="p">[</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="p">{</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="s2">&quot;Hmm, ok now I&#39;m torn: should I go for healthy chicken tacos or unhealthy beef tacos for late night cravings?&quot;</span>
@@ -4830,7 +4866,7 @@
 </span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="k">for</span> <span class="n">persona</span> <span class="ow">in</span> <span class="n">personas</span><span class="p">:</span>
 </span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="n">post</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">],</span> <span class="s2">&quot;persona&quot;</span><span class="p">:</span> <span class="n">persona</span><span class="p">[</span><span class="s2">&quot;persona&quot;</span><span class="p">]})</span>
 </span></code></pre></div>
-<p>Let's see an example:</p>
+<p>Each row in will have the following format:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span> <span class="nn">json</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">{</span>
@@ -4838,11 +4874,12 @@
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="s2">&quot;persona&quot;</span><span class="p">:</span> <span class="s2">&quot;A high school or college environmental science teacher or an ecology student specializing in biogeography and ecosystem dynamics.&quot;</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>This will be our dataset, that we can ingest using the [<code>LoadDataFromDicts</code>][distilabel.steps.generators.LoadDataFromDicts]:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">loader</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<p>This will be our dataset, that we can ingest using the <a href="https://distilabel.argilla.io/dev/components-gallery/steps/loaddatafromdicts/"><code>LoadDataFromDicts</code></a>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">loader</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="simulating-from-different-types-of-followers">Simulating from different types of followers<a class="headerlink" href="#simulating-from-different-types-of-followers" title="Permanent link">&para;</a></h2>
-<p>Now that we have our data, let's see how to use our <code>SocialAI</code> task. We will use <code>meta-llama/Meta-Llama-3.1-70B-Instruct</code> as that's kind of a default lately, but it would be better to explore different types of models:</p>
+<p>With our data in hand, we're ready to explore the capabilities of our SocialAI task. For this demonstration, we'll make use of of <code>meta-llama/Meta-Llama-3.1-70B-Instruct</code>
+While this model has become something of a go-to choice recently, it's worth noting that experimenting with a variety of models could yield even more interesting results:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
@@ -4860,10 +4897,9 @@
 </span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">follower_type</span><span class="si">}</span><span class="s2">_user&quot;</span><span class="p">,</span>
 </span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>In the example we see that we only need to feed the follower type, and it will take care of the rest for us. We could update this too to have a random type of follower by default, and simulate from a bunch of different personalities.</p>
-<h2 id="pipeline-and-final-dataset">Pipeline and final dataset<a class="headerlink" href="#pipeline-and-final-dataset" title="Permanent link">&para;</a></h2>
-<p>TODO: Use this example, add hints</p>
-<p>We have all the pieces to build our pipeline.</p>
+<p>This setup simplifies the process, we only need to input the follower type, and the system handles the rest. We could update this too to have a random type of follower by default, and simulate from a bunch of different personalities.</p>
+<h2 id="building-our-pipeline">Building our Pipeline<a class="headerlink" href="#building-our-pipeline" title="Permanent link">&para;</a></h2>
+<p>The foundation of our pipeline is now in place. At its core is a single, powerful LLM. This versatile model will be repurposed to drive three distinct <code>SocialAI</code> Tasks, each tailored to a specific <code>TextGeneration</code> task, and each one of them will be prepared for Supervised Fine Tuning using <a href="https://distilabel.argilla.io/dev/components-gallery/steps/formattextgenerationsft/"><code>FormatTextGenerationSFT</code></a>:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Social AI Personas&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">loader</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
@@ -4894,9 +4930,22 @@
 </span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>        <span class="n">loader</span> <span class="o">&gt;&gt;</span> <span class="n">follower</span> <span class="o">&gt;&gt;</span> <span class="n">format_sft</span>  <span class="c1"># (4)</span>
 </span></code></pre></div>
 <ol>
-<li>We let </li>
+<li>
+<p>We update the name of the step to keep track in the pipeline.</p>
+</li>
+<li>
+<p>The <code>generation</code> column from each LLM will be mapped to avoid them being overriden, as we are reusing the same task.</p>
+</li>
+<li>
+<p>As we have modified the output column from <code>SocialAI</code>, we redirect each one of the "follower_type" responses.</p>
+</li>
+<li>
+<p>Connect the loader to each one of the follower tasks and <code>format_sft</code> to obtain 3 different subsets.</p>
+</li>
 </ol>
-<p>All the pieces are in place for our script, the full pipeline can be seen here for reproducibility:</p>
+<p>The outcome of this pipeline will be three specialized models, each fine-tuned to a unique <code>follower type</code> crafted by the <code>SocialAI</code> task. These models will generate SFT-formatted datasets, where each post is paired with its corresponding interaction data for a specific follower type. This setup enables seamless fine-tuning using your preferred framework, such as <a href="https://huggingface.co/docs/trl/index">TRL</a>, or any other training framework of your choice.</p>
+<h2 id="script-and-final-dataset">Script and final dataset<a class="headerlink" href="#script-and-final-dataset" title="Permanent link">&para;</a></h2>
+<p>All the pieces are in place for our script, the full pipeline can be seen here:</p>
 <details class="run">
 <summary>Run</summary>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">finepersonas_social_ai</span><span class="o">.</span><span class="n">py</span>
@@ -5028,6 +5077,19 @@
 </span><span id="__span-7-124"><a id="__codelineno-7-124" name="__codelineno-7-124" href="#__codelineno-7-124"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;plaguss/FinePersonas-SocialAI-test&quot;</span><span class="p">,</span> <span class="n">include_script</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span></code></pre></div>
 <p>This is the final toy dataset we obtain: <a href="https://huggingface.co/datasets/plaguss/FinePersonas-SocialAI-test">FinePersonas-SocialAI-test</a></p>
+<p>You can see examples of how to load each subset of them to fine-tune a model:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;plaguss/FinePersonas-SocialAI-test&quot;</span><span class="p">,</span> <span class="s2">&quot;format_sft_troll&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>And a sample of the generated field with the corresponding <code>post</code> and <code>persona</code>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="nt">&quot;post&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hmm, ok now I\u0027m torn: should I go for healthy chicken tacos or unhealthy beef tacos for late night cravings?&quot;</span><span class="p">,</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="nt">&quot;persona&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A high school or undergraduate physics or chemistry teacher, likely with a focus on experimental instruction.&quot;</span><span class="p">,</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nt">&quot;interaction_troll&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;\&quot;Late night cravings? More like late night brain drain. Either way, it\u0027s just a collision of molecules in your stomach. Choose the one with more calories, at least that\u0027s some decent kinetic energy.\&quot;&quot;</span><span class="p">,</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>There's a lot of room for improvement, but quite a promising start.</p>
 
 
 
