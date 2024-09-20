@@ -897,11 +897,17 @@ class _BatchManager(_Serializable):
         self._steps[step_name].set_next_expected_seq_no(from_step, next_expected_seq_no)
 
     @classmethod
-    def from_dag(cls, dag: "DAG") -> "_BatchManager":
+    def from_dag(
+        cls, dag: "DAG", use_cache: bool = False, steps_data_path: Optional[Path] = None
+    ) -> "_BatchManager":
         """Create a `_BatchManager` instance from a `DAG` instance.
 
         Args:
             dag: The `DAG` instance.
+            use_cache: whether or not to try loading outputs from steps of previous pipelines
+                executions. Defaults to `False`.
+            steps_data_path: The path where the outputs of each `Step` (considering its
+                signature) will be saved for later reuse in another pipelines executions.
 
         Returns:
             A `_BatchManager` instance.
@@ -910,6 +916,7 @@ class _BatchManager(_Serializable):
         last_batch_received = {}
         last_batch_sent = {}
 
+        steps_to_load_data_from_previous_executions = {}
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)[STEP_ATTR_NAME]
             last_batch_received[step.name] = None
@@ -924,7 +931,28 @@ class _BatchManager(_Serializable):
                 predecessors=predecessors,
                 convergence_step=convergence_step,
             )
+
+            if use_cache:
+                step_data_path = steps_data_path / batch_manager_step.signature
+                if step_data_path.exists():
+                    steps_to_load_data_from_previous_executions[step_name] = (
+                        step_data_path
+                    )
+                    # We only want to load the outputs that are directly needed by the added
+                    # steps, so if we need to load the outputs of one step and one of its
+                    # predecessors it's in the list, then we remove it.
+                    for predecessor in predecessors:
+                        if predecessor in steps_to_load_data_from_previous_executions:
+                            del steps_to_load_data_from_previous_executions[predecessor]
+
             steps[step_name] = batch_manager_step
+
+        print(f"{steps_to_load_data_from_previous_executions=}")
+        for step_name in steps_to_load_data_from_previous_executions:
+            print("STEP_NAME", step_name)
+            # TODO: load batches
+            pass
+
         return cls(steps, last_batch_received, last_batch_sent, [])
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:

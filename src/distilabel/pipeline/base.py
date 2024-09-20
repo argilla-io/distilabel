@@ -656,7 +656,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         return {
             "pipeline": pipeline_execution_dir / "pipeline.yaml",
             "batch_manager": pipeline_execution_dir / "batch_manager.json",
-            "steps_data": folder / "steps_data",
+            "steps_data": self._cache_dir / self.name / "steps_data",
             "data": pipeline_execution_dir / "data",
             "batch_input_data": pipeline_execution_dir / "batch_input_data",
             "log_file": pipeline_execution_dir / "pipeline.log",
@@ -777,14 +777,24 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             use_cache: whether the cache should be used or not.
         """
         batch_manager_cache_loc = self._cache_location["batch_manager"]
+
+        # This first condition handles the case in which the pipeline is exactly the same
+        # no steps have been added, removed or changed.
         if use_cache and batch_manager_cache_loc.exists():
             self._logger.info(
                 f"💾 Loading `_BatchManager` from cache: '{batch_manager_cache_loc}'"
             )
             self._batch_manager = _BatchManager.load_from_cache(batch_manager_cache_loc)
             self._invalidate_steps_cache_if_required()
+        # In this other case, the pipeline has been changed. We need to create a new batch
+        # manager and if `use_cache==True` then check which outputs have we computed and
+        # cached for steps that haven't changed but that were executed in another pipeline
         else:
-            self._batch_manager = _BatchManager.from_dag(self.dag)
+            self._batch_manager = _BatchManager.from_dag(
+                dag=self.dag,
+                use_cache=use_cache,
+                steps_data_path=self._cache_location["steps_data"],
+            )
 
     def _invalidate_steps_cache_if_required(self) -> None:
         """Iterates over the steps of the pipeline and invalidates their cache if required."""
