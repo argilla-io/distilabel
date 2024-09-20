@@ -636,6 +636,39 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Extras">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llms" class="md-nav__link">
+    <span class="md-ellipsis">
+      LLMs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data processing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structured-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Structured generation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -4633,6 +4666,39 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Extras">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llms" class="md-nav__link">
+    <span class="md-ellipsis">
+      LLMs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data processing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structured-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Structured generation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -4681,6 +4747,7 @@
 </div>
 <h2 id="extras">Extras<a class="headerlink" href="#extras" title="Permanent link">&para;</a></h2>
 <p>Additionally, as part of <code>distilabel</code> some extra dependencies are available, mainly to add support for some of the LLM integrations we support. Here's a list of the available extras:</p>
+<h3 id="llms">LLMs<a class="headerlink" href="#llms" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>anthropic</code>: for using models available in <a href="https://www.anthropic.com/api">Anthropic API</a> via the <code>AnthropicLLM</code> integration.</p>
@@ -4701,9 +4768,6 @@
 <p><code>hf-transformers</code>: for using models available in <a href="https://github.com/huggingface/transformers">transformers</a> package via the <code>TransformersLLM</code> integration.</p>
 </li>
 <li>
-<p><code>instructor</code>: for using structured generation of LLMs with <a href="https://github.com/jxnl/instructor/">Instructor</a>.</p>
-</li>
-<li>
 <p><code>litellm</code>: for using <a href="https://github.com/BerriAI/litellm"><code>LiteLLM</code></a> to call any LLM using OpenAI format via the <code>LiteLLM</code> integration.</p>
 </li>
 <li>
@@ -4719,12 +4783,6 @@
 <p><code>openai</code>: for using <a href="https://openai.com/blog/openai-api">OpenAI API</a> models via the <code>OpenAILLM</code> integration, or the rest of the integrations based on OpenAI and relying on its client as <code>AnyscaleLLM</code>, <code>AzureOpenAILLM</code>, and <code>TogetherLLM</code>.</p>
 </li>
 <li>
-<p><code>outlines</code>: for using structured generation of LLMs with <a href="https://github.com/outlines-dev/outlines">outlines</a>.</p>
-</li>
-<li>
-<p><code>ray</code>: for scaling and distributing a pipeline with <a href="https://github.com/ray-project/ray">Ray</a>.</p>
-</li>
-<li>
 <p><code>vertexai</code>: for using <a href="https://cloud.google.com/vertex-ai">Google Vertex AI</a> proprietary models via the <code>VertexAILLM</code> integration.</p>
 </li>
 <li>
@@ -4733,8 +4791,29 @@
 <li>
 <p><code>sentence-transformers</code>: for generating sentence embeddings using <a href="https://github.com/UKPLab/sentence-transformers">sentence-transformers</a>.</p>
 </li>
+</ul>
+<h3 id="data-processing">Data processing<a class="headerlink" href="#data-processing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><code>ray</code>: for scaling and distributing a pipeline with <a href="https://github.com/ray-project/ray">Ray</a>.</p>
+</li>
 <li>
 <p><code>faiss-cpu</code> and <code>faiss-gpu</code>: for generating sentence embeddings using <a href="https://github.com/facebookresearch/faiss">faiss</a>.</p>
+</li>
+<li>
+<p><code>minhash</code>: for using minhash for duplicate detection with <a href="https://github.com/datasketch/datasketch">datasketch</a> and <a href="https://github.com/nltk/nltk">nltk</a>.</p>
+</li>
+<li>
+<p><code>text-clustering</code>: for using text clustering with <a href="https://github.com/lmcinnes/umap">UMAP</a> and <a href="https://github.com/scikit-learn/scikit-learn">Scikit-learn</a>.</p>
+</li>
+</ul>
+<h3 id="structured-generation">Structured generation<a class="headerlink" href="#structured-generation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><code>outlines</code>: for using structured generation of LLMs with <a href="https://github.com/outlines-dev/outlines">outlines</a>.</p>
+</li>
+<li>
+<p><code>instructor</code>: for using structured generation of LLMs with <a href="https://github.com/jxnl/instructor/">Instructor</a>.</p>
 </li>
 </ul>
 <h2 id="recommendations-notes">Recommendations / Notes<a class="headerlink" href="#recommendations-notes" title="Permanent link">&para;</a></h2>
