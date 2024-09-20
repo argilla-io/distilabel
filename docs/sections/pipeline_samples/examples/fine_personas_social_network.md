@@ -2,7 +2,7 @@
 hide: toc
 ---
 
-# Synthesize a social network with FinePersonas
+# Create a social network with FinePersonas
 
 In this example, we'll explore the creation of specialized user personas for social network interactions using the [FinePersonas-v0.1](https://huggingface.co/datasets/argilla/FinePersonas-v0.1) dataset from Hugging Face. The final dataset will be ready to fine-tune a chat model with specific traits and characteristics.
 
