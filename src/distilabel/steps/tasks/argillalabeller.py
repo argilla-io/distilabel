@@ -187,15 +187,20 @@ class ArgillaLabeller(Task):
         return "\n".join(output)
 
     def _format_example_records(
-        self, records: List[Dict[str, Any]]
+        self,
+        records: List[Dict[str, Any]],
+        fields: List[Dict[str, Any]],
+        question: Dict[str, Any],
     ) -> List[Dict[str, Any]]:
         base = []
         for record in records:
             if record["responses"]:
-                base.append(self.format_record(record))
-                base.append(
-                    self._assign_value_to_question_value_model(record["responses"][0])
+                base.append(self._format_record(record, fields))
+                value = record["responses"][question["name"]][0]["value"]
+                formatted_value = self._assign_value_to_question_value_model(
+                    value, question
                 )
+                base.append(f"Response: {formatted_value}")
         return "\n".join(base)
 
     def format_input(
@@ -236,13 +241,17 @@ class ArgillaLabeller(Task):
                 for example in examples
             ]
 
-        fields = self._format_record(record, fields)
-        question = self._format_question(question)
-        examples = self._format_example_records(examples) if examples else False
+        formatted_fields = self._format_record(record, fields)
+        formatted_question = self._format_question(question)
+        formatted_examples = (
+            self._format_example_records(examples, fields, question)
+            if examples
+            else False
+        )
         prompt = self._template.render(
-            fields=fields,
-            question=question,
-            examples=examples,
+            fields=formatted_fields,
+            question=formatted_question,
+            examples=formatted_examples,
         )
 
         messages = []
@@ -344,13 +353,20 @@ class ArgillaLabeller(Task):
                 return getattr(question_value_model, attr)
         raise ValueError(f"Unsupported question type: {question_value_model}")
 
-    def _assign_value_to_question_value_model(self, value: Any) -> BaseModel:
-        question_value_model = self._get_pydantic_model_of_structured_output()
+    def _assign_value_to_question_value_model(
+        self, value: Any, question: Dict[str, Any]
+    ) -> BaseModel:
+        question_value_model = self._get_pydantic_model_of_structured_output(question)
         for attr in ["label", "labels", "spans", "rating", "text"]:
-            if hasattr(question_value_model, attr):
-                setattr(question_value_model, attr, value)
-                return question_value_model
-        raise ValueError(f"Unsupported question type: {question_value_model}")
+            try:
+                # Initialize the Pydantic model with the attribute and value
+                model_dict = {attr: value}
+                question_value_model = question_value_model(**model_dict)
+                # If initialization is successful, return the model
+                return question_value_model.model_dump_json()
+            except AttributeError:
+                pass
+        return value
 
     def _get_pydantic_model_of_structured_output(
         self,
