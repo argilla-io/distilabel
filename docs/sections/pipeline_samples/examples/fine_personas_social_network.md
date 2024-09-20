@@ -1,16 +1,24 @@
 ---
 hide: toc
 ---
+
 # Synthesize a social network with FinePersonas
 
-This example will show how we can create social network interactions from FinePersonas, and fine tune different loras [MULTILORA](https://huggingface.co/blog/multi-lora-serving) to have concrete traits. [SocialAI posts from author](https://x.com/michaelsayman)
+In this example, we'll explore the creation of specialized user personas for social network interactions using the [FinePersonas-v0.1](https://huggingface.co/datasets/argilla/FinePersonas-v0.1) dataset from Hugging Face. The final dataset will be ready to fine-tune a chat model with specific traits and characteristics.
 
-## Intro/Motivation
+## Introduction
 
+We'll delve into the process of fine-tuning different LoRA (Low-Rank Adaptation) models to imbue these personas with specific traits and characteristics.
+
+This approach draws inspiration from Michael Sayman's work on [SocialAI](https://apps.apple.com/us/app/socialai-ai-social-network/id6670229993) (visit the [profile](https://x.com/michaelsayman) to see some examples), to leverage [FinePersonas-v0.1](https://huggingface.co/datasets/argilla/FinePersonas-v0.1) for building models that can emulate bots with specific behaviour.
+
+By fine-tuning these adapters, we can potentially create AI personas with distinct characteristics, communication styles, and areas of expertise. The result? AI interactions that feel more natural and tailored to specific contexts or user needs. For those interested in the technical aspects of this approach, we recommend the insightful blog post on [Multi-LoRA serving](https://huggingface.co/blog/multi-lora-serving). It provides a clear and comprehensive explanation of the technology behind this innovative method.
+
+Let's jump to the demo.
 
 ## Creating our SocialAI Task
 
-Building on the new [`TextGeneration`][distilabel.steps.tasks.text_generation.TextGeneration] is easier than ever to create some custom task to generate text.
+Building on the new [`TextGeneration`](https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/), creating custom tasks is easier than ever before. This powerful tool opens up a world of possibilities for creating tailored text-based content with ease and precision. We will create a `SocialAI` task that will be in charge of generating responses to user interactions, taking into account a given `follower_type`, and use the perspective from a given `persona`:
 
 ```python
 from distilabel.steps.tasks import TextGeneration
@@ -22,9 +30,9 @@ class SocialAI(TextGeneration):
         "You must answer as if you were a '{follower_type}', be concise answer with no more than 200 characters, nothing else."
         "Here are some traits to use for your personality:\n\n"
         "{traits}"
-    )
-    template: str = "You are the folowing persona:\n\n{{ persona }}\n\nWhat would you say to the following?\n\n {{ post }}"
-    columns: str | list[str] = ["persona", "post"]
+    )  # (1)
+    template: str = "You are the folowing persona:\n\n{{ persona }}\n\nWhat would you say to the following?\n\n {{ post }}"  # (2)
+    columns: str | list[str] = ["persona", "post"]  # (3)
 
     _follower_traits: dict[str, str] = {
         "supporter": (
@@ -55,15 +63,22 @@ class SocialAI(TextGeneration):
         self.system_prompt = self.system_prompt.format(
             follower_type=self.follower_type,
             traits=self._follower_traits[self.follower_type]
-        )
+        )  # (4)
 ```
 
+1. We have a custom system prompt that will depend on the `follower_type` we decide for our model.
 
-## Preparing the data
+2. The base template or prompt will answert to the `post` we have, from the point of view of a `persona`.
 
-This is an example, so let's keep it short. We will use 3 posts, and 3 different types of personas. We could improve this by randomly selecting personas, or select them by their semantic similarity, but let's do it the direct way:
+3. We will need our dataset to have both `persona` and `post` columns to populate the prompt.
 
-For each post, we will have an LLM answering it as if it was impersonating a given `persona`, 9 post-persona examples in total.
+4. In the load method we place the specific traits for our follower type in the system prompt.
+
+## Data preparation
+
+This is an example, so let's keep it short. We will use 3 posts, and 3 different types of personas. While there's potential to enhance this process (perhaps by implementing random persona selection or leveraging semantic similarity) we'll opt for a straightforward method in this demonstration.
+
+Our goal is to create a set of nine examples, each pairing a post with a persona. To achieve this, we'll employ an LLM to respond to each post from the perspective of a specific `persona`, effectively simulating how different characters might engage with the content.
 
 ```python
 posts = [
@@ -92,7 +107,7 @@ for post in posts:
         data.append({"post": post["post"], "persona": persona["persona"]})
 ```
 
-Let's see an example:
+Each row in will have the following format:
 
 ```python
 import json
@@ -103,15 +118,16 @@ print(json.dumps(data[0], indent=4))
 }
 ```
 
-This will be our dataset, that we can ingest using the [`LoadDataFromDicts`][distilabel.steps.generators.LoadDataFromDicts]:
+This will be our dataset, that we can ingest using the [`LoadDataFromDicts`](https://distilabel.argilla.io/dev/components-gallery/steps/loaddatafromdicts/):
 
 ```python
-loader = LoadDataFromDicts(data=data, batch_size=1)
+loader = LoadDataFromDicts(data=data)
 ```
 
 ## Simulating from different types of followers
 
-Now that we have our data, let's see how to use our `SocialAI` task. We will use `meta-llama/Meta-Llama-3.1-70B-Instruct` as that's kind of a default lately, but it would be better to explore different types of models:
+With our data in hand, we're ready to explore the capabilities of our SocialAI task. For this demonstration, we'll make use of of `meta-llama/Meta-Llama-3.1-70B-Instruct`
+While this model has become something of a go-to choice recently, it's worth noting that experimenting with a variety of models could yield even more interesting results:
 
 ```python
 from distilabel.llms import InferenceEndpointsLLM
@@ -132,13 +148,11 @@ follower = SocialAI(
 )
 ```
 
-In the example we see that we only need to feed the follower type, and it will take care of the rest for us. We could update this too to have a random type of follower by default, and simulate from a bunch of different personalities.
+This setup simplifies the process, we only need to input the follower type, and the system handles the rest. We could update this too to have a random type of follower by default, and simulate from a bunch of different personalities.
 
-## Pipeline and final dataset
+## Building our Pipeline
 
-TODO: Use this example, add hints
-
-We have all the pieces to build our pipeline.
+The foundation of our pipeline is now in place. At its core is a single, powerful LLM. This versatile model will be repurposed to drive three distinct `SocialAI` Tasks, each tailored to a specific `TextGeneration` task, and each one of them will be prepared for Supervised Fine Tuning using [`FormatTextGenerationSFT`](https://distilabel.argilla.io/dev/components-gallery/steps/formattextgenerationsft/):
 
 ```python
 with Pipeline(name="Social AI Personas") as pipeline:
@@ -171,10 +185,19 @@ with Pipeline(name="Social AI Personas") as pipeline:
         loader >> follower >> format_sft  # (4)
 ```
 
-1. We let 
+1. We update the name of the step to keep track in the pipeline.
 
+2. The `generation` column from each LLM will be mapped to avoid them being overriden, as we are reusing the same task.
 
-All the pieces are in place for our script, the full pipeline can be seen here for reproducibility:
+3. As we have modified the output column from `SocialAI`, we redirect each one of the "follower_type" responses.
+
+4. Connect the loader to each one of the follower tasks and `format_sft` to obtain 3 different subsets.
+
+The outcome of this pipeline will be three specialized models, each fine-tuned to a unique `follower type` crafted by the `SocialAI` task. These models will generate SFT-formatted datasets, where each post is paired with its corresponding interaction data for a specific follower type. This setup enables seamless fine-tuning using your preferred framework, such as [TRL](https://huggingface.co/docs/trl/index), or any other training framework of your choice.
+
+## Script and final dataset
+
+All the pieces are in place for our script, the full pipeline can be seen here:
 
 ??? Run
 
@@ -188,3 +211,22 @@ All the pieces are in place for our script, the full pipeline can be seen here f
 
 This is the final toy dataset we obtain: [FinePersonas-SocialAI-test](https://huggingface.co/datasets/plaguss/FinePersonas-SocialAI-test)
 
+You can see examples of how to load each subset of them to fine-tune a model:
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("plaguss/FinePersonas-SocialAI-test", "format_sft_troll")
+```
+
+And a sample of the generated field with the corresponding `post` and `persona`:
+
+```json
+{
+    "post": "Hmm, ok now I\u0027m torn: should I go for healthy chicken tacos or unhealthy beef tacos for late night cravings?",
+    "persona": "A high school or undergraduate physics or chemistry teacher, likely with a focus on experimental instruction.",
+    "interaction_troll": "\"Late night cravings? More like late night brain drain. Either way, it\u0027s just a collision of molecules in your stomach. Choose the one with more calories, at least that\u0027s some decent kinetic energy.\"",
+}
+```
+
+There's a lot of room for improvement, but quite a promising start.
