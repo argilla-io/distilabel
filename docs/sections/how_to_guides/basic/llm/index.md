@@ -1,4 +1,4 @@
-# Define LLMs as local or remote models
+# Executing Tasks with LLMs
 
 ## Working with LLMs
 

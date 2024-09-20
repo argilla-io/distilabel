@@ -312,6 +312,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
         dataset: Optional["InputDataset"] = None,
+        logging_handlers: Optional[List[logging.Handler]] = None,
     ) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
         the pipeline.
@@ -338,6 +339,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             dataset: If given, it will be used to create a `GeneratorStep` and put it as the
                 root step. Convenient method when you have already processed the dataset in
                 your script and just want to pass it already processed. Defaults to `None`.
+            logging_handlers: A list of logging handlers that will be used to log the
+                output of the pipeline. This argument can be useful so the logging messages
+                can be extracted and used in a different context. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -356,7 +360,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             self._add_dataset_generator_step(dataset)
 
         setup_logging(
-            log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
+            log_queue=self._log_queue,
+            filename=str(self._cache_location["log_file"]),
+            logging_handlers=logging_handlers,
         )
 
         # Set the name of the pipeline if it's the default one. This should be called
@@ -1490,7 +1496,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         with self._steps_load_status_lock:
             for step_name, replicas in self._steps_load_status.items():
                 if replicas > 0:
-                    self._send_to_step(step_name, None)
+                    for _ in range(replicas):
+                        self._send_to_step(step_name, None)
 
     def _get_successors(self, batch: "_Batch") -> Tuple[List[str], List[str], bool]:
         """Gets the successors and the successors to which the batch has to be routed.

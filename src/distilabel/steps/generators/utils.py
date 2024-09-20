@@ -32,7 +32,7 @@ def make_generator_step(
     input_mappings: Optional[Dict[str, str]] = None,
     output_mappings: Optional[Dict[str, str]] = None,
     resources: StepResources = StepResources(),
-    repo_id: str = "placeholder",
+    repo_id: Optional[str] = "default_name",
 ) -> "GeneratorStep":
     """Helper method to create a `GeneratorStep` from a dataset, to simplify
 
@@ -46,7 +46,6 @@ def make_generator_step(
         repo_id: The repository ID to use in the `LoadDataFromHub` step.
             This shouldn't be necessary, but in case of error, the dataset will try to be loaded
             using `load_dataset` internally. If that case happens, the `repo_id` will be used.
-            Defaults to `"placeholder"`.
 
     Raises:
         ValueError: If the format is different from the ones supported.

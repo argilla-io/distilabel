@@ -21,6 +21,9 @@ from distilabel.steps.base import (
     StepInput,
     StepResources,
 )
+from distilabel.steps.clustering.dbscan import DBSCAN
+from distilabel.steps.clustering.text_clustering import TextClustering
+from distilabel.steps.clustering.umap import UMAP
 from distilabel.steps.columns.combine import CombineOutputs
 from distilabel.steps.columns.expand import ExpandColumns
 from distilabel.steps.columns.group import CombineColumns, GroupColumns
@@ -67,6 +70,9 @@ __all__ = [
     "GroupColumns",
     "KeepColumns",
     "MergeColumns",
+    "DBSCAN",
+    "UMAP",
+    "TextClustering",
     "step",
     "DeitaFiltering",
     "EmbeddingGeneration",

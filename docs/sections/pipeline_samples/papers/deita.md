@@ -10,6 +10,8 @@ The strategy utilizes **LLMs to replace human effort in time-intensive data qual
 
 You can see that we see again the dataset of instructions/responses and we kind of reproducing the second step when we learn how to optimize the responses according to an instruction by comparing several possibilities.
 
+![DEITA pipeline overview](../../../assets/pipelines/deita.png)
+
 ### Datasets and budget
 
 We will dive deeper into the whole process. We will investigate each stage to efficiently select the final dataset used for supervised fine-tuning with a budget constraint. We will tackle technical challenges by explaining exactly how you would assess good data as presented in the paper.

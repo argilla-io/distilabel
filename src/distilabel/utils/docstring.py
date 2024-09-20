@@ -165,7 +165,8 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
         elif section_name == "examples":
             # Parse examples into a dictionary
             example_items = re.findall(
-                r"(\w[\w\s]*?):\s*\n?\s*```python\n(.*?)\n\s*```",
+                r"""([\w,()'][\w\s,()=`!'"]*?):\s*\n?\s*```python\n(.*?)\n\s*```""",
+                # r"(\w[\w\s]*?):\s*\n?\s*```python\n(.*?)\n\s*```",
                 section_content,
                 re.DOTALL,
             )
