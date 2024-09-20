@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from collections import defaultdict
+from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
@@ -716,9 +717,9 @@ class _BatchManager(_Serializable):
         Args:
             steps: A dictionary with the step name as the key and a dictionary with the
                 predecessor step name as the key and a list of batches as the value.
-            last_batch_received: A dictionary with the step name as the key and a the last
+            last_batch_received: A dictionary with the step name as the key and the last
                 `_Batch` received from the step.
-            last_batch_sent: A dictionary with the step name as the key and a the last
+            last_batch_sent: A dictionary with the step name as the key and the last
                 `_Batch` sent to the step.
             last_batch_flag_sent_to: A list with the names of the steps to which `LAST_BATCH_SENT_FLAG`
                 was sent.
@@ -897,7 +898,7 @@ class _BatchManager(_Serializable):
         self._steps[step_name].set_next_expected_seq_no(from_step, next_expected_seq_no)
 
     @classmethod
-    def from_dag(
+    def from_dag(  # noqa: C901
         cls, dag: "DAG", use_cache: bool = False, steps_data_path: Optional[Path] = None
     ) -> "_BatchManager":
         """Create a `_BatchManager` instance from a `DAG` instance.
@@ -915,8 +916,10 @@ class _BatchManager(_Serializable):
         steps = {}
         last_batch_received = {}
         last_batch_sent = {}
+        last_batch_flag_sent_to = []
 
-        steps_to_load_data_from_previous_executions = {}
+        load_batches = {}
+        steps_to_load_data_from_previous_executions: Dict[str, Union[Path, None]] = {}
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)[STEP_ATTR_NAME]
             last_batch_received[step.name] = None
@@ -932,7 +935,12 @@ class _BatchManager(_Serializable):
                 convergence_step=convergence_step,
             )
 
-            if use_cache:
+            all_step_precessors_use_cache = all(
+                dag.get_step(step_name)[STEP_ATTR_NAME].use_cache
+                for step_name in predecessors
+            )
+            print(step_name, f"{all_step_precessors_use_cache=}")
+            if use_cache and step.use_cache and all_step_precessors_use_cache:
                 step_data_path = steps_data_path / batch_manager_step.signature
                 if step_data_path.exists():
                     steps_to_load_data_from_previous_executions[step_name] = (
@@ -943,17 +951,41 @@ class _BatchManager(_Serializable):
                     # predecessors it's in the list, then we remove it.
                     for predecessor in predecessors:
                         if predecessor in steps_to_load_data_from_previous_executions:
-                            del steps_to_load_data_from_previous_executions[predecessor]
+                            steps_to_load_data_from_previous_executions[predecessor] = (
+                                None
+                            )
 
             steps[step_name] = batch_manager_step
 
-        print(f"{steps_to_load_data_from_previous_executions=}")
-        for step_name in steps_to_load_data_from_previous_executions:
-            print("STEP_NAME", step_name)
-            # TODO: load batches
-            pass
+        for (
+            step_name,
+            step_outputs_path,
+        ) in steps_to_load_data_from_previous_executions.items():
+            last_batch_flag_sent_to.append(step_name)
+            if step_outputs_path is None:
+                continue
+            load_batches[step_name] = sorted(
+                [
+                    _Batch.from_json(batch_file)
+                    for batch_file in step_outputs_path.glob("*.json")
+                    if batch_file.is_file() and batch_file.suffix == ".json"
+                ],
+                key=lambda x: x.seq_no,
+            )
+            last_batch_received[step_name] = load_batches[step_name][-1]
 
-        return cls(steps, last_batch_received, last_batch_sent, [])
+        # Load batches from previous steps in batch manager steps
+        for step_name, batch_manager_step in steps.items():
+            # TODO: get step name predecessors and check if there is data in `load_batches`
+            for predecessor in dag.get_step_predecessors(step_name):
+                if predecessor in load_batches:
+                    # TODO: take into account batch manager step offset
+                    batch_manager_step.data[predecessor] = deepcopy(
+                        load_batches[predecessor]
+                    )
+                    batch_manager_step.last_batch_received.append(predecessor)
+
+        return cls(steps, last_batch_received, last_batch_sent, last_batch_flag_sent_to)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the `_BatchManager` to a dictionary.

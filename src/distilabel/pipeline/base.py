@@ -1111,7 +1111,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
 
         steps_stages, _ = self.dag.get_steps_load_stages()
-        steps = steps_stages[stage]
+
+        # TODO: explain this
+        steps = [
+            step
+            for step in steps_stages[stage]
+            if step not in self._batch_manager._last_batch_flag_sent_to
+        ]
 
         # Run the steps of the stage
         self._run_steps(steps=steps)

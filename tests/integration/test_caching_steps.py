@@ -117,9 +117,82 @@ def test_cache() -> None:
     )
 
 
+def test_cache_with_step_cache_false() -> None:
+    with TemporaryDirectory() as tmp_dir:
+        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
+            initial_batch_size = 8
+            step_generator = LoadDataFromDicts(
+                data=[{"instruction": "some text"}] * initial_batch_size * 6,
+                batch_size=initial_batch_size,
+            )
+
+            step_a = DummyStep(
+                name="step_a",
+                input_batch_size=4,
+                use_cache=True,
+            )
+            step_b = DummyStep(
+                name="step_b",
+                input_batch_size=10,
+                input_mappings={"instruction": "response"},
+                output_mappings={"response": "response_1"},
+                do_fail=False,
+                use_cache=False,
+            )
+
+            step_generator >> step_a >> step_b
+
+        distiset_0 = pipeline.run()
+        distiset_1 = pipeline.run()
+        assert (
+            distiset_0["default"]["train"].to_list()
+            != distiset_1["default"]["train"].to_list()
+        )
+
+
+def test_cache_with_intermediate_step_cache_false() -> None:
+    with TemporaryDirectory() as tmp_dir:
+        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
+            initial_batch_size = 8
+            step_generator = LoadDataFromDicts(
+                data=[{"instruction": "some text"}] * initial_batch_size * 6,
+                batch_size=initial_batch_size,
+            )
+
+            step_a = DummyStep(
+                name="step_a",
+                input_batch_size=4,
+                use_cache=True,
+            )
+            step_b = DummyStep(
+                name="step_b",
+                input_batch_size=10,
+                input_mappings={"instruction": "response"},
+                output_mappings={"response": "response_1"},
+                do_fail=False,
+                use_cache=False,
+            )
+            step_c = DummyStep(
+                name="step_c",
+                input_batch_size=12,
+                input_mappings={"instruction": "response"},
+                output_mappings={"response": "response_2"},
+                use_cache=True,
+            )
+
+            step_generator >> step_a >> step_b >> step_c
+
+        distiset_0 = pipeline.run()
+        distiset_1 = pipeline.run()
+        assert (
+            distiset_0["default"]["train"].to_list()
+            != distiset_1["default"]["train"].to_list()
+        )
+
+
 def test_cache_adding_step() -> None:
     with TemporaryDirectory() as tmp_dir:
-        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline1:
+        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
             initial_batch_size = 8
             step_generator = LoadDataFromDicts(
                 data=[{"instruction": "some text"}] * initial_batch_size * 6,
@@ -142,7 +215,9 @@ def test_cache_adding_step() -> None:
 
             step_generator >> step_a >> step_b
 
-        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline2:
+        distiset_0 = pipeline.run()
+
+        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
             initial_batch_size = 8
             step_generator = LoadDataFromDicts(
                 data=[{"instruction": "some text"}] * initial_batch_size * 6,
@@ -172,10 +247,72 @@ def test_cache_adding_step() -> None:
 
             step_generator >> step_a >> step_b >> step_c
 
-        # assert that only `step_c` has been executed
-        pipeline1.run()
-        # import pdb; pdb.set_trace()
-        pipeline2.run()
+        distiset_1 = pipeline.run()
+
+        dict_0 = distiset_0["default"]["train"].to_dict()
+        dict_1 = distiset_1["default"]["train"].to_dict()
+        del dict_1["response_2"]
+        assert dict_0 == dict_1
+
+
+def test_cache_adding_step_with_multiple_predecessor() -> None:
+    with TemporaryDirectory() as tmp_dir:
+        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
+            initial_batch_size = 8
+            step_generator = LoadDataFromDicts(
+                data=[{"instruction": "some text"}] * initial_batch_size * 6,
+                batch_size=initial_batch_size,
+            )
+
+            step_a = DummyStep(
+                name="step_a",
+                input_batch_size=4,
+                use_cache=True,
+            )
+            step_b = DummyStep(
+                name="step_b",
+                input_batch_size=10,
+                output_mappings={"response": "response_1"},
+                do_fail=False,
+                use_cache=True,
+            )
+
+            step_generator >> [step_a, step_b]
+
+        distiset_0 = pipeline.run()
+        print(distiset_0)
+
+        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
+            initial_batch_size = 8
+            step_generator = LoadDataFromDicts(
+                data=[{"instruction": "some text"}] * initial_batch_size * 6,
+                batch_size=initial_batch_size,
+            )
+
+            step_a = DummyStep(
+                name="step_a",
+                input_batch_size=4,
+                use_cache=True,
+            )
+            step_b = DummyStep(
+                name="step_b",
+                input_batch_size=10,
+                output_mappings={"response": "response_1"},
+                do_fail=False,
+                use_cache=True,
+            )
+            step_c = DummyStep2(
+                name="step_c",
+                input_batch_size=12,
+                input_mappings={"instruction": "response"},
+                output_mappings={"response": "response_2"},
+                use_cache=True,
+            )
+
+            step_generator >> [step_a, step_b] >> step_c
+
+        distiset_1 = pipeline.run()
+        print(distiset_1)
 
 
 def test_cached_steps() -> None:
@@ -407,11 +544,11 @@ def test_use_cache_per_step() -> None:
 # we can start from the previous pipeline. Currently this is not possible.
 
 if __name__ == "__main__":
-    # Used to run via python while manually testing, to inspect the logs
-    # print("\n\n test_cached_steps \n\n")
     # test_cached_steps()
     # test_cache()
-    test_cache_adding_step()
+    # test_cache_adding_step()
+    # test_cache_adding_step_with_multiple_predecessor()
+    test_cache_with_step_cache_false()
 
     # TODO: CONTINUE HERE, RUN THE STEP.
     # TODO: THE LAST MERGE FROM DEVELOP INTRODUCED A VARIABLE:
