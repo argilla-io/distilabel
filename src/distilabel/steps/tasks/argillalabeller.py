@@ -230,10 +230,11 @@ class ArgillaLabeller(Task):
             field.serialize() if not isinstance(field, dict) else field
             for field in fields
         ]
-        examples = [
-            example.to_dict() if not isinstance(example, dict) else example
-            for example in examples
-        ]
+        if examples:
+            examples = [
+                example.to_dict() if not isinstance(example, dict) else example
+                for example in examples
+            ]
 
         fields = self._format_record(record, fields)
         question = self._format_question(question)
