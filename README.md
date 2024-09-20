@@ -91,6 +91,9 @@ In addition, the following extras are available:
 - `openai`: for using [OpenAI API](https://openai.com/blog/openai-api) models via the `OpenAILLM` integration, or the rest of the integrations based on OpenAI and relying on its client as `AnyscaleLLM`, `AzureOpenAILLM`, and `TogetherLLM`.
 - `vertexai`: for using [Google Vertex AI](https://cloud.google.com/vertex-ai) proprietary models via the `VertexAILLM` integration.
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
+- `faiss-cpu` and `faiss-gpu`: for generating sentence embeddings using [faiss](https://github.com/facebookresearch/faiss).
+- `outlines`: for using structured generation of LLMs with [outlines](https://github.com/outlines-dev/outlines).
+- `instructor`: for using structured generation of LLMs with [Instructor](https://github.com/jxnl/instructor/).
 
 ### Example
 
