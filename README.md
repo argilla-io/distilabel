@@ -78,6 +78,8 @@ Requires Python 3.9+
 
 In addition, the following extras are available:
 
+### LLMs
+
 - `anthropic`: for using models available in [Anthropic API](https://www.anthropic.com/api) via the `AnthropicLLM` integration.
 - `cohere`: for using models available in [Cohere](https://cohere.ai/) via the `CohereLLM` integration.
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
@@ -91,9 +93,19 @@ In addition, the following extras are available:
 - `openai`: for using [OpenAI API](https://openai.com/blog/openai-api) models via the `OpenAILLM` integration, or the rest of the integrations based on OpenAI and relying on its client as `AnyscaleLLM`, `AzureOpenAILLM`, and `TogetherLLM`.
 - `vertexai`: for using [Google Vertex AI](https://cloud.google.com/vertex-ai) proprietary models via the `VertexAILLM` integration.
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
-- `faiss-cpu` and `faiss-gpu`: for generating sentence embeddings using [faiss](https://github.com/facebookresearch/faiss).
+- `sentence-transformers`: for generating sentence embeddings using [sentence-transformers](https://github.com/UKPLab/sentence-transformers).
+
+### Structured generation
+
 - `outlines`: for using structured generation of LLMs with [outlines](https://github.com/outlines-dev/outlines).
 - `instructor`: for using structured generation of LLMs with [Instructor](https://github.com/jxnl/instructor/).
+
+### Data processing
+
+- `ray`: for scaling and distributing a pipeline with [Ray](https://github.com/ray-project/ray).
+- `faiss-cpu` and `faiss-gpu`: for generating sentence embeddings using [faiss](https://github.com/facebookresearch/faiss).
+- `text-clustering`: for using text clustering with [UMAP](https://github.com/lmcinnes/umap) and [Scikit-learn](https://github.com/scikit-learn/scikit-learn).
+- `minhash`: for using minhash for duplicate detection with [datasketch](https://github.com/datasketch/datasketch) and [nltk](https://github.com/nltk/nltk).
 
 ### Example
 
