@@ -364,8 +364,11 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                     "the `structured_output` attribute."
                 ) from e
 
-        if isinstance(structured_output["value"], ModelMetaclass):
-            structured_output["value"] = structured_output["value"].model_json_schema()
+        if structured_output:
+            if isinstance(structured_output["value"], ModelMetaclass):
+                structured_output["value"] = structured_output[
+                    "value"
+                ].model_json_schema()
 
         return structured_output
 
