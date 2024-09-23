@@ -4851,7 +4851,7 @@ of the <code>structured_output</code> dict variable.</p>
 <a href="../../../pipeline_samples/examples/llama_cpp_with_outlines/"><code>examples/structured_generation_with_outlines.py</code></a></p>
 </div>
 <h2 id="instructor">Instructor<a class="headerlink" href="#instructor" title="Permanent link">&para;</a></h2>
-<p>When working with model providers behind an API, there's no direct way of accessing the internal logit processor like <code>outlines</code> does, but thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> we can generate structured output from LLM providers based on <code>pydantic.BaseModel</code> objects. We have integrated <code>instructor</code> to deal with the <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.AsyncLLM"><code>AsyncLLM</code></a>, so you can work with the following LLMs: <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.OpenAILLM"><code>OpenAILLM</code></a>, <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.AzureOpenAILLM"><code>AzureOpenAILLM</code></a>, <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.CohereLLM"><code>CohereLLM</code></a>, <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.GroqLLM"><code>GroqLLM</code></a>, <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.LiteLLM"><code>LiteLLM</code></a> and <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.MistralLLM"><code>MistralLLM</code></a>.</p>
+<p>For other LLM providers behinds APIs, there's no direct way of accessing the internal logit processor like <code>outlines</code> does, but thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> we can generate structured output from LLM providers based on <code>pydantic.BaseModel</code> objects. We have integrated <code>instructor</code> to deal with the <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.AsyncLLM"><code>AsyncLLM</code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For <code>instructor</code> integration to work you may need to install the corresponding dependencies:</p>
@@ -4874,15 +4874,16 @@ of the <code>structured_output</code> dict variable.</p>
 <p>And then we provide that schema to the <code>structured_output</code> argument of the LLM:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In this example we are using <em>open-mixtral-8x22b</em>, keep in mind not all the models work with the function calling functionality required for this example to work.</p>
+<p>In this example we are using <em>Meta Llama 3.1 8B Instruct</em>, keep in mind not all the models support structured outputs.</p>
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">MistralLLM</span><span class="p">(</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;open-mixtral-8x22b&quot;</span><span class="p">,</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">structured_output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">User</span><span class="p">}</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">)</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="n">structured_output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">User</span><span class="p">}</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="p">)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 </span></code></pre></div>
 <p>And we are ready to pass our instructions as usual:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">import</span> <span class="nn">json</span>
