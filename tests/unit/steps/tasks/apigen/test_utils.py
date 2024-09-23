@@ -37,6 +37,12 @@ from distilabel.steps.tasks.apigen.utils import (
             {"initial_velocity": "10", "acceleration": "5", "time": "2"},
             {"execution_result": "20.0", "keep": True},
         ),
+        # Different names for the arguments but correctly positioned
+        (
+            "final_velocity",
+            {"v0": "10", "a": "5", "t": "2"},
+            {"execution_result": "20.0", "keep": True},
+        ),
         # Fail casting one of the values
         (
             "final_velocity",
