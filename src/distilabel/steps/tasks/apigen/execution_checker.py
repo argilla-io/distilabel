@@ -18,6 +18,7 @@
 
 from typing import TYPE_CHECKING, Callable, Union
 
+import orjson as json
 from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
@@ -83,7 +84,8 @@ class APIGenExecutionChecker(Step):
         """
         for input in inputs:
             output = []
-            for answer in input["answers"]:
+            answers = json.loads(input["answers"])
+            for answer in answers:
                 # TODO: Currently if the generator throws a None, it will raise an error here.
                 # Set the results to None first
                 function_name = answer.get("name", None)

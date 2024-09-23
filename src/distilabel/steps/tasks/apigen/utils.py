@@ -38,7 +38,7 @@ class PrepareExamples(Step):
         - examples (`str`): The formatted examples.
 
     Categories:
-        -
+        - format
 
     Examples:
         Generate examples for APIGen:
@@ -150,8 +150,6 @@ def execute_from_response(
             keep=False, execution_result="Argument types not respected"
         )
 
-    return_type = signature.return_annotation
-    print("RETURN_TYPE", return_type)
     try:
         result = function(*call_answer.values())
         return FunctionResult(keep=True, execution_result=str(result))

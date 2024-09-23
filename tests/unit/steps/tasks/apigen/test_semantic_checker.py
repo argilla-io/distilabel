@@ -77,10 +77,37 @@ class TestAPIGenSemanticChecker:
         [
             (
                 '{"thought": "thought", "keep_row_after_semantic_check": "no", "passes": "no"}',
-                {"thought": "thought", "keep_row_after_semantic_check": False},
+                {
+                    "thought": "thought",
+                    "keep_row_after_semantic_check": False,
+                    "answers": '[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
+                    "execution_result": "Hopefully some info about the Maine Coon",
+                    "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
+                    "query": "What information can be obtained about the Maine Coon cat breed?",
+                },
             ),
-            (None, {"thought": None, "keep_row_after_semantic_check": None}),
-            ("wrong", {"thought": None, "keep_row_after_semantic_check": None}),
+            (
+                None,
+                {
+                    "thought": None,
+                    "keep_row_after_semantic_check": None,
+                    "answers": '[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
+                    "execution_result": "Hopefully some info about the Maine Coon",
+                    "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
+                    "query": "What information can be obtained about the Maine Coon cat breed?",
+                },
+            ),
+            (
+                "wrong",
+                {
+                    "thought": None,
+                    "keep_row_after_semantic_check": None,
+                    "answers": '[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
+                    "execution_result": "Hopefully some info about the Maine Coon",
+                    "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
+                    "query": "What information can be obtained about the Maine Coon cat breed?",
+                },
+            ),
         ],
     )
     def test_format_output(self, result: str, expected: Dict[str, Any]) -> None:
