@@ -1503,6 +1503,38 @@ class TestBatchManager:
             "step2": [],
         }
 
+    def test_add_batch_to_recover_offline_batch_generation(self) -> None:
+        batch_manager = _BatchManager(
+            steps={
+                "step1": _BatchManagerStep(
+                    step_name="step0",
+                    accumulate=True,
+                    input_batch_size=5,
+                    data={},
+                )
+            },
+            last_batch_received={
+                "step1": _Batch(seq_no=0, step_name="step1", last_batch=True)
+            },
+            last_batch_sent={"step1": None},
+            last_batch_flag_sent_to=[],
+        )
+
+        batch_manager.add_batch_to_recover_offline_batch_generation(
+            to_step="step1",
+            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+        )
+
+        assert batch_manager._steps["step1"].built_batches == [
+            _Batch(
+                seq_no=0,
+                step_name="step1",
+                last_batch=True,
+                data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+            )
+        ]
+        assert batch_manager._last_batch_received["step1"] is None
+
     def test_from_dag(
         self,
         dummy_generator_step: "GeneratorStep",

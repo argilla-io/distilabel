@@ -6,9 +6,6 @@ hide:
 
 # Installation
 
-!!! NOTE
-    Since `distilabel` v1.0.0 was recently released, we refactored most of the stuff, so the installation below only applies to `distilabel` v1.0.0 and above.
-
 You will need to have at least Python 3.9 or higher, up to Python 3.12, since support for the latter is still a work in progress.
 
 To install the latest release of the package from PyPI you can use the following command:
@@ -29,6 +26,8 @@ pip install "distilabel @ git+https://github.com/argilla-io/distilabel.git@devel
 ## Extras
 
 Additionally, as part of `distilabel` some extra dependencies are available, mainly to add support for some of the LLM integrations we support. Here's a list of the available extras:
+
+### LLMs
 
 - `anthropic`: for using models available in [Anthropic API](https://www.anthropic.com/api) via the `AnthropicLLM` integration.
 
@@ -56,11 +55,29 @@ Additionally, as part of `distilabel` some extra dependencies are available, mai
 
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
 
+- `sentence-transformers`: for generating sentence embeddings using [sentence-transformers](https://github.com/UKPLab/sentence-transformers).
+
+### Data processing
+
+- `ray`: for scaling and distributing a pipeline with [Ray](https://github.com/ray-project/ray).
+
+- `faiss-cpu` and `faiss-gpu`: for generating sentence embeddings using [faiss](https://github.com/facebookresearch/faiss).
+
+- `minhash`: for using minhash for duplicate detection with [datasketch](https://github.com/datasketch/datasketch) and [nltk](https://github.com/nltk/nltk).
+
+- `text-clustering`: for using text clustering with [UMAP](https://github.com/lmcinnes/umap) and [Scikit-learn](https://github.com/scikit-learn/scikit-learn).
+
+### Structured generation
+
+- `outlines`: for using structured generation of LLMs with [outlines](https://github.com/outlines-dev/outlines).
+
+- `instructor`: for using structured generation of LLMs with [Instructor](https://github.com/jxnl/instructor/).
+
 ## Recommendations / Notes
 
 The [`mistralai`](https://github.com/mistralai/client-python) dependency requires Python 3.9 or higher, so if you're willing to use the `distilabel.llms.MistralLLM` implementation, you will need to have Python 3.9 or higher.
 
-In some cases like [`transformers`](https://github.com/huggingface/transformers) and [`vllm`](https://github.com/vllm-project/vllm) the installation of [`flash-attn`](https://github.com/Dao-AILab/flash-attention) is recommended if you are using a GPU accelerator, since it will speed up the inference process, but the installation needs to be done separately, as it's not included in the `distilabel` dependencies.
+In some cases like [`transformers`](https://github.com/huggingface/transformers) and [`vllm`](https://github.com/vllm-project/vllm), the installation of [`flash-attn`](https://github.com/Dao-AILab/flash-attention) is recommended if you are using a GPU accelerator since it will speed up the inference process, but the installation needs to be done separately, as it's not included in the `distilabel` dependencies.
 
 ```sh
 pip install flash-attn --no-build-isolation

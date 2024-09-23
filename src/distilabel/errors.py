@@ -28,7 +28,6 @@ class DistilabelError:
         page: An optional error code from PydanticErrorCodes enum.
 
     Examples:
-
         ```python
         raise DistilabelUserError("This is an error message.")
         This is an error message.
@@ -58,5 +57,11 @@ class DistilabelUserError(DistilabelError, ValueError):
 
 class DistilabelTypeError(DistilabelError, TypeError):
     """TypeError that we can redirect to a given page in the documentation."""
+
+    pass
+
+
+class DistilabelNotImplementedError(DistilabelError, NotImplementedError):
+    """NotImplementedError that we can redirect to a given page in the documentation."""
 
     pass

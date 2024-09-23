@@ -55,11 +55,13 @@ docs = [
     "mkdocs-literate-nav >= 0.6.1",
     "mkdocs-section-index >= 0.3.8",
     "mkdocs-gen-files >= 0.5.0",
+    "material-plausible-plugin>=0.2.0",
     "mike >= 2.0.0",
     "Pillow >= 9.5.0",
     "CairoSVG >= 2.7.1",
     "mknotebooks >= 0.8.0",
     "pandas >= 2.0",
+    "tabulate>=0.9.0",
 ]
 tests = [
     "pytest >= 7.4.0",
@@ -93,7 +95,15 @@ vllm = [
 ]
 sentence-transformers = ["sentence-transformers >= 3.0.0"]
 faiss-cpu = ["faiss-cpu >= 1.8.0"]
-faiss-gpu = ["faiss-cpu >= 1.7.2"]
+faiss-gpu = ["faiss-gpu >= 1.7.2"]
+text-clustering = [
+    "umap-learn >= 0.5.6",
+    "scikit-learn >= 1.4.1",
+    "matplotlib >= 3.8.3"  # For the figure (even though it's optional)
+]
+
+# minhash
+minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"

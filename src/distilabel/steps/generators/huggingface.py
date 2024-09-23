@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from collections import defaultdict
 from functools import cached_property
 from pathlib import Path
@@ -74,6 +75,7 @@ class LoadDataFromHub(GeneratorStep):
         - `split`: The split of the dataset to load. Defaults to 'train'.
         - `config`: The configuration of the dataset to load. This is optional and only
             needed if the dataset has multiple configurations.
+        - `revision`: The revision of the dataset to load. Defaults to the latest revision.
         - `streaming`: Whether to load the dataset in streaming mode or not. Defaults to
             `False`.
         - `num_examples`: The number of examples to load from the dataset.
@@ -89,7 +91,6 @@ class LoadDataFromHub(GeneratorStep):
         - load
 
     Examples:
-
         Load data from a dataset in Hugging Face Hub:
 
         ```python
@@ -122,6 +123,10 @@ class LoadDataFromHub(GeneratorStep):
         description="The configuration of the dataset to load. This is optional and only"
         " needed if the dataset has multiple configurations.",
     )
+    revision: Optional[RuntimeParameter[str]] = Field(
+        default=None,
+        description="The revision of the dataset to load. Defaults to the latest revision.",
+    )
     streaming: RuntimeParameter[bool] = Field(
         default=False,
         description="Whether to load the dataset in streaming mode or not. Defaults to False.",
@@ -149,6 +154,7 @@ class LoadDataFromHub(GeneratorStep):
             self.repo_id,  # type: ignore
             self.config,
             split=self.split,
+            revision=self.revision,
             streaming=self.streaming,
         )
         num_examples = self._get_dataset_num_examples()
@@ -238,20 +244,18 @@ class LoadDataFromHub(GeneratorStep):
         Returns:
             The dataset information.
         """
-        repo_id = self.repo_id
-        config = self.config
 
         try:
-            return get_dataset_infos(repo_id)
+            return get_dataset_infos(self.repo_id)
         except Exception as e:
-            # The previous could fail in case of a internet connection issues.
-            # Assuming the dataset is already loaded and we can get the info from the loaded dataset, otherwise it will fail anyway.
-            self._logger.warning(
-                f"Failed to get dataset info from Hugging Face Hub, trying to get it loading the dataset. Error: {e}"
+            warnings.warn(
+                f"Failed to get dataset info from Hugging Face Hub, trying to get it loading the dataset. Error: {e}",
+                UserWarning,
+                stacklevel=2,
             )
-            ds = load_dataset(repo_id, config=self.config, split=self.split)
-            if config:
-                return ds[config].info
+            ds = load_dataset(self.repo_id, config=self.config, split=self.split)
+            if self.config:
+                return ds[self.config].info
             return ds.info
 
 
@@ -289,7 +293,6 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         - load
 
     Examples:
-
         Load data from a Hugging Face dataset in your file system:
 
         ```python
@@ -484,7 +487,6 @@ class LoadDataFromDisk(LoadDataFromHub):
         - load
 
     Examples:
-
         Load data from a Hugging Face Dataset:
 
         ```python

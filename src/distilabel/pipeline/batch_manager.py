@@ -508,9 +508,11 @@ class _BatchManagerStep(_Serializable):
 
             # `batches` are sorted by `seq_no`
             num_rows = 0
+            is_batch_in_order = True
             for batch in batches:
                 # Need to create batches using the data from batches with sequential `seq_no`
                 if batch.seq_no != next_expected_seq_no:
+                    is_batch_in_order = False
                     break
                 # There are enough rows to create a batch
                 num_rows += len(batch.data[0])
@@ -524,11 +526,12 @@ class _BatchManagerStep(_Serializable):
                 return False
 
             # If there are not enough rows and the last batch was not received yet, then
-            # there is not enough data yet to creata a batch
+            # there is not enough data yet to create a batch
+            # If the last batch was received, the batch preceding it must be in order
             if (
                 self.input_batch_size
                 and num_rows < self.input_batch_size
-                and step_name not in self.last_batch_received
+                and not (step_name in self.last_batch_received and is_batch_in_order)
             ):
                 return False
 
@@ -745,6 +748,24 @@ class _BatchManager(_Serializable):
 
         step = self._steps[to_step]
         step.add_batch(batch, prepend)
+
+    def add_batch_to_recover_offline_batch_generation(
+        self, to_step: str, data: List[List[Dict[str, Any]]]
+    ) -> None:
+        """Add a batch to recover pipeline execution from an `_Step` that used an `LLM`
+        with offline batch generation. It will add the batch to the start of the buffer
+        of the step  and set the last batch received of the step to `None`.
+
+        Args:
+            to_step: The name of the step that will process the batch.
+            data: The data that was used with the offline batch generation.
+        """
+        self.add_batch(
+            to_step=to_step,
+            batch=_Batch(seq_no=0, step_name=to_step, last_batch=True, data=data),
+            prepend=True,
+        )
+        self._last_batch_received[to_step] = None
 
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.

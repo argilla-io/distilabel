@@ -50,12 +50,12 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             conversation. Defaults to `False`.
         only_instruction: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        system_prompt: an optional system prompt or list of system prompts that can
-            be used to steer the LLM to generate content of certain topic, guide the style,
-            etc. If it's a list of system prompts, then a random system prompt will be chosen
-            per input/output batch. If the provided inputs contains a `system_prompt` column,
-            then this runtime parameter will be ignored and the one from the column will
-            be used. Defaults to `None`.
+        system_prompt: an optional system prompt, or a list of system prompts from which
+            a random one will be chosen, or a dictionary of system prompts from which a
+            random one will be choosen, or a dictionary of system prompts with their probability
+            of being chosen. The random system prompt will be chosen per input/output batch.
+            This system prompt can be used to guide the generation of the instruct LLM and
+            steer it to generate instructions of a certain topic. Defaults to `None`.
         num_rows: the number of rows to be generated.
 
     Runtime parameters:
@@ -67,12 +67,12 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             conversation. Defaults to `False`.
         - `only_instruction`: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        - `system_prompt`: an optional system prompt or list of system prompts that can
-            be used to steer the LLM to generate content of certain topic, guide the style,
-            etc. If it's a list of system prompts, then a random system prompt will be chosen
-            per input/output batch. If the provided inputs contains a `system_prompt` column,
-            then this runtime parameter will be ignored and the one from the column will
-            be used. Defaults to `None`.
+        - `system_prompt`: an optional system prompt, or a list of system prompts from which
+            a random one will be chosen, or a dictionary of system prompts from which a
+            random one will be choosen, or a dictionary of system prompts with their probability
+            of being chosen. The random system prompt will be chosen per input/output batch.
+            This system prompt can be used to guide the generation of the instruct LLM and
+            steer it to generate instructions of a certain topic.
         - `num_rows`: the number of rows to be generated.
 
     Output columns:
@@ -80,6 +80,8 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             items with a role and a message.
         - instruction (`str`): the generated instructions if `only_instruction=True`.
         - response (`str`): the generated response if `n_turns==1`.
+        - system_prompt_key (`str`, optional): the key of the system prompt used to generate
+            the conversation or instruction. Only if `system_prompt` is a dictionary.
         - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
 
     Categories:
@@ -91,7 +93,6 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
 
     Examples:
-
         Generating instructions with Llama 3 8B Instruct and TransformersLLM:
 
         ```python
@@ -204,8 +205,35 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         # )
         ```
 
-    Citations:
+        Generating with system prompts with probabilities:
 
+        ```python
+        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.steps.tasks import MagpieGenerator
+
+        magpie = MagpieGenerator(
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3-8B-Instruct",
+                tokenizer_id="meta-llama/Meta-Llama-3-8B-Instruct",
+                magpie_pre_query_template="llama3",
+                generation_kwargs={
+                    "temperature": 0.8,
+                    "max_new_tokens": 256,
+                },
+            ),
+            n_turns=2,
+            system_prompt={
+                "math": ("You're an expert AI assistant.", 0.8),
+                "writing": ("You're an expert writing assistant.", 0.2),
+            },
+        )
+
+        magpie.load()
+
+        result = next(magpie.process())
+        ```
+
+    Citations:
         ```
         @misc{xu2024magpiealignmentdatasynthesis,
             title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
@@ -237,6 +265,25 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
 
         self.llm.use_magpie_template = True
 
+    @property
+    def outputs(self) -> "StepColumns":
+        """Either a multi-turn conversation or the instruction generated."""
+        outputs = []
+
+        if self.only_instruction:
+            outputs.append("instruction")
+        elif self.n_turns == 1:
+            outputs.extend(["instruction", "response"])
+        else:
+            outputs.append("conversation")
+
+        if isinstance(self.system_prompt, dict):
+            outputs.append("system_prompt_key")
+
+        outputs.append("model_name")
+
+        return outputs
+
     def format_output(
         self,
         output: Union[str, None],
@@ -244,15 +291,6 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
     ) -> Dict[str, Any]:
         """Does nothing."""
         return {}
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """Either a multi-turn conversation or the instruction generated."""
-        if self.only_instruction:
-            return ["instruction", "model_name"]
-        if self.n_turns == 1:
-            return ["instruction", "response", "model_name"]
-        return ["conversation", "model_name"]
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Generates the desired number of instructions or conversations using Magpie.

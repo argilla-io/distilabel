@@ -29,6 +29,13 @@ class TestMagpieGenerator:
 
     def test_outputs(self) -> None:
         task = MagpieGenerator(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            only_instruction=True,
+        )
+
+        assert task.outputs == ["instruction", "model_name"]
+
+        task = MagpieGenerator(
             llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=1
         )
 
@@ -42,10 +49,18 @@ class TestMagpieGenerator:
 
         task = MagpieGenerator(
             llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
-            only_instruction=True,
+            system_prompt={
+                "system_prompt_1": ("system_prompt", 0.5),
+                "system_prompt_2": ("system_prompt", 0.5),
+            },
         )
 
-        assert task.outputs == ["instruction", "model_name"]
+        assert task.outputs == [
+            "instruction",
+            "response",
+            "system_prompt_key",
+            "model_name",
+        ]
 
     def test_serialization(self) -> None:
         task = MagpieGenerator(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"))
@@ -55,6 +70,9 @@ class TestMagpieGenerator:
                 "use_magpie_template": True,
                 "magpie_pre_query_template": "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n",
                 "generation_kwargs": {},
+                "use_offline_batch_generation": False,
+                "offline_batch_generation_block_until_done": None,
+                "jobs_ids": None,
                 "type_info": {
                     "module": "tests.unit.conftest",
                     "name": "DummyMagpieLLM",
@@ -80,8 +98,8 @@ class TestMagpieGenerator:
             "add_raw_output": True,
             "add_raw_input": True,
             "num_generations": 1,
-            "num_rows": None,
             "use_default_structured_output": False,
+            "num_rows": None,
             "runtime_parameters_info": [
                 {
                     "name": "llm",
@@ -90,7 +108,17 @@ class TestMagpieGenerator:
                             "name": "generation_kwargs",
                             "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
                             "keys": [{"name": "kwargs", "optional": False}],
-                        }
+                        },
+                        {
+                            "name": "use_offline_batch_generation",
+                            "optional": True,
+                            "description": "Whether to use the `offline_batch_generate` method to generate the responses.",
+                        },
+                        {
+                            "name": "offline_batch_generation_block_until_done",
+                            "optional": True,
+                            "description": "If provided, then polling will be done until the `ofline_batch_generate` method is able to retrieve the results. The value indicate the time to wait between each polling.",
+                        },
                     ],
                 },
                 {
@@ -116,7 +144,7 @@ class TestMagpieGenerator:
                 {
                     "name": "system_prompt",
                     "optional": True,
-                    "description": "An optional system prompt or list of system prompts that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
+                    "description": "An optional system prompt, or a list of system prompts from which a random one will be chosen, or a dictionary of system prompts from which a random one will be choosen, or a dictionary of system prompts with their probability of being chosen. The random system prompt will be chosen per input/output batch. This system prompt can be used to guide the generation of the instruct LLM and steer it to generate instructions of a certain topic.",
                 },
                 {
                     "name": "resources",
@@ -159,9 +187,9 @@ class TestMagpieGenerator:
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
                 },
                 {
-                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
                     "name": "add_raw_input",
                     "optional": True,
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
                 },
                 {
                     "name": "num_generations",

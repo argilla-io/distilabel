@@ -1,13 +1,13 @@
 ---
 hide: toc
 ---
-# Pipeline Samples
+# Tutorials
 
-- **Tutorials** provide detailed step-by-step explanations and the code used for end-to-end workflows.
+- **End-to-end tutorials** provide detailed step-by-step explanations and the code used for end-to-end workflows.
 - **Paper implementations** provide reproductions of fundamental papers in the synthetic data domain.
 - **Examples** don't provide explenations but simply show code for different tasks.
 
-## Tutorials
+## End-to-end tutorials
 
 <div class="grid cards" markdown>
 
@@ -95,23 +95,23 @@ hide: toc
 
     Learn about reproducing the Arena Hard benchmark with disitlabel.
 
-    [:octicons-arrow-right-24: Example](benchmarking_with_distilabel.md)
+    [:octicons-arrow-right-24: Example](examples/benchmarking_with_distilabel.md)
 
--   __llama.cpp with outlines__
+-   __Structured generation with outlines__
 
     ---
 
     Learn about generating RPG characters following a pydantic.BaseModel with outlines in distilabel.
 
-    [:octicons-arrow-right-24: Example](llama_cpp_with_outlines.md)
+    [:octicons-arrow-right-24: Example](examples/llama_cpp_with_outlines.md)
 
--   __MistralAI with instructor__
+-   __Structured generation with instructor__
 
     ---
 
     Learn about answering instructions with knowledge graphs defined as pydantic.BaseModel objects using instructor in distilabel.
 
-    [:octicons-arrow-right-24: Example](papers/prometheus.md)
+    [:octicons-arrow-right-24: Example](examples/mistralai_with_instructor.md)
 
 
 </div>

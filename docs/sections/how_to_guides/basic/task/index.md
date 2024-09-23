@@ -1,4 +1,4 @@
-# Define Tasks that rely on LLMs
+# Tasks for generating and judging with LLMs
 
 ## Working with Tasks
 

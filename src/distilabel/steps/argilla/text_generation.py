@@ -61,7 +61,6 @@ class TextGenerationToArgilla(ArgillaBase):
         - generation (`str` or `List[str]`): The completions that were generated based on the input instruction.
 
     Examples:
-
         Push a text generation dataset to an Argilla instance:
 
         ```python
