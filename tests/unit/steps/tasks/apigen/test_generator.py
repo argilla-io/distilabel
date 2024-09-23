@@ -18,7 +18,7 @@ from typing import List, Union
 import pytest
 
 from distilabel.steps.tasks.apigen.generator import APIGenGenerator
-from tests.unit.conftest import DummySyncLLM
+from tests.unit.conftest import DummyLLM
 
 # Example of 3 rows from Salesforce/xlam-function-calling-60k
 SAMPLE_DATA = [
@@ -55,7 +55,7 @@ class TestApiGenGenerator:
     ) -> None:
         random.seed(42)
         task = APIGenGenerator(
-            llm=DummySyncLLM(),
+            llm=DummyLLM(),
             is_parallel=is_parallel,
             number=number,
             use_default_structured_output=use_default_structured_output,

@@ -17,7 +17,7 @@ from typing import Any, Dict
 import pytest
 
 from distilabel.steps.tasks.apigen.semantic_checker import APIGenSemanticChecker
-from tests.unit.conftest import DummySyncLLM
+from tests.unit.conftest import DummyLLM
 
 SAMPLE_DATA = [
     # The info can for the function description can be obtained from the tool itself
@@ -46,7 +46,7 @@ class TestAPIGenSemanticChecker:
     @pytest.mark.parametrize("use_default_structured_output", [True, False])
     def test_format_input(self, use_default_structured_output: bool) -> None:
         task = APIGenSemanticChecker(
-            llm=DummySyncLLM(),
+            llm=DummyLLM(),
             use_default_structured_output=use_default_structured_output,
         )
         task.load()
@@ -111,6 +111,6 @@ class TestAPIGenSemanticChecker:
         ],
     )
     def test_format_output(self, result: str, expected: Dict[str, Any]) -> None:
-        task = APIGenSemanticChecker(llm=DummySyncLLM())
+        task = APIGenSemanticChecker(llm=DummyLLM())
         task.load()
         assert task.format_output(result, SAMPLE_DATA[0]) == expected
