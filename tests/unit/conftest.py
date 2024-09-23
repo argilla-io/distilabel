@@ -42,7 +42,7 @@ class DummyAsyncLLM(AsyncLLM):
         return ["output" for _ in range(num_generations)]
 
 
-class DummySyncLLM(LLM):
+class DummyLLM(LLM):
     structured_output: Any = None
 
     def load(self) -> None:
