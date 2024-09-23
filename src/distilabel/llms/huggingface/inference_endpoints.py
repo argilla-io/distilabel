@@ -26,6 +26,7 @@ from pydantic import (
     model_validator,
     validate_call,
 )
+from pydantic._internal._model_construction import ModelMetaclass
 from typing_extensions import Annotated, override
 
 from distilabel.llms.base import AsyncLLM
@@ -362,6 +363,9 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                     "To use the structured output you have to inform the `format` and `schema` in "
                     "the `structured_output` attribute."
                 ) from e
+
+        if isinstance(structured_output["value"], ModelMetaclass):
+            structured_output["value"] = structured_output["value"].model_json_schema()
 
         return structured_output
 
