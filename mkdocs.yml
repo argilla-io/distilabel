@@ -208,6 +208,7 @@ nav:
           - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
           - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
+          - CLAIR: "sections/pipeline_samples/papers/clair.md"
       - Examples:
           - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
           - Structured generation with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"

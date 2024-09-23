@@ -31,7 +31,7 @@ SYSTEM_PROMPT: Final[str] = (
 
 
 class CLAIR(Task):
-    """Contrastive Learning from AI Revisions (CLAIR).
+    r"""Contrastive Learning from AI Revisions (CLAIR).
 
     CLAIR uses an AI system to minimally revise a solution A→A´ such that the resulting
     preference A `preferred` A’ is much more contrastive and precise.
@@ -54,7 +54,6 @@ class CLAIR(Task):
         - [`APO and CLAIR - GitHub Repository`](https://github.com/ContextualAI/CLAIR_and_APO)
 
     Examples:
-
         Create contrastive preference pairs:
 
         ```python
