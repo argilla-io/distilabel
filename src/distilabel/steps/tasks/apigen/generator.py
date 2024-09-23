@@ -53,9 +53,20 @@ class APIGenGenerator(Task):
     verifiable and diverse function-calling datasets. The task generates a set of diverse queries
     and corresponding answers for the given functions in JSON format.
 
+    Attributes:
+        system_prompt: The system prompt to guide the user in the generation of queries and answers.
+        use_tools: Whether to use the tools available in the prompt to generate the queries and answers.
+            In case the tools are given in the input, they will be added to the prompt.
+        is_parallel: Whether to generate parallel queries or not. If a float, it will
+            generate parallel queries with the given probability.
+        number: The number of queries to generate. If a list, it will choose a random
+            number from the list.
+        use_default_structured_output: Whether to use the default structured output or not.
+
     Input columns:
         - examples (`str`): Examples used as few shots to guide the model.
         - func_name (`str`): Name for the function to generate.
+        - func_desc (`str`): Description of what the function should do.
         - func_desc (`str`): Description of what the function should do.
 
     Output columns:
@@ -175,6 +186,7 @@ class APIGenGenerator(Task):
     use_default_structured_output: bool = False
     is_parallel: Union[bool, float] = False
     number: Union[int, List[int]] = 1
+    use_tools: bool = True
 
     _number: Union[int, None] = PrivateAttr(None)
     _fn_parallel_queries: Union[Callable[[], str], None] = PrivateAttr(None)
@@ -247,8 +259,6 @@ class APIGenGenerator(Task):
         else is needed, otherwise, returns the original addition to the prompt to guide the model
         to generate a formatted JSON.
         """
-        if self.use_default_structured_output:
-            return ""
         return (
             "\nThe output MUST strictly adhere to the following JSON format, and NO other text MUST be included:\n"
             "```json\n"
@@ -270,6 +280,17 @@ class APIGenGenerator(Task):
             "```\n"
         )
 
+    def _get_func_desc(self, input: Dict[str, Any]) -> str:
+        """If available and required, will use the info from the tools in the
+        prompt for extra information. Otherwise will use jut the function description.
+        """
+        if not self.use_tools:
+            return input["func_desc"]
+        extra = ""  # Extra information from the tools (if available will be added)
+        if "tools" in input:
+            extra = f"\n\nThese are the available tools to help you:\n{input['tools']}"
+        return input["func_desc"] + extra
+
     @property
     def inputs(self) -> "StepColumns":
         """The inputs for the task."""
@@ -277,6 +298,7 @@ class APIGenGenerator(Task):
             "examples": True,
             "func_name": True,
             "func_desc": True,
+            "tools": False,
         }
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
@@ -290,7 +312,7 @@ class APIGenGenerator(Task):
                     parallel_queries=self._fn_parallel_queries(),
                     number=self._get_number(),
                     func_name=input["func_name"],
-                    func_desc=input["func_desc"],
+                    func_desc=self._get_func_desc(input),
                     format_inst=self._format_inst,
                 ),
             },

@@ -47,17 +47,20 @@ class TestApiGenGenerator:
     @pytest.mark.parametrize("is_parallel", [True, False, 1.0, 0.0])
     @pytest.mark.parametrize("number", [1, 2, [3]])
     @pytest.mark.parametrize("use_default_structured_output", [True, False])
+    @pytest.mark.parametrize("use_tools", [True, False])
     def test_format_input(
         self,
         is_parallel: Union[bool, List[float]],
         number: Union[int, List[int]],
         use_default_structured_output: bool,
+        use_tools: bool,
     ) -> None:
         random.seed(42)
         task = APIGenGenerator(
             llm=DummyLLM(),
             is_parallel=is_parallel,
             number=number,
+            use_tools=use_tools,
             use_default_structured_output=use_default_structured_output,
         )
         task.load()
@@ -66,6 +69,7 @@ class TestApiGenGenerator:
                 "examples": '## Query:\nWhat information can be obtained about the Maine Coon cat breed?\n## Answer:\n[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
                 "func_name": "get_breed_information",
                 "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
+                "tools": '[{"name": "navigations_get_node_content", "description": "Fetches the content of a node in a navigation hierarchy.", "parameters": {"is_id": {"description": "The \'id\' field value returned from the /navigations/get-root endpoint.", "type": "int", "default": "26066300130"}, "cat_id": {"description": "The \'cat_id\' field value returned from the /navigations/get-tabs endpoint.", "type": "int", "default": "2026"}, "language": {"description": "The 2-letter language code (default is \'en\').", "type": "str, optional", "default": "en"}, "currency": {"description": "The 3-letter currency code (default is \'USD\').", "type": "str, optional", "default": "USD"}, "country": {"description": "The 2-letter country code (default is \'US\').", "type": "str, optional", "default": "US"}}}, {"name": "products_get_reviews", "description": "Fetches brief reviews of a product from the Shein API.", "parameters": {"goods_spu": {"description": "The value of \'productRelationID\' returned in the /products/list or /products/search endpoints. Defaults to \'m22022854841\'.", "type": "str, optional", "default": "m22022854841"}, "cat_id": {"description": "The value of \'cat_id\' returned in the /products/list or /products/search endpoints. Defaults to \'1727\'.", "type": "str, optional", "default": "1727"}, "sku": {"description": "The value of \'goods_sn\' returned in the /products/list or /products/search endpoints. Defaults to \'rm2202285484176751\'.", "type": "str, optional", "default": "rm2202285484176751"}, "currency": {"description": "The 3-letter currency code. Defaults to \'USD\'.", "type": "str, optional", "default": "USD"}, "goods_id": {"description": "The value of \'goods_id\' field returned in the /products/list or /products/search endpoints. Defaults to \'10196865\'.", "type": "str, optional", "default": "10196865"}, "language": {"description": "The 2-letter language code. Defaults to \'en\'.", "type": "str, optional", "default": "en"}, "country": {"description": "The 2-letter country code. Defaults to \'US\'.", "type": "str, optional", "default": "US"}}}]',
             }
         )
 
@@ -78,11 +82,16 @@ class TestApiGenGenerator:
             number = 3
         assert f"Now please generate {number} diverse" in formatted_prompt
 
-        default_structured_output_check = "The output MUST strictly adhere to the following JSON format, and NO other text MUST be included:"
-        if use_default_structured_output:
-            assert default_structured_output_check not in formatted_prompt
+        assert (
+            "The output MUST strictly adhere to the following JSON format, and NO other text MUST be included:"
+            in formatted_prompt
+        )
+
+        tools_entry = "These are the available tools to help you:"
+        if use_tools:
+            assert tools_entry in formatted_prompt
         else:
-            assert default_structured_output_check in formatted_prompt
+            assert tools_entry not in formatted_prompt
 
         is_parallel_check = "It can contain multiple parallel queries in natural language for the given functions. They could use either the same function with different arguments or different functions."
         if is_parallel:
