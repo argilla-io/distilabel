@@ -10,6 +10,14 @@ hide:
 <div class="grid cards" markdown>
 
 
+-   :material-brain:{ .lg .middle } __AnthropicLLM__
+
+    ---
+
+    Anthropic LLM implementation running the Async API client.
+
+    [:octicons-arrow-right-24: AnthropicLLM](anthropicllm.md){ .bottom }
+
 -   :simple-openai:{ .lg .middle } __OpenAILLM__
 
     ---
@@ -17,14 +25,6 @@ hide:
     OpenAI LLM implementation running the async API client.
 
     [:octicons-arrow-right-24: OpenAILLM](openaillm.md){ .bottom }
-
--   :material-brain:{ .lg .middle } __ClientvLLM__
-
-    ---
-
-    A client for the `vLLM` server implementing the OpenAI API specification.
-
-    [:octicons-arrow-right-24: ClientvLLM](clientvllm.md){ .bottom }
 
 -   :material-brain:{ .lg .middle } __AnyscaleLLM__
 
@@ -50,13 +50,13 @@ hide:
 
     [:octicons-arrow-right-24: TogetherLLM](togetherllm.md){ .bottom }
 
--   :material-brain:{ .lg .middle } __AnthropicLLM__
+-   :material-brain:{ .lg .middle } __ClientvLLM__
 
     ---
 
-    Anthropic LLM implementation running the Async API client.
+    A client for the `vLLM` server implementing the OpenAI API specification.
 
-    [:octicons-arrow-right-24: AnthropicLLM](anthropicllm.md){ .bottom }
+    [:octicons-arrow-right-24: ClientvLLM](clientvllm.md){ .bottom }
 
 -   :material-brain:{ .lg .middle } __CohereLLM__
 
@@ -122,14 +122,6 @@ hide:
 
     [:octicons-arrow-right-24: VertexAILLM](vertexaillm.md){ .bottom }
 
--   :material-brain:{ .lg .middle } __vLLM__
-
-    ---
-
-    `vLLM` library LLM implementation.
-
-    [:octicons-arrow-right-24: vLLM](vllm.md){ .bottom }
-
 -   :hugging:{ .lg .middle } __TransformersLLM__
 
     ---
@@ -145,6 +137,14 @@ hide:
     llama.cpp LLM implementation running the Python bindings for the C++ code.
 
     [:octicons-arrow-right-24: LlamaCppLLM](llamacppllm.md){ .bottom }
+
+-   :material-brain:{ .lg .middle } __vLLM__
+
+    ---
+
+    `vLLM` library LLM implementation.
+
+    [:octicons-arrow-right-24: vLLM](vllm.md){ .bottom }
 
 
 </div>
