@@ -129,6 +129,8 @@ In addition, on the right side, you can select a reviewer (for instance, if you 
 
 Finally, fill in the template carefully and follow the guidelines. Remember to link the original issue and enable the checkbox to allow maintainer edits so the branch can be updated for a merge. Then, click on `Create pull request`.
 
+For the PR body, ensure you give a description of what the PR contains, and add examples if possible (and if they apply to the contribution) to help with the review process. You can take a look at [#PR 974](https://github.com/argilla-io/distilabel/pull/974) or [#PR 983](https://github.com/argilla-io/distilabel/pull/983) for examples of typical PRs.
+
 
 ### Review your pull request
 
