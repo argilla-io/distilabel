@@ -70,6 +70,14 @@ hide:
 
     [:octicons-arrow-right-24: LoadDataFromDicts](loaddatafromdicts.md){ .bottom }
 
+-   :material-file-download:{ .lg .middle } __DataSampler__
+
+    ---
+
+    Step to sample from a dataset.
+
+    [:octicons-arrow-right-24: DataSampler](datasampler.md){ .bottom }
+
 -   :material-file-download:{ .lg .middle } __LoadDataFromHub__
 
     ---
@@ -93,6 +101,14 @@ hide:
     Load a dataset that was previously saved to disk.
 
     [:octicons-arrow-right-24: LoadDataFromDisk](loaddatafromdisk.md){ .bottom }
+
+-   :material-format-list-bulleted:{ .lg .middle } __PrepareExamples__
+
+    ---
+
+    Helper step to create examples from `query` and `answers` pairs used as Few Shots in APIGen.
+
+    [:octicons-arrow-right-24: PrepareExamples](prepareexamples.md){ .bottom }
 
 -   :material-format-list-bulleted:{ .lg .middle } __ConversationTemplate__
 
@@ -149,6 +165,14 @@ hide:
     Deduplicates text using embeddings.
 
     [:octicons-arrow-right-24: EmbeddingDedup](embeddingdedup.md){ .bottom }
+
+-   :material-filter:{ .lg .middle } __APIGenExecutionChecker__
+
+    ---
+
+    Executes the generated function calls.
+
+    [:octicons-arrow-right-24: APIGenExecutionChecker](apigenexecutionchecker.md){ .bottom }
 
 -   :material-filter:{ .lg .middle } __MinHashDedup__
 

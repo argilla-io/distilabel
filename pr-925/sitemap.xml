@@ -301,6 +301,10 @@
          <lastmod>2024-09-24</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-925/components-gallery/steps/datasampler/</loc>
+         <lastmod>2024-09-24</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-925/components-gallery/steps/loaddatafromhub/</loc>
          <lastmod>2024-09-24</lastmod>
     </url>
@@ -310,6 +314,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-925/components-gallery/steps/loaddatafromdisk/</loc>
+         <lastmod>2024-09-24</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-925/components-gallery/steps/prepareexamples/</loc>
          <lastmod>2024-09-24</lastmod>
     </url>
     <url>
@@ -338,6 +346,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-925/components-gallery/steps/embeddingdedup/</loc>
+         <lastmod>2024-09-24</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-925/components-gallery/steps/apigenexecutionchecker/</loc>
          <lastmod>2024-09-24</lastmod>
     </url>
     <url>
