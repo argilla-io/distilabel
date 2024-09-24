@@ -14,7 +14,6 @@
 
 import sys
 import warnings
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import orjson as json
@@ -69,14 +68,6 @@ class ArgillaLabeller(Task):
     Base class for all tasks in ArgiLabel.
     """
 
-    template_path: Optional[Union[str, Path]] = (
-        importlib_resources.files("distilabel")
-        / "steps"
-        / "tasks"
-        / "templates"
-        / "argillalabeller.jinja2"
-    )
-
     system_prompt: str = (
         "You are an expert annotator and labelling assistant that understands complex domains and natural language processing. "
         "You are given input fields and a question. "
@@ -91,28 +82,28 @@ class ArgillaLabeller(Task):
         _SPANQUESTION_SETTINGS.type: "Provide a list of none, one or multiple spans containing of an exact text from the input field value and a label from the list of provided labels.",
     }
 
-    example_records: RuntimeParameter[
-        Union[List[Union[Dict[str, Any], Record]], None]
+    example_records: Optional[
+        RuntimeParameter[Optional[List[Union[Dict[str, Any], Record]]]]
     ] = Field(
         default=None,
         description="The few shot example records with responses to be used to answer the question.",
     )
-    fields: RuntimeParameter[Union[List[Union[TextField, Dict[str, Any]]], None]] = (
-        Field(
-            default=None,
-            description="The field settings for the fields to be used to answer the question.",
-        )
+    fields: Optional[List[Union[TextField, Dict[str, Any]]]] = Field(
+        default=None,
+        description="The field settings for the fields to be used to answer the question.",
     )
 
-    question: RuntimeParameter[
-        Union[
-            Dict[str, Any],
-            LabelQuestion,
-            MultiLabelQuestion,
-            RatingQuestion,
-            SpanQuestion,
-            TextQuestion,
-            None,
+    question: Optional[
+        RuntimeParameter[
+            Union[
+                Dict[str, Any],
+                LabelQuestion,
+                MultiLabelQuestion,
+                RatingQuestion,
+                SpanQuestion,
+                TextQuestion,
+                None,
+            ]
         ]
     ] = Field(
         default=None,
@@ -126,10 +117,15 @@ class ArgillaLabeller(Task):
         """Loads the Jinja2 template."""
         super().load()
 
-        if isinstance(self.template_path, str):
-            self.template_path = Path(self.template_path)
+        _path = str(
+            importlib_resources.files("distilabel")
+            / "steps"
+            / "tasks"
+            / "templates"
+            / "quality-scorer.jinja2"
+        )
 
-        self._template = Template(open(self.template_path).read())
+        self._template = Template(open(_path).read())
 
     @property
     def questions(
@@ -294,24 +290,14 @@ class ArgillaLabeller(Task):
     @override
     def process(self, inputs: StepInput) -> "StepOutput":
         question = inputs[0].get("question", self.question)
-        if not isinstance(question, dict):
-            question = question.serialize()
         runtime_parameters = self.llm._runtime_parameters
         if "structured_output" in runtime_parameters:
             warnings.warn(
                 "Structured output is handled by ArgillaLabeler internally. Setting structured output to json with schema.",
                 stacklevel=2,
             )
-        generation_kwargs = runtime_parameters.get("generation_kwargs", {})
-        if "temperature" in generation_kwargs:
-            warnings.warn(
-                "Temperature is handled by ArgillaLabeler internally. Setting temperature to 0.",
-                stacklevel=2,
-            )
-        generation_kwargs.update({"temperature": 0.01})
         runtime_parameters.update(
             {
-                "generation_kwargs": generation_kwargs,
                 "structured_output": {
                     "format": "json",
                     "schema": self._get_pydantic_model_of_structured_output(question),
