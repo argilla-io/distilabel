@@ -102,3 +102,14 @@ class DummyTaskOfflineBatchGeneration(DummyTask):
 @pytest.fixture
 def dummy_llm() -> AsyncLLM:
     return DummyAsyncLLM()
+
+
+@pytest.fixture
+def local_llamacpp_model_path():
+    """
+    Fixture that provides the local model path for LlamaCpp testing.
+
+    Returns:
+        str: The path to the local LlamaCpp model file.
+    """
+    return "./tests/model/gguf/all-MiniLM-L6-v2-Q2_K.gguf"

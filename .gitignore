@@ -78,3 +78,5 @@ venv.bak/
 *.log
 *.swp
 .DS_Store
+#models
+tests/model
