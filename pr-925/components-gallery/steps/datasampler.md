@@ -96,7 +96,20 @@ ds = (
     .select(range(500))
     .to_list()
 )
-
+data = [
+    {
+        "func_name": "final_velocity",
+        "func_desc": "Calculates the final velocity of an object given its initial velocity, acceleration, and time.",
+    },
+    {
+        "func_name": "permutation_count",
+        "func_desc": "Calculates the number of permutations of k elements from a set of n elements.",
+    },
+    {
+        "func_name": "getdivision",
+        "func_desc": "Divides two numbers by making an API call to a division service.",
+    },
+]
 with Pipeline(name="APIGenPipeline") as pipeline:
     loader_seeds = LoadDataFromDicts(data=data)
     sampler = DataSampler(
