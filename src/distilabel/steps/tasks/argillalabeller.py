@@ -178,14 +178,20 @@ class ArgillaLabeller(Task):
     ) -> str:
         base = []
         for record in records:
-            if record["responses"]:
+            responses = record.get("responses", {})
+            if responses.get(question["name"]):
                 base.append(self._format_record(record, fields))
-                value = record["responses"][question["name"]][0]["value"]
+                value = responses[question["name"]][0]["value"]
                 formatted_value = self._assign_value_to_question_value_model(
                     value, question
                 )
                 base.append(f"Response: {formatted_value}")
                 base.append("")
+            else:
+                warnings.warn(
+                    f"Record {record} has no response for question {question['name']}. Skipping example record.",
+                    stacklevel=2,
+                )
         return "\n".join(base)
 
     def format_input(
@@ -270,25 +276,29 @@ class ArgillaLabeller(Task):
             question_name=question["name"],
             type="model",
             agent=self.llm.model_name,
-        )
-        return {self.outputs[0]: suggestion.serialize()}
+        ).serialize()
+        return {self.outputs[0]: suggestion}
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":
         question = inputs[0].get("question", self.question)
         question = question.serialize() if not isinstance(question, dict) else question
+        structured_output = {
+            "format": "json",
+            "schema": self._get_pydantic_model_of_structured_output(question),
+        }
         runtime_parameters = self.llm._runtime_parameters
-        if "structured_output" in runtime_parameters:
+        if (
+            "structured_output" in runtime_parameters
+            and runtime_parameters.get("structured_output") != structured_output
+        ):
             warnings.warn(
                 "Structured output is handled by ArgillaLabeler internally. Setting structured output to json with schema.",
                 stacklevel=2,
             )
         runtime_parameters.update(
             {
-                "structured_output": {
-                    "format": "json",
-                    "schema": self._get_pydantic_model_of_structured_output(question),
-                },
+                "structured_output": structured_output,
             }
         )
         self.llm.set_runtime_parameters(runtime_parameters)
