@@ -86,16 +86,17 @@ class ArgillaLabeller(Task):
     }
 
     example_records: Optional[
-        RuntimeParameter[Optional[List[Union[Dict[str, Any], Record]]]]
+        RuntimeParameter[Union[List[Union[Dict[str, Any], Record]], None]]
     ] = Field(
         default=None,
         description="The few shot example records with responses to be used to answer the question.",
     )
-    fields: Optional[List[Union[TextField, Dict[str, Any]]]] = Field(
+    fields: Optional[
+        RuntimeParameter[Union[List[Union[TextField, Dict[str, Any]]], None]]
+    ] = Field(
         default=None,
         description="The field settings for the fields to be used to answer the question.",
     )
-
     question: Optional[
         RuntimeParameter[
             Union[
@@ -206,6 +207,7 @@ class ArgillaLabeller(Task):
         fields = input.get(self.optional_inputs[0], self.fields)
         question = input.get(self.optional_inputs[1], self.question)
         examples = input.get(self.optional_inputs[2], self.example_records)
+
         if any([fields is None, question is None]):
             raise ValueError(
                 "Fields and question must be provided during init or through `process` method."
