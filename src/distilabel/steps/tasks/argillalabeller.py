@@ -185,6 +185,7 @@ class ArgillaLabeller(Task):
                     value, question
                 )
                 base.append(f"Response: {formatted_value}")
+                base.append("")
         return "\n".join(base)
 
     def format_input(
@@ -227,6 +228,7 @@ class ArgillaLabeller(Task):
             if examples
             else None
         )
+        import pdb
 
         formatted_fields = self._format_record(record, fields)
         formatted_question = self._format_question(question)
@@ -235,13 +237,14 @@ class ArgillaLabeller(Task):
             if examples
             else False
         )
-
         prompt = self._template.render(
             fields=formatted_fields,
             question=formatted_question,
             examples=formatted_examples,
         )
-
+        pdb.set_trace()
+        print(prompt)
+        exit()
         messages = []
         if self.system_prompt:
             messages.append({"role": "system", "content": self.system_prompt})

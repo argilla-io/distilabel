@@ -7,14 +7,5 @@ Please provide an answer to the question based on the input fields.
 {{ question }}
 {% if examples %}
 # Examples
-{% for example in examples %}
-    {{ example}}
-{% endfor %}
-{% endif %}
-{% if output_format %}
-# Output Format
-Now, please give me the labels in JSON format, do not include any other text in your response:
-```
-{{ output_format }}
-```
+{{ examples }}
 {% endif %}
