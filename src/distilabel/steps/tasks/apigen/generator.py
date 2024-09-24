@@ -71,7 +71,8 @@ class APIGenGenerator(Task):
 
     Output columns:
         - query (`List[str]`): The list of queries.
-        - answers (`List[str]`): The list of answers.
+        - answers (`List[Dict[str, Any]]`): The list of answers, containing the info as a dictionary to
+            be passed to the functions.
 
     Categories:
         - text-generation
