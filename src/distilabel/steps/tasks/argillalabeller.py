@@ -125,18 +125,18 @@ class ArgillaLabeller(Task):
             / "steps"
             / "tasks"
             / "templates"
-            / "quality-scorer.jinja2"
+            / "argillalabeller.jinja2"
         )
 
         self._template = Template(open(_path).read())
 
     @property
     def inputs(self) -> List[str]:
-        return ["records"]
+        return ["record"]
 
     @property
     def optional_inputs(self) -> List[str]:
-        return ["example_records", "fields", "question"]
+        return ["fields", "question", "example_records"]
 
     def _format_record(
         self, record: Dict[str, Any], fields: List[Dict[str, Any]]
@@ -202,11 +202,10 @@ class ArgillaLabeller(Task):
             ],
         ],
     ) -> ChatType:
-        record = input["records"]
-        fields = input.get("fields", self.fields)
-        question = input.get("question", self.question)
-        examples = input.get("example_records", self.example_records)
-
+        record = input[self.inputs[0]]
+        fields = input.get(self.optional_inputs[0], self.fields)
+        question = input.get(self.optional_inputs[1], self.question)
+        examples = input.get(self.optional_inputs[2], self.example_records)
         if any([fields is None, question is None]):
             raise ValueError(
                 "Fields and question must be provided during init or through `process` method."
@@ -256,13 +255,7 @@ class ArgillaLabeller(Task):
     ) -> Dict[str, Any]:
         fields = input.get("fields", self.fields)
         question = input.get("question", self.question) or self.question
-        if not isinstance(question, dict):
-            question = question.serialize()
-        fields = [
-            field.serialize() if not isinstance(field, dict) else field
-            for field in fields
-        ]
-
+        question = question.serialize() if not isinstance(question, dict) else question
         model = self._get_pydantic_model_of_structured_output(question)
         validated_output = model(**json.loads(output))
         value = self._get_value_from_question_value_model(validated_output)
@@ -276,11 +269,12 @@ class ArgillaLabeller(Task):
             type="model",
             agent=self.llm.model_name,
         )
-        return {self.outputs[0]: suggestion}
+        return {self.outputs[0]: suggestion.serialize()}
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":
         question = inputs[0].get("question", self.question)
+        question = question.serialize() if not isinstance(question, dict) else question
         runtime_parameters = self.llm._runtime_parameters
         if "structured_output" in runtime_parameters:
             warnings.warn(
@@ -295,6 +289,7 @@ class ArgillaLabeller(Task):
                 },
             }
         )
+        print(runtime_parameters)
         self.llm.set_runtime_parameters(runtime_parameters)
         yield from super().process(inputs)
 
