@@ -7,12 +7,12 @@ hide:
 Thank you for investing your time in contributing to the project! Any contribution you make will be reflected in the most recent version of distilabel 🤩.
 
 ??? Question "New to contributing in general?"
- If you're a new contributor, read the [README](https://github.com/argilla-io/distilabel/blob/develop/README.md) to get an overview of the project. In addition, here are some resources to help you get started with open-source contributions:
+    If you're a new contributor, read the [README](https://github.com/argilla-io/distilabel/blob/develop/README.md) to get an overview of the project. In addition, here are some resources to help you get started with open-source contributions:
 
- * **Discord**: You are welcome to join the [distilabel Discord community](http://hf.co/join/discord), where you can keep in touch with other users, contributors and the distilabel team. In the following [section](#first-contact-in-discord), you can find more information on how to get started in Discord.
- * **Git**: This is a very useful tool to keep track of the changes in your files. Using the command-line interface (CLI), you can make your contributions easily. For that, you need to have it [installed and updated](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) on your computer.
- * **GitHub**: It is a platform and cloud-based service that uses git and allows developers to collaborate on projects. To contribute to distilabel, you'll need to create an account. Check the [Contributor Workflow with Git and Github](#contributor-workflow-with-git-and-github) for more info.
- * **Developer Documentation**: To collaborate, you'll need to set up an efficient environment. Check the [Installation](../getting_started/installation.md) guide to know how to do it.
+    * **Discord**: You are welcome to join the [distilabel Discord community](http://hf.co/join/discord), where you can keep in touch with other users, contributors and the distilabel team. In the following [section](#first-contact-in-discord), you can find more information on how to get started in Discord.
+    * **Git**: This is a very useful tool to keep track of the changes in your files. Using the command-line interface (CLI), you can make your contributions easily. For that, you need to have it [installed and updated](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) on your computer.
+    * **GitHub**: It is a platform and cloud-based service that uses git and allows developers to collaborate on projects. To contribute to distilabel, you'll need to create an account. Check the [Contributor Workflow with Git and Github](#contributor-workflow-with-git-and-github) for more info.
+    * **Developer Documentation**: To collaborate, you'll need to set up an efficient environment. Check the [Installation](../getting_started/installation.md) guide to know how to do it.
 
 ## First Contact in Discord
 

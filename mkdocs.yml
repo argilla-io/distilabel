@@ -252,4 +252,5 @@ nav:
   - Community:
       - sections/community/index.md
       - How to contribute?: sections/community/contributor.md
+      - Developer Documentation: sections/community/developer_documentation.md
       - Issue dashboard: sections/community/popular_issues.md
