@@ -131,21 +131,6 @@ class ArgillaLabeller(Task):
         self._template = Template(open(_path).read())
 
     @property
-    def questions(
-        self,
-    ) -> List[
-        Union[
-            Dict[str, Any],
-            LabelQuestion,
-            MultiLabelQuestion,
-            RatingQuestion,
-            SpanQuestion,
-            TextQuestion,
-        ]
-    ]:
-        return self._questions
-
-    @property
     def inputs(self) -> List[str]:
         return ["records"]
 
