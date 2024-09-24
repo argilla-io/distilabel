@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Optional, Union
 from huggingface_hub.utils import send_telemetry
 
 from distilabel import __version__
+from distilabel.telemetry._helpers import get_server_id
 from distilabel.utils.telemetry import (
     is_running_on_docker_container,
 )
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
 class TelemetryClient:
     def __post_init__(self):
         self._system_info = {
+            "server_id": get_server_id(),
             "system": platform.system(),
             "machine": platform.machine(),
             "platform": platform.platform(),
@@ -52,22 +54,12 @@ class TelemetryClient:
 
         self._track_data(topic="add_step", user_agent=user_agent)
 
-    def track_add_edge_data(
-        self, pipeline: "BasePipeline", from_step: str, to_step: str
-    ):
-        user_agent = {}
-
-        user_agent["pipeline"] = pipeline.__class__.__name__
-        user_agent["from_step"] = from_step
-        user_agent["to_step"] = to_step
-
-        self._track_data(topic="add_edge", user_agent=user_agent)
-
     def track_process_batch_data(
-        self, pipeline: "BasePipeline", step: "_Step", batch: "_Batch"
+        self, pipeline: "BasePipeline", step: "_Step", batch: "_Batch", is_leaf: bool
     ):
         user_agent = {}
-
+        user_agent["is_leaf"] = is_leaf
+        user_agent["pipeline_id"] = pipeline._create_signature()
         user_agent["pipeline"] = pipeline.__class__.__name__
         user_agent["step"] = step.__class__.__name__
         user_agent["batch_size"] = batch.size
@@ -75,9 +67,6 @@ class TelemetryClient:
         self._track_data(topic="process_batch", user_agent=user_agent)
 
     def track_run_data(self, pipeline: "BasePipeline", user_agent: dict):
-        user_agent["pipeline"] = pipeline.__class__.__name__
-        self._track_data(topic="run", user_agent=user_agent)
-
         # Get the steps and connections from the pipeline dump
         dump = pipeline.dump()
         steps = dump["pipeline"]["steps"]
@@ -93,21 +82,12 @@ class TelemetryClient:
             step["step"].get("name"): step["step"].get("llm") for step in steps
         }
         step_name_to_llm = {k: v for k, v in step_name_to_llm.items() if v is not None}
-        connections = dump["pipeline"]["connections"]
 
         # Track the steps
         for step in step_name_to_type:
             llm = step_name_to_llm.get(step)
             step_type = "task" if llm is not None else "step"
             self.track_add_step_data(pipeline, step_name_to_class[step], step_type, llm)
-
-        # Track connections
-        for con in connections:
-            from_step_name = con["from"]
-            from_step = step_name_to_class[from_step_name]
-            for to_step_name in con["to"]:
-                to_step = step_name_to_class[to_step_name]
-                self.track_add_edge_data(pipeline, from_step, to_step)
 
     def track_exception(
         self, pipeline: "BasePipeline", exception: Union[Exception, str]

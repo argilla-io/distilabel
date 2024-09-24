@@ -18,7 +18,7 @@ from typing import Generator
 from unittest.mock import MagicMock, patch
 
 import pytest
-from distilabel.telemetry import TelemetryClient
+from distilabel.telemetry._client import TelemetryClient
 
 
 @pytest.fixture(autouse=True)
@@ -40,9 +40,6 @@ def mock_telemetry():
         mock_instance = MockTelemetryClient
         mock_instance.track_add_step_data = MagicMock(
             wraps=instance.track_add_step_data
-        )
-        mock_instance.track_add_edge_data = MagicMock(
-            wraps=instance.track_add_edge_data
         )
         mock_instance.track_process_batch_data = MagicMock(
             wraps=instance.track_process_batch_data

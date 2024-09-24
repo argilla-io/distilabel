@@ -57,7 +57,7 @@ from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import GeneratorStep
 from distilabel.steps.generators.utils import make_generator_step
-from distilabel.telemetry import (
+from distilabel.telemetry._client import (
     get_telemetry_client,
 )
 from distilabel.utils.logging import setup_logging, stop_logging
@@ -849,7 +849,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         self._send_last_batch_flag_to_step(step_name)
 
         get_telemetry_client().track_process_batch_data(
-            pipeline=self, step=self._get_step_from_batch(batch), batch=batch
+            pipeline=self,
+            step=self._get_step_from_batch(batch),
+            batch=batch,
+            is_leaf=batch.step_name in self.dag.leaf_steps,
         )
 
     def _register_stages_last_batch(self, batch: "_Batch") -> None:

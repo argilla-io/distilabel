@@ -26,7 +26,7 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.ray import RayPipeline
 from distilabel.pipeline.step_wrapper import _StepWrapper, _StepWrapperException
-from distilabel.telemetry import (
+from distilabel.telemetry._client import (
     get_telemetry_client,
 )
 from distilabel.utils.logging import setup_logging, stop_logging

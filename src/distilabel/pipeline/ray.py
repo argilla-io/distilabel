@@ -20,7 +20,7 @@ from distilabel.distiset import create_distiset
 from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.base import BasePipeline
 from distilabel.pipeline.step_wrapper import _StepWrapper
-from distilabel.telemetry import (
+from distilabel.telemetry._client import (
     get_telemetry_client,
 )
 from distilabel.utils.logging import setup_logging, stop_logging
