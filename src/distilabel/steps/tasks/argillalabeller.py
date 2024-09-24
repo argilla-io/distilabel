@@ -71,8 +71,11 @@ class ArgillaLabeller(Task):
     system_prompt: str = (
         "You are an expert annotator and labelling assistant that understands complex domains and natural language processing. "
         "You are given input fields and a question. "
-        "You should create a valid QuestionValue JSON object as an answer to the question based on the input fields. "
-        "Reason through your response step-by-step."
+        "You should create a valid JSON object as an answer to the question based on the input fields. "
+        "1. Understand the input field. "
+        "2. Understand the question type and the question settings. "
+        "3. Reason through your response step-by-step. "
+        "4. Provide a valid JSON object as an answer to the question."
     )
     question_to_label_instruction: Dict[str, str] = {
         _LABELQUESTION_SETTINGS.type: "Select the appropriate label from the list of provided labels.",
