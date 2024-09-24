@@ -289,7 +289,6 @@ class ArgillaLabeller(Task):
                 },
             }
         )
-        print(runtime_parameters)
         self.llm.set_runtime_parameters(runtime_parameters)
         yield from super().process(inputs)
 
