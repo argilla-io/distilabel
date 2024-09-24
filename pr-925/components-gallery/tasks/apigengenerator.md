@@ -137,42 +137,6 @@ ANSWER:
 #     {'name': 'getrandommovie', 'arguments': {}},
 #     {'name': 'getrandommovie', 'arguments': {}},
 #     {'name': 'getrandommovie', 'arguments': {}}]],
-# 'distilabel_metadata': {'raw_output_api_gen_generator_0': '[
-   {
-       "query": "I want to watch a movie tonight, can you recommend a random one from your database?",
-       "answers": [
-   {
-       "name": "getrandommovie",
-       "arguments": {}
-   }
-       ]
-   },
-   {
-       "query": "Give me 5 random movie suggestions from your database to plan my weekend.",
-       "answers": [
-   {
-       "name": "getrandommovie",
-       "arguments": {}
-   },
-   {
-       "name": "getrandommovie",
-       "arguments": {}
-   },
-   {
-       "name": "getrandommovie",
-       "arguments": {}
-   },
-   {
-       "name": "getrandommovie",
-       "arguments": {}
-   },
-   {
-       "name": "getrandommovie",
-       "arguments": {}
-   }
-       ]
-   }
-]',
 # 'raw_input_api_gen_generator_0': [{'role': 'system',
 #     'content': "You are a data labeler. Your responsibility is to generate a set of diverse queries and corresponding answers for the given functions in JSON format.
 
@@ -249,28 +213,6 @@ ANSWER:
 # "My family and I are planning a movie night. We can't decide on what to watch. Can you suggest some random movie titles?"],
 # 'answers': [[{'arguments': {}, 'name': 'getrandommovie'}],
 # [{'arguments': {}, 'name': 'getrandommovie'}]],
-# 'distilabel_metadata': {'raw_output_api_gen_generator_0': '{ 
-  "pairs": [
-    {
-      "answers": [
-{
-  "arguments": {},
-  "name": "getrandommovie"
-}
-      ],
-      "query": "I'm bored and want to watch a movie. Can you suggest some movies?"
-    },
-    {
-      "answers": [
-{
-  "arguments": {},
-  "name": "getrandommovie"
-}
-      ],
-      "query": "My family and I are planning a movie night. We can't decide on what to watch. Can you suggest some random movie titles?"
-    }
-  ]
-}',
 # 'raw_input_api_gen_generator_0': [{'role': 'system',
 #     'content': "You are a data labeler. Your responsibility is to generate a set of diverse queries and corresponding answers for the given functions in JSON format.
 
