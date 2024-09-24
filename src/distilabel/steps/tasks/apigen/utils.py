@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class PrepareExamples(Step):
-    """Helper step to create examples from `query` and `answers` pairs used as Few Shots in APIGen.
+    r"""Helper step to create examples from `query` and `answers` pairs used as Few Shots in APIGen.
 
     Attributes:
         template (str): The template to format the examples.

@@ -41,7 +41,7 @@ Do not pass if:
 
 
 class APIGenSemanticChecker(Task):
-    """Generate queries and answers for the given functions in JSON format.
+    r"""Generate queries and answers for the given functions in JSON format.
 
     The `APIGenGenerator` is inspired by the APIGen pipeline, which was designed to generate
     verifiable and diverse function-calling datasets. The task generates a set of diverse queries
