@@ -16,6 +16,19 @@ The `APIGenGenerator` is inspired by the APIGen pipeline, which was designed to 
 
 
 
+### Attributes
+
+- **system_prompt**: The system prompt to guide the user in the generation of queries and answers.
+
+- **use_tools**: Whether to use the tools available in the prompt to generate the queries and answers.  In case the tools are given in the input, they will be added to the prompt.
+
+- **is_parallel**: Whether to generate parallel queries or not. If a float, it will  generate parallel queries with the given probability.
+
+- **number**: The number of queries to generate. If a list, it will choose a random  number from the list.
+
+- **use_default_structured_output**: Whether to use the default structured output or not.
+
+
 
 
 
@@ -67,7 +80,7 @@ graph TD
 
 - **query** (`List[str]`): The list of queries.
 
-- **answers** (`List[str]`): The list of answers.
+- **answers** (`List[Dict[str, Any]]`): The list of answers, containing the info as a dictionary to  be passed to the functions.
 
 
 

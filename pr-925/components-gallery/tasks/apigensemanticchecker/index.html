@@ -4726,7 +4726,12 @@
     and corresponding answers for the given functions in JSON format.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>system_prompt</strong>: System prompt for the task. Has a default one.  - exclude_failed_execution: Whether to exclude failed executions (won't run on those  rows that have a False in <code>keep_row_after_execution_check</code> column, which  comes from running <code>APIGenExecutionChecker</code>). Defaults to True.</li>
+<li>
+<p><strong>system_prompt</strong>: System prompt for the task. Has a default one.</p>
+</li>
+<li>
+<p><strong>exclude_failed_execution</strong>: Whether to exclude failed executions (won't run on those  rows that have a False in <code>keep_row_after_execution_check</code> column, which  comes from running <code>APIGenExecutionChecker</code>). Defaults to True.</p>
+</li>
 </ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>graph TD
@@ -4739,13 +4744,13 @@
         end
         subgraph New columns
             OCOL0[thought]
-            OCOL1[passes]
+            OCOL1[keep_row_after_semantic_check]
         end
     end
 
     subgraph APIGenSemanticChecker
         StepInput[Input Columns: func_desc, query, answers, execution_result]
-        StepOutput[Output Columns: thought, passes]
+        StepOutput[Output Columns: thought, keep_row_after_semantic_check]
     end
 
     ICOL0 --&gt; StepInput
@@ -4765,7 +4770,7 @@
 <p><strong>query</strong> (<code>str</code>): Instruction from the user.</p>
 </li>
 <li>
-<p><strong>answers</strong> (<code>str</code>): JSON encoded list with arguments to be passed to the function/API.</p>
+<p><strong>answers</strong> (<code>List[Dict[str, Any]]</code>): JSON encoded list with arguments to be passed to the function/API.</p>
 </li>
 <li>
 <p><strong>execution_result</strong> (<code>str</code>): Result of the function/API executed.</p>
@@ -4774,10 +4779,10 @@
 <h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
-<p><strong>thought</strong> (<code>str</code>): Reasoning for the output in "passes".</p>
+<p><strong>thought</strong> (<code>str</code>): Reasoning for the output on whether to keep this output or not.</p>
 </li>
 <li>
-<p><strong>passes</strong> (<code>str</code>): "yes" or "no".</p>
+<p><strong>keep_row_after_semantic_check</strong> (<code>bool</code>): True or False, can be used to filter  afterwards.</p>
 </li>
 </ul>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
@@ -4804,7 +4809,7 @@
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>            <span class="p">{</span>
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>                <span class="s2">&quot;func_desc&quot;</span><span class="p">:</span> <span class="s2">&quot;Fetch information about a specific cat breed from the Cat Breeds API.&quot;</span><span class="p">,</span>
 </span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>                <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;What information can be obtained about the Maine Coon cat breed?&quot;</span><span class="p">,</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                <span class="s2">&quot;func_call&quot;</span><span class="p">:</span> <span class="s1">&#39;[{&quot;name&quot;: &quot;get_breed_information&quot;, &quot;arguments&quot;: {&quot;breed&quot;: &quot;Maine Coon&quot;}}]&#39;</span><span class="p">,</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                <span class="s2">&quot;answers&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;get_breed_information&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;breed&quot;</span><span class="p">:</span> <span class="s2">&quot;Maine Coon&quot;</span><span class="p">}}],</span>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                <span class="s2">&quot;execution_result&quot;</span><span class="p">:</span> <span class="s2">&quot;The Maine Coon is a big and hairy breed of cat&quot;</span><span class="p">,</span>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>            <span class="p">}</span>
 </span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        <span class="p">]</span>
@@ -4813,10 +4818,10 @@
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="n">res</span>
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="c1"># [{&#39;func_desc&#39;: &#39;Fetch information about a specific cat breed from the Cat Breeds API.&#39;,</span>
 </span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="c1"># &#39;query&#39;: &#39;What information can be obtained about the Maine Coon cat breed?&#39;,</span>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="c1"># &#39;func_call&#39;: &#39;[{&quot;name&quot;: &quot;get_breed_information&quot;, &quot;arguments&quot;: {&quot;breed&quot;: &quot;Maine Coon&quot;}}]&#39;,</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="c1"># &#39;answers&#39;: [{&quot;name&quot;: &quot;get_breed_information&quot;, &quot;arguments&quot;: {&quot;breed&quot;: &quot;Maine Coon&quot;}}],</span>
 </span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="c1"># &#39;execution_result&#39;: &#39;The Maine Coon is a big and hairy breed of cat&#39;,</span>
 </span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="c1"># &#39;thought&#39;: &#39;&#39;,</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="c1"># &#39;pass&#39;: &#39;yes&#39;,</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="c1"># &#39;keep_row_after_semantic_check&#39;: True,</span>
 </span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="c1"># &#39;distilabel_metadata&#39;: {&#39;raw_output_a_p_i_gen_semantic_checker_0&#39;: &#39;{</span>
 </span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>   <span class="s2">&quot;thought&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 </span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>   <span class="s2">&quot;pass&quot;</span><span class="p">:</span> <span class="s2">&quot;yes&quot;</span>
@@ -4871,7 +4876,7 @@
 </span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>            <span class="p">{</span>
 </span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                <span class="s2">&quot;func_desc&quot;</span><span class="p">:</span> <span class="s2">&quot;Fetch information about a specific cat breed from the Cat Breeds API.&quot;</span><span class="p">,</span>
 </span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;What information can be obtained about the Maine Coon cat breed?&quot;</span><span class="p">,</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                <span class="s2">&quot;func_call&quot;</span><span class="p">:</span> <span class="s1">&#39;[{&quot;name&quot;: &quot;get_breed_information&quot;, &quot;arguments&quot;: {&quot;breed&quot;: &quot;Maine Coon&quot;}}]&#39;</span><span class="p">,</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                <span class="s2">&quot;answers&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;get_breed_information&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;breed&quot;</span><span class="p">:</span> <span class="s2">&quot;Maine Coon&quot;</span><span class="p">}}],</span>
 </span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>                <span class="s2">&quot;execution_result&quot;</span><span class="p">:</span> <span class="s2">&quot;The Maine Coon is a big and hairy breed of cat&quot;</span><span class="p">,</span>
 </span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>            <span class="p">}</span>
 </span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        <span class="p">]</span>
@@ -4880,9 +4885,9 @@
 </span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="n">res</span>
 </span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="c1"># [{&#39;func_desc&#39;: &#39;Fetch information about a specific cat breed from the Cat Breeds API.&#39;,</span>
 </span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="c1"># &#39;query&#39;: &#39;What information can be obtained about the Maine Coon cat breed?&#39;,</span>
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="c1"># &#39;func_call&#39;: &#39;[{&quot;name&quot;: &quot;get_breed_information&quot;, &quot;arguments&quot;: {&quot;breed&quot;: &quot;Maine Coon&quot;}}]&#39;,</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="c1"># &#39;answers&#39;: [{&quot;name&quot;: &quot;get_breed_information&quot;, &quot;arguments&quot;: {&quot;breed&quot;: &quot;Maine Coon&quot;}}],</span>
 </span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="c1"># &#39;execution_result&#39;: &#39;The Maine Coon is a big and hairy breed of cat&#39;,</span>
-</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="c1"># &#39;passes&#39;: &#39;yes&#39;,</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="c1"># &#39;keep_row_after_semantic_check&#39;: True,</span>
 </span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="c1"># &#39;thought&#39;: &#39;&#39;,</span>
 </span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="c1"># &#39;distilabel_metadata&#39;: {&#39;raw_output_a_p_i_gen_semantic_checker_0&#39;: &#39;{ </span>
 </span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>  <span class="s2">&quot;passes&quot;</span><span class="p">:</span> <span class="s2">&quot;yes&quot;</span><span class="p">,</span> 

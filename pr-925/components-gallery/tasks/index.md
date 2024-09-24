@@ -24,6 +24,7 @@ hide:
     | :material-filter:               | filtering           | Filtering steps are used to filter the data based on some criteria.                                |
     | :material-format-list-bulleted: | format              | Format steps are used to format the data.                                                          |
     | :material-file-download:        | load                | Load steps are used to load the data.                                                              |
+    | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
 
 <div class="grid cards" markdown>

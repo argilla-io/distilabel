@@ -4621,6 +4621,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attributes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#input-output-columns" class="md-nav__link">
     <span class="md-ellipsis">
       Input &amp; Output Columns
@@ -4715,6 +4724,24 @@
 <p>The <code>APIGenGenerator</code> is inspired by the APIGen pipeline, which was designed to generate
     verifiable and diverse function-calling datasets. The task generates a set of diverse queries
     and corresponding answers for the given functions in JSON format.</p>
+<h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>system_prompt</strong>: The system prompt to guide the user in the generation of queries and answers.</p>
+</li>
+<li>
+<p><strong>use_tools</strong>: Whether to use the tools available in the prompt to generate the queries and answers.  In case the tools are given in the input, they will be added to the prompt.</p>
+</li>
+<li>
+<p><strong>is_parallel</strong>: Whether to generate parallel queries or not. If a float, it will  generate parallel queries with the given probability.</p>
+</li>
+<li>
+<p><strong>number</strong>: The number of queries to generate. If a list, it will choose a random  number from the list.</p>
+</li>
+<li>
+<p><strong>use_default_structured_output</strong>: Whether to use the default structured output or not.</p>
+</li>
+</ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>graph TD
     subgraph Dataset
@@ -4759,7 +4786,7 @@
 <p><strong>query</strong> (<code>List[str]</code>): The list of queries.</p>
 </li>
 <li>
-<p><strong>answers</strong> (<code>List[str]</code>): The list of answers.</p>
+<p><strong>answers</strong> (<code>List[Dict[str, Any]]</code>): The list of answers, containing the info as a dictionary to  be passed to the functions.</p>
 </li>
 </ul>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>

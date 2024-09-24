@@ -18,7 +18,9 @@ The `APIGenGenerator` is inspired by the APIGen pipeline, which was designed to 
 
 ### Attributes
 
-- **system_prompt**: System prompt for the task. Has a default one.  - exclude_failed_execution: Whether to exclude failed executions (won't run on those  rows that have a False in `keep_row_after_execution_check` column, which  comes from running `APIGenExecutionChecker`). Defaults to True.
+- **system_prompt**: System prompt for the task. Has a default one.
+
+- **exclude_failed_execution**: Whether to exclude failed executions (won't run on those  rows that have a False in `keep_row_after_execution_check` column, which  comes from running `APIGenExecutionChecker`). Defaults to True.
 
 
 
@@ -37,13 +39,13 @@ graph TD
 		end
 		subgraph New columns
 			OCOL0[thought]
-			OCOL1[passes]
+			OCOL1[keep_row_after_semantic_check]
 		end
 	end
 
 	subgraph APIGenSemanticChecker
 		StepInput[Input Columns: func_desc, query, answers, execution_result]
-		StepOutput[Output Columns: thought, passes]
+		StepOutput[Output Columns: thought, keep_row_after_semantic_check]
 	end
 
 	ICOL0 --> StepInput
@@ -64,7 +66,7 @@ graph TD
 
 - **query** (`str`): Instruction from the user.
 
-- **answers** (`str`): JSON encoded list with arguments to be passed to the function/API.
+- **answers** (`List[Dict[str, Any]]`): JSON encoded list with arguments to be passed to the function/API.
 
 - **execution_result** (`str`): Result of the function/API executed.
 
@@ -74,9 +76,9 @@ graph TD
 #### Outputs
 
 
-- **thought** (`str`): Reasoning for the output in "passes".
+- **thought** (`str`): Reasoning for the output on whether to keep this output or not.
 
-- **passes** (`str`): "yes" or "no".
+- **keep_row_after_semantic_check** (`bool`): True or False, can be used to filter  afterwards.
 
 
 
@@ -109,7 +111,7 @@ res = next(
             {
                 "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
                 "query": "What information can be obtained about the Maine Coon cat breed?",
-                "func_call": '[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
+                "answers": [{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}],
                 "execution_result": "The Maine Coon is a big and hairy breed of cat",
             }
         ]
@@ -118,10 +120,10 @@ res = next(
 res
 # [{'func_desc': 'Fetch information about a specific cat breed from the Cat Breeds API.',
 # 'query': 'What information can be obtained about the Maine Coon cat breed?',
-# 'func_call': '[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
+# 'answers': [{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}],
 # 'execution_result': 'The Maine Coon is a big and hairy breed of cat',
 # 'thought': '',
-# 'pass': 'yes',
+# 'keep_row_after_semantic_check': True,
 # 'distilabel_metadata': {'raw_output_a_p_i_gen_semantic_checker_0': '{
    "thought": "",
    "pass": "yes"
@@ -178,7 +180,7 @@ res = next(
             {
                 "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
                 "query": "What information can be obtained about the Maine Coon cat breed?",
-                "func_call": '[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
+                "answers": [{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}],
                 "execution_result": "The Maine Coon is a big and hairy breed of cat",
             }
         ]
@@ -187,9 +189,9 @@ res = next(
 res
 # [{'func_desc': 'Fetch information about a specific cat breed from the Cat Breeds API.',
 # 'query': 'What information can be obtained about the Maine Coon cat breed?',
-# 'func_call': '[{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]',
+# 'answers': [{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}],
 # 'execution_result': 'The Maine Coon is a big and hairy breed of cat',
-# 'passes': 'yes',
+# 'keep_row_after_semantic_check': True,
 # 'thought': '',
 # 'distilabel_metadata': {'raw_output_a_p_i_gen_semantic_checker_0': '{ 
   "passes": "yes", 
