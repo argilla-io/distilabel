@@ -35,7 +35,7 @@ class DummyOfflineBatchGenerateLLM(LLM):
         return "test"
 
     def generate(  # type: ignore
-        self, input: "FormattedInput", num_generations: int = 1
+        self, inputs: "FormattedInput", num_generations: int = 1
     ) -> "GenerateOutput":
         return ["output" for _ in range(num_generations)]
 

@@ -1,13 +1,13 @@
 ---
 hide: toc
 ---
-# Pipeline Samples
+# Tutorials
 
-- **Tutorials** provide detailed step-by-step explanations and the code used for end-to-end workflows.
+- **End-to-end tutorials** provide detailed step-by-step explanations and the code used for end-to-end workflows.
 - **Paper implementations** provide reproductions of fundamental papers in the synthetic data domain.
 - **Examples** don't provide explenations but simply show code for different tasks.
 
-## Tutorials
+## End-to-end tutorials
 
 <div class="grid cards" markdown>
 
@@ -105,7 +105,7 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/benchmarking_with_distilabel.md)
 
--   __llama.cpp with outlines__
+-   __Structured generation with outlines__
 
     ---
 
@@ -113,7 +113,7 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/llama_cpp_with_outlines.md)
 
--   __MistralAI with instructor__
+-   __Structured generation with instructor__
 
     ---
 

@@ -27,6 +27,8 @@ pip install "distilabel @ git+https://github.com/argilla-io/distilabel.git@devel
 
 Additionally, as part of `distilabel` some extra dependencies are available, mainly to add support for some of the LLM integrations we support. Here's a list of the available extras:
 
+### LLMs
+
 - `anthropic`: for using models available in [Anthropic API](https://www.anthropic.com/api) via the `AnthropicLLM` integration.
 
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
@@ -39,8 +41,6 @@ Additionally, as part of `distilabel` some extra dependencies are available, mai
 
 - `hf-transformers`: for using models available in [transformers](https://github.com/huggingface/transformers) package via the `TransformersLLM` integration.
 
-- `instructor`: for using structured generation of LLMs with [Instructor](https://github.com/jxnl/instructor/).
-
 - `litellm`: for using [`LiteLLM`](https://github.com/BerriAI/litellm) to call any LLM using OpenAI format via the `LiteLLM` integration.
 
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) Python bindings for `llama.cpp` via the `LlamaCppLLM` integration.
@@ -51,17 +51,27 @@ Additionally, as part of `distilabel` some extra dependencies are available, mai
 
 - `openai`: for using [OpenAI API](https://openai.com/blog/openai-api) models via the `OpenAILLM` integration, or the rest of the integrations based on OpenAI and relying on its client as `AnyscaleLLM`, `AzureOpenAILLM`, and `TogetherLLM`.
 
-- `outlines`: for using structured generation of LLMs with [outlines](https://github.com/outlines-dev/outlines).
-
-- `ray`: for scaling and distributing a pipeline with [Ray](https://github.com/ray-project/ray).
-
 - `vertexai`: for using [Google Vertex AI](https://cloud.google.com/vertex-ai) proprietary models via the `VertexAILLM` integration.
 
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
 
 - `sentence-transformers`: for generating sentence embeddings using [sentence-transformers](https://github.com/UKPLab/sentence-transformers).
 
+### Data processing
+
+- `ray`: for scaling and distributing a pipeline with [Ray](https://github.com/ray-project/ray).
+
 - `faiss-cpu` and `faiss-gpu`: for generating sentence embeddings using [faiss](https://github.com/facebookresearch/faiss).
+
+- `minhash`: for using minhash for duplicate detection with [datasketch](https://github.com/datasketch/datasketch) and [nltk](https://github.com/nltk/nltk).
+
+- `text-clustering`: for using text clustering with [UMAP](https://github.com/lmcinnes/umap) and [Scikit-learn](https://github.com/scikit-learn/scikit-learn).
+
+### Structured generation
+
+- `outlines`: for using structured generation of LLMs with [outlines](https://github.com/outlines-dev/outlines).
+
+- `instructor`: for using structured generation of LLMs with [Instructor](https://github.com/jxnl/instructor/).
 
 ## Recommendations / Notes
 

@@ -26,6 +26,7 @@ from pydantic import (
     model_validator,
     validate_call,
 )
+from pydantic._internal._model_construction import ModelMetaclass
 from typing_extensions import Annotated, override
 
 from distilabel.llms.base import AsyncLLM
@@ -74,13 +75,13 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         `:hugging:`
 
     Examples:
-        Free serverless Inference API:
+        Free serverless Inference API, set the input_batch_size of the Task that uses this to avoid Model is overloaded:
 
         ```python
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
         llm = InferenceEndpointsLLM(
-            model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
         )
 
         llm.load()
@@ -362,6 +363,12 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                     "To use the structured output you have to inform the `format` and `schema` in "
                     "the `structured_output` attribute."
                 ) from e
+
+        if structured_output:
+            if isinstance(structured_output["value"], ModelMetaclass):
+                structured_output["value"] = structured_output[
+                    "value"
+                ].model_json_schema()
 
         return structured_output
 

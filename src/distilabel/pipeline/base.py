@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import hashlib
 import logging
 import os
@@ -50,6 +49,7 @@ from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import GeneratorStep
 from distilabel.steps.generators.utils import make_generator_step
 from distilabel.utils.logging import setup_logging, stop_logging
+from distilabel.utils.notebook import in_notebook
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
     _Serializable,
@@ -312,6 +312,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
         dataset: Optional["InputDataset"] = None,
+        logging_handlers: Optional[List[logging.Handler]] = None,
     ) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
         the pipeline.
@@ -338,6 +339,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             dataset: If given, it will be used to create a `GeneratorStep` and put it as the
                 root step. Convenient method when you have already processed the dataset in
                 your script and just want to pass it already processed. Defaults to `None`.
+            logging_handlers: A list of logging handlers that will be used to log the
+                output of the pipeline. This argument can be useful so the logging messages
+                can be extracted and used in a different context. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -356,7 +360,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             self._add_dataset_generator_step(dataset)
 
         setup_logging(
-            log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
+            log_queue=self._log_queue,
+            filename=str(self._cache_location["log_file"]),
+            logging_handlers=logging_handlers,
         )
 
         # Set the name of the pipeline if it's the default one. This should be called
@@ -631,6 +637,45 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             Dict[str, Any]: Internal representation of the DAG from networkx in a serializable format.
         """
         return self.dag.dump()
+
+    def draw(
+        self,
+        path: Optional[Union[str, Path]] = "pipeline.png",
+        top_to_bottom: bool = False,
+        show_edge_labels: bool = True,
+    ) -> str:
+        """
+        Draws the pipeline.
+
+        Parameters:
+            path: The path to save the image to.
+            top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `False`.
+            show_edge_labels: Whether to show the edge labels. Defaults to `True`.
+
+        Returns:
+            The path to the saved image.
+        """
+        png = self.dag.draw(
+            top_to_bottom=top_to_bottom, show_edge_labels=show_edge_labels
+        )
+        with open(path, "wb") as f:
+            f.write(png)
+        return path
+
+    def __repr__(self) -> str:
+        """
+        If running in a Jupyter notebook, display an image representing this `Pipeline`.
+        """
+        if in_notebook():
+            try:
+                from IPython.display import Image, display
+
+                image_data = self.dag.draw()
+
+                display(Image(image_data))
+            except Exception:
+                pass
+        return super().__repr__()
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
         return {
@@ -1490,7 +1535,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         with self._steps_load_status_lock:
             for step_name, replicas in self._steps_load_status.items():
                 if replicas > 0:
-                    self._send_to_step(step_name, None)
+                    for _ in range(replicas):
+                        self._send_to_step(step_name, None)
 
     def _get_successors(self, batch: "_Batch") -> Tuple[List[str], List[str], bool]:
         """Gets the successors and the successors to which the batch has to be routed.
