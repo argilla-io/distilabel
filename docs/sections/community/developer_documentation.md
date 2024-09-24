@@ -4,9 +4,9 @@ hide:
   - footer
 ---
 
-Thank you for investing your time in contributing to the project!.
+Thank you for investing your time in contributing to the project!
 
-If you don't have the repository locally, and need any help, go to [THING](../community/contributor.md) and read the contributor workflow with Git and GitHub.
+If you don't have the repository locally, and need any help, go to the [contributor guide](../community/contributor.md) and read the contributor workflow with Git and GitHub first.
 
 ## Set up the Python environment
 
