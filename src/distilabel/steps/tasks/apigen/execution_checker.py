@@ -103,12 +103,7 @@ class APIGenExecutionChecker(Step):
 
     def load(self) -> None:
         """Loads the library where the functions will be extracted from."""
-        # TODO: Place a user error in case the path is not valid, to show what this really is.
         super().load()
-        from pathlib import Path
-
-        if Path(self.libpath).exists():
-            pass
         self._toolbox = load_module_from_path(self.libpath)
 
     def unload(self) -> None:
