@@ -155,11 +155,9 @@ class ArgillaLabeller(Task):
     ) -> str:
         output = []
         for field in fields:
-            title = field.get("title", None)
-            if title:
+            if title := field.get("title"):
                 output.append(f"title: {title}")
-            description = field.get("description", None)
-            if description:
+            if description := field.get("description"):
                 output.append(f"description: {description}")
             output.append(record.get("fields", {}).get(field.get("name", "")))
         return "\n".join(output)
@@ -169,10 +167,11 @@ class ArgillaLabeller(Task):
         return self.question_to_label_instruction[question_type]
 
     def _format_question(self, question: Dict[str, Any]) -> str:
-        output = []
-        output.append(f"title: {question.get('title', '')}")
-        output.append(f"description: {question.get('description', '')}")
-        output.append(f"label_instruction: {self._get_label_instruction(question)}")
+        output = [
+            f"title: {question.get('title', '')}",
+            f"description: {question.get('description', '')}",
+            f"label_instruction: {self._get_label_instruction(question)}",
+        ]
         settings = question.get("settings", {})
         if "options" in settings:
             output.append(
@@ -187,7 +186,7 @@ class ArgillaLabeller(Task):
         records: List[Dict[str, Any]],
         fields: List[Dict[str, Any]],
         question: Dict[str, Any],
-    ) -> List[Dict[str, Any]]:
+    ) -> str:
         base = []
         for record in records:
             if record["responses"]:
@@ -219,23 +218,26 @@ class ArgillaLabeller(Task):
         fields = input.get("fields", self.fields)
         question = input.get("question", self.question)
         examples = input.get("example_records", self.example_records)
+
         if any([fields is None, question is None]):
             raise ValueError(
                 "Fields and question must be provided during init or through `process` method."
             )
-        if not isinstance(record, dict):
-            record = record.to_dict()
-        if not isinstance(question, dict):
-            question = question.serialize()
+
+        record = record.to_dict() if not isinstance(record, dict) else record
+        question = question.serialize() if not isinstance(question, dict) else question
         fields = [
             field.serialize() if not isinstance(field, dict) else field
             for field in fields
         ]
-        if examples:
-            examples = [
+        examples = (
+            [
                 example.to_dict() if not isinstance(example, dict) else example
                 for example in examples
             ]
+            if examples
+            else None
+        )
 
         formatted_fields = self._format_record(record, fields)
         formatted_question = self._format_question(question)
@@ -244,6 +246,7 @@ class ArgillaLabeller(Task):
             if examples
             else False
         )
+
         prompt = self._template.render(
             fields=formatted_fields,
             question=formatted_question,
@@ -345,10 +348,8 @@ class ArgillaLabeller(Task):
         question_value_model = self._get_pydantic_model_of_structured_output(question)
         for attr in ["label", "labels", "spans", "rating", "text"]:
             try:
-                # Initialize the Pydantic model with the attribute and value
                 model_dict = {attr: value}
                 question_value_model = question_value_model(**model_dict)
-                # If initialization is successful, return the model
                 return question_value_model.model_dump_json()
             except AttributeError:
                 pass
