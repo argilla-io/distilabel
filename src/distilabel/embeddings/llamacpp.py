@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from distilabel.embeddings.base import Embeddings
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:
     from llama_cpp import Llama as _LlamaCpp
@@ -27,9 +28,14 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
     """`LlamaCpp` library implementation for embedding generation.
 
     Attributes:
-        model: the model Hugging Face Hub repo id or a path to a directory containing the
-            model weights and configuration files.
+        model: contains the path to the GGUF quantized model, compatible with the
+            installed version of the `llama.cpp` Python bindings.
         hub_repository_id: the Hugging Face Hub repository id.
+        verbose: whether to print verbose output. Defaults to `False`.
+        disable_cuda_device_placement: whether to disable CUDA device placement. Defaults to `True`.
+        normalize_embeddings: whether to normalize the embeddings. Defaults to `False`.
+        extra_kwargs: additional dictionary of keyword arguments that will be passed to the
+            `Llama` class of `llama_cpp` library. Defaults to `{}`.
         _model: the `Llama` model instance. This attribute is meant to be used internally
             and should not be accessed directly. It will be set in the `load` method.
 
@@ -42,7 +48,11 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         ```python
         from distilabel.embeddings import LlamaCppEmbeddings
 
-        embeddings = LlamaCppEmbeddings(model="second-state/all-MiniLM-L6-v2-Q2_K.gguf")
+        embeddings = LlamaCppEmbeddings(model="/path/to/model.gguf")
+
+        ## Hugging Face Hub
+
+        ## embeddings = LlamaCppEmbeddings(hub_repository_id="second-state/All-MiniLM-L6-v2-Embedding-GGUF", model="all-MiniLM-L6-v2-Q2_K.gguf")
 
         embeddings.load()
 
@@ -54,11 +64,30 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         ```
     """
 
-    model: str
-    hub_repository_id: Union[None, str] = None
-    disable_cuda_device_placement: bool = True
-    model_kwargs: Optional[Dict[str, Any]] = None
-    verbose: bool = False
+    model: RuntimeParameter[str] = Field(
+        default=None,
+        description="Contains the path to the GGUF quantized model, compatible with the installed version of the `llama.cpp` Python bindings.",
+    )
+    hub_repository_id: RuntimeParameter[Union[None, str]] = Field(
+        default=None,
+        description="The Hugging Face Hub repository id.",
+    )
+    disable_cuda_device_placement: RuntimeParameter[bool] = Field(
+        default=True,
+        description="Whether to disable CUDA device placement.",
+    )
+    verbose: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to print verbose output from llama.cpp library.",
+    )
+    extra_kwargs: RuntimeParameter[Dict[str, Any]] = Field(
+        default={},
+        description="Additional dictionary of keyword arguments that will be passed to the `Llama` class of `llama_cpp` library.",
+    )
+    normalize_embeddings: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to normalize the embeddings.",
+    )
     _model: Union["_LlamaCpp", None] = PrivateAttr(None)
 
     def load(self) -> None:
@@ -76,12 +105,32 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
             ) from ie
 
         if self.hub_repository_id is not None:
-            self._model = _LlamaCpp.from_pretrained(
-                repo_id=self.hub_repository_id,
-                filename=self.model,
-                verbose=self.verbose,
-                embedding=True,
-            )
+            try:
+                from huggingface_hub.utils import validate_repo_id
+
+                validate_repo_id(self.hub_repository_id)
+            except ImportError as ie:
+                raise ImportError(
+                    "Llama.from_pretrained requires the huggingface-hub package. "
+                    "You can install it with `pip install huggingface-hub`."
+                ) from ie
+            try:
+                self._logger.info(
+                    f"Attempting to load model from Hugging Face Hub: {self.hub_repository_id}"
+                )
+                self._model = _LlamaCpp.from_pretrained(
+                    repo_id=self.hub_repository_id,
+                    filename=self.model,
+                    verbose=self.verbose,
+                    embedding=True,
+                    kwargs=self.extra_kwargs,
+                )
+                self._logger.info("Model loaded successfully from Hugging Face Hub")
+            except Exception as e:
+                self._logger.error(
+                    f"Failed to load model from Hugging Face Hub: {str(e)}"
+                )
+                raise
         else:
             try:
                 self._logger.info(f"Attempting to load model from: {self.model_name}")
@@ -89,7 +138,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
                     model_path=self.model_name,
                     verbose=self.verbose,
                     embedding=True,
-                    kwargs=self.model_kwargs,
+                    kwargs=self.extra_kwargs,
                 )
                 self._logger.info(f"self._model: {self._model}")
                 self._logger.info("Model loaded successfully")
@@ -123,7 +172,8 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
             )
 
         try:
-            return self._model.create_embedding(inputs)["data"]
+            embeds = self._model.embed(inputs, normalize=self.normalize_embeddings)
+            return embeds
         except Exception as e:
             print(f"Error creating embedding: {str(e)}")
             raise
