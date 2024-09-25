@@ -33,17 +33,13 @@ def temp_cache_dir() -> Generator[None, None, None]:
 def mock_telemetry():
     # Patch the entire TelemetryClient class
     with patch(
-        "distilabel.telemetry._TELEMETRY_CLIENT", autospec=True
+        "distilabel.telemetry._client._TELEMETRY_CLIENT", autospec=True
     ) as MockTelemetryClient:
         # Mock individual methods with wraps to execute the original methods
         instance = TelemetryClient()
         mock_instance = MockTelemetryClient
-        mock_instance.track_add_step_data = MagicMock(
-            wraps=instance.track_add_step_data
-        )
         mock_instance.track_process_batch_data = MagicMock(
             wraps=instance.track_process_batch_data
         )
-        mock_instance.track_run_data = MagicMock(wraps=instance.track_run_data)
         mock_instance.track_exception = MagicMock(wraps=instance.track_exception)
         yield mock_instance

@@ -379,17 +379,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         if self._dry_run:
             self._logger.info("🌵 Dry run mode")
 
-        # Track the pipeline run data
-        user_agent = {
-            "paremeters": True if parameters else False,
-            "dry_run": self._dry_run,
-            "use_cache": use_cache,
-            "storage_parameters": storage_parameters,
-            "use_fs_to_pass_data": use_fs_to_pass_data,
-            "dataset": True if dataset else False,
-        }
-        get_telemetry_client().track_run_data(pipeline=self, user_agent=user_agent)
-
         # If the batch manager is not able to generate batches, that means that the loaded
         # `_BatchManager` from cache didn't have any remaining batches to process i.e.
         # the previous pipeline execution was completed successfully.

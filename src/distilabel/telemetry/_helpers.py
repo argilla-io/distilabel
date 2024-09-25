@@ -82,5 +82,24 @@ def _has_docker_cgroup() -> bool:
         return False
 
 
+def _is_custom_step(step_class: str) -> bool:
+    from distilabel.steps import __all__ as step_all
+    from distilabel.steps.tasks import __all__ as task_all
+
+    return step_class not in (step_all + task_all)
+
+
+def _is_step(step_class: str) -> bool:
+    from distilabel.steps import __all__ as step_all
+
+    return step_class in step_all
+
+
+def _is_task(step_class: str) -> bool:
+    from distilabel.steps.tasks import __all__ as task_all
+
+    return step_class in task_all
+
+
 # Private global variables section
 _in_docker_container = None

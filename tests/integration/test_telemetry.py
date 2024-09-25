@@ -89,5 +89,3 @@ def test_pipeline_telemetry(mock_telemetry) -> None:
             },
         }
     )
-
-    mock_telemetry.track_run_data.assert_called()
