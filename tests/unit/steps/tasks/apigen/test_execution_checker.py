@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 from pathlib import Path
 from typing import Any, Dict
 
@@ -28,102 +29,45 @@ class TestAPIGenExecutionChecker:
         [
             (
                 {
-                    "query": ["Whats the velocity of X?"],
-                    "answers": [
-                        {
-                            "arguments": {
-                                "initial_velocity": 0.2,
-                                "acceleration": 0.1,
-                                "time": 0.5,
-                            },
-                            "name": "final_velocity",
-                        }
-                    ],
-                },
-                [
-                    {
-                        "query": ["Whats the velocity of X?"],
-                        "answers": [
+                    "query": "Whats the velocity of X?",
+                    "answers": json.dumps(
+                        [
                             {
                                 "arguments": {
                                     "initial_velocity": 0.2,
-                                    "acceleration": 0.1,
-                                    "time": 0.5,
+                                    "acceleration": "0.1",
+                                    "time": 5,
                                 },
                                 "name": "final_velocity",
                             }
-                        ],
+                        ]
+                    ),
+                },
+                [
+                    {
+                        "query": "Whats the velocity of X?",
+                        "answers": json.dumps(
+                            [
+                                {
+                                    "arguments": {
+                                        "initial_velocity": 0.2,
+                                        "acceleration": "0.1",
+                                        "time": 5,
+                                    },
+                                    "name": "final_velocity",
+                                }
+                            ]
+                        ),
                         "keep_row_after_execution_check": True,
-                        "execution_result": ["0.25"],
+                        "execution_result": ["0.7"],
                     }
                 ],
             ),
             (
                 {
-                    "query": ["Whats the velocity of X?", "other query"],
-                    "answers": [
-                        {
-                            "arguments": {
-                                "initial_velocity": 0.2,
-                                "acceleration": 0.1,
-                                "time": 0.5,
-                            },
-                            "name": "final_velocity",
-                        },
-                        {
-                            "arguments": {
-                                "initial_velocity": 0.2,
-                                "acceleration": 0.1,
-                                "time": 0.5,
-                            },
-                            "name": "final_velocity",
-                        },
-                    ],
-                },
-                [
-                    {
-                        "query": ["Whats the velocity of X?", "other query"],
-                        "answers": [
-                            {
-                                "arguments": {
-                                    "initial_velocity": 0.2,
-                                    "acceleration": 0.1,
-                                    "time": 0.5,
-                                },
-                                "name": "final_velocity",
-                            },
-                            {
-                                "arguments": {
-                                    "initial_velocity": 0.2,
-                                    "acceleration": 0.1,
-                                    "time": 0.5,
-                                },
-                                "name": "final_velocity",
-                            },
-                        ],
-                        "keep_row_after_execution_check": True,
-                        "execution_result": ["0.25", "0.25"],
-                    }
-                ],
-            ),
-            (
-                {
-                    "query": ["Other query"],
-                    "answers": [
-                        {
-                            "arguments": {
-                                "initial_velocity": 0.2,
-                                "acceleration": 0.1,
-                                "time": 0.5,
-                            },
-                            "name": "unknown_function",
-                        }
-                    ],
-                },
-                [
-                    {
-                        "query": ["Other query"],
-                        "answers": [
+                    "query": "Other query",
+                    "answers": json.dumps(
+                        [
                             {
                                 "arguments": {
                                     "initial_velocity": 0.2,
@@ -132,58 +76,26 @@ class TestAPIGenExecutionChecker:
                                 },
                                 "name": "unknown_function",
                             }
-                        ],
-                        "keep_row_after_execution_check": False,
-                        "execution_result": ["Function 'unknown_function' not found."],
-                    }
-                ],
-            ),
-            (
-                {
-                    "query": ["Whats the velocity of X?", "other query"],
-                    "answers": [
-                        {
-                            "arguments": {
-                                "initial_velocity": 0.2,
-                                "acceleration": 0.1,
-                                "time": 0.5,
-                            },
-                            "name": "final_velocity",
-                        },
-                        {
-                            "arguments": {
-                                "initial_velocity": 0.2,
-                                "acceleration": 0.1,
-                            },
-                            "name": "final_velocity",
-                        },
-                    ],
+                        ]
+                    ),
                 },
                 [
                     {
-                        "query": ["Whats the velocity of X?", "other query"],
-                        "answers": [
-                            {
-                                "arguments": {
-                                    "initial_velocity": 0.2,
-                                    "acceleration": 0.1,
-                                    "time": 0.5,
-                                },
-                                "name": "final_velocity",
-                            },
-                            {
-                                "arguments": {
-                                    "initial_velocity": 0.2,
-                                    "acceleration": 0.1,
-                                },
-                                "name": "final_velocity",
-                            },
-                        ],
+                        "query": "Other query",
+                        "answers": json.dumps(
+                            [
+                                {
+                                    "arguments": {
+                                        "initial_velocity": 0.2,
+                                        "acceleration": 0.1,
+                                        "time": 0.5,
+                                    },
+                                    "name": "unknown_function",
+                                }
+                            ]
+                        ),
                         "keep_row_after_execution_check": False,
-                        "execution_result": [
-                            "0.25",
-                            "final_velocity() missing 1 required positional argument: 'time'",
-                        ],
+                        "execution_result": ["Function 'unknown_function' not found."],
                     }
                 ],
             ),

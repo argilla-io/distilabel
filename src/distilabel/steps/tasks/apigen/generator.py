@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import importlib.resources as importlib_resources
+import json
 import random
 from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Union
 
@@ -57,10 +58,8 @@ class APIGenGenerator(Task):
         system_prompt: The system prompt to guide the user in the generation of queries and answers.
         use_tools: Whether to use the tools available in the prompt to generate the queries and answers.
             In case the tools are given in the input, they will be added to the prompt.
-        is_parallel: Whether to generate parallel queries or not. If a float, it will
-            generate parallel queries with the given probability.
         number: The number of queries to generate. If a list, it will choose a random
-            number from the list.
+            number from the list. It corresponds to the number of parallel queries to generate.
         use_default_structured_output: Whether to use the default structured output or not.
 
     Input columns:
@@ -183,7 +182,6 @@ class APIGenGenerator(Task):
 
     system_prompt: str = SYSTEM_PROMPT_API_GEN
     use_default_structured_output: bool = False
-    is_parallel: Union[bool, float] = False
     number: Union[int, List[int]] = 1
     use_tools: bool = True
 
@@ -203,11 +201,10 @@ class APIGenGenerator(Task):
             / "generator.jinja2"
         )
         self._template = Template(open(_path).read())
-        self._fn_parallel_queries = self._set_parallel_queries()
         self._format_inst = self._set_format_inst()
 
-    def _set_parallel_queries(self) -> Callable[[], str]:
-        """Prepares the function to generate update the parallel queries guide in the prompt.
+    def _parallel_queries(self, number: int) -> Callable[[int], str]:
+        """Prepares the function to update the parallel queries guide in the prompt.
 
         Raises:
             ValueError: if `is_parallel` is not a boolean or a list of floats.
@@ -215,30 +212,12 @@ class APIGenGenerator(Task):
         Returns:
             The function to generate the parallel queries guide.
         """
-        parallel_queries_guide: str = (
-            "It can contain multiple parallel queries in natural language for the given functions. "
-            "They could use either the same function with different arguments or different functions.\n"
-        )
-        if isinstance(self.is_parallel, float):
-
-            def fn_parallel_queries() -> str:
-                return random.choices(
-                    [parallel_queries_guide, ""],
-                    weights=[self.is_parallel, 1 - self.is_parallel],
-                )[0]
-        elif isinstance(self.is_parallel, bool):
-            if self.is_parallel:
-
-                def fn_parallel_queries() -> str:
-                    return parallel_queries_guide
-            else:
-
-                def fn_parallel_queries() -> str:
-                    return ""
-        else:
-            # TODO: Update to DistilabelUserError
-            raise ValueError("`is_parallel` must be a boolean or a list of floats.")
-        return fn_parallel_queries
+        if number > 1:
+            return (
+                "It can contain multiple parallel queries in natural language for the given functions. "
+                "They could use either the same function with different arguments or different functions.\n"
+            )
+        return ""
 
     def _get_number(self) -> int:
         """Generates the number of queries to generate in a single call.
@@ -302,14 +281,16 @@ class APIGenGenerator(Task):
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType`."""
+        number = self._get_number()
+        parallel_queries = self._parallel_queries(number)
         return [
             {"role": "system", "content": self.system_prompt},
             {
                 "role": "user",
                 "content": self._template.render(
                     examples=input["examples"],
-                    parallel_queries=self._fn_parallel_queries(),
-                    number=self._get_number(),
+                    parallel_queries=parallel_queries,
+                    number=number,
                     func_name=input["func_name"],
                     func_desc=self._get_func_desc(input),
                     format_inst=self._format_inst,
@@ -366,13 +347,19 @@ class APIGenGenerator(Task):
             are a list of objects.
         """
         try:
-            query = []
-            answers = []
-            for pair in pairs:
-                query.append(pair["query"])
-                answers.append(pair["answers"])
+            # query = []
+            # answers = []
+            # for pair in pairs:
+            #     query.append(pair["query"])
+            #     answers.append(pair["answers"])
+            # input.update(**{"query": query, "answers": json.dumps(answers)})
 
-            input.update(**{"query": query, "answers": answers})
+            input.update(
+                **{
+                    "query": pairs[0]["query"],
+                    "answers": json.dumps(pairs[0]["answers"]),
+                }
+            )
             return input
         except Exception as e:
             self._logger.error(f"Error formatting output: {e}")
@@ -382,7 +369,7 @@ class APIGenGenerator(Task):
         """Returns a default error output, to fill the responses in case of failure."""
         input.update(
             **{
-                "query": [None] * self._number,
+                "query": None,
                 "answers": [None] * self._number,
             }
         )
@@ -406,7 +393,7 @@ class APIGenGenerator(Task):
 
         class QueryAnswer(BaseModel):
             query: str
-            answers: Answer
+            answers: List[Answer]
 
         class QueryAnswerPairs(BaseModel):
             pairs: List[QueryAnswer]
@@ -435,7 +422,11 @@ class APIGenGenerator(Task):
                 "QueryAnswer": {
                     "properties": {
                         "query": {"title": "Query", "type": "string"},
-                        "answers": {"$ref": "#/$defs/Answer"},
+                        "answers": {
+                            "items": {"$ref": "#/$defs/Answer"},
+                            "title": "Answers",
+                            "type": "array",
+                        },
                     },
                     "required": ["query", "answers"],
                     "title": "QueryAnswer",

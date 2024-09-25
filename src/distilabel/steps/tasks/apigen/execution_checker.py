@@ -16,6 +16,7 @@
 # - If function, try to import it and run it
 # - If fails, track the error message, and return it
 
+import json
 from typing import TYPE_CHECKING, Callable, Union
 
 from pydantic import Field, PrivateAttr
@@ -44,7 +45,9 @@ class APIGenExecutionChecker(Step):
         libpath: The path to the library where we will retrieve the functions.
 
     Input columns:
-        - answers (`List[Dict[str, Any]]`): List with arguments to be passed to the function.
+        - answers (`str`): List with arguments to be passed to the function,
+            dumped as a string from a list of dictionaries. Should be loaded using
+            `json.loads`.
 
     Output columns:
         - keep_row_after_execution_check (`bool`): Whether the function should be kept or not.
@@ -134,10 +137,11 @@ class APIGenExecutionChecker(Step):
         """
         for input in inputs:
             output = []
+            print("RAW ANSER", input["answers"])
+            answers = json.loads(input["answers"])
 
-            for answer in input["answers"]:
-                # TODO: Currently if the generator throws a None, it will raise an error here.
-                # Set the results to None first
+            for answer in answers:
+                # for answer in input["answers"]:
                 if answer is None:
                     output.append(
                         {
@@ -146,7 +150,8 @@ class APIGenExecutionChecker(Step):
                         }
                     )
                     continue
-
+                print("ANSWER", answer)
+                # answer = json.loads(answer)
                 function_name = answer.get("name", None)
                 arguments = answer.get("arguments", None)
 
