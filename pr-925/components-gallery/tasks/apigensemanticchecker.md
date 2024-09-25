@@ -66,7 +66,7 @@ graph TD
 
 - **query** (`str`): Instruction from the user.
 
-- **answers** (`List[Dict[str, Any]]`): JSON encoded list with arguments to be passed to the function/API.
+- **answers** (`str`): JSON encoded list with arguments to be passed to the function/API.  Should be loaded using `json.loads`.
 
 - **execution_result** (`str`): Result of the function/API executed.
 
@@ -111,7 +111,7 @@ res = next(
             {
                 "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
                 "query": "What information can be obtained about the Maine Coon cat breed?",
-                "answers": [{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}],
+                "answers": json.dumps([{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]),
                 "execution_result": "The Maine Coon is a big and hairy breed of cat",
             }
         ]
@@ -155,7 +155,7 @@ res = next(
             {
                 "func_desc": "Fetch information about a specific cat breed from the Cat Breeds API.",
                 "query": "What information can be obtained about the Maine Coon cat breed?",
-                "answers": [{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}],
+                "answers": json.dumps([{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]),
                 "execution_result": "The Maine Coon is a big and hairy breed of cat",
             }
         ]

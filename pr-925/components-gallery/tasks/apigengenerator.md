@@ -22,9 +22,7 @@ The `APIGenGenerator` is inspired by the APIGen pipeline, which was designed to 
 
 - **use_tools**: Whether to use the tools available in the prompt to generate the queries and answers.  In case the tools are given in the input, they will be added to the prompt.
 
-- **is_parallel**: Whether to generate parallel queries or not. If a float, it will  generate parallel queries with the given probability.
-
-- **number**: The number of queries to generate. If a list, it will choose a random  number from the list.
+- **number**: The number of queries to generate. If a list, it will choose a random  number from the list. It corresponds to the number of parallel queries to generate.
 
 - **use_default_structured_output**: Whether to use the default structured output or not.
 

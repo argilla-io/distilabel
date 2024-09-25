@@ -54,7 +54,7 @@ graph TD
 #### Inputs
 
 
-- **answers** (`List[Dict[str, Any]]`): List with arguments to be passed to the function.
+- **answers** (`str`): List with arguments to be passed to the function,  dumped as a string from a list of dictionaries. Should be loaded using  `json.loads`.
 
 
 
