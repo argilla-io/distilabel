@@ -95,6 +95,28 @@ class TestGlobalPipelineManager:
 
 
 class TestBasePipeline:
+    def test_aggregated_steps_signature(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline_0:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        with DummyPipeline(name="dummy") as pipeline_1:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        assert (
+            pipeline_0.aggregated_steps_signature
+            == pipeline_1.aggregated_steps_signature
+        )
+
     def test_context_manager(self) -> None:
         assert _GlobalPipelineManager.get_pipeline() is None
 

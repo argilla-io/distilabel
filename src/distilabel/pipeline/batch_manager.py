@@ -98,7 +98,7 @@ class _BatchManagerStep(_Serializable):
     step_signature: Optional[str] = None
     cached_data_dir: Optional[str] = None
     use_cache: bool = False
-    step_offset: Dict[str, Dict[str, Union[str, int]]] = field(default_factory=dict)
+    step_offset: Dict[str, Tuple[int, int]] = field(default_factory=dict)
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -147,22 +147,29 @@ class _BatchManagerStep(_Serializable):
 
         data, created_from, batch_routed_to = self._get_data()
 
-        current_batch_size = len(data[0])
+        # TODO: Not used yet
+        # current_batch_size = len(data[0])
+
         # Actualize the step offset:
         # For the batch sequence number we only need to keep the last one, for the offset we get the size
         # of the current batch, and from the previous batches it was created from, we compute the difference
         # from the last of them.
         for predecessor, seq_no_and_batch in created_from.items():
-            offset = 0
-            last_batch_seq_no = 0
-            for i, (batch_seq_no, batch_size) in enumerate(seq_no_and_batch):  # noqa: B007
-                offset += batch_size
-                last_batch_seq_no = batch_seq_no
-            offset -= current_batch_size
-            self.step_offset[predecessor] = {
-                "batch": f"batch_{last_batch_seq_no - i}",
-                "offset": offset,
-            }
+            prev_last_batch_seq_no, prev_last_batch_offset = self.step_offset[
+                predecessor
+            ]
+            last_batch_seq_no, last_batch_size = seq_no_and_batch[-1]
+            batch_offset = (
+                prev_last_batch_offset + last_batch_size
+                if prev_last_batch_seq_no == last_batch_seq_no
+                else last_batch_size
+            )
+            last_batch_seq_no = (
+                last_batch_seq_no
+                if last_batch_seq_no > prev_last_batch_seq_no
+                else prev_last_batch_seq_no
+            )
+            self.step_offset[predecessor] = (last_batch_seq_no, batch_offset)
 
         return _Batch(
             seq_no=seq_no,
@@ -248,10 +255,7 @@ class _BatchManagerStep(_Serializable):
             next_expected_seq_no={predecessor: (0, 0) for predecessor in predecessors},
             step_signature=step.signature,
             use_cache=step.use_cache,
-            step_offset={
-                predecessor: {"batch": "batch_0", "offset": 0}
-                for predecessor in predecessors
-            },
+            step_offset={predecessor: (0, 0) for predecessor in predecessors},
         )
 
     def _get_seq_no(self) -> int:
@@ -355,7 +359,7 @@ class _BatchManagerStep(_Serializable):
             remaining_rows_per_step[batch.step_name] -= num_rows  # type: ignore
 
             # Keep track of the batches used to create the batch
-            batches_used[batch.step_name].append((batch.seq_no, batch.size))
+            batches_used[batch.step_name].append((batch.seq_no, len(selected_data)))
 
             # If the batch was entirely consumed, then remove it from the buffer
             if len(batch.data[0]) == 0:
@@ -414,7 +418,7 @@ class _BatchManagerStep(_Serializable):
                 remaining_rows -= num_rows
 
                 # Keep track of the batches used to create the batch
-                batches_used[step_name].append((batch.seq_no, batch.size))
+                batches_used[step_name].append((batch.seq_no, len(selected_data)))
 
                 next_expected_seq_no = batch.seq_no
 
@@ -1109,26 +1113,31 @@ class _BatchManager(_Serializable):
         self.save(path=path, format="json", dump=dump)
 
     @classmethod
-    def load_from_cache(cls, path: "StrOrPath") -> "_BatchManager":
+    def load_from_cache(
+        cls, dag: "DAG", batch_manager_path: "StrOrPath", steps_data_path: "StrOrPath"
+    ) -> "_BatchManager":
         """Loads the `_BatchManager` from a cache file.
 
         Args:
             path: The path to the cache file.
         """
-        _check_is_dir(path)
-        steps_data_dir = Path(path).parent / "batch_manager_data"
-        content = read_json(path)
+        _check_is_dir(batch_manager_path)
+        # TODO: This is unused yet
+        # steps_data_dir = Path(batch_manager_path).parent / "batch_manager_data"
+        content = read_json(batch_manager_path)
 
         # Read each `_BatchManagerStep` from file
         steps = {}
         for step_name, step_file in content["steps"].items():
             steps[step_name] = read_json(step_file)
+
             # When reading back from JSON, `next_expected_seq_no` is a list (because JSON
             # files do not have tuples).
             steps[step_name]["next_expected_seq_no"] = {
                 k: tuple(v) for k, v in steps[step_name]["next_expected_seq_no"].items()
             }
 
+            # TODO: where are we writing built batches now? xD
             # Read each `_Batch` from file
             steps[step_name]["built_batches"] = [
                 read_json(batch) for batch in steps[step_name]["built_batches"]
@@ -1136,14 +1145,42 @@ class _BatchManager(_Serializable):
 
             # TODO: need to load the batch manager step
             step_offset = steps[step_name]["step_offset"]
-            for successor_step_name, _offset in step_offset.items():
-                # TODO: load batches of the step from `batch_manager_data` directory
-                # TODO: which ones? depending on the successor parameters we have a hash
-                # or the other.
-                _step_data_dir = steps_data_dir / "something"
-                steps[step_name]["data"][successor_step_name] = []
+            for successor_step_name, offset in step_offset.items():
+                batch_offset, batch_row_offset = offset
+                step: "_Step" = dag.get_step(successor_step_name)[STEP_ATTR_NAME]
+                successor_step_data_path = (
+                    steps_data_path / f"{step.name}_{step.signature}"
+                )
+
+                # read batches from successor step from the step data directory taking into
+                # account offset
+                batches = []
+                for batch_file in successor_step_data_path.glob("*.json"):
+                    if not batch_file.is_file() or batch_file.suffix != ".json":
+                        continue
+
+                    batch_no = int(batch_file.stem.split("batch_")[1])
+
+                    if batch_no < batch_offset:
+                        continue
+
+                    # TODO: use `batch_row_offset` to skip rows
+                    batch = read_json(batch_file)
+                    batch["data"][0] = batch["data"][0][batch_row_offset:]
+
+                    # if step_name == "step_c":
+                    # import pdb
+
+                    # pdb.set_trace()
+
+                    batches.append(batch)
+
+                steps[step_name]["data"][successor_step_name] = batches
 
         content["steps"] = steps
+        # import pdb
+
+        # pdb.set_trace()
         return cls.from_dict(content)
 
     def invalidate_cache_for(self, step_name: str, dag: "DAG") -> None:

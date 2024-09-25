@@ -137,8 +137,8 @@ class StepResources(RuntimeParametersMixin, BaseModel):
 class _Step(
     RuntimeParametersMixin,
     RequirementsMixin,
-    BaseModel,
     SignatureMixin,
+    BaseModel,
     _Serializable,
     ABC,
 ):

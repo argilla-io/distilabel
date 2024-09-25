@@ -99,6 +99,7 @@ class _Batch(_Serializable):
             data = self.data[0][:num_rows]
             self.data[0] = self.data[0][num_rows:]
 
+        self.size = len(self.data[0])
         self._update_data_hash()
         return data
 

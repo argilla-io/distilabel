@@ -345,11 +345,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # no missing runtime parameters, batch sizes are correct, etc.
         self.dag.validate()
 
-        # If the pipeline is not using the cache, set all the steps' cache to False.
-        if not use_cache:
-            for step_name in self.dag:
-                self.dag.get_step(step_name)[constants.STEP_ATTR_NAME].use_cache = False
-
         self._set_pipeline_artifacts_path_in_steps()
 
         # Set the initial load status for all the steps
@@ -784,7 +779,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             self._logger.info(
                 f"💾 Loading `_BatchManager` from cache: '{batch_manager_cache_loc}'"
             )
-            self._batch_manager = _BatchManager.load_from_cache(batch_manager_cache_loc)
+            self._batch_manager = _BatchManager.load_from_cache(
+                dag=self.dag,
+                batch_manager_path=batch_manager_cache_loc,
+                steps_data_path=self._cache_location["steps_data"],
+            )
             self._invalidate_steps_cache_if_required()
         # In this other case, the pipeline has been changed. We need to create a new batch
         # manager and if `use_cache==True` then check which outputs have we computed and
