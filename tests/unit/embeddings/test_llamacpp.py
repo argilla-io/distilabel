@@ -25,8 +25,8 @@ class TestLlamaCppEmbeddings:
         """
         Test if the model name is correctly set.
         """
-        embeddings = LlamaCppEmbeddings(model=self.model_name)
-        assert embeddings.model_name == self.model_name
+        embeddings = LlamaCppEmbeddings(model_path=self.model_name)
+        assert embeddings.model_path == self.model_name
 
     def test_encode(self, local_llamacpp_model_path) -> None:
         """
@@ -35,7 +35,7 @@ class TestLlamaCppEmbeddings:
         Args:
             local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model=local_llamacpp_model_path)
+        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
         inputs = [
             "Hello, how are you?",
             "What a nice day!",
@@ -54,7 +54,7 @@ class TestLlamaCppEmbeddings:
         Args:
             local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model=local_llamacpp_model_path)
+        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
         inputs = [
             "Hello, how are you?",
             "What a nice day!",
@@ -72,8 +72,8 @@ class TestLlamaCppEmbeddings:
         Test if the model can be loaded from a Hugging Face repository.
         """
         embeddings = LlamaCppEmbeddings(
-            hub_repository_id=self.repo_id,
-            model=self.model_name,
+            repo_id=self.repo_id,
+            model_path=self.model_name,
             normalize_embeddings=True,
         )
         inputs = [
@@ -94,7 +94,7 @@ class TestLlamaCppEmbeddings:
         Test if embeddings are normalized when normalize_embeddings is True.
         """
         embeddings = LlamaCppEmbeddings(
-            model=local_llamacpp_model_path, normalize_embeddings=True
+            model_path=local_llamacpp_model_path, normalize_embeddings=True
         )
         embeddings.load()
 
@@ -118,7 +118,7 @@ class TestLlamaCppEmbeddings:
         Test if embeddings are not normalized when normalize_embeddings is False.
         """
         embeddings = LlamaCppEmbeddings(
-            model=local_llamacpp_model_path, normalize_embeddings=False
+            model_path=local_llamacpp_model_path, normalize_embeddings=False
         )
         embeddings.load()
 
@@ -142,3 +142,57 @@ class TestLlamaCppEmbeddings:
         assert any(
             not np.isclose(norm, 1.0, atol=0.1) for norm in norms
         ), "Expected at least one embedding with norm not close to 1.0"
+
+    def test_encode_batch(self, local_llamacpp_model_path) -> None:
+        """
+        Test if the model can generate embeddings for batches of inputs.
+
+        Args:
+            local_llamacpp_model_path (str): Fixture providing the local model path.
+        """
+        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
+        embeddings.load()
+
+        # Test with different batch sizes
+        batch_sizes = [1, 2, 5, 10]
+        for batch_size in batch_sizes:
+            inputs = [f"This is test sentence {i}" for i in range(batch_size)]
+            results = embeddings.encode(inputs=inputs)
+
+            assert (
+                len(results) == batch_size
+            ), f"Expected {batch_size} results, got {len(results)}"
+            for result in results:
+                assert (
+                    len(result) == 384
+                ), f"Expected embedding dimension 384, got {len(result)}"
+
+        # Test with a large batch to ensure it doesn't cause issues
+        large_batch = ["Large batch test" for _ in range(100)]
+        large_results = embeddings.encode(inputs=large_batch)
+        assert (
+            len(large_results) == 100
+        ), f"Expected 100 results for large batch, got {len(large_results)}"
+
+    def test_encode_batch_consistency(self, local_llamacpp_model_path) -> None:
+        """
+        Test if the model produces consistent embeddings for the same input in different batch sizes.
+
+        Args:
+            local_llamacpp_model_path (str): Fixture providing the local model path.
+        """
+        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
+        embeddings.load()
+
+        input_text = "This is a test sentence for consistency"
+
+        # Generate embedding individually
+        single_result = embeddings.encode([input_text])[0]
+
+        # Generate embedding as part of a batch
+        batch_result = embeddings.encode([input_text, "Another sentence"])[0]
+
+        # Compare the embeddings
+        assert np.allclose(
+            single_result, batch_result, atol=1e-5
+        ), "Embeddings are not consistent between single and batch processing"
