@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import atexit
 import os
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 from urllib.request import urlretrieve
@@ -106,29 +107,49 @@ def dummy_llm() -> AsyncLLM:
     return DummyAsyncLLM()
 
 
-@pytest.fixture
-def local_llamacpp_model_path(tmp_path):
+@pytest.fixture(scope="session")
+def local_llamacpp_model_path(tmp_path_factory):
     """
-    Fixture that provides the local model path for LlamaCpp testing and handles cleanup.
+    Session-scoped fixture that provides the local model path for LlamaCpp testing.
 
     The model path can be set using the LLAMACPP_TEST_MODEL_PATH environment variable.
-    If not set, it downloads a small test model to a temporary directory and cleans up after the test.
+    If not set, it downloads a small test model to a temporary directory.
+    The model is downloaded once per test session and cleaned up after all tests.
+
+    To use a custom model:
+    1. Set the LLAMACPP_TEST_MODEL_PATH environment variable to the path of your model file.
+    2. Ensure the model file exists at the specified path.
+
+    Example:
+        export LLAMACPP_TEST_MODEL_PATH="/path/to/your/model.gguf"
 
     Args:
-        tmp_path (Path): Pytest fixture providing a temporary directory path.
+        tmp_path_factory: Pytest fixture providing a temporary directory factory.
 
-    Yields:
+    Returns:
         str: The path to the local LlamaCpp model file.
     """
+    print("\nLlamaCpp model path information:")
+
     # Check for environment variable first
     env_path = os.environ.get("LLAMACPP_TEST_MODEL_PATH")
     if env_path:
-        yield env_path
-        return  # No cleanup needed if env var is set
+        print(f"Using custom model path from LLAMACPP_TEST_MODEL_PATH: {env_path}")
+        if not os.path.exists(env_path):
+            raise FileNotFoundError(
+                f"Custom model file not found at {env_path}. Please ensure the file exists."
+            )
+        return env_path
+
+    print("LLAMACPP_TEST_MODEL_PATH not set. Using default test model.")
+    print(
+        "To use a custom model, set the LLAMACPP_TEST_MODEL_PATH environment variable to the path of your model file."
+    )
 
     # If env var not set, use a small test model
     model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
     model_url = f"https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/{model_name}"
+    tmp_path = tmp_path_factory.getbasetemp()
     model_path = tmp_path / model_name
 
     if not model_path.exists():
@@ -136,10 +157,13 @@ def local_llamacpp_model_path(tmp_path):
         urlretrieve(model_url, model_path)
         print("Download complete.")
 
-    yield str(model_path)
+    def cleanup():
+        if model_path.exists():
+            print(f"Cleaning up downloaded model at {model_path}...")
+            os.remove(model_path)
+            print("Cleanup complete.")
 
-    # Cleanup
-    print(f"Cleaning up downloaded model at {model_path}...")
-    if model_path.exists():
-        os.remove(model_path)
-    print("Cleanup complete.")
+    # Register the cleanup function to be called at exit
+    atexit.register(cleanup)
+
+    return str(model_path)
