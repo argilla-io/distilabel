@@ -17,6 +17,7 @@
 # - If fails, track the error message, and return it
 
 import json
+from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Union
 
 from pydantic import Field, PrivateAttr
@@ -43,6 +44,9 @@ class APIGenExecutionChecker(Step):
 
     Attributes:
         libpath: The path to the library where we will retrieve the functions.
+            It can also point to a folder with the functions. In this case, the folder
+            layout should be a folder with .py files, each containing a single function,
+            the name of the function being the same as the filename.
 
     Input columns:
         - answers (`str`): List with arguments to be passed to the function,
@@ -107,7 +111,8 @@ class APIGenExecutionChecker(Step):
     def load(self) -> None:
         """Loads the library where the functions will be extracted from."""
         super().load()
-        self._toolbox = load_module_from_path(self.libpath)
+        if Path(self.libpath).suffix == ".py":
+            self._toolbox = load_module_from_path(self.libpath)
 
     def unload(self) -> None:
         self._toolbox = None
@@ -121,6 +126,28 @@ class APIGenExecutionChecker(Step):
     def outputs(self) -> "StepColumns":
         """The outputs are the columns required by `APIGenGenerator` task."""
         return ["keep_row_after_execution_check", "execution_result"]
+
+    def _get_function(self, function_name: str) -> Callable:
+        """Retrieves the function from the toolbox.
+
+        Args:
+            function_name: The name of the function to retrieve.
+
+        Returns:
+            Callable: The function to be executed.
+        """
+        if self._toolbox:
+            return getattr(self._toolbox, function_name, None)
+        try:
+            toolbox = load_module_from_path(
+                str(Path(self.libpath) / f"{function_name}.py")
+            )
+            return getattr(toolbox, function_name, None)
+        except FileNotFoundError:
+            return None
+        except Exception as e:
+            self._logger.warning(f"Error loading function '{function_name}': {e}")
+            return None
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":
@@ -137,11 +164,8 @@ class APIGenExecutionChecker(Step):
         """
         for input in inputs:
             output = []
-            print("RAW ANSER", input["answers"])
             answers = json.loads(input["answers"])
-
             for answer in answers:
-                # for answer in input["answers"]:
                 if answer is None:
                     output.append(
                         {
@@ -150,12 +174,12 @@ class APIGenExecutionChecker(Step):
                         }
                     )
                     continue
-                print("ANSWER", answer)
-                # answer = json.loads(answer)
+
                 function_name = answer.get("name", None)
                 arguments = answer.get("arguments", None)
 
-                function: Callable = getattr(self._toolbox, function_name, None)
+                function = self._get_function(function_name)
+
                 if function is None:
                     output.append(
                         {

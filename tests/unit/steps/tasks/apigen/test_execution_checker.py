@@ -21,9 +21,11 @@ import pytest
 from distilabel.steps.tasks.apigen.execution_checker import APIGenExecutionChecker
 
 SAMPLE_LIB = Path(__file__).parent / "_sample_module.py"
+SAMPLE_LIB_FOLDER = Path(__file__).parent / "_sample_lib"
 
 
 class TestAPIGenExecutionChecker:
+    @pytest.mark.parametrize("lib", (SAMPLE_LIB, SAMPLE_LIB_FOLDER))
     @pytest.mark.parametrize(
         "answers, expected",
         [
@@ -101,8 +103,10 @@ class TestAPIGenExecutionChecker:
             ),
         ],
     )
-    def test_process(self, answers: Dict[str, str], expected: Dict[str, Any]) -> None:
-        task = APIGenExecutionChecker(libpath=str(SAMPLE_LIB))
+    def test_process(
+        self, lib: str, answers: Dict[str, str], expected: Dict[str, Any]
+    ) -> None:
+        task = APIGenExecutionChecker(libpath=str(lib))
         task.load()
         result = next(task.process([answers]))
         assert result == expected
