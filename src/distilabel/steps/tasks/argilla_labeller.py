@@ -101,15 +101,34 @@ class ArgillaLabeller(Task):
         from distilabel.steps.tasks import ArgillaLabeller
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
-        # Consider this as a placeholder for your actual LLM.
+        dataset = rg.Dataset("my_dataset")
+
+        pending_records_filter = rg.Filter(("status", "==", "pending"))
+        completed_records_filter = rg.Filter(("status", "==", "completed"))
+        pending_records = list(
+            dataset.records(
+                query=rg.Query(filter=pending_records_filter),
+                limit=5,
+            )
+        )
+        example_records = list(
+            dataset.records(
+                query=rg.Query(filter=completed_records_filter),
+                limit=5,
+            )
+        )
+
+        field = dataset.settings.fields["text"]
+        question = dataset.settings.questions["label"]
+
         labeller = ArgillaLabeller(
             llm=InferenceEndpointsLLM(
                 model_id="mistralai/Mistral-7B-Instruct-v0.2",
             )
-            fields=[rg.TextField(name="text")],
-            question=rg.LabelQuestion(name="label", options=["positive", "negative"]),
-            example_records=[rg.Record(fields={"text": "This is a test example record"}, responses={"label": rg.Response(question_name="label", value="positive")})],
-            guidelines="These are the guidelines for the annotation task."
+            fields=[field],
+            question=question,
+            example_records=example_records,
+            guidelines=dataset.guidelines
         )
 
         labeller.load()
@@ -118,11 +137,14 @@ class ArgillaLabeller(Task):
             labeller.process(
                 [
                     {
-                        "record": rg.Record(fields={"text": "This is a test record"}).to_dict(),
-                    }
+                        "record": record
+                    } for record in pending_records
                 ]
             )
         )
+        for record, suggestion in zip(pending_records, result):
+            record.suggestions.add(suggestion["suggestion"])
+        dataset.records.log(record)
         ```
 
         Annotate a record with alternating datasets and questions:
@@ -132,7 +154,12 @@ class ArgillaLabeller(Task):
         from distilabel.steps.tasks import ArgillaLabeller
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
-        # Consider this as a placeholder for your actual LLM.
+        dataset = rg.Dataset("my_dataset")
+
+        field = dataset.settings.fields["text"]
+        question = dataset.settings.questions["label"]
+        question2 = dataset.settings.questions["label2"]
+
         labeller = ArgillaLabeller(
             llm=InferenceEndpointsLLM(
                 model_id="mistralai/Mistral-7B-Instruct-v0.2",
@@ -141,20 +168,19 @@ class ArgillaLabeller(Task):
 
         labeller.load()
 
+        record = next(dataset.records())
         result = next(
             labeller.process(
                 [
                     {
-                        "record": rg.Record(fields={"text": "This is a test record"}).to_dict(),
-                        "fields": [rg.TextField(name="text")],
-                        "question": rg.LabelQuestion(name="label", options=["positive", "negative"]),
-                        "example_records": [
-                            rg.Record(
-                                fields={"text": "This is a test example record"},
-                                responses={"label": rg.Response(question_name="label", value="positive")}
-                            )
-                        ],
-                        "guidelines": "These are the guidelines for the annotation task."
+                        "record": record,
+                        "fields": [field],
+                        "question": question,
+                    },
+                    {
+                        "record": record,
+                        "fields": [field],
+                        "question": question2,
                     }
                 ]
             )
