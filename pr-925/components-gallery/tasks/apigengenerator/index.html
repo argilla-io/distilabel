@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.37">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.38">
     
     
       
@@ -4655,6 +4655,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../sections/community/developer_documentation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Developer Documentation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../sections/community/popular_issues/" class="md-nav__link">
         
   
@@ -4817,7 +4838,7 @@
 <p><strong>use_tools</strong>: Whether to use the tools available in the prompt to generate the queries and answers.  In case the tools are given in the input, they will be added to the prompt.</p>
 </li>
 <li>
-<p><strong>number</strong>: The number of queries to generate. If a list, it will choose a random  number from the list. It corresponds to the number of parallel queries to generate.</p>
+<p><strong>number</strong>: The number of queries to generate. It can be a list, where each number will be  chosen randomly, or a dictionary with the number of queries and the probability of each.  I.e: <code>number=1</code>, <code>number=[1, 2, 3]</code>, <code>number={1: 0.5, 2: 0.3, 3: 0.2}</code> are all valid inputs.  It corresponds to the number of parallel queries to generate.</p>
 </li>
 <li>
 <p><strong>use_default_structured_output</strong>: Whether to use the default structured output or not.</p>
@@ -4830,6 +4851,7 @@
             ICOL0[examples]
             ICOL1[func_name]
             ICOL2[func_desc]
+            ICOL3[tools]
         end
         subgraph New columns
             OCOL0[query]
@@ -4838,13 +4860,14 @@
     end
 
     subgraph APIGenGenerator
-        StepInput[Input Columns: examples, func_name, func_desc]
+        StepInput[Input Columns: examples, func_name, func_desc, tools]
         StepOutput[Output Columns: query, answers]
     end
 
     ICOL0 --&gt; StepInput
     ICOL1 --&gt; StepInput
     ICOL2 --&gt; StepInput
+    ICOL3 --&gt; StepInput
     StepOutput --&gt; OCOL0
     StepOutput --&gt; OCOL1
     StepInput --&gt; StepOutput
@@ -4860,14 +4883,17 @@
 <li>
 <p><strong>func_desc</strong> (<code>str</code>): Description of what the function should do.</p>
 </li>
+<li>
+<p><strong>tools</strong> (<code>str</code>): JSON formatted string containing the tool representation of the function.</p>
+</li>
 </ul>
 <h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
-<p><strong>query</strong> (<code>List[str]</code>): The list of queries.</p>
+<p><strong>query</strong> (<code>str</code>): The list of queries.</p>
 </li>
 <li>
-<p><strong>answers</strong> (<code>List[Dict[str, Any]]</code>): The list of answers, containing the info as a dictionary to  be passed to the functions.</p>
+<p><strong>answers</strong> (<code>str</code>): JSON formatted string with the list of answers, containing the info as  a dictionary to be passed to the functions.</p>
 </li>
 </ul>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>

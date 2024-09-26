@@ -22,7 +22,7 @@ The `APIGenGenerator` is inspired by the APIGen pipeline, which was designed to 
 
 - **use_tools**: Whether to use the tools available in the prompt to generate the queries and answers.  In case the tools are given in the input, they will be added to the prompt.
 
-- **number**: The number of queries to generate. If a list, it will choose a random  number from the list. It corresponds to the number of parallel queries to generate.
+- **number**: The number of queries to generate. It can be a list, where each number will be  chosen randomly, or a dictionary with the number of queries and the probability of each.  I.e: `number=1`, `number=[1, 2, 3]`, `number={1: 0.5, 2: 0.3, 3: 0.2}` are all valid inputs.  It corresponds to the number of parallel queries to generate.
 
 - **use_default_structured_output**: Whether to use the default structured output or not.
 
@@ -39,6 +39,7 @@ graph TD
 			ICOL0[examples]
 			ICOL1[func_name]
 			ICOL2[func_desc]
+			ICOL3[tools]
 		end
 		subgraph New columns
 			OCOL0[query]
@@ -47,13 +48,14 @@ graph TD
 	end
 
 	subgraph APIGenGenerator
-		StepInput[Input Columns: examples, func_name, func_desc]
+		StepInput[Input Columns: examples, func_name, func_desc, tools]
 		StepOutput[Output Columns: query, answers]
 	end
 
 	ICOL0 --> StepInput
 	ICOL1 --> StepInput
 	ICOL2 --> StepInput
+	ICOL3 --> StepInput
 	StepOutput --> OCOL0
 	StepOutput --> OCOL1
 	StepInput --> StepOutput
@@ -70,15 +72,17 @@ graph TD
 
 - **func_desc** (`str`): Description of what the function should do.
 
+- **tools** (`str`): JSON formatted string containing the tool representation of the function.
+
 
 
 
 #### Outputs
 
 
-- **query** (`List[str]`): The list of queries.
+- **query** (`str`): The list of queries.
 
-- **answers** (`List[Dict[str, Any]]`): The list of answers, containing the info as a dictionary to  be passed to the functions.
+- **answers** (`str`): JSON formatted string with the list of answers, containing the info as  a dictionary to be passed to the functions.
 
 
 
