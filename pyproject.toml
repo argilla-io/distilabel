@@ -88,7 +88,6 @@ outlines = ["outlines >= 0.0.40"]
 ray = ["ray[default] >= 2.31.0"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 vllm = [
-    "setuptools-scm",
     "vllm >= 0.5.3",
     "filelock >= 3.13.4",
     # `setuptools` is needed to be installed if installed with `uv pip install distilabel[vllm]`
