@@ -99,8 +99,8 @@ class ArgillaLabeller(Task):
         from distilabel.steps.tasks import ArgillaLabeller
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
+        # Get information from Argilla dataset definition
         dataset = rg.Dataset("my_dataset")
-
         pending_records_filter = rg.Filter(("status", "==", "pending"))
         completed_records_filter = rg.Filter(("status", "==", "completed"))
         pending_records = list(
@@ -115,10 +115,10 @@ class ArgillaLabeller(Task):
                 limit=5,
             )
         )
-
         field = dataset.settings.fields["text"]
         question = dataset.settings.questions["label"]
 
+        # Initialize the labeller with the model and fields
         labeller = ArgillaLabeller(
             llm=InferenceEndpointsLLM(
                 model_id="mistralai/Mistral-7B-Instruct-v0.2",
@@ -128,9 +128,9 @@ class ArgillaLabeller(Task):
             example_records=example_records,
             guidelines=dataset.guidelines
         )
-
         labeller.load()
 
+        # Process the pending records
         result = next(
             labeller.process(
                 [
@@ -140,9 +140,13 @@ class ArgillaLabeller(Task):
                 ]
             )
         )
+
+        # Add the suggestions to the records
         for record, suggestion in zip(pending_records, result):
             record.suggestions.add(suggestion["suggestion"])
-        dataset.records.log(record)
+
+        # Log the updated records
+        dataset.records.log(pending_records)
         ```
 
         Annotate a record with alternating datasets and questions:
@@ -152,20 +156,21 @@ class ArgillaLabeller(Task):
         from distilabel.steps.tasks import ArgillaLabeller
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
+        # Get information from Argilla dataset definition
         dataset = rg.Dataset("my_dataset")
-
         field = dataset.settings.fields["text"]
         question = dataset.settings.questions["label"]
         question2 = dataset.settings.questions["label2"]
 
+        # Initialize the labeller with the model and fields
         labeller = ArgillaLabeller(
             llm=InferenceEndpointsLLM(
                 model_id="mistralai/Mistral-7B-Instruct-v0.2",
             )
         )
-
         labeller.load()
 
+        # Process the record
         record = next(dataset.records())
         result = next(
             labeller.process(
@@ -183,6 +188,12 @@ class ArgillaLabeller(Task):
                 ]
             )
         )
+
+        # Add the suggestions to the record
+        record.suggestions.add(result[0]["suggestion"])
+
+        # Log the updated record
+        dataset.records.log(record)
         ```
 
         Overwrite default prompts and instructions:
@@ -192,6 +203,7 @@ class ArgillaLabeller(Task):
         from distilabel.steps.tasks import ArgillaLabeller
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
+        # Overwrite default prompts and instructions
         labeller = ArgillaLabeller(
             llm=InferenceEndpointsLLM(
                 model_id="mistralai/Mistral-7B-Instruct-v0.2",
@@ -204,7 +216,6 @@ class ArgillaLabeller(Task):
                 "rating": "Provide a rating for the question.",
             },
         )
-
         labeller.load()
         ```
     """
