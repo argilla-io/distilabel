@@ -103,7 +103,10 @@ class APIGenExecutionChecker(Step):
 
     libpath: str = Field(
         default=...,
-        description="The path to the library where we will retrieve the functions.",
+        description=(
+            "The path to the library where we will retrieve the functions, "
+            "or a folder with python files named the same as the functions they contain.",
+        ),
     )
 
     _toolbox: Union["ModuleType", None] = PrivateAttr(None)
