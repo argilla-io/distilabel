@@ -31,7 +31,6 @@ from argilla._models._settings._questions import (
     LabelQuestionSettings,
     MultiLabelQuestionSettings,
     RatingQuestionSettings,
-    SpanQuestionSettings,
     TextQuestionSettings,
 )
 from jinja2 import Template
@@ -60,7 +59,6 @@ _RATINGQUESTION_SETTINGS = RatingQuestionSettings(
         {"value": 2, "name": "2"},
     ]
 )
-_SPANQUESTION_SETTINGS = SpanQuestionSettings()
 
 
 class ArgillaLabeller(Task):
@@ -204,7 +202,6 @@ class ArgillaLabeller(Task):
                 "multi_label_selection": "Select none, one or multiple labels from the list of provided labels.",
                 "text": "Provide a text response to the question.",
                 "rating": "Provide a rating for the question.",
-                "span": "Provide a list of none, one or multiple spans containing of an exact text from the input field and a label from the list of provided labels.",
             },
         )
 
@@ -226,7 +223,6 @@ class ArgillaLabeller(Task):
         _MULTILABELQUESTION_SETTINGS.type: "Select none, one or multiple labels from the list of provided labels.",
         _TEXTQUESTION_SETTINGS.type: "Provide a text response to the question.",
         _RATINGQUESTION_SETTINGS.type: "Provide a rating for the question.",
-        _SPANQUESTION_SETTINGS.type: "Provide a list of none, one or multiple spans containing of an exact text from the input field value and a label from the list of provided labels.",
     }
     example_records: Optional[
         RuntimeParameter[Union[List[Union[Dict[str, Any], Record]], None]]
@@ -247,7 +243,6 @@ class ArgillaLabeller(Task):
                 LabelQuestion,
                 MultiLabelQuestion,
                 RatingQuestion,
-                SpanQuestion,
                 TextQuestion,
                 None,
             ]
@@ -338,8 +333,6 @@ class ArgillaLabeller(Task):
             output.append(
                 f"labels: {[option['value'] for option in settings.get('options', [])]}"
             )
-        if "allow_overlapping" in settings:
-            output.append(f"allow_overlapping: {settings.get('allow_overlapping', '')}")
         return "\n".join(output)
 
     def _format_example_records(
@@ -462,19 +455,19 @@ class ArgillaLabeller(Task):
         Returns:
             Dict[str, Any]: The formatted output.
         """
-        fields = input.get("fields", self.fields)
-        question = input.get("question", self.question) or self.question
+        question: (
+            Any
+            | Dict[str, Any]
+            | LabelQuestion
+            | MultiLabelQuestion
+            | RatingQuestion
+            | TextQuestion
+            | None
+        ) = input.get("question", self.question) or self.question
         question = question.serialize() if not isinstance(question, dict) else question
         model = self._get_pydantic_model_of_structured_output(question)
         validated_output = model(**json.loads(output))
         value = self._get_value_from_question_value_model(validated_output)
-        if question["settings"]["type"] == _SPANQUESTION_SETTINGS.type:
-            field = input[self.inputs[0]].get("fields", {}).get(fields[0]["name"])
-            value = self._resolve_spans(
-                spans=value,
-                field=field,
-                question=question,
-            )
         suggestion = Suggestion(
             value=value,
             question_name=question["name"],
@@ -533,40 +526,6 @@ class ArgillaLabeller(Task):
             self.llm.set_runtime_parameters(runtime_parameters)
             yield from super().process(inputs)
 
-    def _resolve_spans(
-        self, spans: list, field: str, question: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
-        """Resolve the spans into a list of dictionaries.
-
-        Args:
-            spans (list): The spans to resolve.
-            field (str): The field to resolve the spans for.
-            question (Dict[str, Any]): The question to resolve the spans for.
-
-        Returns:
-            List[Dict[str, Any]]: The resolved spans.
-        """
-        unique_spans = {span.exact_text: span.label for span in spans}
-        formatted_spans = []
-
-        for exact_text, label in unique_spans.items():
-            start = field.find(exact_text)
-            while start != -1:  # Find all occurrences
-                end = start + len(exact_text)
-                if label in [
-                    option["value"] for option in question["settings"]["options"]
-                ]:
-                    formatted_spans.append(
-                        {
-                            "label": label,
-                            "start": start,
-                            "end": end,
-                        }
-                    )
-                start = field.find(exact_text, start + 1)  # Move to the next occurrence
-
-        return formatted_spans
-
     def _get_value_from_question_value_model(
         self, question_value_model: BaseModel
     ) -> Any:
@@ -578,7 +537,7 @@ class ArgillaLabeller(Task):
         Returns:
             Any: The value from the question value model.
         """
-        for attr in ["label", "labels", "spans", "rating", "text"]:
+        for attr in ["label", "labels", "rating", "text"]:
             if hasattr(question_value_model, attr):
                 return getattr(question_value_model, attr)
         raise ValueError(f"Unsupported question type: {question_value_model}")
@@ -596,7 +555,7 @@ class ArgillaLabeller(Task):
             BaseModel: The question value model with the assigned value.
         """
         question_value_model = self._get_pydantic_model_of_structured_output(question)
-        for attr in ["label", "labels", "spans", "rating", "text"]:
+        for attr in ["label", "labels", "rating", "text"]:
             try:
                 model_dict = {attr: value}
                 question_value_model = question_value_model(**model_dict)
@@ -618,16 +577,8 @@ class ArgillaLabeller(Task):
             BaseModel: The Pydantic model of the structured output.
         """
         question_type = question["settings"]["type"]
-        if question_type == _SPANQUESTION_SETTINGS.type:
 
-            class Span(BaseModel):
-                exact_text: str
-                label: str
-
-            class QuestionValueModel(BaseModel):
-                spans: Optional[List[Span]] = Field(default_factory=list)
-
-        elif question_type == _MULTILABELQUESTION_SETTINGS.type:
+        if question_type == _MULTILABELQUESTION_SETTINGS.type:
 
             class QuestionValueModel(BaseModel):
                 labels: Optional[List[str]] = Field(default_factory=list)

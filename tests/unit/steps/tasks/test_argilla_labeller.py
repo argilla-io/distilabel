@@ -63,19 +63,6 @@ def questions():
             },
         },
         {
-            "name": "span",
-            "description": "The class of the question",
-            "title": "Is the question a question?",
-            "settings": {
-                "type": "span",
-                "options": [
-                    {"value": "yes", "text": "Yes"},
-                ],
-                "field": "text",
-                "allow_overlapping": True,
-            },
-        },
-        {
             "name": "rating",
             "description": "The class of the question",
             "title": "Is the question a question?",
@@ -105,14 +92,6 @@ def outputs():
         },
         {
             "labels": ["yes", "no"],
-        },
-        {
-            "spans": [
-                {
-                    "exact_text": "France",
-                    "label": "yes",
-                }
-            ],
         },
         {
             "rating": "1",
