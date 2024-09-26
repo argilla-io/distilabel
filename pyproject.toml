@@ -94,7 +94,6 @@ vllm = [
     "setuptools",
 ]
 sentence-transformers = ["sentence-transformers >= 3.0.0"]
-llama_cpp_python = ["llama-cpp-python >= 0.2.90"]
 faiss-cpu = ["faiss-cpu >= 1.8.0"]
 faiss-gpu = ["faiss-gpu >= 1.7.2"]
 text-clustering = [
