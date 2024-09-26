@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.steps.tasks.argillalabeller import ArgillaLabeller
+from distilabel.steps.tasks.argilla_labeller import ArgillaLabeller
 from distilabel.steps.tasks.base import GeneratorTask, Task
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.evol_instruct.base import EvolInstruct

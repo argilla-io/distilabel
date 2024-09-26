@@ -174,11 +174,11 @@ class ArgillaLabeller(Task):
             ),
             system_prompt="You are an expert annotator and labelling assistant that understands complex domains and natural language processing.",
             question_to_label_instruction={
-                "label": "Select the appropriate label from the list of provided labels.",
-                "multilabel": "Select none, one or multiple labels from the list of provided labels.",
+                "label_selection": "Select the appropriate label from the list of provided labels.",
+                "multi_label_selection": "Select none, one or multiple labels from the list of provided labels.",
                 "text": "Provide a text response to the question.",
                 "rating": "Provide a rating for the question.",
-                "span": "Provide a list of none, one or multiple spans containing of an exact text from the input field value and a label from the list of provided labels.",
+                "span": "Provide a list of none, one or multiple spans containing of an exact text from the input field and a label from the list of provided labels.",
             },
         )
 
@@ -190,7 +190,7 @@ class ArgillaLabeller(Task):
         "You are an expert annotator and labelling assistant that understands complex domains and natural language processing. "
         "You are given input fields and a question. "
         "You should create a valid JSON object as an answer to the question based on the input fields. "
-        "1. Understand the input fields. "
+        "1. Understand the input fields and optional guidelines. "
         "2. Understand the question type and the question settings. "
         "3. Reason through your response step-by-step. "
         "4. Provide a valid JSON object as an answer to the question."
@@ -443,8 +443,11 @@ class ArgillaLabeller(Task):
         validated_output = model(**json.loads(output))
         value = self._get_value_from_question_value_model(validated_output)
         if question["settings"]["type"] == _SPANQUESTION_SETTINGS.type:
+            field = input[self.inputs[0]].get("fields", {}).get(fields[0]["name"])
             value = self._resolve_spans(
-                value, input[self.inputs[0]].get("fields", {}).get(fields[0]["name"])
+                spans=value,
+                field=field,
+                question=question,
             )
         suggestion = Suggestion(
             value=value,
