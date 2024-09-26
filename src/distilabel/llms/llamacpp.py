@@ -14,7 +14,7 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import Field, PrivateAttr, validate_call
+from pydantic import Field, FilePath, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
@@ -110,7 +110,9 @@ class LlamaCppLLM(LLM):
         ```
     """
 
-    model_path: str
+    model_path: RuntimeParameter[FilePath] = Field(
+        default=None, description="The path to the GGUF quantized model.", exclude=True
+    )
     n_gpu_layers: RuntimeParameter[int] = Field(
         default=-1,
         description="The number of layers that will be loaded in the GPU.",
