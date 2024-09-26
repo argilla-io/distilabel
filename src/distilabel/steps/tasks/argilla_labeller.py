@@ -83,7 +83,7 @@ class ArgillaLabeller(Task):
         - guidelines (`Optional[str]`): The guidelines for the annotation task.
 
     Output columns:
-        - suggestions (`Dict[str, Any]`): The final suggestion for annotation.
+        - suggestion (`Dict[str, Any]`): The final suggestion for annotation.
 
     Categories:
         - text-classification
@@ -422,7 +422,7 @@ class ArgillaLabeller(Task):
 
     @property
     def outputs(self) -> List[str]:
-        return ["suggestions"]
+        return ["suggestion"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
