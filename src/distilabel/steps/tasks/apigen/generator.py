@@ -58,20 +58,22 @@ class APIGenGenerator(Task):
         system_prompt: The system prompt to guide the user in the generation of queries and answers.
         use_tools: Whether to use the tools available in the prompt to generate the queries and answers.
             In case the tools are given in the input, they will be added to the prompt.
-        number: The number of queries to generate. If a list, it will choose a random
-            number from the list. It corresponds to the number of parallel queries to generate.
+        number: The number of queries to generate. It can be a list, where each number will be
+            chosen randomly, or a dictionary with the number of queries and the probability of each.
+            I.e: `number=1`, `number=[1, 2, 3]`, `number={1: 0.5, 2: 0.3, 3: 0.2}` are all valid inputs.
+            It corresponds to the number of parallel queries to generate.
         use_default_structured_output: Whether to use the default structured output or not.
 
     Input columns:
         - examples (`str`): Examples used as few shots to guide the model.
         - func_name (`str`): Name for the function to generate.
         - func_desc (`str`): Description of what the function should do.
-        - func_desc (`str`): Description of what the function should do.
+        - tools (`str`): JSON formatted string containing the tool representation of the function.
 
     Output columns:
-        - query (`List[str]`): The list of queries.
-        - answers (`List[Dict[str, Any]]`): The list of answers, containing the info as a dictionary to
-            be passed to the functions.
+        - query (`str`): The list of queries.
+        - answers (`str`): JSON formatted string with the list of answers, containing the info as
+            a dictionary to be passed to the functions.
 
     Categories:
         - text-generation
@@ -81,7 +83,6 @@ class APIGenGenerator(Task):
         - [Salesforce/xlam-function-calling-60k](https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k)
 
     Examples:
-
         Generate without structured output (original implementation):
 
         ```python
@@ -182,7 +183,7 @@ class APIGenGenerator(Task):
 
     system_prompt: str = SYSTEM_PROMPT_API_GEN
     use_default_structured_output: bool = False
-    number: Union[int, List[int]] = 1
+    number: Union[int, List[int], Dict[int, float]] = 1
     use_tools: bool = True
 
     _number: Union[int, None] = PrivateAttr(None)
@@ -224,8 +225,13 @@ class APIGenGenerator(Task):
         The number must be set to `_number` to avoid changing the original value
         when calling `_default_error`.
         """
+        # TODO: UPDATE NUMBER TO HAVE A LIST, OR A DICT WITH A PROBABILITY DISTRIBUTION
         if isinstance(self.number, list):
             self._number = random.choice(self.number)
+        elif isinstance(self.number, dict):
+            self._number = random.choices(
+                list(self.number.keys()), list(self.number.values())
+            )[0]
         else:
             self._number = self.number
         return self._number
