@@ -92,6 +92,7 @@ vllm = [
     "filelock >= 3.13.4",
     # `setuptools` is needed to be installed if installed with `uv pip install distilabel[vllm]`
     "setuptools",
+    "setuptools_scm",
 ]
 sentence-transformers = ["sentence-transformers >= 3.0.0"]
 faiss-cpu = ["faiss-cpu >= 1.8.0"]
