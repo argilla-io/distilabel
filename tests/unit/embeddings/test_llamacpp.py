@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from distilabel.embeddings.llamacpp import LlamaCppEmbeddings
+from distilabel.embeddings import LlamaCppEmbeddings
 
 
 class TestLlamaCppEmbeddings:
