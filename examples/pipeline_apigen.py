@@ -112,10 +112,5 @@ with Pipeline(name="APIGenPipeline") as pipeline:
 
 
 if __name__ == "__main__":
-    distiset = pipeline.dry_run()
-    print(distiset)
-    print(distiset["default"]["train"])
+    distiset = pipeline.run()
     print(distiset["default"]["train"][0])
-    from pathlib import Path
-
-    distiset.save_to_disk(Path.home() / "Downloads/apigen-pipeline-test-new")
