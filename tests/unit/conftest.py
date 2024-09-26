@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from typing import TYPE_CHECKING, Any, Dict, List, Union
+from urllib.request import urlretrieve
 
 import pytest
 
@@ -105,11 +107,39 @@ def dummy_llm() -> AsyncLLM:
 
 
 @pytest.fixture
-def local_llamacpp_model_path():
+def local_llamacpp_model_path(tmp_path):
     """
-    Fixture that provides the local model path for LlamaCpp testing.
+    Fixture that provides the local model path for LlamaCpp testing and handles cleanup.
 
-    Returns:
+    The model path can be set using the LLAMACPP_TEST_MODEL_PATH environment variable.
+    If not set, it downloads a small test model to a temporary directory and cleans up after the test.
+
+    Args:
+        tmp_path (Path): Pytest fixture providing a temporary directory path.
+
+    Yields:
         str: The path to the local LlamaCpp model file.
     """
-    return "./tests/model/gguf/all-MiniLM-L6-v2-Q2_K.gguf"
+    # Check for environment variable first
+    env_path = os.environ.get("LLAMACPP_TEST_MODEL_PATH")
+    if env_path:
+        yield env_path
+        return  # No cleanup needed if env var is set
+
+    # If env var not set, use a small test model
+    model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
+    model_url = f"https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/{model_name}"
+    model_path = tmp_path / model_name
+
+    if not model_path.exists():
+        print(f"Downloading test model to {model_path}...")
+        urlretrieve(model_url, model_path)
+        print("Download complete.")
+
+    yield str(model_path)
+
+    # Cleanup
+    print(f"Cleaning up downloaded model at {model_path}...")
+    if model_path.exists():
+        os.remove(model_path)
+    print("Cleanup complete.")

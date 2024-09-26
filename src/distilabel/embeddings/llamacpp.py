@@ -165,15 +165,4 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         Returns:
             The generated embeddings.
         """
-        if self._model is None:
-            self._logger.error("Model is not initialized")
-            raise ValueError(
-                "Model is not initialized. Please check the initialization process."
-            )
-
-        try:
-            embeds = self._model.embed(inputs, normalize=self.normalize_embeddings)
-            return embeds
-        except Exception as e:
-            print(f"Error creating embedding: {str(e)}")
-            raise
+        return self._model.embed(inputs, normalize=self.normalize_embeddings)
