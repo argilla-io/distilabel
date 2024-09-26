@@ -3595,9 +3595,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#building-our-pipeline" class="md-nav__link">
+  <a href="#building-the-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
-      Building our Pipeline
+      Building the Pipeline
     </span>
   </a>
   
@@ -4842,9 +4842,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#building-our-pipeline" class="md-nav__link">
+  <a href="#building-the-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
-      Building our Pipeline
+      Building the Pipeline
     </span>
   </a>
   
@@ -4887,24 +4887,24 @@
 <h2 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h2>
 <p>The following figure showcases the APIGen framework:</p>
 <p><img alt="APIGen framework" src="../../../../assets/tutorials-assets/overview-apigen.jpg" /></p>
+<p>Now, let's walk through the key steps illustrated in the figure:</p>
 <ul>
 <li>
-<p><a href="https://distilabel.argilla.io/dev/components-gallery/step/datasampler/"><code>DataSampler</code></a>: Seed QA Data Sampler for the prompt template.</p>
+<p><a href="https://distilabel.argilla.io/dev/components-gallery/step/datasampler/"><code>DataSampler</code></a>: With the help of this step and the original <a href="https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k">Salesforce/xlam-function-calling-60k</a> we are getting the Seed QA Data Sampler for the prompt template.</p>
 </li>
 <li>
-<p><a href="https://distilabel.argilla.io/dev/components-gallery/task/apigengenerator/"><code>APIGenGenerator</code></a>: Query-Answer generator, does the format checker from <em>stage 1</em> by means of structured output generation.</p>
+<p><a href="https://distilabel.argilla.io/dev/components-gallery/task/apigengenerator/"><code>APIGenGenerator</code></a>: This step does the job of the <em>Query-Answer Generator</em>, including the format checker from <em>Stage 1: Format Checker</em> thanks to the structured output generation.</p>
 </li>
 <li>
-<p><a href="https://distilabel.argilla.io/dev/components-gallery/task/apigenexecutionchecker/"><code>APIGenExecutionChecker</code></a>: Does the <em>stage 2</em></p>
+<p><a href="https://distilabel.argilla.io/dev/components-gallery/task/apigenexecutionchecker/"><code>APIGenExecutionChecker</code></a>: This step is in charge of the <em>Stage 2: Execution Checker</em>.</p>
 </li>
 <li>
-<p><a href="https://distilabel.argilla.io/dev/components-gallery/task/apigensemanticchecker/"><code>APIGenSemanticChecker</code></a>: <em>Stage 3</em></p>
+<p><a href="https://distilabel.argilla.io/dev/components-gallery/task/apigensemanticchecker/"><code>APIGenSemanticChecker</code></a>: Step in charge of running <em>Stage 3: Semantic Checker</em>, can use the same or a different LLM, we are using the same as in <a href="https://distilabel.argilla.io/dev/components-gallery/task/apigengenerator/"><code>APIGenGenerator</code></a> step.</p>
 </li>
 </ul>
-<p>We will define the components needed to generate a dataset like the one depicted in the previous figure (we won't call lean4 or do the fine-tuning, this last step can be done outside of <code>distilabel</code>). The different blocks will have all the docstrings as we would have in the internal steps to showcase how they are done, but they can be omitted for brevity.</p>
+<p>The current implementation hasn't utilized the <em>Diverse Prompt Library</em>. To incorporate it, one could either adjust the prompt template within the <a href="https://distilabel.argilla.io/dev/components-gallery/task/apigengenerator/"><code>APIGenGenerator</code></a> or develop a new sampler specifically for this purpose. As for the <em>API Sampler</em>, while no specific data is shared here, we've created illustrative examples to demonstrate the pipeline's functionality. These examples represent a mix of data that could be used to replicate the sampler's output.</p>
 <h2 id="data-preparation">Data preparation<a class="headerlink" href="#data-preparation" title="Permanent link">&para;</a></h2>
-<p>ADD INFO FROM THE ORIGINAL DATASET.</p>
-<p>In this example, we will write a bunch of examples by hand to showcase how this pipeline can be built.</p>
+<p>The original paper tells about the data they used and give some hints, but nothing was shared. In this example, we will write a bunch of examples by hand to showcase how this pipeline can be built.</p>
 <p>Assume we have the following function names, and corresponding descriptions of their behaviour:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="p">{</span>
@@ -4933,8 +4933,8 @@
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="p">}</span>
 </span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="p">]</span>
 </span></code></pre></div>
-<p>The original paper refers to both python functions and APIs, but we will make use of python functions exclusively for simplicity. In order to execute and check this functions/APIs, we need access to the code, which we have moved to a python file: <a href="../../../../examples/lib_apigen.py">lib_apigen.py</a>. All this functions are executable, but we also need access to their <em>tool</em> representation. For this, we will make use of transformers' <em>get_json_schema</em> function. Read this nice blog post for more information on tools and the reasoning behind <code>get_json_schema</code>: <a href="https://huggingface.co/blog/unified-tool-use">Tool Use, Unified</a>.</p>
-<p>We have all the machinery prepared in our libpath, but take a look at the libpath to see what it's needed from these functions. With the help of <code>load_module_from_path</code> we will load this python module, collect all the tools, and add them to each row in our <code>data</code> variable.</p>
+<p>The original paper refers to both python functions and APIs, but we will make use of python functions exclusively for simplicity. In order to execute and check this functions/APIs, we need access to the code, which we have moved to a python file: <a href="../../../../examples/lib_apigen.py">lib_apigen.py</a>. All this functions are executable, but we also need access to their <em>tool</em> representation. For this, we will make use of transformers' <em>get_json_schema</em> function<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.</p>
+<p>We have all the machinery prepared in our libpath, except from the <em>tool</em> definition. With the help of our helper function <code>load_module_from_path</code> we will load this python module, collect all the tools, and add them to each row in our <code>data</code> variable.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks.apigen.utils</span> <span class="kn">import</span> <span class="n">load_module_from_path</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">libpath_module</span> <span class="o">=</span> <span class="n">load_module_from_path</span><span class="p">(</span><span class="n">libpath</span><span class="p">)</span>
@@ -4952,9 +4952,9 @@
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>We have just loaded a subset and transformed it to a list of dictionaries, as we will use it in the <a href="https://distilabel.argilla.io/dev/components-gallery/steps/datasampler/"><code>DataSampler</code></a> <code>GeneratorStep</code>.</p>
-<h2 id="building-our-pipeline">Building our Pipeline<a class="headerlink" href="#building-our-pipeline" title="Permanent link">&para;</a></h2>
-<p>TODO: Introduce the pipeline here.</p>
+<p>We have just loaded a subset and transformed it to a list of dictionaries, as we will use it in the <a href="https://distilabel.argilla.io/dev/components-gallery/steps/datasampler/"><code>DataSampler</code></a> <code>GeneratorStep</code>, grabbing random examples from the original dataset.</p>
+<h2 id="building-the-pipeline">Building the Pipeline<a class="headerlink" href="#building-the-pipeline" title="Permanent link">&para;</a></h2>
+<p>Now that we've walked through each component, it's time to see how it all comes together, here's the Pipeline code:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;apigen-example&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">loader_seeds</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># (1)</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -5019,9 +5019,8 @@ examples from the original dataset to be fed in our prompt.</p>
 <p>Adds columns <code>keep_row_after_semantic_check</code> and <code>thought</code>.</p>
 </li>
 </ol>
-<p>TODO: Conclusions</p>
 <h2 id="script-and-final-dataset">Script and final dataset<a class="headerlink" href="#script-and-final-dataset" title="Permanent link">&para;</a></h2>
-<p>All the pieces are in place for our script, the full pipeline can be seen here:</p>
+<p>To see all the pieces in place, take a look at the full pipeline, as well as an example row that would be generated from this pipeline.</p>
 <details class="run">
 <summary>Run</summary>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">pipeline_apigen</span><span class="o">.</span><span class="n">py</span>
@@ -5144,7 +5143,7 @@ examples from the original dataset to be fed in our prompt.</p>
 </span><span id="__span-5-115"><a id="__codelineno-5-115" name="__codelineno-5-115" href="#__codelineno-5-115"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </span><span id="__span-5-116"><a id="__codelineno-5-116" name="__codelineno-5-116" href="#__codelineno-5-116"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">distiset</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 </span></code></pre></div>
-<p>Finally, we can see an example generation from the pipeline:</p>
+<p>Example row:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;func_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;final_velocity&quot;</span><span class="p">,</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">&quot;func_desc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Calculates the final velocity of an object given its initial velocity, acceleration, and time.&quot;</span><span class="p">,</span>
@@ -5215,6 +5214,14 @@ examples from the original dataset to be fed in our prompt.</p>
 </span><span id="__span-6-68"><a id="__codelineno-6-68" name="__codelineno-6-68" href="#__codelineno-6-68"></a><span class="w">  </span><span class="nt">&quot;keep_row_after_semantic_check&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 </span><span id="__span-6-69"><a id="__codelineno-6-69" name="__codelineno-6-69" href="#__codelineno-6-69"></a><span class="p">}</span>
 </span></code></pre></div>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>Read this nice blog post for more information on tools and the reasoning behind <code>get_json_schema</code>: <a href="https://huggingface.co/blog/unified-tool-use">Tool Use, Unified</a>.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
 
 
 
