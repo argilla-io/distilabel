@@ -12,21 +12,21 @@ The following figure showcases the APIGen framework:
 
 ![APIGen framework](../../../assets/tutorials-assets/overview-apigen.jpg)
 
-- [`DataSampler`](https://distilabel.argilla.io/dev/components-gallery/step/datasampler/): Seed QA Data Sampler for the prompt template.
+Now, let's walk through the key steps illustrated in the figure:
 
-- [`APIGenGenerator`](https://distilabel.argilla.io/dev/components-gallery/task/apigengenerator/): Query-Answer generator, does the format checker from *stage 1* by means of structured output generation.
+- [`DataSampler`](https://distilabel.argilla.io/dev/components-gallery/step/datasampler/): With the help of this step and the original [Salesforce/xlam-function-calling-60k](https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k) we are getting the Seed QA Data Sampler for the prompt template.
 
-- [`APIGenExecutionChecker`](https://distilabel.argilla.io/dev/components-gallery/task/apigenexecutionchecker/): Does the *stage 2*
+- [`APIGenGenerator`](https://distilabel.argilla.io/dev/components-gallery/task/apigengenerator/): This step does the job of the *Query-Answer Generator*, including the format checker from *Stage 1: Format Checker* thanks to the structured output generation.
 
-- [`APIGenSemanticChecker`](https://distilabel.argilla.io/dev/components-gallery/task/apigensemanticchecker/): *Stage 3*
+- [`APIGenExecutionChecker`](https://distilabel.argilla.io/dev/components-gallery/task/apigenexecutionchecker/): This step is in charge of the *Stage 2: Execution Checker*.
 
-We will define the components needed to generate a dataset like the one depicted in the previous figure (we won't call lean4 or do the fine-tuning, this last step can be done outside of `distilabel`). The different blocks will have all the docstrings as we would have in the internal steps to showcase how they are done, but they can be omitted for brevity.
+- [`APIGenSemanticChecker`](https://distilabel.argilla.io/dev/components-gallery/task/apigensemanticchecker/): Step in charge of running *Stage 3: Semantic Checker*, can use the same or a different LLM, we are using the same as in [`APIGenGenerator`](https://distilabel.argilla.io/dev/components-gallery/task/apigengenerator/) step.
+
+The current implementation hasn't utilized the *Diverse Prompt Library*. To incorporate it, one could either adjust the prompt template within the [`APIGenGenerator`](https://distilabel.argilla.io/dev/components-gallery/task/apigengenerator/) or develop a new sampler specifically for this purpose. As for the *API Sampler*, while no specific data is shared here, we've created illustrative examples to demonstrate the pipeline's functionality. These examples represent a mix of data that could be used to replicate the sampler's output.
 
 ## Data preparation
 
-ADD INFO FROM THE ORIGINAL DATASET.
-
-In this example, we will write a bunch of examples by hand to showcase how this pipeline can be built.
+The original paper tells about the data they used and give some hints, but nothing was shared. In this example, we will write a bunch of examples by hand to showcase how this pipeline can be built.
 
 Assume we have the following function names, and corresponding descriptions of their behaviour:
 
@@ -59,9 +59,11 @@ data = [
 ]
 ```
 
-The original paper refers to both python functions and APIs, but we will make use of python functions exclusively for simplicity. In order to execute and check this functions/APIs, we need access to the code, which we have moved to a python file: [lib_apigen.py](../../../../examples/lib_apigen.py). All this functions are executable, but we also need access to their *tool* representation. For this, we will make use of transformers' *get_json_schema* function. Read this nice blog post for more information on tools and the reasoning behind `get_json_schema`: [Tool Use, Unified](https://huggingface.co/blog/unified-tool-use).
+The original paper refers to both python functions and APIs, but we will make use of python functions exclusively for simplicity. In order to execute and check this functions/APIs, we need access to the code, which we have moved to a python file: [lib_apigen.py](../../../../examples/lib_apigen.py). All this functions are executable, but we also need access to their *tool* representation. For this, we will make use of transformers' *get_json_schema* function[^1].
 
-We have all the machinery prepared in our libpath, but take a look at the libpath to see what it's needed from these functions. With the help of `load_module_from_path` we will load this python module, collect all the tools, and add them to each row in our `data` variable.
+[^1]: Read this nice blog post for more information on tools and the reasoning behind `get_json_schema`: [Tool Use, Unified](https://huggingface.co/blog/unified-tool-use).
+
+We have all the machinery prepared in our libpath, except from the *tool* definition. With the help of our helper function `load_module_from_path` we will load this python module, collect all the tools, and add them to each row in our `data` variable.
 
 ```python
 from distilabel.steps.tasks.apigen.utils import load_module_from_path
@@ -85,11 +87,11 @@ ds_og = (
 )
 ```
 
-We have just loaded a subset and transformed it to a list of dictionaries, as we will use it in the [`DataSampler`](https://distilabel.argilla.io/dev/components-gallery/steps/datasampler/) `GeneratorStep`.
+We have just loaded a subset and transformed it to a list of dictionaries, as we will use it in the [`DataSampler`](https://distilabel.argilla.io/dev/components-gallery/steps/datasampler/) `GeneratorStep`, grabbing random examples from the original dataset.
 
-## Building our Pipeline
+## Building the Pipeline
 
-TODO: Introduce the pipeline here.
+Now that we've walked through each component, it's time to see how it all comes together, here's the Pipeline code:
 
 ```python
 with Pipeline(name="apigen-example") as pipeline:
@@ -148,11 +150,9 @@ examples from the original dataset to be fed in our prompt.
 
 7. Adds columns `keep_row_after_semantic_check` and `thought`.
 
-TODO: Conclusions
-
 ## Script and final dataset
 
-All the pieces are in place for our script, the full pipeline can be seen here:
+To see all the pieces in place, take a look at the full pipeline, as well as an example row that would be generated from this pipeline.
 
 ??? Run
 
@@ -164,7 +164,7 @@ All the pieces are in place for our script, the full pipeline can be seen here:
 --8<-- "examples/pipeline_apigen.py"
 ```
 
-Finally, we can see an example generation from the pipeline:
+Example row:
 
 ```json
 {
