@@ -15,20 +15,6 @@
 from typing import List, Optional, Tuple
 
 
-def final_velocity(initial_velocity: float, acceleration: float, time: float) -> int:
-    """Calculates the final velocity of an object given its initial velocity, acceleration, and time.
-
-    Args:
-        initial_velocity: The initial velocity of the object.
-        acceleration: The acceleration of the object.
-        time: The time elapsed.
-
-    Returns:
-        The final velocity
-    """
-    return initial_velocity + acceleration * time
-
-
 def get_value(matrix: List[List[int]], indices: Tuple[int, int]) -> Optional[int]:
     """Gets the value at the specified index in the matrix.
 

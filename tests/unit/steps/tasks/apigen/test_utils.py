@@ -29,25 +29,28 @@ from distilabel.steps.tasks.apigen.utils import (
         (
             "final_velocity",
             {"initial_velocity": 10, "acceleration": 5, "time": 2},
-            {"execution_result": "20.0", "keep": True},
+            {"execution_result": "20", "keep": True},
         ),
         # In this case, internally we should cast the arguments
         (
             "final_velocity",
             {"initial_velocity": "10", "acceleration": "5", "time": "2"},
-            {"execution_result": "20.0", "keep": True},
+            {"execution_result": "20", "keep": True},
         ),
         # Different names for the arguments but correctly positioned
         (
             "final_velocity",
             {"v0": "10", "a": "5", "t": "2"},
-            {"execution_result": "20.0", "keep": True},
+            {"execution_result": "20", "keep": True},
         ),
         # Fail casting one of the values
         (
             "final_velocity",
             {"initial_velocity": "10", "acceleration": "5", "time": "1m/s"},
-            {"execution_result": "Argument types not respected", "keep": False},
+            {
+                "execution_result": "unsupported operand type(s) for +: 'int' and 'str'",
+                "keep": False,
+            },
         ),
         (
             "final_velocity",

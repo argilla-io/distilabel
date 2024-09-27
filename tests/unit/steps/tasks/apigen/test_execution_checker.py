@@ -101,6 +101,20 @@ class TestAPIGenExecutionChecker:
                     }
                 ],
             ),
+            (
+                {
+                    "query": "Other query",
+                    "answers": '[{"arguments": {"matrix": "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]", "indices": "[1, 2]"}, "name": "get_value"}]',
+                },
+                [
+                    {
+                        "query": "Other query",
+                        "answers": '[{"arguments": {"matrix": "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]", "indices": "[1, 2]"}, "name": "get_value"}]',
+                        "keep_row_after_execution_check": True,
+                        "execution_result": ["6"],
+                    }
+                ],
+            ),
         ],
     )
     def test_process(
