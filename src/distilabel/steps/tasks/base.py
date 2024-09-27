@@ -79,8 +79,8 @@ class _Task(_Step, ABC):
 
     def model_post_init(self, __context: Any) -> None:
         if (
-                self.llm.use_offline_batch_generation
-                and not self._can_be_used_with_offline_batch_generation
+            self.llm.use_offline_batch_generation
+            and not self._can_be_used_with_offline_batch_generation
         ):
             raise DistilabelUserError(
                 f"`{self.__class__.__name__}` task cannot be used with offline batch generation"
@@ -118,7 +118,9 @@ class _Task(_Step, ABC):
         self.llm.unload()
 
     @override
-    def impute_step_outputs(self, step_output: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def impute_step_outputs(
+        self, step_output: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Imputes the outputs of the task in case the LLM failed to generate a response.
         """
@@ -127,19 +129,21 @@ class _Task(_Step, ABC):
             data = row.copy()
             for output in self.outputs:
                 data[output] = None
-            data = self._maybe_add_raw_input_output(data,
-                                                    None,
-                                                    None,
-                                                    add_raw_output=self.add_raw_output,
-                                                    add_raw_input=self.add_raw_input)
+            data = self._maybe_add_raw_input_output(
+                data,
+                None,
+                None,
+                add_raw_output=self.add_raw_output,
+                add_raw_input=self.add_raw_input,
+            )
             result.append(data)
         return result
 
     @abstractmethod
     def format_output(
-            self,
-            output: Union[str, None],
-            input: Union[Dict[str, Any], None] = None,
+        self,
+        output: Union[str, None],
+        input: Union[Dict[str, Any], None] = None,
     ) -> Dict[str, Any]:
         """Abstract method to format the outputs of the task. It needs to receive an output
         as a string, and generates a Python dictionary with the outputs of the task. In
@@ -149,9 +153,9 @@ class _Task(_Step, ABC):
         pass
 
     def _format_outputs(
-            self,
-            outputs: "GenerateOutput",
-            input: Union[Dict[str, Any], None] = None,
+        self,
+        outputs: "GenerateOutput",
+        input: Union[Dict[str, Any], None] = None,
     ) -> List[Dict[str, Any]]:
         """Formats the outputs of the task using the `format_output` method. If the output
         is `None` (i.e. the LLM failed to generate a response), then the outputs will be
@@ -186,7 +190,7 @@ class _Task(_Step, ABC):
         return formatted_outputs
 
     def _output_on_failure(
-            self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         """In case of failure to format the output, this method will return a dictionary including
         a new field `distilabel_meta` with the raw output of the LLM.
@@ -204,12 +208,12 @@ class _Task(_Step, ABC):
         return outputs
 
     def _maybe_add_raw_input_output(
-            self,
-            output: Dict[str, Any],
-            raw_output: Union[str, None],
-            input: Union[str, None],
-            add_raw_output: bool = True,
-            add_raw_input: bool = True,
+        self,
+        output: Dict[str, Any],
+        raw_output: Union[str, None],
+        input: Union[str, None],
+        add_raw_output: bool = True,
+        add_raw_input: bool = True,
     ):
         """Adds the raw output and or the formatted input of the LLM to the output dictionary
         if `add_raw_output` is True or `add_raw_input` is True.
@@ -257,7 +261,7 @@ class _Task(_Step, ABC):
                 structured_output.update({"format": "json"})
             # To determine instructor or outlines format
             elif isinstance(self.llm, AsyncLLM) and not isinstance(
-                    self.llm, InferenceEndpointsLLM
+                self.llm, InferenceEndpointsLLM
             ):
                 dependency = "instructor"
                 structured_output.update({"format": "json"})

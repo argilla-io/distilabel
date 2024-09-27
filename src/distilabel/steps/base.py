@@ -582,7 +582,9 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         )
         write_json(filename=metadata_path, data=metadata or {})
 
-    def impute_step_outputs(self, step_output: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def impute_step_outputs(
+        self, step_output: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Imputes the output columns of the step that are not present in the step output.
         """
