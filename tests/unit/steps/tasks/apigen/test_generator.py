@@ -48,7 +48,6 @@ class DummyAPIGenLLM(DummyLLM):
         ]
         if self.use_structured_output:
             query_answers = {"pairs": query_answers}
-        # return [json.dumps(query_answers) for _ in range(len(inputs))]
         return [
             [json.dumps(query_answers) for _ in range(num_generations)]
             for _ in range(len(inputs))
@@ -134,9 +133,8 @@ class TestApiGenGenerator:
     @pytest.mark.parametrize("number", [1, 2])
     @pytest.mark.parametrize("use_default_structured_output", [True, False])
     @pytest.mark.parametrize("use_tools", [True, False])
-    def test_format_process(
+    def test_process(
         self,
-        # is_parallel: Union[bool, List[float]],
         number: Union[int, List[int]],
         use_default_structured_output: bool,
         use_tools: bool,

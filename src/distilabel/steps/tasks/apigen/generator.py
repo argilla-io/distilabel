@@ -15,6 +15,7 @@
 import importlib.resources as importlib_resources
 import json
 import random
+import re
 from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Union
 
 import orjson
@@ -329,6 +330,9 @@ class APIGenGenerator(Task):
         if output is None:
             return self._default_error(input)
 
+        if not self.use_default_structured_output:
+            output = remove_json_fences(output)
+
         try:
             pairs = orjson.loads(output)
         except orjson.JSONDecodeError:
@@ -442,3 +446,11 @@ class APIGenGenerator(Task):
             "title": "QueryAnswerPairs",
             "type": "object",
         }
+
+
+def remove_json_fences(text: str) -> str:
+    pattern = r"^```json\n([\s\S]*)\n```$"
+    match = re.match(pattern, text, re.MULTILINE)
+    if match:
+        return match.group(1)
+    return text
