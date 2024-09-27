@@ -225,7 +225,6 @@ class APIGenGenerator(Task):
         The number must be set to `_number` to avoid changing the original value
         when calling `_default_error`.
         """
-        # TODO: UPDATE NUMBER TO HAVE A LIST, OR A DICT WITH A PROBABILITY DISTRIBUTION
         if isinstance(self.number, list):
             self._number = random.choice(self.number)
         elif isinstance(self.number, dict):

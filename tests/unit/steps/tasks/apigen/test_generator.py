@@ -119,7 +119,7 @@ class TestApiGenGenerator:
             in formatted_prompt
         )
 
-        tools_entry = "These are the available tools to help you:"
+        tools_entry = "This is the available tool to guide you (respect the order of the parameters):"
         if use_tools:
             assert tools_entry in formatted_prompt
         else:
@@ -131,10 +131,6 @@ class TestApiGenGenerator:
         else:
             assert is_parallel_check not in formatted_prompt
 
-    # @pytest.mark.parametrize("is_parallel", [True, False, 1.0, 0.0])
-    # @pytest.mark.parametrize("number", [1, 2, [3]])
-    # @pytest.mark.parametrize("use_default_structured_output", [True, False])
-    # @pytest.mark.parametrize("use_tools", [True, False])
     @pytest.mark.parametrize("number", [1, 2])
     @pytest.mark.parametrize("use_default_structured_output", [True, False])
     @pytest.mark.parametrize("use_tools", [True, False])

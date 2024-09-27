@@ -115,6 +115,20 @@ class TestAPIGenExecutionChecker:
                     }
                 ],
             ),
+            (
+                {
+                    "query": "Other query",
+                    "answers": None,
+                },
+                [
+                    {
+                        "query": "Other query",
+                        "answers": None,
+                        "keep_row_after_execution_check": False,
+                        "execution_result": ["No answers were provided."],
+                    }
+                ],
+            ),
         ],
     )
     def test_process(

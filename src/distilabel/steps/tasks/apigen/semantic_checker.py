@@ -224,8 +224,8 @@ class APIGenSemanticChecker(Task):
                 "role": "user",
                 "content": self._template.render(
                     func_desc=input["func_desc"],
-                    query=input["query"],
-                    func_call=input["answers"],
+                    query=input["query"] or "",
+                    func_call=input["answers"] or "",
                     execution_result=input["execution_result"],
                     format_inst=self._format_inst,
                 ),

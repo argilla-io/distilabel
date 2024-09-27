@@ -167,7 +167,16 @@ class APIGenExecutionChecker(Step):
         """
         for input in inputs:
             output = []
-            answers = json.loads(input["answers"])
+            if input["answers"]:
+                answers = json.loads(input["answers"])
+            else:
+                input.update(
+                    **{
+                        "keep_row_after_execution_check": False,
+                        "execution_result": ["No answers were provided."],
+                    }
+                )
+                continue
             for answer in answers:
                 if answer is None:
                     output.append(
