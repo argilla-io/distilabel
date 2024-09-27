@@ -200,7 +200,6 @@ class APIGenExecutionChecker(Step):
                         }
                     )
                 else:
-                    # TODO: Based on the signature, try to cast the values before passing them to the function.
                     execution = execute_from_response(function, arguments)
                     output.append(
                         {
