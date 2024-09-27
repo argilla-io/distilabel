@@ -361,7 +361,7 @@ class APIGenGenerator(Task):
             )
             return input
         except Exception as e:
-            self._logger.error(f"Error formatting output: {e}")
+            self._logger.error(f"Error formatting output: {e}, pairs: '{pairs}'")
             return self._default_error(input)
 
     def _default_error(self, input: Dict[str, Any]) -> Dict[str, Any]:
