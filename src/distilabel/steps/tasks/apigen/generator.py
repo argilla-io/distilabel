@@ -15,7 +15,6 @@
 import importlib.resources as importlib_resources
 import json
 import random
-import re
 from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Union
 
 import orjson
@@ -23,6 +22,7 @@ from jinja2 import Template
 from pydantic import PrivateAttr
 from typing_extensions import override
 
+from distilabel.steps.tasks.apigen.utils import remove_fences
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
@@ -245,7 +245,7 @@ class APIGenGenerator(Task):
         """
         return (
             "\nThe output MUST strictly adhere to the following JSON format, and NO other text MUST be included:\n"
-            "```json\n"
+            "```\n"
             "[\n"
             "   {\n"
             '       "query": "The generated query.",\n'
@@ -331,7 +331,7 @@ class APIGenGenerator(Task):
             return self._default_error(input)
 
         if not self.use_default_structured_output:
-            output = remove_json_fences(output)
+            output = remove_fences(output)
 
         try:
             pairs = orjson.loads(output)
@@ -446,11 +446,3 @@ class APIGenGenerator(Task):
             "title": "QueryAnswerPairs",
             "type": "object",
         }
-
-
-def remove_json_fences(text: str) -> str:
-    pattern = r"^```json\n([\s\S]*)\n```$"
-    match = re.match(pattern, text, re.MULTILINE)
-    if match:
-        return match.group(1)
-    return text

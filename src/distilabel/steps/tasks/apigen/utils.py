@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import importlib.util
+import re
 from typing import TYPE_CHECKING, Any, Callable, Dict, TypedDict
 
 from distilabel.steps.base import Step, StepInput
@@ -151,3 +152,19 @@ def execute_from_response(
         return FunctionResult(keep=True, execution_result=str(result))
     except Exception as e:
         return FunctionResult(keep=False, execution_result=str(e))
+
+
+def remove_json_fences(text: str) -> str:
+    pattern = r"^```json\n([\s\S]*)\n```$"
+    match = re.match(pattern, text, re.MULTILINE)
+    if match:
+        return match.group(1)
+    return text
+
+
+def remove_fences(text: str) -> str:
+    pattern = r"^```\n([\s\S]*)\n```$"
+    match = re.match(pattern, text, re.MULTILINE)
+    if match:
+        return match.group(1)
+    return text

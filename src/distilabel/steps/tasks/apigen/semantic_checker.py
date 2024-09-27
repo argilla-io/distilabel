@@ -20,6 +20,7 @@ from jinja2 import Template
 from pydantic import PrivateAttr
 from typing_extensions import override
 
+from distilabel.steps.tasks.apigen.utils import remove_fences
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
@@ -193,8 +194,6 @@ class APIGenSemanticChecker(Task):
         else is needed, otherwise, returns the original addition to the prompt to guide the model
         to generate a formatted JSON.
         """
-        if self.use_default_structured_output:
-            return ""
         return (
             "\nYour response MUST strictly adhere to the following JSON format, and NO other text MUST be included.\n"
             "```\n"
@@ -257,6 +256,8 @@ class APIGenSemanticChecker(Task):
         """
         if output is None:
             return self._default_error(input)
+
+        output = remove_fences(output)
 
         try:
             result = orjson.loads(output)

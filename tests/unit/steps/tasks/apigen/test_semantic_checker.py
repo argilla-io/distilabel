@@ -55,10 +55,7 @@ class TestAPIGenSemanticChecker:
         formatted_prompt = result[1]["content"]
 
         default_structured_output_check = "Your response MUST strictly adhere to the following JSON format, and NO other text MUST be included"
-        if use_default_structured_output:
-            assert default_structured_output_check not in formatted_prompt
-        else:
-            assert default_structured_output_check in formatted_prompt
+        assert default_structured_output_check in formatted_prompt
         assert (
             '- Generated Function Calls: [{"name": "get_breed_information", "arguments": {"breed": "Maine Coon"}}]'
             in formatted_prompt
