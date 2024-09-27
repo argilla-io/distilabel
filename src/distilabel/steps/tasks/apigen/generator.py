@@ -368,7 +368,7 @@ class APIGenGenerator(Task):
         input.update(
             **{
                 "query": None,
-                "answers": [None] * self._number,
+                "answers": json.dumps([None] * self._number),
             }
         )
         return input
