@@ -272,7 +272,7 @@ class APIGenGenerator(Task):
             return input["func_desc"]
         extra = ""  # Extra information from the tools (if available will be added)
         if "tools" in input:
-            extra = f"\n\nThese are the available tools to help you:\n{input['tools']}"
+            extra = f"\n\nThis is the available tool to guide you (respect the order of the parameters):\n{input['tools']}"
         return input["func_desc"] + extra
 
     @property
@@ -353,13 +353,6 @@ class APIGenGenerator(Task):
             are a list of objects.
         """
         try:
-            # query = []
-            # answers = []
-            # for pair in pairs:
-            #     query.append(pair["query"])
-            #     answers.append(pair["answers"])
-            # input.update(**{"query": query, "answers": json.dumps(answers)})
-
             input.update(
                 **{
                     "query": pairs[0]["query"],
