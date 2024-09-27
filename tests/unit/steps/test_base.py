@@ -15,6 +15,8 @@
 from typing import List, Optional
 
 import pytest
+from pydantic import ValidationError
+
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
@@ -22,7 +24,6 @@ from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.decorator import step
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
-from pydantic import ValidationError
 
 
 class DummyStep(Step):
@@ -120,6 +121,13 @@ class TestStep:
 
         assert step.runtime_parameters_names == {
             "input_batch_size": True,
+            "resources": {
+                "cpus": True,
+                "gpus": True,
+                "replicas": True,
+                "memory": True,
+                "resources": True,
+            },
             "runtime_param1": False,
             "runtime_param2": True,
             "runtime_param3": True,
@@ -290,7 +298,44 @@ class TestStepSerialization:
             "input_batch_size": 50,
             "input_mappings": {},
             "output_mappings": {},
+            "resources": {
+                "cpus": None,
+                "gpus": None,
+                "memory": None,
+                "replicas": 1,
+                "resources": None,
+            },
             "runtime_parameters_info": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the step.",
                     "name": "input_batch_size",

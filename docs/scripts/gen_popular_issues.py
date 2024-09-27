@@ -24,66 +24,53 @@ import mkdocs_gen_files
 REPOSITORY = "argilla-io/distilabel"
 DATA_PATH = "sections/community/popular_issues.md"
 
-GITHUB_ACCESS_TOKEN = os.getenv(
-    "GH_ACCESS_TOKEN"
-)  # public_repo and read:org scopes are required
+# public_repo and read:org scopes are required
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 
-def fetch_issues_from_github_repository(
-    repository: str, auth_token: Union[str, None] = None
-) -> pd.DataFrame:
+def fetch_data_from_github(repository, auth_token):
     if auth_token is None:
         return pd.DataFrame(
             {
                 "Issue": [],
                 "State": [],
                 "Created at": [],
-                "Closed at": [],
-                "Last update": [],
-                "Labels": [],
                 "Milestone": [],
                 "Reactions": [],
                 "Comments": [],
                 "URL": [],
-                "Repository": [],
                 "Author": [],
+                "Author association": [],
             }
         )
-
-    headers = {
-        "Authorization": f"token {auth_token}",
-        "Accept": "application/vnd.github.v3+json",
-    }
+    headers = {"Authorization": f"token {auth_token}", "Accept": "application/vnd.github.v3+json"}
     issues_data = []
 
-    print(f"Fetching issues from '{repository}'...")
+    print(f"Fetching issues from {repository}...")
     with requests.Session() as session:
         session.headers.update(headers)
 
         owner, repo_name = repository.split("/")
-        issues_url = (
-            f"https://api.github.com/repos/{owner}/{repo_name}/issues?state=all"
-        )
+        issues_url = f"https://api.github.com/repos/{owner}/{repo_name}/issues?state=all"
 
         while issues_url:
             response = session.get(issues_url)
             issues = response.json()
 
             for issue in issues:
+                if "pull_request" in issue:
+                    continue
                 issues_data.append(
                     {
                         "Issue": f"{issue['number']} - {issue['title']}",
                         "State": issue["state"],
                         "Created at": issue["created_at"],
-                        "Closed at": issue.get("closed_at", None),
-                        "Last update": issue["updated_at"],
-                        "Labels": [label["name"] for label in issue["labels"]],
                         "Milestone": (issue.get("milestone") or {}).get("title"),
                         "Reactions": issue["reactions"]["total_count"],
                         "Comments": issue["comments"],
                         "URL": issue["html_url"],
-                        "Repository": repo_name,
                         "Author": issue["user"]["login"],
+                        "Author association": issue["author_association"],
                     }
                 )
 
@@ -92,60 +79,33 @@ def fetch_issues_from_github_repository(
     return pd.DataFrame(issues_data)
 
 
-def get_org_members(auth_token: Union[str, None] = None) -> List[str]:
-    if auth_token is None:
-        return []
-
-    headers = {
-        "Authorization": f"token {auth_token}",
-        "Accept": "application/vnd.github.v3+json",
-    }
-    members_list = []
-
-    members_url = "https://api.github.com/orgs/argilla-io/members"
-
-    while members_url:
-        response = requests.get(members_url, headers=headers)
-        members = response.json()
-
-        for member in members:
-            members_list.append(member["login"])
-
-        members_list.extend(["pre-commit-ci[bot]"])
-
-        members_url = response.links.get("next", {}).get("url", None)
-
-    return members_list
-
-
 with mkdocs_gen_files.open(DATA_PATH, "w") as f:
-    df = fetch_issues_from_github_repository(REPOSITORY, GITHUB_ACCESS_TOKEN)
+    df = fetch_data_from_github(REPOSITORY, GITHUB_TOKEN)
 
     open_issues = df.loc[df["State"] == "open"]
     engagement_df = (
-        open_issues[["URL", "Issue", "Repository", "Reactions", "Comments"]]
+        open_issues[["URL", "Issue", "Reactions", "Comments"]]
         .sort_values(by=["Reactions", "Comments"], ascending=False)
         .head(10)
         .reset_index()
     )
 
-    members = get_org_members(GITHUB_ACCESS_TOKEN)
-    community_issues = df.loc[~df["Author"].isin(members)]
+    community_issues = df[df["Author association"] != "MEMBER"]
     community_issues_df = (
-        community_issues[
-            ["URL", "Issue", "Repository", "Created at", "Author", "State"]
-        ]
+        community_issues[["URL", "Issue", "Created at", "Author", "State"]]
         .sort_values(by=["Created at"], ascending=False)
         .head(10)
         .reset_index()
     )
 
-    planned_issues = df.loc[df["Milestone"].notna()]
+    df["Milestone"] = df["Milestone"].astype(str).fillna("")
+    planned_issues = df[
+        ((df["Milestone"].str.startswith("v1")) & (df["State"] == "open"))
+        | ((df["Milestone"].str.startswith("1")) & (df["State"] == "open"))
+    ]
     planned_issues_df = (
-        planned_issues[
-            ["URL", "Issue", "Repository", "Created at", "Milestone", "State"]
-        ]
-        .sort_values(by=["Milestone"], ascending=False)
+        planned_issues[["URL", "Issue", "Created at", "Milestone", "State"]]
+        .sort_values(by=["Milestone"], ascending=True)
         .head(10)
         .reset_index()
     )
@@ -154,27 +114,21 @@ with mkdocs_gen_files.open(DATA_PATH, "w") as f:
     f.write("    | Rank | Issue | Reactions | Comments |\n")
     f.write("    |------|-------|:---------:|:--------:|\n")
     for ix, row in engagement_df.iterrows():
-        f.write(
-            f"    | {ix+1} | [{row['Issue']}]({row['URL']}) | 👍 {row['Reactions']} | 💬 {row['Comments']} |\n"
-        )
+        f.write(f"    | {ix+1} | [{row['Issue']}]({row['URL']}) | 👍 {row['Reactions']} | 💬 {row['Comments']} |\n")
 
     f.write('\n=== "Latest issues open by the community"\n\n')
     f.write("    | Rank | Issue | Author |\n")
     f.write("    |------|-------|:------:|\n")
     for ix, row in community_issues_df.iterrows():
         state = "🟢" if row["State"] == "open" else "🟣"
-        f.write(
-            f"    | {ix+1} | {state} [{row['Issue']}]({row['URL']}) | by **{row['Author']}** |\n"
-        )
+        f.write(f"    | {ix+1} | {state} [{row['Issue']}]({row['URL']}) | by **{row['Author']}** |\n")
 
     f.write('\n=== "Planned issues for upcoming releases"\n\n')
     f.write("    | Rank | Issue | Milestone |\n")
     f.write("    |------|-------|:------:|\n")
     for ix, row in planned_issues_df.iterrows():
         state = "🟢" if row["State"] == "open" else "🟣"
-        f.write(
-            f"    | {ix+1} | {state} [{row['Issue']}]({row['URL']}) |  **{row['Milestone']}** |\n"
-        )
+        f.write(f"    | {ix+1} | {state} [{row['Issue']}]({row['URL']}) |  **{row['Milestone']}** |\n")
 
     today = datetime.today().date()
     f.write(f"\nLast update: {today}\n")

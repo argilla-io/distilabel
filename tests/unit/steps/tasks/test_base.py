@@ -17,11 +17,11 @@ from dataclasses import field
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import pytest
+from pydantic import ValidationError
+
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.base import Task
-from pydantic import ValidationError
-
 from tests.unit.conftest import DummyLLM
 
 if TYPE_CHECKING:
@@ -310,6 +310,13 @@ class TestTask:
             "add_raw_output": True,
             "input_mappings": {},
             "output_mappings": {},
+            "resources": {
+                "cpus": None,
+                "gpus": None,
+                "memory": None,
+                "replicas": 1,
+                "resources": None,
+            },
             "input_batch_size": 50,
             "llm": {
                 "generation_kwargs": {},
@@ -321,6 +328,36 @@ class TestTask:
             "group_generations": False,
             "num_generations": 1,
             "runtime_parameters_info": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the step.",
                     "name": "input_batch_size",

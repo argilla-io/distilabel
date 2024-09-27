@@ -6,14 +6,13 @@ build-backend = "hatchling.build"
 name = "distilabel"
 description = "Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "Apache-2.0"
 keywords = ["llm", "annotation", "alignment", "synthetic", "data", "rlaif"]
 authors = [{ name = "Argilla", email = "admin@argilla.io" }]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -49,7 +48,7 @@ distilabel = "distilabel.cli.app:app"
 "distilabel/components-gallery" = "distilabel.utils.mkdocs.components_gallery:ComponentsGalleryPlugin"
 
 [project.optional-dependencies]
-dev = ["ruff == 0.4.5", "pre-commit >= 3.5.0"]
+dev = ["ruff == 0.6.2", "pre-commit >= 3.5.0"]
 docs = [
     "mkdocs-material >=9.5.17",
     "mkdocstrings[python] >= 0.24.0",
@@ -72,10 +71,10 @@ tests = [
 
 # Optional LLMs, integrations, etc
 anthropic = ["anthropic >= 0.20.0"]
-argilla = ["argilla >= 1.29.0"]
+argilla = ["argilla >= 2.0.0", "ipython"]
 cohere = ["cohere >= 5.2.0"]
 groq = ["groq >= 0.4.1"]
-hf-inference-endpoints = ["huggingface_hub >= 0.19.0"]
+hf-inference-endpoints = ["huggingface_hub >= 0.22.0"]
 hf-transformers = ["transformers >= 4.34.1", "torch >= 2.0.0"]
 instructor = ["instructor >= 1.2.3"]
 litellm = ["litellm >= 1.30.0"]
@@ -84,8 +83,17 @@ mistralai = ["mistralai >= 0.1.0"]
 ollama = ["ollama >= 0.1.7"]
 openai = ["openai >= 1.0.0"]
 outlines = ["outlines >= 0.0.40"]
+ray = ["ray[default] >= 2.31.0"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
-vllm = ["vllm >= 0.4.0", "outlines == 0.0.34", "filelock >= 3.13.4"]
+vllm = [
+    "vllm >= 0.5.3",
+    "filelock >= 3.13.4",
+    # `setuptools` is needed to be installed if installed with `uv pip install distilabel[vllm]`
+    "setuptools",
+]
+sentence-transformers = ["sentence-transformers >= 3.0.0"]
+faiss-cpu = ["faiss-cpu >= 1.8.0"]
+faiss-gpu = ["faiss-cpu >= 1.7.2"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"

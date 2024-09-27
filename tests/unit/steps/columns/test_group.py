@@ -12,22 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+import pytest
+
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.combine import CombineColumns
+from distilabel.steps.columns.group import CombineColumns, GroupColumns
 
 
-class TestCombineColumns:
+class TestGroupColumns:
     def test_init(self) -> None:
-        task = CombineColumns(
-            name="combine-columns",
+        task = GroupColumns(
+            name="group-columns",
             columns=["a", "b"],
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         assert task.inputs == ["a", "b"]
-        assert task.outputs == ["merged_a", "merged_b"]
+        assert task.outputs == ["grouped_a", "grouped_b"]
 
-        task = CombineColumns(
-            name="combine-columns",
+        task = GroupColumns(
+            name="group-columns",
             columns=["a", "b"],
             output_columns=["c", "d"],
             pipeline=Pipeline(name="unit-test-pipeline"),
@@ -36,10 +39,23 @@ class TestCombineColumns:
         assert task.outputs == ["c", "d"]
 
     def test_process(self) -> None:
-        combine = CombineColumns(
-            name="combine-columns",
+        group = GroupColumns(
+            name="group-columns",
             columns=["a", "b"],
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
-        output = next(combine.process([{"a": 1, "b": 2}], [{"a": 3, "b": 4}]))
-        assert output == [{"merged_a": [1, 3], "merged_b": [2, 4]}]
+        output = next(group.process([{"a": 1, "b": 2}], [{"a": 3, "b": 4}]))
+        assert output == [{"grouped_a": [1, 3], "grouped_b": [2, 4]}]
+
+
+def test_CombineColumns_deprecation_warning():
+    with pytest.deprecated_call():
+        CombineColumns(
+            name="combine_columns",
+            columns=["generation", "model_name"],
+        )
+    from packaging.version import Version
+
+    import distilabel
+
+    assert Version(distilabel.__version__) <= Version("1.5.0")

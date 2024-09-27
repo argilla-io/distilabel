@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, List
 
 import pytest
-from distilabel.llms.base import AsyncLLM
+
+from distilabel.llms.base import LLM, AsyncLLM
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
@@ -35,6 +37,22 @@ class DummyLLM(AsyncLLM):
         self, input: "FormattedInput", num_generations: int = 1
     ) -> "GenerateOutput":
         return ["output" for _ in range(num_generations)]
+
+
+class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
+    def load(self) -> None:
+        pass
+
+    @property
+    def model_name(self) -> str:
+        return "test"
+
+    def generate(
+        self, inputs: List["FormattedInput"], num_generations: int = 1, **kwargs: Any
+    ) -> List["GenerateOutput"]:
+        return [
+            ["Hello Magpie" for _ in range(num_generations)] for _ in range(len(inputs))
+        ]
 
 
 @pytest.fixture

@@ -111,7 +111,7 @@ These were some simple examples, but one can see the options this opens.
 
 !!! Tip
     A full pipeline example can be seen in the following script:
-    [`examples/structured_generation_with_outlines.py`](../../pipeline_samples/examples/#llama-cpp-with-outlines)
+    [`examples/structured_generation_with_outlines.py`](../../pipeline_samples/examples/index.md#llamacpp-with-outlines)
 
 [^1]:
     You can check the variable type by importing it from:

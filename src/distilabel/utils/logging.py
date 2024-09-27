@@ -37,6 +37,9 @@ _SILENT_LOGGERS = [
     "filelock",
     "fsspec",
     "asyncio",
+    "sentence_transformers.SentenceTransformer",
+    "faiss.loader",
+    "argilla.sdk",
 ]
 
 queue_listener: Union[QueueListener, None] = None
@@ -83,10 +86,7 @@ def setup_logging(
         log_level = "INFO"
 
     root_logger = logging.getLogger()
-
-    running_test = "PYTEST_CURRENT_TEST" in os.environ
-    if not running_test:
-        root_logger.handlers.clear()
+    root_logger.handlers.clear()
 
     if log_queue is not None:
         root_logger.addHandler(QueueHandler(log_queue))
@@ -99,5 +99,8 @@ def stop_logging() -> None:
     global queue_listener
     if queue_listener is not None:
         queue_listener.stop()
-        queue_listener.queue.close()
+        if hasattr(queue_listener.queue, "close"):
+            queue_listener.queue.close()  # type: ignore
+        if hasattr(queue_listener.queue, "shutdown"):
+            queue_listener.queue.shutdown()  # type: ignore
         queue_listener = None

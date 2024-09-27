@@ -14,6 +14,17 @@
 
 This dataset has been created with [distilabel](https://distilabel.argilla.io/).
 
+{% if include_script%}
+The pipeline script was uploaded to easily reproduce the dataset:
+[{{ filename_py }}](https://huggingface.co/datasets/{{ repo_id }}/raw/main/{{ filename_py }}).
+
+It can be run directly using the CLI:
+
+```console
+distilabel pipeline run --script "https://huggingface.co/datasets/{{ repo_id }}/raw/main/{{ filename_py }}"
+```
+{% endif %}
+
 ## Dataset Summary
 
 This dataset contains a `pipeline.yaml` which can be used to reproduce the pipeline that generated it in distilabel using the `distilabel` CLI:
@@ -58,3 +69,14 @@ ds = load_dataset("{{ repo_id }}")
 
 </details>
 {% endfor %}
+
+{% if references %}
+## References
+
+{% for reference in references %}
+```
+{{ reference }}
+```
+
+{% endfor %}
+{% endif %}

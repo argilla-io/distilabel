@@ -19,7 +19,7 @@ from typing import Any, Dict, List, TypeVar
 _K = TypeVar("_K")
 
 
-def combine_dicts(*dicts: Dict[_K, Any]) -> Dict[_K, List[Any]]:
+def group_dicts(*dicts: Dict[_K, Any]) -> Dict[_K, List[Any]]:
     """Combines multiple dictionaries into a single dictionary joining the values
     as a list for each key.
 

@@ -18,8 +18,9 @@ from typing import TYPE_CHECKING, Any, Generator, List, Union
 from unittest import mock
 
 import pytest
+
 from distilabel.llms.base import LLM
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
@@ -95,6 +96,28 @@ class TestCudaDevicePlacementMixin:
         llm1.unload()
         llm2.unload()
 
+    def test_set_cuda_visible_devices_auto_with_desired_num_gpus(self, caplog) -> None:
+        llm1 = DummyCudaLLM()
+        llm1._llm_identifier = "unit-test-1"
+        llm1._desired_num_gpus = 3
+        llm1.load()
+
+        assert os.environ["CUDA_VISIBLE_DEVICES"] == "0,1,2"
+
+        llm2 = DummyCudaLLM()
+        llm2._llm_identifier = "unit-test-2"
+        llm2._desired_num_gpus = 2
+        llm2.load()
+
+        assert os.environ["CUDA_VISIBLE_DEVICES"] == "3"
+        assert (
+            "Could not assign the desired number of GPUs 2 for LLM with identifier 'unit-test-2'"
+            in caplog.text
+        )
+
+        llm1.unload()
+        llm2.unload()
+
     def test_set_cuda_visible_devices_auto_not_enough_devices(self) -> None:
         llms = []
         for i in range(5):
@@ -102,12 +125,13 @@ class TestCudaDevicePlacementMixin:
             llm._llm_identifier = f"unit-test-{i}"
             llms.append(llm)
 
-        with pytest.raises(
-            RuntimeError, match="Couldn't find an available CUDA device"
-        ):
-            # 4 devices are available, but 5 LLMs are going to be loaded
-            for llm in llms:
-                llm.load()
+        # 4 devices are available, but 5 LLMs are going to be loaded
+        for i, llm in enumerate(llms):
+            llm.load()
+            if i == len(llms) - 1:
+                assert llm.cuda_devices == []
+            else:
+                assert llm.cuda_devices == [i]
 
         for llm in llms:
             llm.unload()

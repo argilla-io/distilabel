@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import pytest
+from pydantic import ValidationError
+
 from distilabel.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.evol_instruct.base import (
@@ -21,7 +23,6 @@ from distilabel.steps.tasks.evol_instruct.base import (
 from distilabel.steps.tasks.evol_instruct.utils import (
     MUTATION_TEMPLATES,
 )
-from pydantic import ValidationError
 
 
 class TestEvolInstruct:
@@ -124,6 +125,13 @@ class TestEvolInstruct:
             "add_raw_output": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
+            "resources": {
+                "cpus": None,
+                "gpus": None,
+                "memory": None,
+                "replicas": 1,
+                "resources": None,
+            },
             "input_batch_size": task.input_batch_size,
             "llm": {
                 "generation_kwargs": {},
@@ -147,6 +155,36 @@ class TestEvolInstruct:
             },
             "seed": task.seed,
             "runtime_parameters_info": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the step.",
                     "name": "input_batch_size",

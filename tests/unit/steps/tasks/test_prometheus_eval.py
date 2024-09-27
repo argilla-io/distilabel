@@ -22,11 +22,11 @@ else:
 from typing import Any, Dict, Union
 
 import pytest
-from distilabel.pipeline.local import Pipeline
-from distilabel.steps.tasks.prometheus_eval import _DEFAULT_RUBRICS, PrometheusEval
 from jinja2 import Template
 from pydantic import ValidationError
 
+from distilabel.pipeline.local import Pipeline
+from distilabel.steps.tasks.prometheus_eval import _DEFAULT_RUBRICS, PrometheusEval
 from tests.unit.conftest import DummyLLM
 
 

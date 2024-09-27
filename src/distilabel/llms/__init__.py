@@ -22,7 +22,7 @@ from distilabel.llms.huggingface import InferenceEndpointsLLM, TransformersLLM
 from distilabel.llms.litellm import LiteLLM
 from distilabel.llms.llamacpp import LlamaCppLLM
 from distilabel.llms.mistral import MistralLLM
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.moa import MixtureOfAgentsLLM
 from distilabel.llms.ollama import OllamaLLM
 from distilabel.llms.oneai import OneAI
@@ -30,7 +30,7 @@ from distilabel.llms.openai import OpenAILLM
 from distilabel.llms.together import TogetherLLM
 from distilabel.llms.typing import GenerateOutput, HiddenState
 from distilabel.llms.vertexai import VertexAILLM
-from distilabel.llms.vllm import vLLM
+from distilabel.llms.vllm import ClientvLLM, vLLM
 
 __all__ = [
     "AnthropicLLM",
@@ -54,5 +54,6 @@ __all__ = [
     "GenerateOutput",
     "HiddenState",
     "VertexAILLM",
+    "ClientvLLM",
     "vLLM",
 ]

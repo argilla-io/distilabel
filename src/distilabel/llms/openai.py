@@ -141,7 +141,7 @@ class OpenAILLM(AsyncLLM):
     )
 
     _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
-    _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
+    _aclient: "AsyncOpenAI" = PrivateAttr(None)
 
     def load(self) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
@@ -247,7 +247,6 @@ class OpenAILLM(AsyncLLM):
             "temperature": temperature,
             "top_p": top_p,
             "stop": stop,
-            "timeout": 50,
         }
 
         if response_format is not None:

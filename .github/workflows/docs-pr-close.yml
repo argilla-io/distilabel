@@ -1,0 +1,37 @@
+name: Clean up PR documentation
+
+on:
+  pull_request:
+    types: [closed]
+
+concurrency:
+  group: distilabel-docs
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout merged branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install -e .[docs]
+
+      - name: Set git credentials
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Remove PR documentation
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          mike delete pr-$PR_NUMBER --push

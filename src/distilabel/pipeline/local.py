@@ -15,29 +15,26 @@
 import multiprocessing as mp
 import signal
 import sys
-import traceback
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union, cast
+from multiprocessing.pool import Pool
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union, cast
 
 import tblib
 
 from distilabel.distiset import create_distiset
-from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import (
     BasePipeline,
 )
-from distilabel.pipeline.batch import _Batch
-from distilabel.pipeline.constants import (
-    LAST_BATCH_SENT_FLAG,
-)
-from distilabel.steps.tasks.base import Task
+from distilabel.pipeline.ray import RayPipeline
+from distilabel.pipeline.step_wrapper import _StepWrapper, _StepWrapperException
 from distilabel.utils.logging import setup_logging, stop_logging
+from distilabel.utils.ray import script_executed_in_ray_cluster
 
 if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
-    from distilabel.pipeline.typing import StepLoadStatus
-    from distilabel.steps.base import GeneratorStep, Step, _Step
+    from distilabel.pipeline.typing import InputDataset
+    from distilabel.steps.base import _Step
 
 
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
@@ -53,8 +50,75 @@ def _init_worker(log_queue: "Queue[Any]") -> None:
     setup_logging(log_queue)
 
 
+# We create a custom `Pool` class so the created processes are not daemons, allowing
+# them to create child processes if necessary (for example when using `vLLM` with `tensor_parallel_size`)
+# https://stackoverflow.com/questions/6974695/python-process-pool-non-daemonic
+class _NoDaemonProcess(mp.Process):
+    @property
+    def daemon(self) -> bool:
+        return False
+
+    @daemon.setter
+    def daemon(self, value: bool) -> None:  # type: ignore
+        pass
+
+
+class _NoDaemonContext(type(mp.get_context())):
+    Process = _NoDaemonProcess
+
+
+class _NoDaemonPool(Pool):
+    def __init__(
+        self,
+        processes: Union[int, None] = None,
+        initializer: Union[Callable[..., object], None] = None,
+        initargs: Iterable[Any] = ...,  # type: ignore
+        maxtasksperchild: Union[int, None] = None,
+    ) -> None:
+        super().__init__(
+            processes=processes,
+            initializer=initializer,
+            initargs=initargs,
+            maxtasksperchild=maxtasksperchild,
+            context=_NoDaemonContext(),  # type: ignore
+        )
+
+
 class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
+
+    def ray(
+        self,
+        ray_head_node_url: Optional[str] = None,
+        ray_init_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> RayPipeline:
+        """Creates a `RayPipeline` using the init parameters of this pipeline. This is a
+        convenient method that can be used to "transform" one common `Pipeline` to a `RayPipeline`
+        and it's mainly used by the CLI.
+
+        Args:
+            ray_head_node_url: The URL that can be used to connect to the head node of
+                the Ray cluster. Normally, you won't want to use this argument as the
+                recommended way to submit a job to a Ray cluster is using the [Ray Jobs
+                CLI](https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-overview).
+                Defaults to `None`.
+            ray_init_kwargs: kwargs that will be passed to the `ray.init` method. Defaults
+                to `None`.
+
+        Returns:
+            A `RayPipeline` instance.
+        """
+        pipeline = RayPipeline(
+            name=self.name,
+            description=self.description,
+            cache_dir=self._cache_dir,
+            enable_metadata=self._enable_metadata,
+            requirements=self.requirements,
+            ray_head_node_url=ray_head_node_url,
+            ray_init_kwargs=ray_init_kwargs,
+        )
+        pipeline.dag = self.dag
+        return pipeline
 
     def run(
         self,
@@ -62,6 +126,7 @@ class Pipeline(BasePipeline):
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
+        dataset: Optional["InputDataset"] = None,
     ) -> "Distiset":
         """Runs the pipeline.
 
@@ -81,6 +146,9 @@ class Pipeline(BasePipeline):
                 the `_Batch`es between the steps. Even if this parameter is `False`, the
                 `Batch`es received by `GlobalStep`s will always use the file system to
                 pass the data. Defaults to `False`.
+            dataset: If given, it will be used to create a `GeneratorStep` and put it as the
+                root step. Convenient method when you have already processed the dataset in
+                your script and just want to pass it already processed. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -88,75 +156,64 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
-        log_queue = mp.Queue()
+        if script_executed_in_ray_cluster():
+            print("Script running in Ray cluster... Using `RayPipeline`...")
+            return self.ray().run(
+                parameters=parameters,
+                use_cache=use_cache,
+                storage_parameters=storage_parameters,
+                use_fs_to_pass_data=use_fs_to_pass_data,
+                dataset=dataset,
+            )
 
-        self._set_logging_parameters(
-            {"log_queue": log_queue, "filename": self._cache_location["log_file"]}
-        )
+        self._log_queue = cast("Queue[Any]", mp.Queue())
 
         if distiset := super().run(
-            parameters, use_cache, storage_parameters, use_fs_to_pass_data
+            parameters,
+            use_cache,
+            storage_parameters,
+            use_fs_to_pass_data,
+            dataset=dataset,
         ):
             return distiset
 
-        num_processes = len(self.dag)
-        ctx = mp.get_context()  # type: ignore
-        with ctx.Manager() as manager, ctx.Pool(
-            num_processes,
-            initializer=_init_worker,
-            initargs=(log_queue,),
-        ) as pool:
+        num_processes = self.dag.get_total_replica_count()
+        with (
+            mp.Manager() as manager,
+            _NoDaemonPool(
+                num_processes,
+                initializer=_init_worker,
+                initargs=(self._log_queue,),
+            ) as pool,
+        ):
             self._manager = manager
             self._pool = pool
             self._output_queue = self.QueueClass()
             self._load_queue = self.QueueClass()
             self._handle_keyboard_interrupt()
 
-            # Run the steps using the pool of processes
-            self._run_steps()
-
             # Run the loop for receiving the load status of each step
             self._load_steps_thread = self._run_load_queue_loop_in_thread()
-
-            # Wait for all the steps to be loaded correctly
-            if not self._all_steps_loaded():
-                self._write_buffer.close()  # type: ignore
-                self._batch_manager = None
-                self._stop_load_queue_loop()
-                self._load_steps_thread.join()
-                stop_logging()
-                raise RuntimeError(
-                    "Failed to load all the steps. Could not run pipeline."
-                ) from _SUBPROCESS_EXCEPTION
-
-            # Send the "first" batches to the steps so the batches starts flowing through
-            # the input queues and output queue
-            self._request_initial_batches()
 
             # Start a loop to receive the output batches from the steps
             self._output_queue_thread = self._run_output_queue_loop_in_thread()
             self._output_queue_thread.join()
 
-            # Send `None` to steps `input_queue`s just in case some step is still waiting
-            self._notify_steps_to_stop()
+            self._teardown()
 
-            # Stop the load queue loop
-            self._stop_load_queue_loop()
+            if self._exception:
+                raise self._exception
 
-        # `Pool.__exit__` has already called `terminate`, `join` the pool to make sure
-        # all the processes have finished
-        self._load_steps_thread.join()
-        self._pool.join()
-        self._manager.join()
-
-        self._write_buffer.close()  # type: ignore
         distiset = create_distiset(
             self._cache_location["data"],
             pipeline_path=self._cache_location["pipeline"],
             log_filename_path=self._cache_location["log_file"],
             enable_metadata=self._enable_metadata,
+            dag=self.dag,
         )
+
         stop_logging()
+
         return distiset
 
     @property
@@ -169,25 +226,28 @@ class Pipeline(BasePipeline):
         assert self._manager, "Manager is not initialized"
         return self._manager.Queue
 
-    def _run_step(self, step: "_Step", input_queue: "Queue[Any]") -> None:
+    def _run_step(self, step: "_Step", input_queue: "Queue[Any]", replica: int) -> None:
         """Runs the `Step` wrapped in a `_ProcessWrapper` in a separate process of the
         `Pool`.
 
         Args:
             step: The step to run.
             input_queue: The input queue to send the data to the step.
+            replica: The replica ID assigned.
         """
         assert self._pool, "Pool is not initialized"
 
-        process_wrapper = _ProcessWrapper(
-            step=step,
+        step_wrapper = _StepWrapper(
+            step=step,  # type: ignore
+            replica=replica,
             input_queue=input_queue,
             output_queue=self._output_queue,
             load_queue=self._load_queue,
             dry_run=self._dry_run,
+            ray_pipeline=False,
         )
 
-        self._pool.apply_async(process_wrapper.run, error_callback=self._error_callback)
+        self._pool.apply_async(step_wrapper.run, error_callback=self._error_callback)
 
     def _error_callback(self, e: BaseException) -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
@@ -197,9 +257,9 @@ class Pipeline(BasePipeline):
         """
         global _SUBPROCESS_EXCEPTION
 
-        # First we check that the exception is a `_ProcessWrapperException`, otherwise, we
+        # First we check that the exception is a `_StepWrapperException`, otherwise, we
         # print it out and stop the pipeline, since some errors may be unhandled
-        if not isinstance(e, _ProcessWrapperException):
+        if not isinstance(e, _StepWrapperException):
             self._logger.error(f"❌ Failed with an unhandled exception: {e}")
             self._stop()
             return
@@ -233,6 +293,36 @@ class Pipeline(BasePipeline):
         self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
 
         self._stop()
+
+    def _teardown(self) -> None:
+        """Clean/release/stop resources reserved to run the pipeline."""
+        if self._write_buffer:
+            self._write_buffer.close()
+
+        if self._batch_manager:
+            self._batch_manager = None
+
+        self._stop_load_queue_loop()
+        self._load_steps_thread.join()
+
+        if self._pool:
+            self._pool.terminate()
+            self._pool.join()
+
+        if self._manager:
+            self._manager.shutdown()
+            self._manager.join()
+
+    def _set_steps_not_loaded_exception(self) -> None:
+        """Raises a `RuntimeError` notifying that the steps load has failed.
+
+        Raises:
+            RuntimeError: containing the information and why a step failed to be loaded.
+        """
+        self._exception = RuntimeError(
+            "Failed to load all the steps. Could not run pipeline."
+        )
+        self._exception.__cause__ = _SUBPROCESS_EXCEPTION
 
     def _stop(self) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
@@ -276,286 +366,3 @@ class Pipeline(BasePipeline):
 
         self._stop_load_queue_loop()
         self._stop_output_queue_loop()
-
-
-class _ProcessWrapperException(Exception):
-    """Exception to be raised when an error occurs in the `Step` process.
-
-    Attributes:
-        message: The error message.
-        step: The `Step` that raised the error.
-        code: The error code.
-        subprocess_exception: The exception raised by the subprocess. Defaults to `None`.
-    """
-
-    def __init__(
-        self,
-        message: str,
-        step: "Step",
-        code: int,
-        subprocess_exception: Optional[Exception] = None,
-    ) -> None:
-        self.message = message
-        self.step = step
-        self.code = code
-        self.subprocess_exception = subprocess_exception
-        self.formatted_traceback = "".join(
-            traceback.format_exception(subprocess_exception)
-        )
-
-    @classmethod
-    def create_load_error(
-        cls,
-        message: str,
-        step: "Step",
-        subprocess_exception: Optional[Exception] = None,
-    ) -> "_ProcessWrapperException":
-        """Creates a `_ProcessWrapperException` for a load error.
-
-        Args:
-            message: The error message.
-            step: The `Step` that raised the error.
-            subprocess_exception: The exception raised by the subprocess. Defaults to `None`.
-
-        Returns:
-            The `_ProcessWrapperException` instance.
-        """
-        return cls(message, step, 1, subprocess_exception)
-
-    @property
-    def is_load_error(self) -> bool:
-        """Whether the error is a load error.
-
-        Returns:
-            `True` if the error is a load error, `False` otherwise.
-        """
-        return self.code == 1
-
-
-class _ProcessWrapper:
-    """Wrapper to run the `Step` in a separate process.
-
-    Attributes:
-        step: The step to run.
-        input_queue: The queue to receive the input data.
-        output_queue: The queue to send the output data.
-        load_queue: The queue used to notify the main process that the step has been loaded,
-            has been unloaded or has failed to load.
-    """
-
-    def __init__(
-        self,
-        step: "_Step",
-        input_queue: "Queue[_Batch]",
-        output_queue: "Queue[_Batch]",
-        load_queue: "Queue[Union[StepLoadStatus, None]]",
-        dry_run: bool = False,
-    ) -> None:
-        """Initializes the `_ProcessWrapper`.
-
-        Args:
-            step: The step to run.
-            input_queue: The queue to receive the input data.
-            output_queue: The queue to send the output data.
-            load_queue: The queue used to notify the main process that the step has been
-                loaded, has been unloaded or has failed to load.
-            dry_run: Flag to ensure we are forcing to run the last batch.
-        """
-        self.step = step
-        self.input_queue = input_queue
-        self.output_queue = output_queue
-        self.load_queue = load_queue
-        self._dry_run = dry_run
-
-        if (
-            isinstance(self.step, Task)
-            and hasattr(self.step, "llm")
-            and isinstance(self.step.llm, CudaDevicePlacementMixin)
-        ):
-            self.step.llm._llm_identifier = self.step.name
-
-    def run(self) -> str:
-        """The target function executed by the process. This function will also handle
-        the step lifecycle, executing first the `load` function of the `Step` and then
-        waiting to receive a batch from the `input_queue` that will be handled by the
-        `process` method of the `Step`.
-
-        Returns:
-            The name of the step that was executed.
-        """
-
-        try:
-            self.step.load()
-            self.step._logger.debug(f"Step '{self.step.name}' loaded!")
-        except Exception as e:
-            self.step.unload()
-            self._notify_load_failed()
-            raise _ProcessWrapperException.create_load_error(
-                str(e), self.step, e
-            ) from e
-
-        self._notify_load()
-
-        if self.step.is_generator:
-            self._generator_step_process_loop()
-        else:
-            self._non_generator_process_loop()
-
-        # Just in case `None` sentinel was sent
-        try:
-            self.input_queue.get(block=False)
-        except Exception:
-            pass
-
-        self.step.unload()
-
-        self._notify_unload()
-
-        self.step._logger.info(f"🏁 Finished running step '{self.step.name}'")
-
-        return self.step.name  # type: ignore
-
-    def _notify_load(self) -> None:
-        """Notifies that the step has finished executing its `load` function successfully."""
-        self.load_queue.put({"name": self.step.name, "status": "loaded"})  # type: ignore
-
-    def _notify_unload(self) -> None:
-        """Notifies that the step has been unloaded."""
-        self.load_queue.put({"name": self.step.name, "status": "unloaded"})  # type: ignore
-
-    def _notify_load_failed(self) -> None:
-        """Notifies that the step failed to load."""
-        self.load_queue.put({"name": self.step.name, "status": "load_failed"})  # type: ignore
-
-    def _generator_step_process_loop(self) -> None:
-        """Runs the process loop for a generator step. It will call the `process` method
-        of the step and send the output data to the `output_queue` and block until the next
-        batch request is received (i.e. receiving an empty batch from the `input_queue`).
-
-        If the `last_batch` attribute of the batch is `True`, the loop will stop and the
-        process will finish.
-
-        Raises:
-            _ProcessWrapperException: If an error occurs during the execution of the
-                `process` method.
-        """
-        step = cast("GeneratorStep", self.step)
-        try:
-            if (batch := self.input_queue.get()) is None:
-                self.step._logger.info(
-                    f"🛑 Stopping yielding batches from step '{self.step.name}'"
-                )
-                return
-
-            offset = batch.seq_no * step.batch_size  # type: ignore
-
-            self.step._logger.info(
-                f"🧬 Starting yielding batches from generator step '{self.step.name}'."
-                f" Offset: {offset}"
-            )
-
-            for data, last_batch in step.process_applying_mappings(offset=offset):
-                batch.set_data([data])
-                batch.last_batch = self._dry_run or last_batch
-                self._send_batch(batch)
-
-                if batch.last_batch:
-                    return
-
-                self.step._logger.debug(
-                    f"Step '{self.step.name}' waiting for next batch request..."
-                )
-                if (batch := self.input_queue.get()) is None:
-                    self.step._logger.info(
-                        f"🛑 Stopping yielding batches from step '{self.step.name}'"
-                    )
-                    return
-        except Exception as e:
-            raise _ProcessWrapperException(str(e), self.step, 2, e) from e
-
-    def _non_generator_process_loop(self) -> None:
-        """Runs the process loop for a non-generator step. It will call the `process`
-        method of the step and send the output data to the `output_queue` and block until
-        the next batch is received from the `input_queue`. If the `last_batch` attribute
-        of the batch is `True`, the loop will stop and the process will finish.
-
-        If an error occurs during the execution of the `process` method and the step is
-        global, the process will raise a `_ProcessWrapperException`. If the step is not
-        global, the process will log the error and send an empty batch to the `output_queue`.
-
-        Raises:
-            _ProcessWrapperException: If an error occurs during the execution of the
-                `process` method and the step is global.
-        """
-        while True:
-            if (batch := self.input_queue.get()) is None:
-                self.step._logger.info(
-                    f"🛑 Stopping processing batches from step '{self.step.name}'"
-                )
-                break
-
-            if batch == LAST_BATCH_SENT_FLAG:
-                self.step._logger.debug("Received `LAST_BATCH_SENT_FLAG`. Stopping...")
-                break
-
-            self.step._logger.info(
-                f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
-            )
-
-            if batch.data_path is not None:
-                self.step._logger.debug(f"Reading batch data from '{batch.data_path}'")
-                batch.read_batch_data_from_fs()
-
-            result = []
-            try:
-                if self.step.has_multiple_inputs:
-                    result = next(self.step.process_applying_mappings(*batch.data))
-                else:
-                    result = next(self.step.process_applying_mappings(batch.data[0]))
-            except Exception as e:
-                if self.step.is_global:
-                    raise _ProcessWrapperException(str(e), self.step, 2, e) from e
-
-                # Impute step outputs columns with `None`
-                result = self._impute_step_outputs(batch)
-
-                # if the step is not global then we can skip the batch which means sending
-                # an empty batch to the output queue
-                self.step._logger.warning(
-                    f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed."
-                    " Sending empty batch filled with `None`s..."
-                )
-                self.step._logger.warning(
-                    f"Subprocess traceback:\n\n{traceback.format_exc()}"
-                )
-            finally:
-                batch.set_data([result])
-                self._send_batch(batch)
-
-            if batch.last_batch:
-                break
-
-    def _impute_step_outputs(self, batch: "_Batch") -> List[Dict[str, Any]]:
-        """Imputes the step outputs columns with `None` in the batch data.
-
-        Args:
-            batch: The batch to impute.
-        """
-        result = []
-        for row in batch.data[0]:
-            data = row.copy()
-            for output in self.step.outputs:
-                data[output] = None
-            result.append(data)
-        return result
-
-    def _send_batch(self, batch: _Batch) -> None:
-        """Sends a batch to the `output_queue`."""
-        if batch.data_path is not None:
-            self.step._logger.debug(f"Writing batch data to '{batch.data_path}'")
-            batch.write_batch_data_to_fs()
-
-        self.step._logger.info(
-            f"📨 Step '{batch.step_name}' sending batch {batch.seq_no} to output queue"
-        )
-        self.output_queue.put(batch)

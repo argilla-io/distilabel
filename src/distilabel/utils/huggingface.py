@@ -18,7 +18,7 @@ from typing import Final
 
 from huggingface_hub import constants
 
-_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME: Final[str] = "HF_TOKEN"
+HF_TOKEN_ENV_VAR: Final[str] = "HF_TOKEN"
 
 
 def get_hf_token(cls_name: str, token_arg: str) -> str:
@@ -39,14 +39,13 @@ def get_hf_token(cls_name: str, token_arg: str) -> str:
     Returns:
         The token for the hugging face API.
     """
-    token = os.getenv(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME)
+    token = os.getenv(HF_TOKEN_ENV_VAR)
     if token is None:
         if not Path(constants.HF_TOKEN_PATH).exists():
             raise ValueError(
-                f"To use `{cls_name}` an API key must be provided via"
-                f" `{token_arg}`, set the environment variable"
-                f" `{_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME}` or use the `huggingface-hub` CLI to login"
-                " with `huggingface-cli login`."
+                f"To use `{cls_name}` an API key must be provided via `{token_arg}`,"
+                f" set the environment variable `{HF_TOKEN_ENV_VAR}` or use the"
+                " `huggingface-hub` CLI to login with `huggingface-cli login`."
             )
         with open(constants.HF_TOKEN_PATH) as f:
             token = f.read().strip()

@@ -103,6 +103,20 @@ class Genstruct(Task):
         #     }
         # ]
         ```
+
+    Citations:
+
+        ```
+        @misc{cui2023adainstructadaptinginstructiongenerators,
+            title={Ada-Instruct: Adapting Instruction Generators for Complex Reasoning},
+            author={Wanyun Cui and Qianle Wang},
+            year={2023},
+            eprint={2310.04484},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2310.04484},
+        }
+        ```
     """
 
     _template: Union[Template, None] = PrivateAttr(...)

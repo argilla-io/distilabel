@@ -84,6 +84,32 @@ class EvolComplexity(EvolInstruct):
         # result
         # [{'instruction': 'common instruction', 'evolved_instruction': 'evolved instruction', 'model_name': 'model_name'}]
         ```
+
+    Citations:
+
+        ```
+        @misc{liu2024makesgooddataalignment,
+            title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},
+            author={Wei Liu and Weihao Zeng and Keqing He and Yong Jiang and Junxian He},
+            year={2024},
+            eprint={2312.15685},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2312.15685},
+        }
+        ```
+
+        ```
+        @misc{xu2023wizardlmempoweringlargelanguage,
+            title={WizardLM: Empowering Large Language Models to Follow Complex Instructions},
+            author={Can Xu and Qingfeng Sun and Kai Zheng and Xiubo Geng and Pu Zhao and Jiazhan Feng and Chongyang Tao and Daxin Jiang},
+            year={2023},
+            eprint={2304.12244},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2304.12244},
+        }
+        ```
     """
 
     mutation_templates: Dict[str, str] = MUTATION_TEMPLATES

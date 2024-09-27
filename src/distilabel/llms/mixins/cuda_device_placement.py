@@ -14,16 +14,26 @@
 
 import json
 import os
+import socket
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Dict, Generator, List, Literal, Union
+from typing import TYPE_CHECKING, Dict, Generator, List, Literal, Union
 
 import portalocker
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import BaseModel, Field, PositiveInt, PrivateAttr
+
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+
+if TYPE_CHECKING:
+    from logging import Logger
 
 _CUDA_DEVICE_PLACEMENT_MIXIN_FILE = (
-    Path(tempfile.gettempdir()) / "distilabel_cuda_device_placement_mixin.json"
+    Path(tempfile.gettempdir())
+    / "distilabel"
+    / "cuda_device_placement"
+    / socket.gethostname()
+    / "distilabel_cuda_device_placement_mixin.json"
 )
 
 
@@ -40,21 +50,34 @@ class CudaDevicePlacementMixin(BaseModel):
             placement information provided in `_device_llm_placement_map`. If set to a list
             of devices, it will be checked if the devices are available to be used by the
             `LLM`. If not, a warning will be logged.
+        disable_cuda_device_placement: Whether to disable the CUDA device placement logic
+            or not. Defaults to `False`.
         _llm_identifier: the identifier of the `LLM` to be used as key in `_device_llm_placement_map`.
         _device_llm_placement_map: a dictionary with the device placement information for each
             `LLM`.
     """
 
-    # TODO: this should be a runtime parameter
-    cuda_devices: Union[List[int], Literal["auto"]] = Field(default="auto")
+    cuda_devices: RuntimeParameter[Union[List[int], Literal["auto"]]] = Field(
+        default="auto", description="A list with the ID of the CUDA devices to be used."
+    )
+    disable_cuda_device_placement: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to disable the CUDA device placement logic or not.",
+    )
 
     _llm_identifier: Union[str, None] = PrivateAttr(default=None)
+    _desired_num_gpus: PositiveInt = PrivateAttr(default=1)
     _available_cuda_devices: List[int] = PrivateAttr(default_factory=list)
     _can_check_cuda_devices: bool = PrivateAttr(default=False)
+
+    _logger: "Logger" = PrivateAttr(None)
 
     def load(self) -> None:
         """Assign CUDA devices to the LLM based on the device placement information provided
         in `_device_llm_placement_map`."""
+
+        if self.disable_cuda_device_placement:
+            return
 
         try:
             import pynvml
@@ -81,9 +104,12 @@ class CudaDevicePlacementMixin(BaseModel):
     def unload(self) -> None:
         """Unloads the LLM and removes the CUDA devices assigned to it from the device
         placement information provided in `_device_llm_placement_map`."""
+        if self.disable_cuda_device_placement:
+            return
+
         with self._device_llm_placement_map() as device_map:
             if self._llm_identifier in device_map:
-                self._logger.debug(
+                self._logger.debug(  # type: ignore
                     f"Removing '{self._llm_identifier}' from the CUDA device map file"
                     f" '{_CUDA_DEVICE_PLACEMENT_MIXIN_FILE}'."
                 )
@@ -98,6 +124,7 @@ class CudaDevicePlacementMixin(BaseModel):
         Yields:
             The content of the device placement file.
         """
+        _CUDA_DEVICE_PLACEMENT_MIXIN_FILE.parent.mkdir(parents=True, exist_ok=True)
         _CUDA_DEVICE_PLACEMENT_MIXIN_FILE.touch()
         with portalocker.Lock(
             _CUDA_DEVICE_PLACEMENT_MIXIN_FILE,
@@ -124,7 +151,16 @@ class CudaDevicePlacementMixin(BaseModel):
         # Take the lock and read the device placement information for each LLM.
         with self._device_llm_placement_map() as device_map:
             if self.cuda_devices == "auto":
-                self.cuda_devices = [self._get_cuda_device(device_map)]
+                self.cuda_devices = []
+                for _ in range(self._desired_num_gpus):
+                    if (device_id := self._get_cuda_device(device_map)) is not None:
+                        self.cuda_devices.append(device_id)
+                        device_map[self._llm_identifier] = self.cuda_devices  # type: ignore
+                if len(self.cuda_devices) != self._desired_num_gpus:
+                    self._logger.warning(  # type: ignore
+                        f"Could not assign the desired number of GPUs {self._desired_num_gpus}"
+                        f" for LLM with identifier '{self._llm_identifier}'."
+                    )
             else:
                 self._check_cuda_devices(device_map)
 
@@ -143,17 +179,17 @@ class CudaDevicePlacementMixin(BaseModel):
         Args:
             device_map: a dictionary with the device placement information for each LLM.
         """
-        for device in self.cuda_devices:
+        for device in self.cuda_devices:  # type: ignore
             for llm, devices in device_map.items():
                 if device in devices:
-                    self._logger.warning(
+                    self._logger.warning(  # type: ignore
                         f"LLM with identifier '{llm}' is also going to use CUDA device "
                         f"'{device}'. This may lead to performance issues or running out"
                         " of memory depending on the device capabilities and the loaded"
                         " models."
                     )
 
-    def _get_cuda_device(self, device_map: Dict[str, List[int]]) -> int:
+    def _get_cuda_device(self, device_map: Dict[str, List[int]]) -> Union[int, None]:
         """Returns the first available CUDA device to be used by the LLM that is not going
         to be used by any other LLM.
 
@@ -170,6 +206,7 @@ class CudaDevicePlacementMixin(BaseModel):
             if all(device not in devices for devices in device_map.values()):
                 return device
 
+        return None
         raise RuntimeError(
             "Couldn't find an available CUDA device automatically to be used by the LLM"
             f" '{self._llm_identifier}'. For forcing the use of a specific device, set the"
@@ -193,7 +230,7 @@ class CudaDevicePlacementMixin(BaseModel):
             )
 
         cuda_devices = ",".join([str(device) for device in self.cuda_devices])
-        self._logger.info(
+        self._logger.info(  # type: ignore
             f"🎮 LLM '{self._llm_identifier}' is going to use the following CUDA devices:"
             f" {self.cuda_devices}."
         )

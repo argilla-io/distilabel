@@ -33,6 +33,8 @@ from distilabel.utils.notebook import in_notebook
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
+    from logging import Logger
+
     from distilabel.llms.typing import GenerateOutput, HiddenState
     from distilabel.mixins.runtime_parameters import (
         RuntimeParameterInfo,
@@ -82,10 +84,11 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         " methods within each `LLM`.",
     )
 
-    _logger: Union[logging.Logger, None] = PrivateAttr(...)
+    _logger: "Logger" = PrivateAttr(None)
 
     def load(self) -> None:
-        """Method to be called to initialize the `LLM`, its logger and optionally the structured output generator."""
+        """Method to be called to initialize the `LLM`, its logger and optionally the
+        structured output generator."""
         self._logger = logging.getLogger(f"distilabel.llm.{self.model_name}")
 
     def unload(self) -> None:
@@ -329,7 +332,10 @@ class AsyncLLM(LLM):
             for _ in range(num_generations)
         ]
         outputs = [outputs[0] for outputs in await asyncio.gather(*tasks)]
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))
+        return [
+            list(group)
+            for group in grouper(outputs, n=num_generations, incomplete="ignore")
+        ]
 
     def generate(
         self,

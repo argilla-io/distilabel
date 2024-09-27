@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
-
 from tests.unit.conftest import DummyLLM
 
 

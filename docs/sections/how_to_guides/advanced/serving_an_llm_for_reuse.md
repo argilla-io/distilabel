@@ -2,7 +2,7 @@
 
 It's very common to want to use the same `LLM` for several `Task`s in a pipeline. To avoid loading the `LLM` as many times as the number of `Task`s and avoid wasting resources, it's recommended to serve the model using solutions like [`text-generation-inference`](https://huggingface.co/docs/text-generation-inference/quicktour#launching-tgi) or [`vLLM`](https://docs.vllm.ai/en/stable/serving/deploying_with_docker.html), and then use an `AsyncLLM` compatible client like `InferenceEndpointsLLM` or `OpenAILLM` to communicate with the server respectively.
 
-## Serving `meta-llama/Meta-Llama-3-8B-Instruct` using `text-generation-inference`
+## Serving LLMs using `text-generation-inference`
 
 ```bash
 model=meta-llama/Meta-Llama-3-8B-Instruct
@@ -47,7 +47,7 @@ with Pipeline(name="serving-llm") as pipeline:
 ```
 
 
-## Serving `meta-llama/Meta-Llama-3-8B-Instruct` using `vLLM`
+## Serving LLMs using `vLLM`
 
 ```bash
 docker run --gpus all \

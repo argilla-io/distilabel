@@ -15,14 +15,15 @@
 import os
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
-from pydantic import Field, PrivateAttr, validate_call
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import LLM
-from distilabel.llms.chat_templates import CHATML_TEMPLATE
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
+from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
 if TYPE_CHECKING:
     from transformers import Pipeline
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
     from distilabel.llms.typing import HiddenState
 
 
-class TransformersLLM(LLM, CudaDevicePlacementMixin):
+class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     """Hugging Face `transformers` library LLM implementation using the text generation
     pipeline.
 
@@ -43,8 +44,8 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             (e.g. a branch name or a commit id) to use. Defaults to `"main"`.
         torch_dtype: the torch dtype to use for the model e.g. "float16", "float32", etc.
             Defaults to `"auto"`.
-        trust_remote_code: whether to trust or not remote (code in the Hugging Face Hub
-            repository) code to load the model. Defaults to `False`.
+        trust_remote_code: whether to allow fetching and executing remote code fetched
+            from the repository in the Hub. Defaults to `False`.
         model_kwargs: additional dictionary of keyword arguments that will be passed to
             the `from_pretrained` method of the model.
         tokenizer: the tokenizer Hugging Face Hub repo id or a path to a directory containing
@@ -64,6 +65,12 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             local configuration will be used. Defaults to `None`.
         structured_output: a dictionary containing the structured output configuration or if more
             fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
+        use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
+            template. Defaults to `False`.
+        magpie_pre_query_template: the pre-query template to be applied to the prompt or
+            sent to the LLM to generate an instruction or a follow up user message. Valid
+            values are "llama3", "qwen2" or another pre-query template provided. Defaults
+            to `None`.
 
     Icon:
         `:hugging:`
@@ -94,7 +101,9 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     chat_template: Optional[str] = None
     device: Optional[Union[str, int]] = None
     device_map: Optional[Union[str, Dict[str, Any]]] = None
-    token: Optional[str] = None
+    token: Optional[SecretStr] = Field(
+        default_factory=lambda: os.getenv(HF_TOKEN_ENV_VAR)
+    )
     structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
         default=None,
         description="The structured output format to use across all the generations.",
@@ -116,6 +125,8 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
                 "Transformers is not installed. Please install it using `pip install transformers`."
             ) from ie
 
+        token = self.token.get_secret_value() if self.token is not None else self.token
+
         self._pipeline = pipeline(
             "text-generation",
             model=self.model,
@@ -127,17 +138,15 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             use_fast=self.use_fast,
             device=self.device,
             device_map=self.device_map,
-            token=self.token or os.getenv("HF_TOKEN"),
+            token=token,
             return_full_text=False,
         )
 
         if self.chat_template is not None:
             self._pipeline.tokenizer.chat_template = self.chat_template  # type: ignore
-        elif (
-            self._pipeline.tokenizer.chat_template is None  # type: ignore
-            and self._pipeline.tokenizer.default_chat_template is None  # type: ignore
-        ):
-            self._pipeline.tokenizer.chat_template = CHATML_TEMPLATE  # type: ignore
+
+        if self._pipeline.tokenizer.pad_token is None:  # type: ignore
+            self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token  # type: ignore
 
         if self.structured_output:
             self._prefix_allowed_tokens_fn = self._prepare_structured_output(
@@ -157,14 +166,28 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         return self.model
 
     def prepare_input(self, input: "StandardInput") -> str:
-        """Prepares the input by applying the chat template to the input, which is formatted
-        as an OpenAI conversation, and adding the generation prompt.
+        """Prepares the input (applying the chat template and tokenization) for the provided
+        input.
+
+        Args:
+            input: the input list containing chat items.
+
+        Returns:
+            The prompt to send to the LLM.
         """
-        return self._pipeline.tokenizer.apply_chat_template(  # type: ignore
-            input,  # type: ignore
-            tokenize=False,
-            add_generation_prompt=True,
+        if self._pipeline.tokenizer.chat_template:  # type: ignore
+            return input[0]["content"]
+
+        prompt: str = (
+            self._pipeline.tokenizer.apply_chat_template(  # type: ignore
+                input,  # type: ignore
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            if input
+            else ""
         )
+        return super().apply_magpie_pre_query_template(prompt, input)
 
     @validate_call
     def generate(  # type: ignore
@@ -209,6 +232,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             do_sample=do_sample,
             num_return_sequences=num_generations,
             prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
+            pad_token_id=self._pipeline.tokenizer.eos_token_id,  # type: ignore
         )
         return [
             [generation["generated_text"] for generation in output]

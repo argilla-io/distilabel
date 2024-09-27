@@ -15,43 +15,72 @@
 from typing import Any, Dict
 
 import pytest
+
 from distilabel.steps.tasks.sentence_transformers import (
     CONTEXT_INTRO,
+    NEGATIVE_STYLE,
     POSITIVE_NEGATIVE_SYSTEM_PROMPT,
     POSITIVE_SYSTEM_PROMPT,
     GenerateSentencePair,
     GenerationAction,
 )
-
 from tests.unit.conftest import DummyLLM
 
 
 class TestGenerateSentencePair:
     @pytest.mark.parametrize(
-        "action,triplet,system_prompt",
+        "action,triplet,hard_negative,system_prompt",
         [
             (
                 "paraphrase",
                 True,
+                False,
                 POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
-                    action_sentence="paraphrase", context=""
+                    action_sentence="paraphrase",
+                    context="",
+                    negative_style=NEGATIVE_STYLE["negative"],
                 ),
             ),
             (
                 "paraphrase",
+                True,
+                True,
+                POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
+                    action_sentence="paraphrase",
+                    context="",
+                    negative_style=NEGATIVE_STYLE["hard-negative"],
+                ),
+            ),
+            (
+                "paraphrase",
+                False,
                 False,
                 POSITIVE_SYSTEM_PROMPT.format(action_sentence="paraphrase", context=""),
             ),
             (
                 "semantically-similar",
                 True,
+                False,
                 POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
-                    action_sentence="be semantically similar to", context=""
+                    action_sentence="be semantically similar to",
+                    context="",
+                    negative_style=NEGATIVE_STYLE["negative"],
+                ),
+            ),
+            (
+                "semantically-similar",
+                True,
+                True,
+                POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
+                    action_sentence="be semantically similar to",
+                    context="",
+                    negative_style=NEGATIVE_STYLE["hard-negative"],
                 ),
             ),
             (
                 "semantically-similar",
                 False,
+                False,
                 POSITIVE_SYSTEM_PROMPT.format(
                     action_sentence="be semantically similar to", context=""
                 ),
@@ -59,12 +88,26 @@ class TestGenerateSentencePair:
             (
                 "query",
                 True,
+                False,
                 POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
-                    action_sentence="be a query for", context=""
+                    action_sentence="be a query for",
+                    context="",
+                    negative_style=NEGATIVE_STYLE["negative"],
                 ),
             ),
             (
                 "query",
+                True,
+                True,
+                POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
+                    action_sentence="be a query for",
+                    context="",
+                    negative_style=NEGATIVE_STYLE["hard-negative"],
+                ),
+            ),
+            (
+                "query",
+                False,
                 False,
                 POSITIVE_SYSTEM_PROMPT.format(
                     action_sentence="be a query for", context=""
@@ -73,12 +116,26 @@ class TestGenerateSentencePair:
             (
                 "answer",
                 True,
+                False,
                 POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
-                    action_sentence="be an answer for", context=""
+                    action_sentence="be an answer for",
+                    context="",
+                    negative_style=NEGATIVE_STYLE["negative"],
                 ),
             ),
             (
                 "answer",
+                True,
+                True,
+                POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
+                    action_sentence="be an answer for",
+                    context="",
+                    negative_style=NEGATIVE_STYLE["hard-negative"],
+                ),
+            ),
+            (
+                "answer",
+                False,
                 False,
                 POSITIVE_SYSTEM_PROMPT.format(
                     action_sentence="be an answer for", context=""
@@ -87,9 +144,15 @@ class TestGenerateSentencePair:
         ],
     )
     def test_format_input(
-        self, action: GenerationAction, triplet: bool, system_prompt: str
+        self,
+        action: GenerationAction,
+        triplet: bool,
+        hard_negative: bool,
+        system_prompt: str,
     ) -> None:
-        task = GenerateSentencePair(llm=DummyLLM(), action=action, triplet=triplet)
+        task = GenerateSentencePair(
+            llm=DummyLLM(), action=action, triplet=triplet, hard_negative=hard_negative
+        )
         task.load()
         content = "## Anchor\n\nThis is a unit test\n"
         assert task.format_input({"anchor": "This is a unit test"}) == [
@@ -98,18 +161,32 @@ class TestGenerateSentencePair:
         ]
 
     @pytest.mark.parametrize(
-        "action,triplet,system_prompt",
+        "action,triplet,hard_negative,system_prompt",
         [
             (
                 "paraphrase",
                 True,
+                False,
                 POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
-                    action_sentence="paraphrase", context=CONTEXT_INTRO
+                    action_sentence="paraphrase",
+                    context=CONTEXT_INTRO,
+                    negative_style=NEGATIVE_STYLE["negative"],
+                ),
+            ),
+            (
+                "paraphrase",
+                True,
+                True,
+                POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
+                    action_sentence="paraphrase",
+                    context=CONTEXT_INTRO,
+                    negative_style=NEGATIVE_STYLE["hard-negative"],
                 ),
             ),
             (
                 "paraphrase",
                 False,
+                False,
                 POSITIVE_SYSTEM_PROMPT.format(
                     action_sentence="paraphrase", context=CONTEXT_INTRO
                 ),
@@ -117,13 +194,27 @@ class TestGenerateSentencePair:
             (
                 "semantically-similar",
                 True,
+                False,
                 POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
-                    action_sentence="be semantically similar to", context=CONTEXT_INTRO
+                    action_sentence="be semantically similar to",
+                    context=CONTEXT_INTRO,
+                    negative_style=NEGATIVE_STYLE["negative"],
+                ),
+            ),
+            (
+                "semantically-similar",
+                True,
+                True,
+                POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
+                    action_sentence="be semantically similar to",
+                    context=CONTEXT_INTRO,
+                    negative_style=NEGATIVE_STYLE["hard-negative"],
                 ),
             ),
             (
                 "semantically-similar",
                 False,
+                False,
                 POSITIVE_SYSTEM_PROMPT.format(
                     action_sentence="be semantically similar to", context=CONTEXT_INTRO
                 ),
@@ -131,12 +222,26 @@ class TestGenerateSentencePair:
             (
                 "query",
                 True,
+                False,
                 POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
-                    action_sentence="be a query for", context=CONTEXT_INTRO
+                    action_sentence="be a query for",
+                    context=CONTEXT_INTRO,
+                    negative_style=NEGATIVE_STYLE["negative"],
                 ),
             ),
             (
                 "query",
+                True,
+                True,
+                POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
+                    action_sentence="be a query for",
+                    context=CONTEXT_INTRO,
+                    negative_style=NEGATIVE_STYLE["hard-negative"],
+                ),
+            ),
+            (
+                "query",
+                False,
                 False,
                 POSITIVE_SYSTEM_PROMPT.format(
                     action_sentence="be a query for", context=CONTEXT_INTRO
@@ -145,12 +250,26 @@ class TestGenerateSentencePair:
             (
                 "answer",
                 True,
+                False,
                 POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
-                    action_sentence="be an answer for", context=CONTEXT_INTRO
+                    action_sentence="be an answer for",
+                    context=CONTEXT_INTRO,
+                    negative_style=NEGATIVE_STYLE["negative"],
                 ),
             ),
             (
                 "answer",
+                True,
+                True,
+                POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
+                    action_sentence="be an answer for",
+                    context=CONTEXT_INTRO,
+                    negative_style=NEGATIVE_STYLE["hard-negative"],
+                ),
+            ),
+            (
+                "answer",
+                False,
                 False,
                 POSITIVE_SYSTEM_PROMPT.format(
                     action_sentence="be an answer for", context=CONTEXT_INTRO
@@ -159,7 +278,11 @@ class TestGenerateSentencePair:
         ],
     )
     def test_format_input_with_context(
-        self, action: GenerationAction, triplet: bool, system_prompt: str
+        self,
+        action: GenerationAction,
+        triplet: bool,
+        hard_negative: bool,
+        system_prompt: str,
     ) -> None:
         context = "This is your context."
         task = GenerateSentencePair(
@@ -167,10 +290,10 @@ class TestGenerateSentencePair:
             action=action,
             triplet=triplet,
             context=context,
+            hard_negative=hard_negative,
         )
         task.load()
         content = f"## Context\n\n{context}\n\n## Anchor\n\nThis is a unit test\n"
-        # content = f"## Anchor\n\nThis is a unit test\n## Context\n\n{context}"
         assert task.format_input({"anchor": "This is a unit test"}) == [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": content},

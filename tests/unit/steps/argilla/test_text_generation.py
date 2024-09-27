@@ -13,30 +13,42 @@
 # limitations under the License.
 
 import os
+from unittest import mock
 from unittest.mock import patch
 
 import argilla as rg
+import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 
-MockFeedbackDataset = rg.FeedbackDataset(
-    fields=[
-        rg.TextField(name="id", title="id"),  # type: ignore
-        rg.TextField(name="instruction", title="instruction"),  # type: ignore
-        rg.TextField(name="generation", title="generation"),  # type: ignore
-    ],
-    questions=[
-        rg.LabelQuestion(  # type: ignore
-            name="quality",
-            title="What's the quality of the generation for the given instruction?",
-            labels={"bad": "👎", "good": "👍"},
-        )
-    ],
-)
+
+@pytest.fixture
+def mock_dataset() -> rg.Dataset:
+    rg.Argilla._validate_connection = mock.MagicMock()  # type: ignore
+    client = rg.Argilla(api_url="<api_url>", api_key="<api_key>")
+    return rg.Dataset(
+        name="dataset",
+        settings=rg.Settings(
+            fields=[
+                rg.TextField(name="id", title="id"),  # type: ignore
+                rg.TextField(name="instruction", title="instruction"),  # type: ignore
+                rg.TextField(name="generation", title="generation"),  # type: ignore
+            ],
+            questions=[
+                rg.LabelQuestion(  # type: ignore
+                    name="quality",
+                    title="What's the quality of the generation for the given instruction?",
+                    labels={"bad": "👎", "good": "👍"},  # type: ignore
+                )
+            ],
+        ),
+        client=client,
+    )
 
 
 class TestTextGenerationToArgilla:
-    def test_process(self) -> None:
+    def test_process(self, mock_dataset: rg.Dataset) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         step = TextGenerationToArgilla(
             name="step",
@@ -50,12 +62,13 @@ class TestTextGenerationToArgilla:
             step.load()
         step._instruction = "instruction"
         step._generation = "generation"
-        step._rg_dataset = MockFeedbackDataset  # type: ignore
+        step._dataset = mock_dataset  # type: ignore
 
+        step._dataset.records.log = lambda x: x
         assert list(step.process([{"instruction": "test", "generation": "test"}])) == [
             [{"instruction": "test", "generation": "test"}]
         ]
-        assert len(step._rg_dataset.records) == 1
+        assert step._dataset.records  # type: ignore
 
     def test_serialization(self) -> None:
         os.environ["ARGILLA_API_KEY"] = "api.key"
@@ -72,11 +85,48 @@ class TestTextGenerationToArgilla:
             "name": "step",
             "input_mappings": {},
             "output_mappings": {},
+            "resources": {
+                "cpus": None,
+                "gpus": None,
+                "memory": None,
+                "replicas": 1,
+                "resources": None,
+            },
             "input_batch_size": 50,
             "dataset_name": "argilla",
             "dataset_workspace": "argilla",
             "api_url": "https://example.com",
             "runtime_parameters_info": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the step.",
                     "name": "input_batch_size",
@@ -89,7 +139,7 @@ class TestTextGenerationToArgilla:
                 },
                 {
                     "description": "The workspace where the dataset will be created in Argilla. "
-                    "Defaultsto `None` which means it will be created in the default "
+                    "Defaults to `None` which means it will be created in the default "
                     "workspace.",
                     "name": "dataset_workspace",
                     "optional": True,

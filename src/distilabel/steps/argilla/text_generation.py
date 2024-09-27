@@ -23,14 +23,14 @@ try:
 except ImportError:
     pass
 
-from distilabel.steps.argilla.base import Argilla
+from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class TextGenerationToArgilla(Argilla):
+class TextGenerationToArgilla(ArgillaBase):
     """Creates a text generation dataset in Argilla.
 
     `Step` that creates a dataset in Argilla during the load phase, and then pushes the input
@@ -104,26 +104,29 @@ class TextGenerationToArgilla(Argilla):
         self._instruction = self.input_mappings.get("instruction", "instruction")
         self._generation = self.input_mappings.get("generation", "generation")
 
-        if self._rg_dataset_exists():
-            _rg_dataset = rg.FeedbackDataset.from_argilla(  # type: ignore
-                name=self.dataset_name,
-                workspace=self.dataset_workspace,
+        if self._dataset_exists_in_workspace:
+            _dataset = self._client.datasets(  # type: ignore
+                name=self.dataset_name,  # type: ignore
+                workspace=self.dataset_workspace,  # type: ignore
             )
 
-            for field in _rg_dataset.fields:
+            for field in _dataset.fields:
+                if not isinstance(field, rg.TextField):  # type: ignore
+                    continue
                 if (
                     field.name not in [self._id, self._instruction, self._generation]
                     and field.required
                 ):
                     raise ValueError(
-                        f"The dataset {self.dataset_name} in the workspace {self.dataset_workspace} already exists,"
-                        f" but contains at least a required field that is neither `{self._id}`, `{self._instruction}`"
-                        f", nor `{self._generation}`."
+                        f"The dataset '{self.dataset_name}' in the workspace '{self.dataset_workspace}'"
+                        f" already exists, but contains at least a required field that is"
+                        f" neither `{self._id}`, `{self._instruction}`, nor `{self._generation}`,"
+                        " so it cannot be reused for this dataset."
                     )
 
-            self._rg_dataset = _rg_dataset
+            self._dataset = _dataset
         else:
-            _rg_dataset = rg.FeedbackDataset(  # type: ignore
+            _settings = rg.Settings(  # type: ignore
                 fields=[
                     rg.TextField(name=self._id, title=self._id),  # type: ignore
                     rg.TextField(name=self._instruction, title=self._instruction),  # type: ignore
@@ -133,14 +136,17 @@ class TextGenerationToArgilla(Argilla):
                     rg.LabelQuestion(  # type: ignore
                         name="quality",
                         title=f"What's the quality of the {self._generation} for the given {self._instruction}?",
-                        labels={"bad": "👎", "good": "👍"},
+                        labels={"bad": "👎", "good": "👍"},  # type: ignore
                     )
                 ],
             )
-            self._rg_dataset = _rg_dataset.push_to_argilla(
-                name=self.dataset_name,  # type: ignore
+            _dataset = rg.Dataset(  # type: ignore
+                name=self.dataset_name,
                 workspace=self.dataset_workspace,
+                settings=_settings,
+                client=self._client,
             )
+            self._dataset = _dataset.create()
 
     @property
     def inputs(self) -> List[str]:
@@ -181,13 +187,13 @@ class TextGenerationToArgilla(Argilla):
                 generations_set.add(generation)
 
                 records.append(
-                    rg.FeedbackRecord(  # type: ignore
+                    rg.Record(  # type: ignore
                         fields={
                             self._id: instruction_id,
                             self._instruction: input["instruction"],
                             self._generation: generation,
                         },
-                    )
+                    ),
                 )
-        self._rg_dataset.add_records(records)  # type: ignore
+        self._dataset.records.log(records)  # type: ignore
         yield inputs

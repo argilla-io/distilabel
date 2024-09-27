@@ -26,24 +26,25 @@ from typing import (
 )
 
 import numpy as np
-from pydantic import Field, PrivateAttr, validate_call
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import LLM
-from distilabel.llms.chat_templates import CHATML_TEMPLATE
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
+from distilabel.llms.openai import OpenAILLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
+    from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
 
+    from distilabel.steps.tasks.typing import StandardInput
 
-SamplingParams = None
 
-
-class vLLM(LLM, CudaDevicePlacementMixin):
+class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     """`vLLM` library LLM implementation.
 
     Attributes:
@@ -75,6 +76,12 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         _tokenizer: the tokenizer instance used to format the prompt before passing it to
             the `LLM`. This attribute is meant to be used internally and should not be
             accessed directly. It will be set in the `load` method.
+        use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
+            template. Defaults to `False`.
+        magpie_pre_query_template: the pre-query template to be applied to the prompt or
+            sent to the LLM to generate an instruction or a follow up user message. Valid
+            values are "llama3", "qwen2" or another pre-query template provided. Defaults
+            to `None`.
 
     References:
         - https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/llm.py
@@ -150,8 +157,8 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         description="The structured output format to use across all the generations.",
     )
 
-    _model: Optional["_vLLM"] = PrivateAttr(...)
-    _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(...)
+    _model: "_vLLM" = PrivateAttr(None)
+    _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
     _logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
@@ -166,10 +173,6 @@ class vLLM(LLM, CudaDevicePlacementMixin):
 
         try:
             from vllm import LLM as _vLLM
-            from vllm import SamplingParams as _SamplingParams
-
-            global SamplingParams
-            SamplingParams = _SamplingParams
         except ImportError as ie:
             raise ImportError(
                 "vLLM is not installed. Please install it using `pip install vllm`."
@@ -186,17 +189,12 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             tokenizer_revision=self.tokenizer_revision,
             skip_tokenizer_init=self.skip_tokenizer_init,
             seed=self.seed,
-            **self.extra_kwargs,
+            **self.extra_kwargs,  # type: ignore
         )
 
         self._tokenizer = self._model.get_tokenizer()  # type: ignore
         if self.chat_template is not None:
             self._tokenizer.chat_template = self.chat_template  # type: ignore
-        elif (
-            self._tokenizer.chat_template is None  # type: ignore
-            and self._tokenizer.default_chat_template is None  # type: ignore
-        ):
-            self._tokenizer.chat_template = CHATML_TEMPLATE
 
         if self.structured_output:
             self._logits_processor = self._prepare_structured_output(
@@ -213,15 +211,29 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "FormattedInput") -> str:
-        """Prepares the input by applying the chat template to the input, which is formatted
-        as an OpenAI conversation, and adding the generation prompt.
+    def prepare_input(self, input: "StandardInput") -> str:
+        """Prepares the input (applying the chat template and tokenization) for the provided
+        input.
+
+        Args:
+            input: the input list containing chat items.
+
+        Returns:
+            The prompt to send to the LLM.
         """
-        return self._tokenizer.apply_chat_template(  # type: ignore
-            input,  # type: ignore
-            tokenize=False,
-            add_generation_prompt=True,  # type: ignore
+        if self._tokenizer.chat_template is None:
+            return input[0]["content"]
+
+        prompt: str = (
+            self._tokenizer.apply_chat_template(
+                input,  # type: ignore
+                tokenize=False,
+                add_generation_prompt=True,  # type: ignore
+            )
+            if input
+            else ""
         )
+        return super().apply_magpie_pre_query_template(prompt, input)
 
     def _prepare_batches(
         self, inputs: List[FormattedInput]
@@ -278,8 +290,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         top_k: int = -1,
         extra_sampling_params: Optional[Dict[str, Any]] = None,
     ) -> List[GenerateOutput]:
-        """Generates `num_generations` responses for each input using the text generation
-        pipeline.
+        """Generates `num_generations` responses for each input.
 
         Args:
             inputs: a list of inputs in chat format to generate responses for.
@@ -300,18 +311,18 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        from vllm import SamplingParams
 
         if extra_sampling_params is None:
             extra_sampling_params = {}
         structured_output = None
-        needs_sorting = False
 
         if isinstance(inputs[0], tuple):
             prepared_batches, sorted_indices = self._prepare_batches(inputs)
-            needs_sorting = True
         else:
             # Simulate a batch without the structured output content
             prepared_batches = [([self.prepare_input(input) for input in inputs], None)]
+            sorted_indices = None
 
         # In case we have a single structured output for the dataset, we can
         logits_processors = None
@@ -336,7 +347,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
                 **extra_sampling_params,
             )
 
-            batch_outputs = self._model.generate(  # type: ignore
+            batch_outputs = self._model.generate(
                 prepared_inputs,
                 sampling_params,
                 use_tqdm=False,  # type: ignore
@@ -348,7 +359,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
 
         # If logits_processor is set, we need to sort the outputs back to the original order
         # (would be needed only if we have multiple structured outputs in the dataset)
-        if needs_sorting:
+        if sorted_indices is not None:
             batched_outputs = _sort_batches(
                 batched_outputs, sorted_indices, num_generations=num_generations
             )
@@ -373,6 +384,192 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         if (schema := result.get("schema")) and self.structured_output:
             self.structured_output["schema"] = schema
         return result["processor"]
+
+
+class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
+    """A client for the `vLLM` server implementing the OpenAI API specification.
+
+    Attributes:
+        base_url: the base URL of the `vLLM` server. Defaults to `"http://localhost:8000"`.
+        max_retries: the maximum number of times to retry the request to the API before
+            failing. Defaults to `6`.
+        timeout: the maximum time in seconds to wait for a response from the API. Defaults
+            to `120`.
+        httpx_client_kwargs: extra kwargs that will be passed to the `httpx.AsyncClient`
+            created to comunicate with the `vLLM` server. Defaults to `None`.
+        tokenizer: the Hugging Face Hub repo id or path of the tokenizer that will be used
+            to apply the chat template and tokenize the inputs before sending it to the
+            server. Defaults to `None`.
+        tokenizer_revision: the revision of the tokenizer to load. Defaults to `None`.
+        _aclient: the `httpx.AsyncClient` used to comunicate with the `vLLM` server. Defaults
+            to `None`.
+
+    Runtime parameters:
+        - `base_url`: the base url of the `vLLM` server. Defaults to `"http://localhost:8000"`.
+        - `max_retries`: the maximum number of times to retry the request to the API before
+            failing. Defaults to `6`.
+        - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
+            to `120`.
+        - `httpx_client_kwargs`: extra kwargs that will be passed to the `httpx.AsyncClient`
+            created to comunicate with the `vLLM` server. Defaults to `None`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import ClientvLLM
+
+        llm = ClientvLLM(
+            base_url="http://localhost:8000/v1",
+            tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct"
+        )
+
+        llm.load()
+
+        results = llm.generate(
+            inputs=[[{"role": "user", "content": "Hello, how are you?"}]],
+            temperature=0.7,
+            top_p=1.0,
+            max_new_tokens=256,
+        )
+        # [
+        #     [
+        #         "I'm functioning properly, thank you for asking. How can I assist you today?",
+        #         "I'm doing well, thank you for asking. I'm a large language model, so I don't have feelings or emotions like humans do, but I'm here to help answer any questions or provide information you might need. How can I assist you today?",
+        #         "I'm just a computer program, so I don't have feelings like humans do, but I'm functioning properly and ready to help you with any questions or tasks you have. What's on your mind?"
+        #     ]
+        # ]
+        ```
+    """
+
+    model: str = ""  # Default value so it's not needed to `ClientvLLM(model="...")`
+    tokenizer: Optional[str] = None
+    tokenizer_revision: Optional[str] = None
+
+    # We need the sync client to get the list of models
+    _client: "OpenAI" = PrivateAttr(None)
+    _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
+
+    def load(self) -> None:
+        """Creates an `httpx.AsyncClient` to connect to the vLLM server and a tokenizer
+        optionally."""
+
+        self.api_key = SecretStr("EMPTY")
+
+        # We need to first create the sync client to get the model name that will be used
+        # in the `super().load()` when creating the logger.
+        try:
+            from openai import OpenAI
+        except ImportError as ie:
+            raise ImportError(
+                "OpenAI Python client is not installed. Please install it using"
+                " `pip install openai`."
+            ) from ie
+
+        self._client = OpenAI(
+            base_url=self.base_url,
+            api_key=self.api_key.get_secret_value(),  # type: ignore
+            max_retries=self.max_retries,  # type: ignore
+            timeout=self.timeout,
+        )
+
+        super().load()
+
+        try:
+            from transformers import AutoTokenizer
+        except ImportError as ie:
+            raise ImportError(
+                "To use `ClientvLLM` you need to install `transformers`."
+                "Please install it using `pip install transformers`."
+            ) from ie
+
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            self.tokenizer, revision=self.tokenizer_revision
+        )
+
+    @property
+    def model_name(self) -> str:
+        """Returns the name of the model served with vLLM server."""
+        models = self._client.models.list()
+        return models.data[0].id
+
+    def _prepare_input(self, input: "StandardInput") -> str:
+        """Prepares the input (applying the chat template and tokenization) for the provided
+        input.
+
+        Args:
+            input: the input list containing chat items.
+
+        Returns:
+            The prompt to send to the LLM.
+        """
+        prompt: str = (
+            self._tokenizer.apply_chat_template(  # type: ignore
+                input,  # type: ignore
+                tokenize=False,
+                add_generation_prompt=True,  # type: ignore
+            )
+            if input
+            else ""
+        )
+        return super().apply_magpie_pre_query_template(prompt, input)
+
+    @validate_call
+    async def agenerate(  # type: ignore
+        self,
+        input: FormattedInput,
+        num_generations: int = 1,
+        max_new_tokens: int = 128,
+        frequency_penalty: float = 0.0,
+        logit_bias: Optional[Dict[str, int]] = None,
+        presence_penalty: float = 0.0,
+        temperature: float = 1.0,
+        top_p: float = 1.0,
+    ) -> GenerateOutput:
+        """Generates `num_generations` responses for each input.
+
+        Args:
+            inputs: a list of inputs in chat format to generate responses for.
+            num_generations: the number of generations to create per input. Defaults to
+                `1`.
+            max_new_tokens: the maximum number of new tokens that the model will generate.
+                Defaults to `128`.
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            logit_bias: modify the likelihood of specified tokens appearing in the completion.
+                Defaults to ``
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: nucleus sampling. The value refers to the top-p tokens that should be
+                considered for sampling. Defaults to `1.0`.
+
+        Returns:
+            A list of lists of strings containing the generated responses for each input.
+        """
+
+        completion = await self._aclient.completions.create(
+            model=self.model_name,
+            prompt=self._prepare_input(input),  # type: ignore
+            n=num_generations,
+            max_tokens=max_new_tokens,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
+            presence_penalty=presence_penalty,
+            temperature=temperature,
+            top_p=top_p,
+        )
+
+        generations = []
+        for choice in completion.choices:
+            if (text := choice.text) == "":
+                self._logger.warning(  # type: ignore
+                    f"Received no response from vLLM server (model: '{self.model_name}')."
+                    f" Finish reason was: {choice.finish_reason}"
+                )
+            generations.append(text)
+        return generations
 
 
 def _sort_batches(

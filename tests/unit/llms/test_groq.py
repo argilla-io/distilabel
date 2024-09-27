@@ -19,6 +19,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
+
 from distilabel.llms.groq import GroqLLM
 
 from .utils import DummyUserDetail
@@ -104,7 +105,7 @@ class TestGroqLLM:
                     },
                 ]
             ]
-        ) == [(" Aenean hendrerit aliquam velit. ...",)]
+        ) == [[" Aenean hendrerit aliquam velit. ..."]]
 
     @pytest.mark.parametrize(
         "structured_output, dump",

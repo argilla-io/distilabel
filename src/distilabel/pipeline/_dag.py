@@ -23,13 +23,14 @@ from typing import (
     Iterable,
     List,
     Set,
+    Tuple,
     Type,
     Union,
 )
 
 import networkx as nx
 
-from distilabel.pipeline.constants import (
+from distilabel.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
@@ -44,7 +45,7 @@ from distilabel.utils.serialization import (
 
 if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
-    from distilabel.steps.base import Step, _Step
+    from distilabel.steps.base import GeneratorStep, Step, _Step
 
 
 class DAG(_Serializable):
@@ -93,6 +94,15 @@ class DAG(_Serializable):
             raise ValueError(f"Step with name '{name}' does not exist")
         return self.G.nodes[name]
 
+    def get_step_replica_count(self, name: str) -> int:
+        """Gets the number of replicas of the step.
+
+        Returns:
+            The number of replicas of the step.
+        """
+        step: "_Step" = self.get_step(name)[STEP_ATTR_NAME]
+        return step.resources.replicas if step.is_normal else 1  # type: ignore
+
     def set_step_attr(self, name: str, attr: str, value: Any) -> None:
         """Set an attribute of a step in the DAG.
 
@@ -135,6 +145,16 @@ class DAG(_Serializable):
             )
 
         self.G.add_edge(from_step, to_step)
+
+    def add_root_step(self, step: "GeneratorStep") -> None:
+        """Adds a root step, helper method used when a pipeline receives a dataset in the run
+        method.
+
+        Args:
+            step: The generator step that will be set as the new root.
+        """
+        self.add_step(step)
+        self.add_edge(step.name, next(iter(self)))
 
     @cached_property
     def root_steps(self) -> Set[str]:
@@ -241,6 +261,54 @@ class DAG(_Serializable):
             step_name, max(self.trophic_levels.values())
         )
 
+    def get_total_replica_count(self) -> int:
+        """Calculates the total number of replicas needed to run the pipeline.
+
+        Returns:
+            The total number of replicas needed to run the pipeline.
+        """
+        return sum([self.get_step_replica_count(step_name) for step_name in self.G])
+
+    def get_steps_load_stages(self) -> Tuple[List[List[str]], List[List[str]]]:
+        """Gets the stages in which the `Step`s of the `Pipeline` should be loaded. Stages
+        are determined by `GlobalStep`s as they receive all the data at once, which means
+        that a `GlobalStep` is not required to be loaded until all their previous steps
+        have finished their execution, and the successors of the global step are not required
+        to be loaded until the global has finished.
+
+        Returns:
+            A tuple with the first element containing asorted list by stage containing
+            lists with the names of the steps of the stage, and the second element a list
+            sorted by stage containing lists with the names of the last steps of the stage.
+        """
+
+        def _get_stage_last_steps(stage_steps: List[str]) -> List[str]:
+            subgraph = self.G.subgraph(stage_steps)
+            return sorted(
+                [node for node in subgraph.nodes() if subgraph.out_degree(node) == 0]
+            )
+
+        stages = []
+        current_stage = []
+        stages_last_steps = []
+
+        for step_name in nx.topological_sort(self.G):
+            step: "_Step" = self.get_step(step_name)[STEP_ATTR_NAME]
+            if not step.is_global:
+                current_stage.append(step_name)
+            else:
+                stages.append(current_stage)
+                stages_last_steps.append(_get_stage_last_steps(current_stage))
+                stages.append([step_name])
+                stages_last_steps.append([step_name])
+                current_stage = []
+
+        if current_stage:
+            stages.append(current_stage)
+            stages_last_steps.append(_get_stage_last_steps(current_stage))
+
+        return stages, stages_last_steps
+
     def validate(self) -> None:
         """Validates that the `Step`s included in the pipeline are correctly connected and
         have the correct inputs and outputs.
@@ -282,7 +350,7 @@ class DAG(_Serializable):
                     # Validate routing batch function (if any)
                     predecessors = list(self.get_step_predecessors(step.name))  # type: ignore
                     self._validate_convergence_step(
-                        step,
+                        step,  # type: ignore
                         predecessors,
                         steps_receiving_routed_batches,  # type: ignore
                     )

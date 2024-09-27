@@ -17,14 +17,15 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 
 import pytest
+
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.constants import STEP_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.routing_batch_function import routing_batch_function
-from distilabel.steps.base import GeneratorStep, Step, StepInput
+from distilabel.steps.base import GeneratorStep, Step, StepInput, StepResources
 
-from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
+from .utils import DummyGeneratorStep, DummyGlobalStep, DummyStep1, DummyStep2
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import (
@@ -220,6 +221,85 @@ class TestDAG:
         assert not dag.step_in_last_trophic_level("dummy_generator_step")
         assert not dag.step_in_last_trophic_level("dummy_step_1")
         assert dag.step_in_last_trophic_level("dummy_step_2")
+
+    def test_get_total_replica_count(self) -> None:
+        dag = DAG()
+
+        # `replicas` should be ignored for `GeneratorStep`
+        dag.add_step(DummyGeneratorStep(resources=StepResources(replicas=100)))
+        dag.add_step(DummyStep1(resources=StepResources(replicas=5)))
+        dag.add_step(DummyStep2(resources=StepResources(replicas=5)))
+        # `replicas` should be ignored for `GlobalStep`
+        dag.add_step(DummyGlobalStep(resources=StepResources(replicas=100)))
+
+        assert dag.get_total_replica_count() == 12
+
+    def test_get_steps_load_stages(self) -> None:
+        with Pipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummies_0 = [DummyStep1(name=f"dummy_step_0_{i}") for i in range(3)]
+            global_0 = DummyGlobalStep(name="global_0")
+            dummies_1 = [DummyStep1(name=f"dummy_step_1_{i}") for i in range(3)]
+            global_1 = DummyGlobalStep(name="global_1")
+
+            generator >> dummies_0 >> global_0 >> dummies_1 >> global_1
+
+        assert pipeline.dag.get_steps_load_stages() == (
+            [
+                [
+                    "dummy_generator_step",
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ],
+                ["global_0"],
+                [
+                    "dummy_step_1_0",
+                    "dummy_step_1_1",
+                    "dummy_step_1_2",
+                ],
+                ["global_1"],
+            ],
+            [
+                [
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ],
+                ["global_0"],
+                [
+                    "dummy_step_1_0",
+                    "dummy_step_1_1",
+                    "dummy_step_1_2",
+                ],
+                ["global_1"],
+            ],
+        )
+
+    def test_get_steps_load_stages_simple(self) -> None:
+        with Pipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummies_0 = [DummyStep1(name=f"dummy_step_0_{i}") for i in range(3)]
+
+            generator >> dummies_0
+
+        assert pipeline.dag.get_steps_load_stages() == (
+            [
+                [
+                    "dummy_generator_step",
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ]
+            ],
+            [
+                [
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ]
+            ],
+        )
 
     def test_validate_first_step_not_generator(
         self, dummy_step_1: "Step", dummy_step_2: "Step"

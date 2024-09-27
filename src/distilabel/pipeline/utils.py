@@ -12,36 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from distilabel.steps.base import StepInput
 
 
-def combine_dicts(
+def group_columns(
     *inputs: StepInput,
-    merge_keys: List[str],
-    output_merge_keys: Optional[List[str]] = None,
+    group_columns: List[str],
+    output_group_columns: Optional[List[str]] = None,
 ) -> StepInput:
-    """Combines multiple list of dictionaries into a single list of dictionaries on the
-    specified `merge_keys`. If `output_merge_keys` are provided, then it will also rename
-    `merge_keys`.
+    """Groups multiple list of dictionaries into a single list of dictionaries on the
+    specified `group_columns`. If `group_columns` are provided, then it will also rename
+    `group_columns`.
 
     Args:
         inputs: list of dictionaries to combine.
-        merge_keys: list of keys to merge on.
-        output_merge_keys: list of keys to rename the merge keys to. Defaults to `None`.
+        group_columns: list of keys to merge on.
+        output_group_columns: list of keys to rename the merge keys to. Defaults to `None`.
 
     Returns:
-        A list of dictionaries where the values of the `merge_keys` are combined into a
-        list and renamed to `output_merge_keys`.
+        A list of dictionaries where the values of the `group_columns` are combined into a
+        list and renamed to `output_group_columns`.
     """
-    if output_merge_keys is not None and len(output_merge_keys) != len(merge_keys):
+    if output_group_columns is not None and len(output_group_columns) != len(
+        group_columns
+    ):
         raise ValueError(
-            "The length of output_merge_keys must be the same as the length of merge_keys"
+            "The length of output_group_columns must be the same as the length of group_columns"
         )
-    if output_merge_keys is None:
-        output_merge_keys = [f"merged_{key}" for key in merge_keys]
-    merge_keys_dict = dict(zip(merge_keys, output_merge_keys))
+    if output_group_columns is None:
+        output_group_columns = [f"grouped_{key}" for key in group_columns]
+    group_columns_dict = dict(zip(group_columns, output_group_columns))
 
     result = []
     # Use zip to iterate over lists based on their index
@@ -52,10 +54,34 @@ def combine_dicts(
             # Iterate over key-value pairs in each dict
             for key, value in d.items():
                 # If the key is in the merge_keys, append the value to the existing list
-                if key in merge_keys_dict.keys():
-                    combined_dict.setdefault(merge_keys_dict[key], []).append(value)
+                if key in group_columns_dict.keys():
+                    combined_dict.setdefault(group_columns_dict[key], []).append(value)
                 # If the key is not in the merge_keys, create a new key-value pair
                 else:
                     combined_dict[key] = value
         result.append(combined_dict)
+    return result
+
+
+def merge_columns(
+    row: Dict[str, Any], columns: List[str], new_column: str = "combined_key"
+) -> Dict[str, Any]:
+    """Merge columns in a dictionary into a single column on the specified `new_column`.
+
+    Args:
+        row: Dictionary corresponding to a row in a dataset.
+        columns: List of keys to merge.
+        new_column: Name of the new key created.
+
+    Returns:
+        Dictionary with the new merged key.
+    """
+    result = row.copy()  # preserve the original dictionary
+    combined = []
+    for key in columns:
+        to_combine = result.pop(key)
+        if not isinstance(to_combine, list):
+            to_combine = [to_combine]
+        combined += to_combine
+    result[new_column] = combined
     return result

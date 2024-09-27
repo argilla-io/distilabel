@@ -15,25 +15,32 @@
 import logging
 import os.path as posixpath
 import re
+import sys
 from os import PathLike
 from pathlib import Path
-from typing import Any, Dict, Final, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Final, List, Optional, Union
 
 import fsspec
 import yaml
 from datasets import Dataset, load_dataset, load_from_disk
 from datasets.filesystems import is_remote_filesystem
-from huggingface_hub import DatasetCardData, HfApi
+from huggingface_hub import DatasetCardData, HfApi, upload_file
 from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
 
+from distilabel.constants import STEP_ATTR_NAME
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
 )
+from distilabel.utils.docstring import get_bibtex, parse_google_docstring
 from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.huggingface import get_hf_token
+
+if TYPE_CHECKING:
+    from distilabel.pipeline._dag import DAG
+
 
 DISTISET_CONFIG_FOLDER: Final[str] = "distiset_configs"
 PIPELINE_CONFIG_FILENAME: Final[str] = "pipeline.yaml"
@@ -54,6 +61,7 @@ class Distiset(dict):
 
     _pipeline_path: Optional[Path] = None
     _log_filename_path: Optional[Path] = None
+    _citations: Optional[List[str]] = None
 
     def push_to_hub(
         self,
@@ -61,6 +69,7 @@ class Distiset(dict):
         private: bool = False,
         token: Optional[str] = None,
         generate_card: bool = True,
+        include_script: bool = False,
         **kwargs: Any,
     ) -> None:
         """Pushes the `Distiset` to the Hugging Face Hub, each dataset will be pushed as a different configuration
@@ -80,12 +89,26 @@ class Distiset(dict):
                 if no token is passed and the user is not logged-in.
             generate_card:
                 Whether to generate a dataset card or not. Defaults to True.
+            include_script:
+                Whether you want to push the pipeline script to the hugging face hub to share it.
+                If set to True, the name of the script that was run to create the distiset will be
+                automatically determined, and that will be the name of the file uploaded to your
+                repository. Take into account, this operation only makes sense for a distiset obtained
+                from calling `Pipeline.run()` method. Defaults to False.
             **kwargs:
                 Additional keyword arguments to pass to the `push_to_hub` method of the `datasets.Dataset` object.
 
         Raises:
             ValueError: If no token is provided and couldn't be retrieved automatically.
         """
+        script_filename = sys.argv[0]
+        filename_py = (
+            script_filename.split("/")[-1]
+            if "/" in script_filename
+            else script_filename
+        )
+        script_path = Path.cwd() / script_filename
+
         if token is None:
             token = get_hf_token(self.__class__.__name__, "token")
 
@@ -98,11 +121,27 @@ class Distiset(dict):
                 **kwargs,
             )
 
+        if include_script and script_path.exists():
+            upload_file(
+                path_or_fileobj=script_path,
+                path_in_repo=filename_py,
+                repo_id=repo_id,
+                repo_type="dataset",
+                token=token,
+                commit_message="Include pipeline script.",
+            )
+
         if generate_card:
-            self._generate_card(repo_id, token)
+            self._generate_card(
+                repo_id, token, include_script=include_script, filename_py=filename_py
+            )
 
     def _get_card(
-        self, repo_id: str, token: Optional[str] = None
+        self,
+        repo_id: str,
+        token: Optional[str] = None,
+        include_script: bool = False,
+        filename_py: Optional[str] = None,
     ) -> DistilabelDatasetCard:
         """Generates the dataset card for the `Distiset`.
 
@@ -115,6 +154,9 @@ class Distiset(dict):
             token: The token to authenticate with the Hugging Face Hub.
                 We assume that if it's provided, the dataset will be in the Hugging Face Hub,
                 so the README metadata will be extracted from there.
+            include_script: Whether to upload the script to the hugging face repository.
+            filename_py: The name of the script. If `include_script` is True, the script will
+                be uploaded to the repository using this name, otherwise it won't be used.
 
         Returns:
             The dataset card for the `Distiset`.
@@ -141,6 +183,9 @@ class Distiset(dict):
             card_data=DatasetCardData(**metadata),
             repo_id=repo_id,
             sample_records=sample_records,
+            include_script=include_script,
+            filename_py=filename_py,
+            references=self.citations,
         )
 
         return card
@@ -168,7 +213,13 @@ class Distiset(dict):
         metadata = yaml.safe_load(metadata)
         return metadata
 
-    def _generate_card(self, repo_id: str, token: str) -> None:
+    def _generate_card(
+        self,
+        repo_id: str,
+        token: str,
+        include_script: bool = False,
+        filename_py: Optional[str] = None,
+    ) -> None:
         """Generates a dataset card and pushes it to the Hugging Face Hub, and
         if the `pipeline.yaml` path is available in the `Distiset`, uploads that
         to the same repository.
@@ -176,8 +227,16 @@ class Distiset(dict):
         Args:
             repo_id: The ID of the repository to push to, from the `push_to_hub` method.
             token: The token to authenticate with the Hugging Face Hub, from the `push_to_hub` method.
+            include_script: Whether to upload the script to the hugging face repository.
+            filename_py: The name of the script. If `include_script` is True, the script will
+                be uploaded to the repository using this name, otherwise it won't be used.
         """
-        card = self._get_card(repo_id=repo_id, token=token)
+        card = self._get_card(
+            repo_id=repo_id,
+            token=token,
+            include_script=include_script,
+            filename_py=filename_py,
+        )
 
         card.push_to_hub(
             repo_id,
@@ -424,6 +483,15 @@ class Distiset(dict):
     def log_filename_path(self, path: PathLike) -> None:
         self._log_filename_path = Path(path)
 
+    @property
+    def citations(self) -> Union[List[str], None]:
+        """Bibtex references to be included in the README."""
+        return self._citations
+
+    @citations.setter
+    def citations(self, citations_: List[str]) -> None:
+        self._citations = sorted(set(citations_))
+
     def __repr__(self):
         # Copy from `datasets.DatasetDict.__repr__`.
         repr = "\n".join([f"{k}: {v}" for k, v in self.items()])
@@ -436,6 +504,7 @@ def create_distiset(  # noqa: C901
     pipeline_path: Optional[Path] = None,
     log_filename_path: Optional[Path] = None,
     enable_metadata: bool = False,
+    dag: Optional["DAG"] = None,
 ) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
@@ -453,6 +522,8 @@ def create_distiset(  # noqa: C901
             uploading the `pipeline.log` file to the repo upon `Distiset.push_to_hub`.
         enable_metadata: Whether to include the distilabel metadata column in the dataset or not.
             Defaults to `False`.
+        dag: DAG contained in a `Pipeline`. If informed, will be used to extract the references/
+            citations from it.
 
     Returns:
         The dataset created from the buffer folder, where the different leaf steps will
@@ -465,7 +536,7 @@ def create_distiset(  # noqa: C901
         >>> distiset = create_distiset(Path.home() / ".cache/distilabel/pipelines/path-to-pipe-hashname")
         ```
     """
-    from distilabel.steps.constants import DISTILABEL_METADATA_KEY
+    from distilabel.constants import DISTILABEL_METADATA_KEY
 
     logger = logging.getLogger("distilabel.distiset")
 
@@ -514,4 +585,41 @@ def create_distiset(  # noqa: C901
         if log_filename_path.exists():
             distiset.log_filename_path = log_filename_path
 
+    if dag:
+        distiset._citations = _grab_citations(dag)
+
     return distiset
+
+
+def _grab_citations(dag: "DAG") -> List[str]:
+    """Extracts the citations from the steps that form the DAG.
+
+    Args:
+        dag: `DAG` contained in the pipeline that created the `Distiset`.
+
+    Returns:
+        List of citations to add to the `Distiset`.
+    """
+    citations = []
+    for step_name in dag:
+        step_info = parse_google_docstring(dag.get_step(step_name)[STEP_ATTR_NAME])
+        if cites := step_info["citations"]:
+            citations.extend(cites)
+            continue
+        # If there were no citations but we have references with arxiv URLs, try to extract
+        # the bixtex citations from those
+        if references := step_info["references"]:
+            bibtex_refs = []
+            for ref in references.values():
+                try:
+                    bibtex_refs.append(get_bibtex(ref))
+                except ValueError as e:
+                    print(f"Error: {e}")
+                except AttributeError as e:
+                    print(
+                        f"Couldn't obtain the bibtex format for the ref: '{ref}', error: {e}"
+                    )
+                except Exception as e:
+                    print(f"Untracked error: {e}")
+            citations.extend(bibtex_refs)
+    return citations

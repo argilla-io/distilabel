@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib
 import os
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
@@ -21,10 +23,7 @@ import yaml
 from pydantic import HttpUrl, ValidationError
 from pydantic.type_adapter import TypeAdapter
 
-from distilabel.pipeline.constants import (
-    ROUTING_BATCH_FUNCTION_ATTR_NAME,
-    STEP_ATTR_NAME,
-)
+from distilabel.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME, STEP_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 
 if TYPE_CHECKING:
@@ -76,6 +75,24 @@ def valid_http_url(url: str) -> bool:
     return True
 
 
+def _download_remote_file(url: str) -> str:
+    """Downloads a file from a Hugging Face Hub repository.
+
+    Args:
+        url: URL of the file to download.
+
+    Returns:
+        The content of the file.
+    """
+    if "huggingface.co" in url and "HF_TOKEN" in os.environ:
+        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+    else:
+        headers = None
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response
+
+
 def get_config_from_url(url: str) -> Dict[str, Any]:
     """Loads the pipeline configuration from a URL pointing to a JSON or YAML file.
 
@@ -92,12 +109,7 @@ def get_config_from_url(url: str) -> Dict[str, Any]:
         raise ValueError(
             f"Unsupported file format for '{url}'. Only JSON and YAML are supported"
         )
-    if "huggingface.co" in url and "HF_TOKEN" in os.environ:
-        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
-    else:
-        headers = None
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
+    response = _download_remote_file(url)
 
     if url.endswith((".yaml", ".yml")):
         content = response.content.decode("utf-8")
@@ -106,11 +118,53 @@ def get_config_from_url(url: str) -> Dict[str, Any]:
     return response.json()
 
 
-def get_pipeline(config: str) -> "BasePipeline":
-    """Get a pipeline from a configuration file.
+def get_pipeline_from_url(url: str, pipeline_name: str = "pipeline") -> "BasePipeline":
+    """Downloads the file to the current working directory and loads the pipeline object
+    from a python script.
 
     Args:
-        config: The path or URL to the pipeline configuration file.
+        url: The URL pointing to the python script with the pipeline definition.
+        pipeline_name: The name of the pipeline in the script.
+            I.e: `with Pipeline(...) as pipeline:...`.
+
+    Returns:
+        The pipeline instantiated.
+
+    Raises:
+        ValueError: If the file format is not supported.
+    """
+    if not url.endswith(".py"):
+        raise ValueError(
+            f"Unsupported file format for '{url}'. It must be a python file."
+        )
+    response = _download_remote_file(url)
+
+    content = response.content.decode("utf-8")
+    script_local = Path.cwd() / Path(url).name
+    script_local.write_text(content)
+
+    # Add the current working directory to sys.path
+    sys.path.insert(0, os.getcwd())
+    module = importlib.import_module(str(Path(url).stem))
+    pipeline = getattr(module, pipeline_name, None)
+    if not pipeline:
+        raise ImportError(
+            f"The script must contain an object with the pipeline named: '{pipeline_name}' that can be imported"
+        )
+
+    return pipeline
+
+
+def get_pipeline(
+    config_or_script: str, pipeline_name: str = "pipeline"
+) -> "BasePipeline":
+    """Get a pipeline from a configuration file or a remote python script.
+
+    Args:
+        config_or_script: The path or URL to the pipeline configuration file
+            or URL to a python script.
+        pipeline_name: The name of the pipeline in the script.
+            I.e: `with Pipeline(...) as pipeline:...`.
 
     Returns:
         The pipeline.
@@ -119,14 +173,31 @@ def get_pipeline(config: str) -> "BasePipeline":
         ValueError: If the file format is not supported.
         FileNotFoundError: If the configuration file does not exist.
     """
-    if valid_http_url(config):
-        data = get_config_from_url(config)
-        return Pipeline.from_dict(data)
+    config = script = None
+    if config_or_script.endswith((".json", ".yaml", ".yml")):
+        config = config_or_script
+    elif config_or_script.endswith(".py"):
+        script = config_or_script
+    else:
+        raise ValueError(
+            "The file must be a valid config file or python script with a pipeline."
+        )
+
+    if valid_http_url(config_or_script):
+        if config:
+            data = get_config_from_url(config)
+            return Pipeline.from_dict(data)
+        return get_pipeline_from_url(script, pipeline_name=pipeline_name)
+
+    if not config:
+        raise ValueError(
+            f"To run a pipeline from a python script, run it as `python {script}`"
+        )
 
     if Path(config).is_file():
         return Pipeline.from_file(config)
 
-    raise FileNotFoundError(f"Config file '{config}' does not exist.")
+    raise FileNotFoundError(f"File '{config_or_script}' does not exist.")
 
 
 def display_pipeline_information(pipeline: "BasePipeline") -> None:

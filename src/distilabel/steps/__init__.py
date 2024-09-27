@@ -14,11 +14,21 @@
 
 from distilabel.steps.argilla.preference import PreferenceToArgilla
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
-from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
-from distilabel.steps.combine import CombineColumns
+from distilabel.steps.base import (
+    GeneratorStep,
+    GlobalStep,
+    Step,
+    StepInput,
+    StepResources,
+)
+from distilabel.steps.columns.expand import ExpandColumns
+from distilabel.steps.columns.group import CombineColumns, GroupColumns
+from distilabel.steps.columns.keep import KeepColumns
+from distilabel.steps.columns.merge import MergeColumns
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
-from distilabel.steps.expand import ExpandColumns
+from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
+from distilabel.steps.embeddings.nearest_neighbour import FaissNearestNeighbour
 from distilabel.steps.formatting.conversation import ConversationTemplate
 from distilabel.steps.formatting.dpo import (
     FormatChatGenerationDPO,
@@ -33,18 +43,23 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromDisk,
     LoadDataFromFileSystem,
     LoadDataFromHub,
-    LoadHubDataset,
 )
+from distilabel.steps.generators.utils import make_generator_step
 from distilabel.steps.globals.huggingface import PushToHub
-from distilabel.steps.keep import KeepColumns
+from distilabel.steps.reward_model import RewardModelScore
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 __all__ = [
     "PreferenceToArgilla",
     "TextGenerationToArgilla",
+    "StepResources",
+    "GroupColumns",
+    "MergeColumns",
     "CombineColumns",
     "ConversationTemplate",
     "DeitaFiltering",
+    "EmbeddingGeneration",
+    "FaissNearestNeighbour",
     "ExpandColumns",
     "FormatChatGenerationDPO",
     "FormatChatGenerationSFT",
@@ -57,10 +72,11 @@ __all__ = [
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
-    "LoadHubDataset",
+    "make_generator_step",
     "PushToHub",
     "Step",
     "StepInput",
+    "RewardModelScore",
     "GeneratorStepOutput",
     "StepOutput",
     "step",

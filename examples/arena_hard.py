@@ -57,7 +57,7 @@ class ArenaHard(Task):
 
         ```python
         from distilabel.pipeline import Pipeline
-        from distilabel.steps import CombineColumns, LoadDataFromDicts
+        from distilabel.steps import GroupColumns, LoadDataFromDicts
         from distilabel.steps.tasks import ArenaHard, TextGeneration
 
         with Pipeline() as pipeline:
@@ -75,7 +75,7 @@ class ArenaHard(Task):
                 output_mappings={"model_name": "generation_model"},
             )
 
-            combine = CombineColumns(
+            combine = GroupColumns(
                 columns=["generation", "generation_model"],
                 output_columns=["generations", "generation_models"],
             )
@@ -172,7 +172,7 @@ class ArenaHardResults(GlobalStep):
 
         ```python
         from distilabel.pipeline import Pipeline
-        from distilabel.steps import CombineColumns, LoadDataFromDicts
+        from distilabel.steps import GroupColumns, LoadDataFromDicts
         from distilabel.steps.tasks import ArenaHard, TextGeneration
 
         with Pipeline() as pipeline:
@@ -190,7 +190,7 @@ class ArenaHardResults(GlobalStep):
                 output_mappings={"model_name": "generation_model"},
             )
 
-            combine = CombineColumns(
+            combine = GroupColumns(
                 columns=["generation", "generation_model"],
                 output_columns=["generations", "generation_models"],
             )
@@ -333,9 +333,9 @@ if __name__ == "__main__":
     from distilabel.llms import InferenceEndpointsLLM, OpenAILLM
     from distilabel.pipeline import Pipeline
     from distilabel.steps import (
-        CombineColumns,
+        GroupColumns,
         KeepColumns,
-        LoadHubDataset,
+        LoadDataFromHub,
         StepInput,
         step,
     )
@@ -369,7 +369,7 @@ if __name__ == "__main__":
             yield input
 
     with Pipeline(name="arena-hard-v0.1") as pipeline:
-        load_dataset = LoadHubDataset(
+        load_dataset = LoadDataFromHub(
             name="load_dataset",
             repo_id="alvarobartt/lmsys-arena-hard-v0.1",
             split="test",
@@ -391,7 +391,7 @@ if __name__ == "__main__":
             output_mappings={"model_name": "generation_model"},
         )
 
-        combine_columns = CombineColumns(
+        combine_columns = GroupColumns(
             name="combine_columns",
             columns=["generation", "generation_model"],
             output_columns=["generations", "generation_models"],

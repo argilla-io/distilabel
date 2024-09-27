@@ -13,9 +13,10 @@
 # limitations under the License.
 
 from distilabel.pipeline.local import Pipeline
+from distilabel.pipeline.ray import RayPipeline
 from distilabel.pipeline.routing_batch_function import (
     routing_batch_function,
     sample_n_steps,
 )
 
-__all__ = ["Pipeline", "routing_batch_function", "sample_n_steps"]
+__all__ = ["Pipeline", "RayPipeline", "routing_batch_function", "sample_n_steps"]

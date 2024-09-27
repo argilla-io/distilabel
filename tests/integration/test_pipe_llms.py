@@ -20,7 +20,7 @@ from distilabel.llms.openai import OpenAILLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import Step, StepInput
-from distilabel.steps.generators.huggingface import LoadHubDataset
+from distilabel.steps.generators.huggingface import LoadDataFromHub
 from distilabel.steps.tasks.text_generation import TextGeneration
 
 if TYPE_CHECKING:
@@ -51,7 +51,7 @@ class RenameColumns(Step):
 
 def test_pipeline_with_llms_serde() -> None:
     with Pipeline(name="unit-test-pipeline") as pipeline:
-        load_hub_dataset = LoadHubDataset(name="load_dataset")
+        load_hub_dataset = LoadDataFromHub(name="load_dataset")
         rename_columns = RenameColumns(name="rename_columns")
         load_hub_dataset.connect(rename_columns)
 

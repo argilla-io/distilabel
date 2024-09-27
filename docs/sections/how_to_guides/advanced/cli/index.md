@@ -55,7 +55,7 @@ The pipeline information includes the steps used in the `Pipeline` along with th
 
 ### `distilabel pipeline run`
 
-We can also run a `Pipeline` from the CLI just pointing to the same `pipeline.yaml` file or an URL pointing to it and calling `distilabel pipeline run`:
+We can also run a `Pipeline` from the CLI just pointing to the same `pipeline.yaml` file or an URL pointing to it and calling `distilabel pipeline run`. Alternatively, an URL pointing to a Python script containing a distilabel pipeline can be used:
 
 ```bash
 $ distilabel pipeline run --help
@@ -64,28 +64,34 @@ $ distilabel pipeline run --help
 
  Run a Distilabel pipeline.
 
-╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ *  --config                                 TEXT                 Path or URL to the Distilabel pipeline configuration file.   │
-│                                                                  [default: None]                                              │
-│                                                                  [required]                                                   │
-│    --param                                  PARSE_RUNTIME_PARAM  [default: (dynamic)]                                         │
-│    --ignore-cache      --no-ignore-cache                         Whether to ignore the cache and re-run the pipeline from     │
-│                                                                  scratch.                                                     │
-│                                                                  [default: no-ignore-cache]                                   │
-│    --repo-id                                TEXT                 The Hugging Face Hub repository ID to push the resulting     │
-│                                                                  dataset to.                                                  │
-│                                                                  [default: None]                                              │
-│    --commit-message                         TEXT                 The commit message to use when pushing the dataset.          │
-│                                                                  [default: None]                                              │
-│    --private           --no-private                              Whether to make the resulting dataset private on the Hub.    │
-│                                                                  [default: no-private]                                        │
-│    --token                                  TEXT                 The Hugging Face Hub API token to use when pushing the       │
-│                                                                  dataset.                                                     │
-│                                                                  [default: None]                                              │
-│    --help                                                        Show this message and exit.                                  │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --param                                          PARSE_RUNTIME_PARAM  [default: (dynamic)]                                         │
+│ --config                                         TEXT                 Path or URL to the Distilabel pipeline configuration file.   │
+│                                                                       [default: None]                                              │
+│ --script                                         TEXT                 URL pointing to a python script containing a distilabel      │
+│                                                                       pipeline.                                                    │
+│                                                                       [default: None]                                              │
+│ --pipeline-variable-name                         TEXT                 Name of the pipeline in a script. I.e. the 'pipeline'        │
+│                                                                       variable in `with Pipeline(...) as pipeline:...`.            │
+│                                                                       [default: pipeline]                                          │
+│ --ignore-cache              --no-ignore-cache                         Whether to ignore the cache and re-run the pipeline from     │
+│                                                                       scratch.                                                     │
+│                                                                       [default: no-ignore-cache]                                   │
+│ --repo-id                                        TEXT                 The Hugging Face Hub repository ID to push the resulting     │
+│                                                                       dataset to.                                                  │
+│                                                                       [default: None]                                              │
+│ --commit-message                                 TEXT                 The commit message to use when pushing the dataset.          │
+│                                                                       [default: None]                                              │
+│ --private                   --no-private                              Whether to make the resulting dataset private on the Hub.    │
+│                                                                       [default: no-private]                                        │
+│ --token                                          TEXT                 The Hugging Face Hub API token to use when pushing the       │
+│                                                                       dataset.                                                     │
+│                                                                       [default: None]                                              │
+│ --help                                                                Show this message and exit.                                  │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
+Using `--config` option, we must pass a path with a `pipeline.yaml` file.
 To specify the runtime parameters of the steps we will need to use the `--param` option and the value of the parameter in the following format:
 
 ```bash
@@ -97,5 +103,13 @@ distilabel pipeline run --config "https://huggingface.co/datasets/distilabel-int
 	--param to_argilla.dataset_name=text_generation_with_gpt35 \
 	--param to_argilla.dataset_workspace=admin
 ```
+
+Or using `--script` we can pass directly a remote python script (keep in mind `--config` and `--script` are exclusive):
+
+```bash
+distilabel pipeline run --script "https://huggingface.co/datasets/distilabel-internal-testing/pipe_nothing_test/raw/main/pipe_nothing.py"
+```
+
+You can also pass runtime parameters to the python script as we saw with `--config` option.
 
 Again, this helps with the reproducibility of the results, and simplifies sharing not only the final dataset but also the process to generate it.

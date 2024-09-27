@@ -67,8 +67,57 @@ distiset.push_to_hub(
     commit_message="Initial commit",
     private=False,
     token=os.getenv("HF_TOKEN"),
+    generate_card=True,
+    include_script=False
 )
 ```
+
+!!! info "New since version 1.3.0"
+    Since version `1.3.0` you can automatically push the script that created your pipeline to the same repository. For example, assuming you have a file like the following:
+
+    ``` py title="sample_pipe.py"
+    with Pipeline() as pipe:
+        ...
+    distiset = pipe.run()
+    distiset.push_to_hub(
+        "my-org/my-dataset,
+        include_script=True
+    )
+    ```
+
+    After running the command, you could visit the repository and the file `sample_pipe.py` will be stored to simplify sharing your pipeline with the community.
+
+
+
+#### Custom Docstrings
+
+`distilabel` contains a custom plugin to automatically generates a gallery for the different components. The information is extracted by parsing the `Step`'s docstrings. You can take a look at the docstrings in the source code of the [UltraFeedback][distilabel.steps.tasks.ultrafeedback.UltraFeedback], and take a look at the corresponding entry in the components gallery to see an example of how the docstrings are rendered.
+
+If you create your own components and want the `Citations` automatically rendered in the README card (in case you are sharing your final distiset in the Hugging Face Hub), you may want to add the citation section. This is an example for the [MagpieGenerator][distilabel.steps.tasks.magpie.generator.MagpieGenerator] Task:
+
+```python
+
+class MagpieGenerator(GeneratorTask, MagpieBase):
+    r"""Generator task the generates instructions or conversations using Magpie.
+    ...
+
+    Citations:
+
+        ```
+        @misc{xu2024magpiealignmentdatasynthesis,
+            title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+            author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+            year={2024},
+            eprint={2406.08464},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2406.08464},
+        }
+        ```
+    """
+```
+
+The `Citations` section can include any number of bibtex references. To define them, you can add as much elements as needed just like in the example: each citation will be a block of the form: ` ```@misc{...}``` `. This information will be automatically used in the README of your `Distiset` if you decide to call `distiset.push_to_hub`. Alternatively, if the `Citations` is not found, but in the `References` there are found any urls pointing to `https://arxiv.org/`, we will try to obtain the `Bibtex` equivalent automatically. This way, Hugging Face can automatically track the paper for you and it's easier to find other datasets citing the same paper, or directly visiting the paper page.
 
 ### Save and load from disk
 

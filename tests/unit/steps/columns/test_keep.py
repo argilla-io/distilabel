@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.keep import KeepColumns
+from distilabel.steps.columns.keep import KeepColumns
 
 
 class TestKeepColumns:

@@ -15,6 +15,7 @@
 from unittest import mock
 
 import pytest
+
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import (
@@ -50,6 +51,13 @@ class TestStepDecorator:
         assert unit_test_step.outputs == ["generation"]
         assert unit_test_step.runtime_parameters_names == {
             "input_batch_size": True,
+            "resources": {
+                "cpus": True,
+                "gpus": True,
+                "replicas": True,
+                "memory": True,
+                "resources": True,
+            },
             "runtime_param1": False,
             "runtime_param2": True,
         }

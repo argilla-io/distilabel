@@ -20,6 +20,23 @@ extra:
       link: https://www.youtube.com/channel/UCAIz8TmvQQrLqbD7sd-5S2A
     - icon: fontawesome/brands/discord
       link: http://hf.co/join/discord
+  analytics:
+    provider: google
+    property: G-PPKL7LMWCE
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/thumb-up-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/thumb-down-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve this page by
+            <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+{title}+-+{url}" target="_blank" rel="noopener">opening a GitHub issue</a>.
 extra_css:
   - stylesheets/extra.css
 
@@ -33,7 +50,7 @@ theme:
   logo: assets/logo.svg
   favicon: assets/logo.svg
   icon:
-    repo: fontawesome/brands/github-alt
+    repo: fontawesome/brands/github
   features:
     - navigation.instant
     - navigation.sections
@@ -155,12 +172,15 @@ nav:
           - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
       - Advanced:
           - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
-          - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
-          - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
-          - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
           - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
+          - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
+          - Specify requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
+          - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
+          - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
+          - Assigning resources to a step: "sections/how_to_guides/advanced/assigning_resources_to_step.md"
           - Serving an LLM for sharing it between several tasks: "sections/how_to_guides/advanced/serving_an_llm_for_reuse.md"
+          - Scaling and distributing a pipeline with Ray: "sections/how_to_guides/advanced/scaling_with_ray.md"
   - Pipeline Samples:
       - Examples: "sections/pipeline_samples/examples/index.md"
       - Papers:
@@ -169,12 +189,14 @@ nav:
           - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
           - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
+          - DeepSeek Prover: "sections/pipeline_samples/papers/deepseek_prover.md"
   - API Reference:
       - Step:
           - "api/step/index.md"
           - GeneratorStep: "api/step/generator_step.md"
           - GlobalStep: "api/step/global_step.md"
           - "@step": "api/step/decorator.md"
+          - StepResources: "api/step/resources.md"
           - Step Gallery:
               - Argilla: "api/step_gallery/argilla.md"
               - Hugging Face: "api/step_gallery/hugging_face.md"
@@ -207,6 +229,9 @@ nav:
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
           - Typing: "api/pipeline/typing.md"
           - Utils: "api/pipeline/utils.md"
+      - Mixins:
+          - RuntimeParametersMixin: "api/mixins/runtime_parameters.md"
+          - RequirementsMixin: "api/mixins/requirements.md"
       - Distiset: "api/distiset.md"
       - CLI: "api/cli.md"
   - Community:

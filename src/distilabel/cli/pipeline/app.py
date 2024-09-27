@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import re
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 import typer
 from typing_extensions import Annotated
@@ -39,12 +39,22 @@ def parse_runtime_param(value: str) -> Tuple[List[str], str]:
 
 @app.command(name="run", help="Run a Distilabel pipeline.")
 def run(
-    config: ConfigOption,
     # `param` is `List[Tuple[Tuple[str, ...], str]]` after parsing
     param: Annotated[
         List[Any],
         typer.Option(help="", parser=parse_runtime_param, default_factory=list),
     ],
+    config: Optional[str] = typer.Option(
+        None, help="Path or URL to the distilabel pipeline configuration file."
+    ),
+    script: Optional[str] = typer.Option(
+        None,
+        help="URL pointing to a python script containing a distilabel pipeline.",
+    ),
+    pipeline_variable_name: str = typer.Option(
+        default="pipeline",
+        help="Name of the pipeline in a script. I.e. the 'pipeline' variable in `with Pipeline(...) as pipeline:...`.",
+    ),
     ignore_cache: bool = typer.Option(
         False, help="Whether to ignore the cache and re-run the pipeline from scratch."
     ),
@@ -64,8 +74,27 @@ def run(
 ) -> None:
     from distilabel.cli.pipeline.utils import get_pipeline, parse_runtime_parameters
 
+    if script:
+        if config:
+            typer.secho(
+                "Only one of `--config` or `--script` can be informed.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+            raise typer.Exit(code=1)
+        do_run = typer.prompt("This will run a remote script, are you sure? (y/n)")
+        if do_run.lower() != "y":
+            raise typer.Exit(code=0)
+    if not config and not script:
+        typer.secho(
+            "`--config` or `--script` must be informed.",
+            fg=typer.colors.RED,
+            bold=True,
+        )
+        raise typer.Exit(code=1)
+
     try:
-        pipeline = get_pipeline(config)
+        pipeline = get_pipeline(config or script, pipeline_name=pipeline_variable_name)
     except Exception as e:
         typer.secho(str(e), fg=typer.colors.RED, bold=True)
         raise typer.Exit(code=1) from e

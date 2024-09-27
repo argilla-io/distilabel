@@ -14,11 +14,12 @@
 
 from typing import List, Optional
 
+from pydantic import Field, SecretStr
+
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
 )
-from pydantic import Field, SecretStr
 
 
 class DummyNestedClass(RuntimeParametersMixin):
