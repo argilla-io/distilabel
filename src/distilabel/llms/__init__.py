@@ -25,6 +25,7 @@ from distilabel.llms.mistral import MistralLLM
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.moa import MixtureOfAgentsLLM
 from distilabel.llms.ollama import OllamaLLM
+from distilabel.llms.oneai import OneAI
 from distilabel.llms.openai import OpenAILLM
 from distilabel.llms.together import TogetherLLM
 from distilabel.llms.typing import GenerateOutput, HiddenState
@@ -46,6 +47,7 @@ __all__ = [
     "CudaDevicePlacementMixin",
     "MixtureOfAgentsLLM",
     "OllamaLLM",
+    "OneAI",
     "OpenAILLM",
     "TogetherLLM",
     "TransformersLLM",
