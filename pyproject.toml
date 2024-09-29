@@ -104,6 +104,9 @@ text-clustering = [
 
 # minhash
 minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]
+lancedb = [
+    "lancedb>=0.13.0",
+]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
@@ -123,3 +126,5 @@ ignore = ["E501", "B905", "B008"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.pdm]
