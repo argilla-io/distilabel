@@ -50,11 +50,6 @@ class OneAI(AsyncLLM):
             It is meant to be used internally.  
 
     Examples:  
-        Set Your API Key :
-
-        ```sh
-        EXPORT 01AI_API_KEY "your_01ai_yi-api_key"
-        ```
 
         Generate Json Outputs you can use in "function call" pipelines:  
   
@@ -63,14 +58,14 @@ class OneAI(AsyncLLM):
         from distilabel.llms.oneai import OneAI
 
         text_gen = TextGeneration(
-            llm = OneAI(api_key="api.key")  # yi-large is the default model
+            llm = OneAI(api_key=os.getenv("01AI_BASE_URL", None))  # yi-large is the default model
         )
 
         text_gen.load()
 
         wordphrases = "During his presidency, a number of improvements to the campus were made. The Georgetown University Hospital was opened and the first patient was accepted."
 
-        metadata_prompt = "WORD PHRASES:\n\n{wordphrases}\n\n you will recieve a text or a question, produce metadata operator pairs for the text . ONLY PROVIDE THE FINAL JSON , DO NOT PRODUCE ANY ADDITION INSTRUCTION , ONLY PRODUCE ONE METADATA STRING PER OPERATOR:"
+        metadata_prompt = f"WORD PHRASES:\n\n{wordphrases}\n\n you will recieve a text or a question, produce metadata operator pairs for the text . ONLY PROVIDE THE FINAL JSON , DO NOT PRODUCE ANY ADDITION INSTRUCTION , ONLY PRODUCE ONE METADATA STRING PER OPERATOR:"
 
         result = next(
             text_gen.process(
@@ -91,7 +86,7 @@ class OneAI(AsyncLLM):
     model: Optional[str]  = "yi-large"
     base_url: Optional[RuntimeParameter[str]] = Field(
         default_factory=lambda: os.getenv(
-            "01AI_BASE_URL", "https://api.01.ai/v1"
+            "01AI_BASE_URL", "https://api.lingyiwanwu.com/v1"
         ),
         description="The base URL to use for the OneAI API requests.",
     )
