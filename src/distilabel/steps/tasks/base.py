@@ -12,16 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.errors import DistilabelUserError
-from distilabel.knowledge_bases.base import KnowledgeBase
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
@@ -56,7 +54,6 @@ class _Task(_Step, ABC):
     """
 
     llm: LLM
-    knowledge_base: Optional[KnowledgeBase] = None
 
     group_generations: bool = False
     add_raw_output: RuntimeParameter[bool] = Field(
@@ -113,16 +110,12 @@ class _Task(_Step, ABC):
         super().load()
         self._set_default_structured_output()
         self.llm.load()
-        if self.knowledge_base:
-            self.knowledge_base.load()
 
     @override
     def unload(self) -> None:
         """Unloads the LLM."""
         self._logger.debug("Executing task unload logic.")
         self.llm.unload()
-        if self.knowledge_base:
-            self.knowledge_base.unload()
 
     @abstractmethod
     def format_output(
@@ -284,15 +277,6 @@ class Task(_Task, Step):
         """
         return [self.format_input(input) for input in inputs]
 
-    def _add_knowledge_base_to_inputs(
-        self, inputs: List[FormattedInput]
-    ) -> List[Dict[str, Any]]:
-        """Adds the knowledge base to the inputs of the task."""
-        if self.knowledge_base:
-            for input in inputs:
-                input["knowledge_base"] = self.knowledge_base.process(input)
-        return inputs
-
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
@@ -302,9 +286,8 @@ class Task(_Task, Step):
         Yields:
             A list of Python dictionaries with the outputs of the task.
         """
-        inputs = self._add_knowledge_base_to_inputs(inputs)
+
         formatted_inputs = self._format_inputs(inputs)
-        formatted_inputs = self._add_knowledge_base_to_inputs(formatted_inputs)
 
         # `outputs` is a list containing a list of generations per input
         outputs = self.llm.generate_outputs(
