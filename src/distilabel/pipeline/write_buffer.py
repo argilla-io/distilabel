@@ -130,9 +130,12 @@ class _WriteBuffer:
             self._buffer_last_schema[step_name] = table.schema
         else:
             if not last_schema.equals(table.schema):
-                new_schema = pa.unify_schemas([last_schema, table.schema])
-                self._buffer_last_schema[step_name] = new_schema
-                table = table.cast(new_schema)
+                if set(last_schema.names) == set(table.schema.names):
+                    table = table.select(last_schema.names)
+                else:
+                    new_schema = pa.unify_schemas([last_schema, table.schema])
+                    self._buffer_last_schema[step_name] = new_schema
+                    table = table.cast(new_schema)
 
         next_file_number = self._buffers_last_file[step_name]
         self._buffers_last_file[step_name] = next_file_number + 1
