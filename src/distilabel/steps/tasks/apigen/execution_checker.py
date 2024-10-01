@@ -16,6 +16,7 @@
 # - If function, try to import it and run it
 # - If fails, track the error message, and return it
 
+import inspect
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Union
@@ -47,6 +48,9 @@ class APIGenExecutionChecker(Step):
             It can also point to a folder with the functions. In this case, the folder
             layout should be a folder with .py files, each containing a single function,
             the name of the function being the same as the filename.
+        check_is_dangerous: Bool to exclude some potentially dangerous functions, it contains
+            some heuristics found while testing. This functions can run subprocesses, deal with
+            the OS, or have other potentially dangerous operations. Defaults to True.
 
     Input columns:
         - answers (`str`): List with arguments to be passed to the function,
@@ -108,6 +112,14 @@ class APIGenExecutionChecker(Step):
             "or a folder with python files named the same as the functions they contain.",
         ),
     )
+    check_is_dangerous: bool = Field(
+        default=True,
+        description=(
+            "Bool to exclude some potentially dangerous functions, it contains "
+            "some heuristics found while testing. This functions can run subprocesses, "
+            "deal with the OS, or have other potentially dangerous operations.",
+        ),
+    )
 
     _toolbox: Union["ModuleType", None] = PrivateAttr(None)
 
@@ -152,6 +164,34 @@ class APIGenExecutionChecker(Step):
             self._logger.warning(f"Error loading function '{function_name}': {e}")
             return None
 
+    def _is_dangerous(self, function: Callable) -> bool:
+        """Checks if a function is dangerous to remove it.
+        Contains a list of heuristics to avoid executing possibly dangerous functions.
+        """
+        source_code = inspect.getsource(function)
+        # We don't want to execute functions that use subprocess
+        if (
+            ("subprocess." in source_code)
+            or ("os.system(" in source_code)
+            or ("input(" in source_code)
+            # Avoiding threading
+            or ("threading.Thread(" in source_code)
+            or ("exec(" in source_code)
+            # Avoiding argparse (not sure why)
+            or ("argparse.ArgumentParser(" in source_code)
+            # Avoiding logging changing the levels to not mess with the logs
+            or (".setLevel(" in source_code)
+            # Don't run a test battery
+            or ("unittest.main(" in source_code)
+            # Avoid exiting the program
+            or ("sys.exit(" in source_code)
+            or ("exit(" in source_code)
+            or ("raise SystemExit(" in source_code)
+            or ("multiprocessing.Pool(" in source_code)
+        ):
+            return True
+        return False
+
     @override
     def process(self, inputs: StepInput) -> "StepOutput":
         """Checks the answer to see if it can be executed.
@@ -190,7 +230,14 @@ class APIGenExecutionChecker(Step):
                 function_name = answer.get("name", None)
                 arguments = answer.get("arguments", None)
 
+                self._logger.debug(
+                    f"Executing function '{function_name}' with arguments: {arguments}"
+                )
                 function = self._get_function(function_name)
+
+                if self.check_is_dangerous:
+                    if function and self._is_dangerous(function):
+                        function = None
 
                 if function is None:
                     output.append(

@@ -14,6 +14,7 @@
 
 import importlib.util
 import re
+import signal
 from typing import TYPE_CHECKING, Any, Callable, Dict, TypedDict, Union
 
 from distilabel.steps.base import Step, StepInput
@@ -150,10 +151,10 @@ def execute_from_response(
 
     try:
         if call_answer:
-            result = function(*call_answer.values())
+            result = run_function_with_timeout(function, 5, *call_answer.values())
         else:
             # There can be functions that do not require arguments
-            result = function()
+            result = run_function_with_timeout(function, 5)
         return FunctionResult(keep=True, execution_result=str(result))
     except Exception as e:
         return FunctionResult(keep=False, execution_result=str(e))
@@ -173,3 +174,21 @@ def remove_fences(text: str) -> str:
     if match:
         return match.group(1)
     return text
+
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Function execution timed out")
+
+
+def run_function_with_timeout(function: Callable, timeout: int = 5, *args: Any) -> Any:
+    """Run a function with a timeout, to limit the total time waiting for a result."""
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(timeout)
+
+    try:
+        result = function(*args)
+    finally:
+        # Cancel the alarm
+        signal.alarm(0)
+
+    return result
