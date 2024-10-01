@@ -75,6 +75,44 @@ class TestFormatTextGenerationSFT:
             }
         ]
 
+    def test_process_with_tools(self) -> None:
+        step = FormatTextGenerationSFT(tools=True)
+        step.load()
+
+        assert next(
+            step.process(
+                [
+                    {
+                        "instruction": "I'd like to convert the complex number 3 + 4j and 1 - 2j to polar coordinates.",
+                        "generation": '[{"name": "complex_to_polar", "arguments": {"complex_number": "3 + 4j"}}, {"name": "complex_to_polar", "arguments": {"complex_number": "1 - 2j"}}]',
+                        "tools": '[{"type":"function","function":{"name":"complex_to_polar","description":"Converts a complex number to its polar coordinate representation.","parameters":{"type":"object","properties":{"complex_number":{"type":"object","description":"A complex number in the form of `real + imaginary * 1j`."}},"required":["complex_number"]}}}]',
+                    }
+                ]
+            )
+        ) == [
+            {
+                "instruction": "I'd like to convert the complex number 3 + 4j and 1 - 2j to polar coordinates.",
+                "generation": '[{"name": "complex_to_polar", "arguments": {"complex_number": "3 + 4j"}}, {"name": "complex_to_polar", "arguments": {"complex_number": "1 - 2j"}}]',
+                "tools": '[{"type":"function","function":{"name":"complex_to_polar","description":"Converts a complex number to its polar coordinate representation.","parameters":{"type":"object","properties":{"complex_number":{"type":"object","description":"A complex number in the form of `real + imaginary * 1j`."}},"required":["complex_number"]}}}]',
+                "prompt": "I'd like to convert the complex number 3 + 4j and 1 - 2j to polar coordinates.",
+                "prompt_id": "f772a2cd00f4cc268358c4f74a618c512fbb0991cdb53cfa219197cb2adf7f42",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "I'd like to convert the complex number 3 + 4j and 1 - 2j to polar coordinates.",
+                    },
+                    {
+                        "role": "assistant",
+                        "tool_calls": '[{"name": "complex_to_polar", "arguments": {"complex_number": "3 + 4j"}}, {"name": "complex_to_polar", "arguments": {"complex_number": "1 - 2j"}}]',
+                    },
+                    {
+                        "role": "tool",
+                        "content": '[{"type":"function","function":{"name":"complex_to_polar","description":"Converts a complex number to its polar coordinate representation.","parameters":{"type":"object","properties":{"complex_number":{"type":"object","description":"A complex number in the form of `real + imaginary * 1j`."}},"required":["complex_number"]}}}]',
+                    },
+                ],
+            }
+        ]
+
 
 class TestFormatChatGenerationSFT:
     def test_process(self) -> None:

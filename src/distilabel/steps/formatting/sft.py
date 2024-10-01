@@ -15,6 +15,8 @@
 import hashlib
 from typing import TYPE_CHECKING, List
 
+from pydantic import Field
+
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
@@ -22,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class FormatTextGenerationSFT(Step):
-    """Format the output of a `TextGeneration` task for Supervised Fine-Tuning (SFT).
+    r"""Format the output of a `TextGeneration` task for Supervised Fine-Tuning (SFT).
 
     `FormatTextGenerationSFT` is a `Step` that formats the output of a `TextGeneration` task for
     Supervised Fine-Tuning (SFT) following the standard formatting from frameworks such as `axolotl`
@@ -31,11 +33,16 @@ class FormatTextGenerationSFT(Step):
     message. Optionally, if the `system_prompt` is available, it is included as the first message
     in the conversation.
 
+    Attributes:
+        tools (bool): If `tools` are available, they are included in the formatted output.
+
     Input columns:
         - system_prompt (`str`, optional): The system prompt used within the `LLM` to generate the
             `generation`, if available.
         - instruction (`str`): The instruction used to generate the `generation` with the `LLM`.
         - generation (`str`): The generation produced by the `LLM`.
+        - tools (`str`, optional): If `tools` columns is available and is `tools=True`, this field
+            will be used to prepare the dataset for fine-tuning with function calling.
 
     Output columns:
         - prompt (`str`): The instruction used to generate the `generation` with the `LLM`.
@@ -80,7 +87,33 @@ class FormatTextGenerationSFT(Step):
         #     }
         # ]
         ```
+
+        Format your dataset for SFT fine tuning with with function-calling:
+
+        ```python
+        from distilabel.steps import FormatTextGenerationSFT
+
+        format_sft = FormatTextGenerationSFT(tools=True)
+        format_sft.load()
+
+        # NOTE: "system_prompt" can be added optionally.
+        result = next(
+            format_sft.process(
+                [
+                    {
+                        "instruction": "I'd like to convert the complex number 3 + 4j and 1 - 2j to polar coordinates.",
+                        "generation": "[{\"name\": \"complex_to_polar\", \"arguments\": {\"complex_number\": \"3 + 4j\"}}, {\"name\": \"complex_to_polar\", \"arguments\": {\"complex_number\": \"1 - 2j\"}}]",
+                        "tools": "[{\"type\":\"function\",\"function\":{\"name\":\"complex_to_polar\",\"description\":\"Converts a complex number to its polar coordinate representation.\",\"parameters\":{\"type\":\"object\",\"properties\":{\"complex_number\":{\"type\":\"object\",\"description\":\"A complex number in the form of `real + imaginary * 1j`.\"}},\"required\":[\"complex_number\"]}}}]",
+                    }
+                ]
+            )
+        )
     """
+
+    tools: bool = Field(
+        default=False,
+        description="If `tools` are available, they are included in the formatted output.",
+    )
 
     @property
     def inputs(self) -> "StepColumns":
@@ -89,6 +122,7 @@ class FormatTextGenerationSFT(Step):
             "system_prompt": False,
             "instruction": True,
             "generation": True,
+            "tools": False,
         }
 
     @property
@@ -126,8 +160,17 @@ class FormatTextGenerationSFT(Step):
 
                 item["messages"] = [
                     {"role": "user", "content": item["instruction"]},  # type: ignore
-                    {"role": "assistant", "content": item["generation"]},  # type: ignore
                 ]
+                if not self.tools:
+                    item["messages"].append(
+                        {"role": "assistant", "content": item["generation"]}
+                    )
+                else:
+                    item["messages"].append(
+                        {"role": "assistant", "tool_calls": item["generation"]}
+                    )
+                    item["messages"].append({"role": "tool", "content": item["tools"]})
+
                 if (
                     "system_prompt" in item
                     and isinstance(item["system_prompt"], str)  # type: ignore
