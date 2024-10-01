@@ -421,7 +421,7 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
         VertexAILLM(model="gemini-1.5-pro"),
     ):
         task = TextGeneration(
-            name=f"text_generation_with_{llm.model_name}",
+            name=f"text_generation_with_{llm.model_name.replace('.', '-')}",
             llm=llm,
             input_batch_size=5,
         )
@@ -459,6 +459,30 @@ To load the pipeline, we can use the `from_yaml` or `from_json` methods:
 
 Serializing the pipeline is very useful when we want to share the pipeline with others, or when we want to store the pipeline for future use. It can even be hosted online, so the pipeline can be executed directly using the [CLI](../../advanced/cli/index.md).
 
+## Visualizing the pipeline
+
+We can visualize the pipeline using the `Pipeline.draw()` method. This will create a `mermaid` graph, and return the path to the image.
+
+```python
+path_to_image = pipeline.draw(
+    top_to_bottom=True,
+    show_edge_labels=True,
+)
+```
+
+Within notebooks, we can simply call `pipeline` and the graph will be displayed. Alternatively, we can use the `Pipeline.draw()` method to have more control over the graph visualization and use `IPython` to display it.
+
+```python
+from IPython.display import Image, display
+
+display(Image(path_to_image))
+```
+
+Let's now see how the pipeline of the [fully working example](#fully-working-example) looks like.
+
+![Pipeline](../../../../assets/images/sections/how_to_guides/basic/pipeline.png)
+
+
 ## Fully working example
 
 To sum up, here is the full code of the pipeline we have created in this section. Note that you will need to change the name of the Hugging Face repository where the resulting will be pushed, set `OPENAI_API_KEY` environment variable, set `MISTRAL_API_KEY` and have `gcloud` installed and configured:
@@ -487,7 +511,9 @@ To sum up, here is the full code of the pipeline we have created in this section
             MistralLLM(model="mistral-large-2402"),
             VertexAILLM(model="gemini-1.0-pro"),
         ):
-            task = TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
+            task = TextGeneration(
+                name=f"text_generation_with_{llm.model_name.replace('.', '-')}", llm=llm
+            )
             load_dataset.connect(task)
             task.connect(combine_generations)
 

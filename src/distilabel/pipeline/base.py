@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import hashlib
 import logging
 import os
@@ -50,6 +49,7 @@ from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import GeneratorStep
 from distilabel.steps.generators.utils import make_generator_step
 from distilabel.utils.logging import setup_logging, stop_logging
+from distilabel.utils.notebook import in_notebook
 from distilabel.utils.serialization import (
     _Serializable,
     read_json,
@@ -606,6 +606,45 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             Dict[str, Any]: Internal representation of the DAG from networkx in a serializable format.
         """
         return self.dag.dump()
+
+    def draw(
+        self,
+        path: Optional[Union[str, Path]] = "pipeline.png",
+        top_to_bottom: bool = False,
+        show_edge_labels: bool = True,
+    ) -> str:
+        """
+        Draws the pipeline.
+
+        Parameters:
+            path: The path to save the image to.
+            top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `False`.
+            show_edge_labels: Whether to show the edge labels. Defaults to `True`.
+
+        Returns:
+            The path to the saved image.
+        """
+        png = self.dag.draw(
+            top_to_bottom=top_to_bottom, show_edge_labels=show_edge_labels
+        )
+        with open(path, "wb") as f:
+            f.write(png)
+        return path
+
+    def __repr__(self) -> str:
+        """
+        If running in a Jupyter notebook, display an image representing this `Pipeline`.
+        """
+        if in_notebook():
+            try:
+                from IPython.display import Image, display
+
+                image_data = self.dag.draw()
+
+                display(Image(image_data))
+            except Exception:
+                pass
+        return super().__repr__()
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
         return {

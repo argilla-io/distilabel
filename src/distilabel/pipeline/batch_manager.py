@@ -552,9 +552,11 @@ class _BatchManagerStep(_Serializable):
 
             # `batches` are sorted by `seq_no`
             num_rows = 0
+            is_batch_in_order = True
             for batch in batches:
                 # Need to create batches using the data from batches with sequential `seq_no`
                 if batch.seq_no != next_expected_seq_no:
+                    is_batch_in_order = False
                     break
                 # There are enough rows to create a batch
                 num_rows += len(batch.data[0])
@@ -568,11 +570,12 @@ class _BatchManagerStep(_Serializable):
                 return False
 
             # If there are not enough rows and the last batch was not received yet, then
-            # there is not enough data yet to creata a batch
+            # there is not enough data yet to create a batch
+            # If the last batch was received, the batch preceding it must be in order
             if (
                 self.input_batch_size
                 and num_rows < self.input_batch_size
-                and step_name not in self.last_batch_received
+                and not (step_name in self.last_batch_received and is_batch_in_order)
             ):
                 return False
 

@@ -49,6 +49,8 @@ class OutlinesStructuredOutputType(TypedDict, total=False):
 class InstructorStructuredOutputType(TypedDict, total=False):
     """TypedDict to represent the structured output configuration from `instructor`."""
 
+    format: Optional[Literal["json"]]
+    """One of "json"."""
     schema: Union[Type[BaseModel], Dict[str, Any]]
     """The schema to use for the structured output, a `pydantic.BaseModel` class. """
     mode: Optional[str]

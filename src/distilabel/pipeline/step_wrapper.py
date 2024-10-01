@@ -278,13 +278,7 @@ class _StepWrapper:
         Args:
             batch: The batch to impute.
         """
-        result = []
-        for row in batch.data[0]:
-            data = row.copy()
-            for output in self.step.outputs:
-                data[output] = None
-            result.append(data)
-        return result
+        return self.step.impute_step_outputs(batch.data[0])
 
     def _send_batch(self, batch: _Batch) -> None:
         """Sends a batch to the `output_queue`."""
