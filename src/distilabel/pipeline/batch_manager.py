@@ -1144,6 +1144,7 @@ class _BatchManager(_Serializable):
                 read_json(batch) for batch in steps[step_name]["built_batches"]
             ]
 
+            # Read the batches from the `steps_data` directory to populate back the `_BatchManagerStep`
             step_offset = steps[step_name]["step_offset"]
             for successor_step_name, offset in step_offset.items():
                 batch_offset, batch_row_offset = offset
@@ -1159,14 +1160,16 @@ class _BatchManager(_Serializable):
                     if not batch_file.is_file() or batch_file.suffix != ".json":
                         continue
 
+                    # If the batch number is lower than the batch offset then we should
+                    # skip it as it has already been processed by the step
                     batch_no = int(batch_file.stem.split("batch_")[1])
-
                     if batch_no < batch_offset:
                         continue
 
-                    # TODO: use `batch_row_offset` to skip rows
+                    # read the batch and skip the first N rows of the first batch
                     batch = read_json(batch_file)
-                    batch["data"][0] = batch["data"][0][batch_row_offset:]
+                    if batch_no == batch_offset:
+                        batch["data"][0] = batch["data"][0][batch_row_offset:]
 
                     batches.append(batch)
 
