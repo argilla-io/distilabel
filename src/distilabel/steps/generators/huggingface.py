@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from collections import defaultdict
 from functools import cached_property
 from pathlib import Path
@@ -247,10 +248,10 @@ class LoadDataFromHub(GeneratorStep):
         try:
             return get_dataset_infos(self.repo_id)
         except Exception as e:
-            # The previous could fail in case of a internet connection issues.
-            # Assuming the dataset is already loaded and we can get the info from the loaded dataset, otherwise it will fail anyway.
-            self._logger.warning(
-                f"Failed to get dataset info from Hugging Face Hub, trying to get it loading the dataset. Error: {e}"
+            warnings.warn(
+                f"Failed to get dataset info from Hugging Face Hub, trying to get it loading the dataset. Error: {e}",
+                UserWarning,
+                stacklevel=2,
             )
             ds = load_dataset(self.repo_id, config=self.config, split=self.split)
             if self.config:

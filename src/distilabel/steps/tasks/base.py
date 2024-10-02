@@ -117,6 +117,28 @@ class _Task(_Step, ABC):
         self._logger.debug("Executing task unload logic.")
         self.llm.unload()
 
+    @override
+    def impute_step_outputs(
+        self, step_output: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Imputes the outputs of the task in case the LLM failed to generate a response.
+        """
+        result = []
+        for row in step_output:
+            data = row.copy()
+            for output in self.outputs:
+                data[output] = None
+            data = self._maybe_add_raw_input_output(
+                data,
+                None,
+                None,
+                add_raw_output=self.add_raw_output,
+                add_raw_input=self.add_raw_input,
+            )
+            result.append(data)
+        return result
+
     @abstractmethod
     def format_output(
         self,
@@ -201,7 +223,7 @@ class _Task(_Step, ABC):
         if add_raw_output:
             meta[f"raw_output_{self.name}"] = raw_output
         if add_raw_input:
-            meta[f"raw_input_{self.name}"] = self.format_input(input)
+            meta[f"raw_input_{self.name}"] = self.format_input(input) if input else None
         if meta:
             output[DISTILABEL_METADATA_KEY] = meta
 
