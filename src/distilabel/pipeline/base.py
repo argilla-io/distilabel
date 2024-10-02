@@ -1148,14 +1148,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Returns:
             `True` if all the steps have been loaded correctly, `False` otherwise.
         """
+        assert self._batch_manager, "Batch manager is not set"
 
         steps_stages, _ = self.dag.get_steps_load_stages()
 
-        # TODO: explain this
         steps = [
             step
             for step in steps_stages[stage]
-            if step not in self._batch_manager._last_batch_flag_sent_to
+            if not self._batch_manager.step_has_finished(step)
         ]
 
         # Run the steps of the stage
@@ -1483,6 +1483,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             batch: The batch to register.
         """
+        assert self._batch_manager, "Batch manager is not set"
         self._batch_manager.register_batch(
             batch, steps_data_path=self._cache_location["steps_data"]
         )  # type: ignore

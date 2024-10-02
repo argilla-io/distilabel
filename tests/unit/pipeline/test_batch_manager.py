@@ -1471,6 +1471,41 @@ class TestBatchManager:
             "step2": [],
         }
 
+    def test_step_hash_finished(self) -> None:
+        batch_manager = _BatchManager(
+            steps={
+                "step1": _BatchManagerStep(
+                    step_name="step1",
+                    accumulate=False,
+                    input_batch_size=5,
+                    data={},
+                ),
+                "step2": _BatchManagerStep(
+                    step_name="step2",
+                    accumulate=False,
+                    input_batch_size=5,
+                    data={"step_1": []},
+                ),
+                "step3": _BatchManagerStep(
+                    step_name="step3",
+                    accumulate=False,
+                    input_batch_size=5,
+                    data={"step2": []},
+                ),
+            },
+            last_batch_received={
+                "step1": _Batch(seq_no=0, step_name="step1", last_batch=True),
+                "step2": None,
+                "step3": None,
+            },
+            last_batch_sent={"step1": None, "step2": None, "step3": None},
+            last_batch_flag_sent_to=["step2"],
+        )
+
+        assert batch_manager.step_has_finished("step1") is True
+        assert batch_manager.step_has_finished("step2") is False
+        assert batch_manager.step_has_finished("step1") is False
+
     def test_add_batch_with_prepend(self) -> None:
         batch_1 = _Batch(
             seq_no=1,

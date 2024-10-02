@@ -904,6 +904,21 @@ class _BatchManager(_Serializable):
         """
         self._steps[step_name].set_next_expected_seq_no(from_step, next_expected_seq_no)
 
+    def step_has_finished(self, step_name: str) -> bool:
+        """Indicates if the step has finished by checking if it sent a batch with `last_batch==True`
+        or it was sent the `LAST_BATCH_SENT_FLAG`.
+
+        Args:
+            step_name: the name of the step to be checked.
+
+        Returns:
+            `True` if step has finished generating batches, `False` otherwise.
+        """
+        return step_name in self._last_batch_flag_sent_to or (
+            self._last_batch_received[step_name] is not None
+            and self._last_batch_received[step_name].last_batch  # type: ignore
+        )
+
     @classmethod
     def from_dag(  # noqa: C901
         cls, dag: "DAG", use_cache: bool = False, steps_data_path: Optional[Path] = None
