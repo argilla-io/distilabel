@@ -823,10 +823,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 batch_manager_path=batch_manager_cache_loc,
                 steps_data_path=self._cache_location["steps_data"],
             )
-            self._invalidate_steps_cache_if_required()
+            # self._invalidate_steps_cache_if_required()
         # In this other case, the pipeline has been changed. We need to create a new batch
         # manager and if `use_cache==True` then check which outputs have we computed and
-        # cached for steps that haven't changed but that were executed in another pipeline
+        # cached for steps that haven't changed but that were executed in another pipeline,
+        # and therefore we can reuse
         else:
             self._batch_manager = _BatchManager.from_dag(
                 dag=self.dag,
@@ -1567,7 +1568,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        self._batch_manager.register_batch(batch)
+        self._batch_manager.register_batch(
+            batch, steps_data_path=self._cache_location["steps_data"]
+        )
         step: "Step" = self.dag.get_step(batch.step_name)[constants.STEP_ATTR_NAME]
         for successor in self.dag.get_step_successors(step.name):  # type: ignore
             self._batch_manager.add_batch(successor, batch)
