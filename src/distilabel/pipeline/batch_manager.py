@@ -946,7 +946,6 @@ class _BatchManager(_Serializable):
                 dag.get_step(step_name)[STEP_ATTR_NAME].use_cache
                 for step_name in predecessors
             )
-            print(step_name, f"{all_step_precessors_use_cache=}")
             if use_cache and step.use_cache and all_step_precessors_use_cache:
                 step_data_path = steps_data_path / batch_manager_step.signature
                 if step_data_path.exists():
@@ -983,10 +982,8 @@ class _BatchManager(_Serializable):
 
         # Load batches from previous steps in batch manager steps
         for step_name, batch_manager_step in steps.items():
-            # TODO: get step name predecessors and check if there is data in `load_batches`
             for predecessor in dag.get_step_predecessors(step_name):
                 if predecessor in load_batches:
-                    # TODO: take into account batch manager step offset
                     batch_manager_step.data[predecessor] = deepcopy(
                         load_batches[predecessor]
                     )

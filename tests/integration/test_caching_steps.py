@@ -359,7 +359,7 @@ def test_cache_with_offset() -> None:
         with mock.patch.object(pipeline_0, "_process_batch", _process_batch_wrapper):
             distiset_0 = pipeline_0.run(use_cache=False)
 
-        print(distiset_0["default"]["train"][-1])
+        assert len(distiset_0["default"]["train"]) == 12
 
         with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline_1:
             initial_batch_size = 8
@@ -391,12 +391,7 @@ def test_cache_with_offset() -> None:
 
         distiset_1 = pipeline_1.run()
 
-        print(distiset_1["default"]["train"][0])
-
-        # assert len(failed_distiset["default"]["train"]) == 24
-        # distiset = pipeline.run(use_cache=use_cache)
-        # # This is the dataset size that we should have after succeeding
-        # assert len(distiset["default"]["train"]) == 48
+    assert len(distiset_1["default"]["train"]) == 48
 
 
 def test_cached_steps() -> None:
