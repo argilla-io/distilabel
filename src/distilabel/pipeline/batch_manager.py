@@ -1125,8 +1125,6 @@ class _BatchManager(_Serializable):
             path: The path to the cache file.
         """
         _check_is_dir(batch_manager_path)
-        # TODO: This is unused yet
-        # steps_data_dir = Path(batch_manager_path).parent / "batch_manager_data"
         content = read_json(batch_manager_path)
 
         # Read each `_BatchManagerStep` from file
@@ -1146,7 +1144,6 @@ class _BatchManager(_Serializable):
                 read_json(batch) for batch in steps[step_name]["built_batches"]
             ]
 
-            # TODO: need to load the batch manager step
             step_offset = steps[step_name]["step_offset"]
             for successor_step_name, offset in step_offset.items():
                 batch_offset, batch_row_offset = offset
@@ -1171,19 +1168,14 @@ class _BatchManager(_Serializable):
                     batch = read_json(batch_file)
                     batch["data"][0] = batch["data"][0][batch_row_offset:]
 
-                    # if step_name == "step_c":
-                    # import pdb
-
-                    # pdb.set_trace()
-
                     batches.append(batch)
 
+                # sort batches by `seq_no` as it's a requirement for checking if ready to
+                # create next batch
+                batches.sort(key=lambda batch: batch["seq_no"])
                 steps[step_name]["data"][successor_step_name] = batches
 
         content["steps"] = steps
-        # import pdb
-
-        # pdb.set_trace()
         return cls.from_dict(content)
 
     def invalidate_cache_for(self, step_name: str, dag: "DAG") -> None:
