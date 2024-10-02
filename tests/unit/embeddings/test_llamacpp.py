@@ -25,8 +25,8 @@ class TestLlamaCppEmbeddings:
         """
         Test if the model name is correctly set.
         """
-        embeddings = LlamaCppEmbeddings(model_path=self.model_name)
-        assert embeddings.model_path == self.model_name
+        embeddings = LlamaCppEmbeddings(model_file=self.model_name)
+        assert embeddings.model_file == self.model_name
 
     def test_encode(self, local_llamacpp_model_path) -> None:
         """
@@ -35,7 +35,7 @@ class TestLlamaCppEmbeddings:
         Args:
             local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
+        embeddings = LlamaCppEmbeddings(model_file=local_llamacpp_model_path)
         inputs = [
             "Hello, how are you?",
             "What a nice day!",
@@ -54,7 +54,7 @@ class TestLlamaCppEmbeddings:
         Args:
             local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
+        embeddings = LlamaCppEmbeddings(model_file=local_llamacpp_model_path)
         inputs = [
             "Hello, how are you?",
             "What a nice day!",
@@ -73,7 +73,7 @@ class TestLlamaCppEmbeddings:
         """
         embeddings = LlamaCppEmbeddings(
             repo_id=self.repo_id,
-            model_path=self.model_name,
+            model_file=self.model_name,
             normalize_embeddings=True,
         )
         inputs = [
@@ -94,7 +94,7 @@ class TestLlamaCppEmbeddings:
         Test if embeddings are normalized when normalize_embeddings is True.
         """
         embeddings = LlamaCppEmbeddings(
-            model_path=local_llamacpp_model_path, normalize_embeddings=True
+            model_file=local_llamacpp_model_path, normalize_embeddings=True
         )
         embeddings.load()
 
@@ -118,7 +118,7 @@ class TestLlamaCppEmbeddings:
         Test if embeddings are not normalized when normalize_embeddings is False.
         """
         embeddings = LlamaCppEmbeddings(
-            model_path=local_llamacpp_model_path, normalize_embeddings=False
+            model_file=local_llamacpp_model_path, normalize_embeddings=False
         )
         embeddings.load()
 
@@ -150,7 +150,7 @@ class TestLlamaCppEmbeddings:
         Args:
             local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
+        embeddings = LlamaCppEmbeddings(model_file=local_llamacpp_model_path)
         embeddings.load()
 
         # Test with different batch sizes
@@ -181,7 +181,7 @@ class TestLlamaCppEmbeddings:
         Args:
             local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
+        embeddings = LlamaCppEmbeddings(model_file=local_llamacpp_model_path)
         embeddings.load()
 
         input_text = "This is a test sentence for consistency"
