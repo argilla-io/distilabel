@@ -24,7 +24,7 @@ from tests.unit.conftest import DummyAsyncLLM
 
 
 @pytest.fixture
-def fields():
+def fields() -> Dict[str, Any]:
     return [
         {
             "name": "text",
@@ -36,7 +36,7 @@ def fields():
 
 
 @pytest.fixture
-def questions():
+def questions() -> List[Dict[str, Any]]:
     return [
         {
             "name": "label_selection",
@@ -85,7 +85,7 @@ def questions():
 
 
 @pytest.fixture
-def outputs():
+def outputs() -> List[Dict[str, Any]]:
     return [
         {
             "label": "yes",
@@ -103,7 +103,7 @@ def outputs():
 
 
 @pytest.fixture
-def records():
+def records() -> List[Dict[str, Any]]:
     return [
         {
             "fields": {
