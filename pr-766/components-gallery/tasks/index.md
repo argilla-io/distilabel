@@ -85,6 +85,14 @@ hide:
 
     [:octicons-arrow-right-24: ChatGeneration](chatgeneration.md){ .bottom }
 
+-   :material-label:{ .lg .middle } __ArgillaLabeller__
+
+    ---
+
+    Annotate Argilla records based on input fields, example records and question settings.
+
+    [:octicons-arrow-right-24: ArgillaLabeller](argillalabeller.md){ .bottom }
+
 -   :material-label:{ .lg .middle } __TextClassification__
 
     ---
