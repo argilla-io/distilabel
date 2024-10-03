@@ -79,6 +79,7 @@ class ArgillaLabeller(Task):
 
         ```python
         import argilla as rg
+        from argilla import Suggestion
         from distilabel.steps.tasks import ArgillaLabeller
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
@@ -105,7 +106,7 @@ class ArgillaLabeller(Task):
         labeller = ArgillaLabeller(
             llm=InferenceEndpointsLLM(
                 model_id="mistralai/Mistral-7B-Instruct-v0.2",
-            )
+            ),
             fields=[field],
             question=question,
             example_records=example_records,
@@ -126,7 +127,7 @@ class ArgillaLabeller(Task):
 
         # Add the suggestions to the records
         for record, suggestion in zip(pending_records, result):
-            record.suggestions.add(suggestion["suggestion"])
+            record.suggestions.add(Suggestion(**suggestion["suggestion"]))
 
         # Log the updated records
         dataset.records.log(pending_records)
@@ -173,10 +174,11 @@ class ArgillaLabeller(Task):
         )
 
         # Add the suggestions to the record
-        record.suggestions.add(result[0]["suggestion"])
+        for suggestion in result:
+            record.suggestions.add(rg.Suggestion(**suggestion["suggestion"]))
 
         # Log the updated record
-        dataset.records.log(record)
+        dataset.records.log([record])
         ```
 
         Overwrite default prompts and instructions:
@@ -464,7 +466,13 @@ class ArgillaLabeller(Task):
             type="model",
             agent=self.llm.model_name,
         ).serialize()
-        return {self.outputs[0]: suggestion}
+        return {
+            self.outputs[0]: {
+                k: v
+                for k, v in suggestion.items()
+                if k in ["value", "question_name", "type", "agent"]
+            }
+        }
 
     def _set_llm_structured_output_for_question(self, question: Dict[str, Any]) -> None:
         runtime_parameters = self.llm._runtime_parameters
