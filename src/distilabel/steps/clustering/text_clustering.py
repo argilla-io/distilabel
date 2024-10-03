@@ -223,7 +223,6 @@ class TextClustering(TextClassification, GlobalTask):
             inputs: The inputs of the step, as we will extract information from them again.
             label2docs: Map from each label to the list of documents (texts) that belong to that cluster.
             cluster_summaries: The summaries of the clusters, obtained from the LLM.
-            labels: The labels of the clusters (integers representing each predicted class).
         """
         self._logger.info("🖼️ Creating figure for the clusters...")
 
