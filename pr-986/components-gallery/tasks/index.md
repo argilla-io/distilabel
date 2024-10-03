@@ -85,6 +85,14 @@ hide:
 
     [:octicons-arrow-right-24: ChatGeneration](chatgeneration.md){ .bottom }
 
+-   :material-label:{ .lg .middle } __ArgillaLabeller__
+
+    ---
+
+    Annotate Argilla records based on input fields, example records and question settings.
+
+    [:octicons-arrow-right-24: ArgillaLabeller](argillalabeller.md){ .bottom }
+
 -   :material-label:{ .lg .middle } __TextClassification__
 
     ---
@@ -212,14 +220,6 @@ hide:
     Task that clusters a set of texts and generates summary labels for each cluster.
 
     [:octicons-arrow-right-24: TextClustering](textclustering.md){ .bottom }
-
--   :material-check-outline:{ .lg .middle } __ArgillaLabeller__
-
-    ---
-
-    Base class for all tasks in ArgiLabel.
-
-    [:octicons-arrow-right-24: ArgillaLabeller](argillalabeller.md){ .bottom }
 
 -   :material-check-outline:{ .lg .middle } __GenerateTextRetrievalData__
 
