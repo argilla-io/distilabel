@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import Field, PrivateAttr
 
@@ -21,7 +21,7 @@ from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixi
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:
-    from llama_cpp import Llama as _LlamaCpp
+    from llama_cpp import Llama
 
 
 class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
@@ -43,20 +43,51 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         _model: the `Llama` model instance. This attribute is meant to be used internally
             and should not be accessed directly. It will be set in the `load` method.
 
+    Runtime parameters:
+        - `n_gpu_layers`: the number of layers to use for the GPU. Defaults to `-1`.
+        - `verbose`: whether to print verbose output. Defaults to `False`.
+        - `normalize_embeddings`: whether to normalize the embeddings. Defaults to `False`.
+        - `extra_kwargs`: additional dictionary of keyword arguments that will be passed to the
+            `Llama` class of `llama_cpp` library. Defaults to `{}`.
     References:
         - [Offline inference embeddings](https://llama-cpp-python.readthedocs.io/en/stable/#embeddings)
 
     Examples:
-        Generating sentence embeddings:
+        Generating sentence embeddings using a local model:
 
         ```python
+        from pathlib import Path
         from distilabel.embeddings import LlamaCppEmbeddings
 
-        embeddings = LlamaCppEmbeddings(model="/path/to/model.gguf")
+        # You can follow along this example downloading the following model running the following
+        # command in the terminal, that will download the model to the `Downloads` folder:
+        # curl -L -o ~/Downloads/All-MiniLM-L6-v2-Embedding-GGUF https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/blob/main/all-MiniLM-L6-v2-Q2_K.gguf
 
-        ## Hugging Face Hub
+        model_path = "Downloads/all-MiniLM-L6-v2-Q2_K.gguf"
+        embeddings = LlamaCppEmbeddings(model_path=str(Path.home() / model_path))
 
-        ## embeddings = LlamaCppEmbeddings(repo_id="second-state/All-MiniLM-L6-v2-Embedding-GGUF", model="all-MiniLM-L6-v2-Q2_K.gguf")
+        embeddings.load()
+
+        results = embeddings.encode(inputs=["distilabel is awesome!", "and Argilla!"])
+        # [
+        #   [-0.05447685346007347, -0.01623094454407692, ...],
+        #   [4.4889533455716446e-05, 0.044016145169734955, ...],
+        # ]
+        ```
+
+        Generating sentence embeddings using a Hugging Face Hub model:
+
+        ```python
+        from pathlib import Path
+        from distilabel.embeddings import LlamaCppEmbeddings
+
+        # You can follow along this example downloading the following model running the following
+        # command in the terminal, that will download the model to the `Downloads` folder:
+        # curl -L -o ~/Downloads/All-MiniLM-L6-v2-Embedding-GGUF https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/blob/main/all-MiniLM-L6-v2-Q2_K.gguf
+
+        repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
+        model_path = "all-MiniLM-L6-v2-Q5_K_M.gguf"
+        embeddings = LlamaCppEmbeddings(repo_id=repo_id,model_path=model_path)
 
         embeddings.load()
 
@@ -69,40 +100,44 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
     """
 
     model_path: str
-    repo_id: RuntimeParameter[Union[None, str]] = Field(
-        default=None,
-        description="The Hugging Face Hub repository id.",
+
+    repo_id: RuntimeParameter[str] = Field(
+        default=None, description="The Hugging Face Hub repository id.", exclude=True
     )
-    n_gpu_layers: int = 0
-    disable_cuda_device_placement: RuntimeParameter[bool] = Field(
-        default=True,
-        description="Whether to disable CUDA device placement.",
+
+    n_gpu_layers: RuntimeParameter[int] = Field(
+        default=0,
+        description="The number of layers that will be loaded in the GPU.",
+    )
+
+    n_ctx: int = 512
+    n_batch: int = 512
+    seed: int = 4294967295
+
+    normalize_embeddings: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to normalize the embeddings.",
     )
     verbose: RuntimeParameter[bool] = Field(
         default=False,
         description="Whether to print verbose output from llama.cpp library.",
     )
-    normalize_embeddings: RuntimeParameter[bool] = Field(
-        default=False,
-        description="Whether to normalize the embeddings.",
+    extra_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+        default_factory=dict,
+        description="Additional dictionary of keyword arguments that will be passed to the"
+        " `Llama` class of `llama_cpp` library. See all the supported arguments at: "
+        "https://llama-cpp-python.readthedocs.io/en/latest/api-reference/#llama_cpp.Llama.__init__",
     )
-    seed: int = 4294967295
-    n_ctx: int = 512
-    n_batch: int = 512
-    extra_kwargs: RuntimeParameter[Dict[str, Any]] = Field(
-        default={},
-        description="Additional dictionary of keyword arguments that will be passed to the `Llama` class of `llama_cpp` library.",
-    )
-    _model: Union["_LlamaCpp", None] = PrivateAttr(None)
+    _model: Optional["Llama"] = PrivateAttr(...)
 
     def load(self) -> None:
         """Loads the `gguf` model using either the path or the Hugging Face Hub repository id."""
         super().load()
-
+        self.disable_cuda_device_placement = True
         CudaDevicePlacementMixin.load(self)
 
         try:
-            from llama_cpp import Llama as _LlamaCpp
+            from llama_cpp import Llama
         except ImportError as ie:
             raise ImportError(
                 "`llama-cpp-python` package is not installed. Please install it using"
@@ -120,7 +155,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
                     "You can install it with `pip install huggingface-hub`."
                 ) from ie
             try:
-                self._model = _LlamaCpp.from_pretrained(
+                self._model = Llama.from_pretrained(
                     repo_id=self.repo_id,
                     filename=self.model_path,
                     n_gpu_layers=self.n_gpu_layers,
@@ -135,10 +170,10 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
                 raise
         else:
             try:
-                self._model = _LlamaCpp(
+                self._model = Llama(
                     model_path=self.model_path,
-                    seed=self.seed,
                     n_gpu_layers=self.n_gpu_layers,
+                    seed=self.seed,
                     n_ctx=self.n_ctx,
                     n_batch=self.n_batch,
                     verbose=self.verbose,

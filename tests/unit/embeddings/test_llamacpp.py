@@ -12,21 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
+
 import numpy as np
 
 from distilabel.embeddings import LlamaCppEmbeddings
 
 
 class TestLlamaCppEmbeddings:
-    model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
+    model_path = "Downloads/all-MiniLM-L6-v2-Q2_K.gguf"
     repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
+    hub_model = "all-MiniLM-L6-v2-Q5_K_M.gguf"
 
     def test_model_name(self) -> None:
         """
         Test if the model name is correctly set.
         """
-        embeddings = LlamaCppEmbeddings(model_path=self.model_name)
-        assert embeddings.model_path == self.model_name
+        embeddings = LlamaCppEmbeddings(model_path=str(Path.home() / self.model_path))
+        assert embeddings.model_name == str(Path.home() / self.model_path)
 
     def test_encode(self, local_llamacpp_model_path) -> None:
         """
@@ -73,8 +76,8 @@ class TestLlamaCppEmbeddings:
         """
         embeddings = LlamaCppEmbeddings(
             repo_id=self.repo_id,
-            model_path=self.model_name,
             normalize_embeddings=True,
+            model_path=self.hub_model,
         )
         inputs = [
             "Hello, how are you?",
