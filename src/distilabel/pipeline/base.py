@@ -879,7 +879,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         stages, _ = self.dag.get_steps_load_stages()
         msg = ""
         for stage, steps in enumerate(stages):
-            msg += f"\n * Stage {stage}: {steps}"
+            steps_to_be_loaded = self._steps_to_be_loaded_in_stage(stage)
+            msg += f"\n * Stage {stage}:"
+            for step in steps:
+                msg += f"\n   - '{step}'"
+                if step not in steps_to_be_loaded:
+                    msg += " (results cached, won't be loaded and executed)"
         self._logger.info(
             f"⌛ The steps of the pipeline will be loaded in stages:{msg}"
         )
@@ -1136,6 +1141,26 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         with self._steps_load_status_lock:
             return self._steps_load_status[step_name] >= 1
 
+    def _steps_to_be_loaded_in_stage(self, stage: int) -> List[str]:
+        """Returns the list of steps of the provided stage that should be loaded taking
+        into account if they have finished.
+
+        Args:
+            stage: the stage number
+
+        Returns:
+            A list containing the name of the steps that should be loaded in this stage.
+        """
+        assert self._batch_manager, "Batch manager is not set"
+
+        steps_stages, _ = self.dag.get_steps_load_stages()
+
+        return [
+            step
+            for step in steps_stages[stage]
+            if not self._batch_manager.step_has_finished(step)
+        ]
+
     def _run_stage_steps_and_wait(self, stage: int) -> bool:
         """Runs the steps of the specified stage and waits for them to be ready.
 
@@ -1147,13 +1172,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        steps_stages, _ = self.dag.get_steps_load_stages()
-
-        steps = [
-            step
-            for step in steps_stages[stage]
-            if not self._batch_manager.step_has_finished(step)
-        ]
+        steps = self._steps_to_be_loaded_in_stage(stage)
+        self._logger.debug(f"Steps to be loaded in stage {stage}: {steps}")
 
         # Run the steps of the stage
         self._run_steps(steps=steps)
