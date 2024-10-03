@@ -14,7 +14,7 @@
 
 
 from datetime import timedelta
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import lancedb
 from lancedb import DBConnection
@@ -24,7 +24,7 @@ from pydantic import Field, PrivateAttr
 from distilabel.knowledge_bases.base import KnowledgeBase
 
 
-class LanceDB(KnowledgeBase):
+class LanceDBKnowledgeBase(KnowledgeBase):
     uri: str = Field(..., description="The URI of the LanceDB database.")
     table_name: str = Field(..., description="The name of the table to use.")
     api_key: Optional[str] = Field(
@@ -53,7 +53,9 @@ class LanceDB(KnowledgeBase):
     def unload(self) -> None:
         self._db.close()
 
-    def query(self, query_vector: List[float], n_retrieved_documents: int) -> List[str]:
+    def query(
+        self, query_vector: List[float], n_retrieved_documents: int
+    ) -> List[Dict[str, Any]]:
         return self._tbl.search(query_vector).limit(n_retrieved_documents).to_list()
 
     @property

@@ -47,14 +47,14 @@ class VectorSearch(Step):
 
         ```python
         from distilabel.embeddings import SentenceTransformerEmbeddings
-        from distilabel.knowledge_bases.lancedb import LanceDB
+        from distilabel.knowledge_bases.lancedb import LanceDBKnowledgeBase
         from distilabel.steps.knowledge_bases.vector_search import VectorSearch
 
         embedding = SentenceTransformerEmbeddings(
             model="mixedbread-ai/mxbai-embed-large-v1",
         )
 
-        knowledge_base = LanceDB(
+        knowledge_base = LanceDBKnowledgeBase(
             uri="data/sample-lancedb",
             table_name="my_table",
         )
@@ -79,10 +79,10 @@ class VectorSearch(Step):
 
         ```python
         from distilabel.embeddings import SentenceTransformerEmbeddings
-        from distilabel.knowledge_bases.lancedb import LanceDB
+        from distilabel.knowledge_bases.lancedb import LanceDBKnowledgeBase
         from distilabel.steps.knowledge_bases.vector_search import VectorSearch
 
-        knowledge_base = LanceDB(
+        knowledge_base = LanceDBKnowledgeBase(
             uri="data/sample-lancedb",
             table_name="my_table",
         )

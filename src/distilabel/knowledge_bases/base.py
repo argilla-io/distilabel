@@ -14,7 +14,7 @@
 
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -45,7 +45,9 @@ class KnowledgeBase(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         pass
 
     @abstractmethod
-    def query(self, query_vector: List[float], n_retrieved_documents: int) -> List[str]:
+    def query(
+        self, query_vector: List[float], n_retrieved_documents: int
+    ) -> List[Dict[str, Any]]:
         pass
 
     @property
