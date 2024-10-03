@@ -222,13 +222,13 @@ class ArgillaLabeller(Task):
         RuntimeParameter[Union[List[Union[Dict[str, Any], BaseModel]], None]]
     ] = Field(
         default=None,
-        description="The few shot example records with responses to be used to answer the question.",
+        description="The few shot serialized example records or `BaseModel`s with responses to be used to answer the question.",
     )
     fields: Optional[
         RuntimeParameter[Union[List[Union[BaseModel, Dict[str, Any]]], None]]
     ] = Field(
         default=None,
-        description="The field settings for the fields to be used to answer the question.",
+        description="The field serialized field settings or `BaseModel` for the fields to be used to answer the question.",
     )
     question: Optional[
         RuntimeParameter[
@@ -240,7 +240,7 @@ class ArgillaLabeller(Task):
         ]
     ] = Field(
         default=None,
-        description="The question settings for the question to be answered.",
+        description="The question serialized question settings or `BaseModel` for the question to be answered.",
     )
     guidelines: Optional[RuntimeParameter[str]] = Field(
         default=None,
