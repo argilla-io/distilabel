@@ -142,34 +142,15 @@ class _BatchManagerStep(_Serializable):
 
         # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
         # list of data which is used to determine if the batch to be created is the last one.
-        # TODO: remove `_last_batch` method and integrate logic in `_get_data`
         last_batch = self._last_batch()
 
+        # Get the batch data and the information from which batches of the upstream steps
+        # the data was taken.
         data, created_from, batch_routed_to = self._get_data()
 
-        # TODO: Not used yet
-        # current_batch_size = len(data[0])
-
-        # Actualize the step offset:
-        # For the batch sequence number we only need to keep the last one, for the offset we get the size
-        # of the current batch, and from the previous batches it was created from, we compute the difference
-        # from the last of them.
-        for predecessor, seq_no_and_batch in created_from.items():
-            prev_last_batch_seq_no, prev_last_batch_offset = self.step_offset[
-                predecessor
-            ]
-            last_batch_seq_no, last_batch_size = seq_no_and_batch[-1]
-            batch_offset = (
-                prev_last_batch_offset + last_batch_size
-                if prev_last_batch_seq_no == last_batch_seq_no
-                else last_batch_size
-            )
-            last_batch_seq_no = (
-                last_batch_seq_no
-                if last_batch_seq_no > prev_last_batch_seq_no
-                else prev_last_batch_seq_no
-            )
-            self.step_offset[predecessor] = (last_batch_seq_no, batch_offset)
+        # Update the step offset i.e. which is the last batch and last row index from that
+        # batch that the step has consumed
+        self._update_offset(created_from)
 
         return _Batch(
             seq_no=seq_no,
@@ -596,6 +577,33 @@ class _BatchManagerStep(_Serializable):
 
         return self._last_batch_normal()
 
+    def _update_offset(self, created_from: Dict[str, List[Tuple[int, int]]]) -> None:
+        """Update the offset for the batch buffers of the upstream steps.
+
+        Args:
+            created_from: a dictionary containing the names of the steps and the batches
+                that were used to create the batch for this step. The key is the name of
+                one step and the value is a list of tuples in which the first value is the
+                seq no of the batch used and the second value is the number of rows from
+                that batch used.
+        """
+        for predecessor, seq_no_and_batch in created_from.items():
+            prev_last_batch_seq_no, prev_last_batch_offset = self.step_offset[
+                predecessor
+            ]
+            last_batch_seq_no, last_batch_size = seq_no_and_batch[-1]
+            batch_offset = (
+                prev_last_batch_offset + last_batch_size
+                if prev_last_batch_seq_no == last_batch_seq_no
+                else last_batch_size
+            )
+            last_batch_seq_no = (
+                last_batch_seq_no
+                if last_batch_seq_no > prev_last_batch_seq_no
+                else prev_last_batch_seq_no
+            )
+            self.step_offset[predecessor] = (last_batch_seq_no, batch_offset)
+
     def _last_batch_accumulate(self) -> bool:
         """Checks if the batch to be created is the last one for an step accumulating data.
         `True` if the last batch was received from all the predecessors.
@@ -776,12 +784,21 @@ class _BatchManager(_Serializable):
             self._last_batch_received[batch.step_name] = batch
 
         if steps_data_path:
-            step = self._steps[batch.step_name]
-            batch_manager_data_dir = Path(steps_data_path) / step.signature
-            batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
-            filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
-            if not filename.exists():
-                self.save(path=filename, format="json", dump=batch.dump())
+            self.write_batch_data(batch, steps_data_path)
+
+    def write_batch_data(self, batch: _Batch, steps_data_path: Path) -> None:
+        """Writes the batch to the steps data directory.
+
+        Argument:
+            batch: the batch to be written.
+            steps_data_path: the steps data base directory.
+        """
+        step = self._steps[batch.step_name]
+        batch_manager_data_dir = Path(steps_data_path) / step.signature
+        batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
+        filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
+        if not filename.exists():
+            self.save(path=filename, format="json", dump=batch.dump())
 
     def get_last_batch(self, step_name: str) -> Union[_Batch, None]:
         """Gets the last batch received from a step.
