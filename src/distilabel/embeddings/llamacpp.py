@@ -12,22 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import tempfile
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field, PrivateAttr
 
 from distilabel.embeddings.base import Embeddings
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
-from distilabel.mixins.hub_downloader import HuggingFaceModelLoaderMixin
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:
     from llama_cpp import Llama as _LlamaCpp
 
 
-class LlamaCppEmbeddings(
-    Embeddings, CudaDevicePlacementMixin, HuggingFaceModelLoaderMixin
-):
+class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
     """`LlamaCpp` library implementation for embedding generation.
 
     Attributes:
@@ -72,8 +71,16 @@ class LlamaCppEmbeddings(
         ```
     """
 
-    model_file: str
-    n_gpu_layers: RuntimeParameter[int] = Field(default=0, description="Numbe of gpu")
+    model_path: str
+    repo_id: RuntimeParameter[Union[None, str]] = Field(
+        default=None,
+        description="The Hugging Face Hub repository id.",
+    )
+    hf_token: RuntimeParameter[Union[None, str]] = Field(
+        default=None,
+        description="Hugging Face token for accessing gated models.",
+    )
+    n_gpu_layers: int = 0
     disable_cuda_device_placement: RuntimeParameter[bool] = Field(
         default=True,
         description="Whether to disable CUDA device placement.",
@@ -113,23 +120,72 @@ class LlamaCppEmbeddings(
                 " `pip install llama-cpp-python`."
             ) from ie
 
-        model_path = self.download_model()
-        try:
-            self._logger.info(f"Attempting to load model from: {self.model_file}")
-            self._model = _LlamaCpp(
-                model_path=model_path,
-                seed=self.seed,
-                n_gpu_layers=self.n_gpu_layers,
-                n_ctx=self.n_ctx,
-                n_batch=self.n_batch,
-                verbose=self.verbose,
-                embedding=True,
-                **self.extra_kwargs,
+        if self.repo_id is not None:
+            try:
+                from huggingface_hub import hf_hub_download
+                from huggingface_hub.utils import validate_repo_id
+            except ImportError as ie:
+                raise ImportError(
+                    "Llama.from_pretrained requires the huggingface-hub package. "
+                    "You can install it with `pip install huggingface-hub`."
+                ) from ie
+
+            validate_repo_id(self.repo_id)
+
+            # Determine the download directory
+            download_dir = os.environ.get("DISTILABEL_MODEL_DIR")
+            if download_dir is None:
+                download_dir = tempfile.gettempdir()
+
+            self._logger.info(
+                f"Attempting to download model from Hugging Face Hub: {self.repo_id}"
             )
-            self._logger.info("Model loaded successfully")
-        except Exception as e:
-            self._logger.error(f"Failed to load model: {str(e)}")
-            raise
+            try:
+                model_path = hf_hub_download(
+                    repo_id=self.repo_id,
+                    filename=self.model_path,
+                    token=self.hf_token,
+                    local_dir=download_dir,
+                )
+                self._logger.info(f"Model downloaded successfully to: {model_path}")
+            except Exception as e:
+                self._logger.error(
+                    f"Failed to download model from Hugging Face Hub: {str(e)}"
+                )
+                raise
+
+            try:
+                self._model = _LlamaCpp(
+                    model_path=model_path,
+                    n_gpu_layers=self.n_gpu_layers,
+                    seed=self.seed,
+                    n_ctx=self.n_ctx,
+                    n_batch=self.n_batch,
+                    verbose=self.verbose,
+                    embedding=True,
+                    **self.extra_kwargs,
+                )
+                self._logger.info("Model loaded successfully")
+            except Exception as e:
+                self._logger.error(f"Failed to load model: {str(e)}")
+                raise
+        else:
+            try:
+                self._logger.info(f"Attempting to load model from: {self.model_path}")
+                self._model = _LlamaCpp(
+                    model_path=self.model_path,
+                    seed=self.seed,
+                    n_gpu_layers=self.n_gpu_layers,
+                    n_ctx=self.n_ctx,
+                    n_batch=self.n_batch,
+                    verbose=self.verbose,
+                    embedding=True,
+                    **self.extra_kwargs,
+                )
+                self._logger.info("Model loaded successfully")
+            except Exception as e:
+                self._logger.error(f"Failed to load model: {str(e)}")
+                raise
 
     def unload(self) -> None:
         """Unloads the `gguf` model."""
@@ -139,7 +195,7 @@ class LlamaCppEmbeddings(
     @property
     def model_name(self) -> str:
         """Returns the name of the model."""
-        return self.model_file
+        return self.model_path
 
     def encode(self, inputs: List[str]) -> List[List[Union[int, float]]]:
         """Generates embeddings for the provided inputs.
