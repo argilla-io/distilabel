@@ -36,7 +36,6 @@ if TYPE_CHECKING:
         MultiLabelQuestion,
         RatingQuestion,
         Record,
-        Suggestion,
         TextField,
         TextQuestion,
     )
@@ -214,19 +213,19 @@ class ArgillaLabeller(Task):
         "4. Provide a valid JSON object as an answer to the question."
     )
     question_to_label_instruction: Dict[str, str] = {
-        "label": "Select the appropriate label from the list of provided labels.",
-        "multi_label": "Select none, one or multiple labels from the list of provided labels.",
+        "label_selection": "Select the appropriate label from the list of provided labels.",
+        "multi_label_selection": "Select none, one or multiple labels from the list of provided labels.",
         "text": "Provide a text response to the question.",
         "rating": "Provide a rating for the question.",
     }
     example_records: Optional[
-        RuntimeParameter[Union[List[Union[Dict[str, Any], "Record"]], None]]
+        RuntimeParameter[Union[List[Union[Dict[str, Any], BaseModel]], None]]
     ] = Field(
         default=None,
         description="The few shot example records with responses to be used to answer the question.",
     )
     fields: Optional[
-        RuntimeParameter[Union[List[Union["TextField", Dict[str, Any]]], None]]
+        RuntimeParameter[Union[List[Union[BaseModel, Dict[str, Any]]], None]]
     ] = Field(
         default=None,
         description="The field settings for the fields to be used to answer the question.",
@@ -235,10 +234,7 @@ class ArgillaLabeller(Task):
         RuntimeParameter[
             Union[
                 Dict[str, Any],
-                "LabelQuestion",
-                "MultiLabelQuestion",
-                "RatingQuestion",
-                "TextQuestion",
+                BaseModel,
                 None,
             ]
         ]
@@ -389,11 +385,12 @@ class ArgillaLabeller(Task):
         Returns:
             ChatType: The formatted chat message.
         """
-        record = input[self.inputs[0]]
-        fields = input.get(self.inputs[1], self.fields)
-        question = input.get(self.inputs[2], self.question)
-        examples = input.get(self.inputs[3], self.example_records)
-        guidelines = input.get(self.inputs[4], self.guidelines)
+        input_keys = list(self.inputs.keys())
+        record = input[input_keys[0]]
+        fields = input.get(input_keys[1], self.fields)
+        question = input.get(input_keys[2], self.question)
+        examples = input.get(input_keys[3], self.example_records)
+        guidelines = input.get(input_keys[4], self.guidelines)
 
         if any([fields is None, question is None]):
             raise ValueError(
@@ -451,6 +448,8 @@ class ArgillaLabeller(Task):
         Returns:
             Dict[str, Any]: The formatted output.
         """
+        from argilla import Suggestion
+
         question: Union[
             Any,
             Dict[str, Any],
@@ -459,7 +458,7 @@ class ArgillaLabeller(Task):
             RatingQuestion,
             TextQuestion,
             None,
-        ] = input.get("question", self.question) or self.question
+        ] = input.get(list(self.inputs.keys())[2], self.question) or self.question
         question = question.serialize() if not isinstance(question, dict) else question
         model = self._get_pydantic_model_of_structured_output(question)
         validated_output = model(**json.loads(output))
