@@ -4735,33 +4735,33 @@ to train a model, to perform a global aggregation, etc.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/base.py</code></summary>
-                <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-783">783</a></span>
-<span class="normal"><a href="#__codelineno-0-784">784</a></span>
-<span class="normal"><a href="#__codelineno-0-785">785</a></span>
-<span class="normal"><a href="#__codelineno-0-786">786</a></span>
-<span class="normal"><a href="#__codelineno-0-787">787</a></span>
-<span class="normal"><a href="#__codelineno-0-788">788</a></span>
-<span class="normal"><a href="#__codelineno-0-789">789</a></span>
-<span class="normal"><a href="#__codelineno-0-790">790</a></span>
-<span class="normal"><a href="#__codelineno-0-791">791</a></span>
-<span class="normal"><a href="#__codelineno-0-792">792</a></span>
-<span class="normal"><a href="#__codelineno-0-793">793</a></span>
-<span class="normal"><a href="#__codelineno-0-794">794</a></span>
-<span class="normal"><a href="#__codelineno-0-795">795</a></span>
-<span class="normal"><a href="#__codelineno-0-796">796</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-783"><a id="__codelineno-0-783" name="__codelineno-0-783"></a><span class="k">class</span> <span class="nc">GlobalStep</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
-</span><span id="__span-0-784"><a id="__codelineno-0-784" name="__codelineno-0-784"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A special kind of `Step` which it&#39;s `process` method receives all the data processed</span>
-</span><span id="__span-0-785"><a id="__codelineno-0-785" name="__codelineno-0-785"></a><span class="sd">    by their previous steps at once, instead of receiving it in batches. This kind of steps</span>
-</span><span id="__span-0-786"><a id="__codelineno-0-786" name="__codelineno-0-786"></a><span class="sd">    are useful when the processing logic requires to have all the data at once, for example</span>
-</span><span id="__span-0-787"><a id="__codelineno-0-787" name="__codelineno-0-787"></a><span class="sd">    to train a model, to perform a global aggregation, etc.</span>
-</span><span id="__span-0-788"><a id="__codelineno-0-788" name="__codelineno-0-788"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-789"><a id="__codelineno-0-789" name="__codelineno-0-789"></a>
-</span><span id="__span-0-790"><a id="__codelineno-0-790" name="__codelineno-0-790"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-791"><a id="__codelineno-0-791" name="__codelineno-0-791"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
-</span><span id="__span-0-792"><a id="__codelineno-0-792" name="__codelineno-0-792"></a>        <span class="k">return</span> <span class="p">[]</span>
-</span><span id="__span-0-793"><a id="__codelineno-0-793" name="__codelineno-0-793"></a>
-</span><span id="__span-0-794"><a id="__codelineno-0-794" name="__codelineno-0-794"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-795"><a id="__codelineno-0-795" name="__codelineno-0-795"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
-</span><span id="__span-0-796"><a id="__codelineno-0-796" name="__codelineno-0-796"></a>        <span class="k">return</span> <span class="p">[]</span>
+                <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-797">797</a></span>
+<span class="normal"><a href="#__codelineno-0-798">798</a></span>
+<span class="normal"><a href="#__codelineno-0-799">799</a></span>
+<span class="normal"><a href="#__codelineno-0-800">800</a></span>
+<span class="normal"><a href="#__codelineno-0-801">801</a></span>
+<span class="normal"><a href="#__codelineno-0-802">802</a></span>
+<span class="normal"><a href="#__codelineno-0-803">803</a></span>
+<span class="normal"><a href="#__codelineno-0-804">804</a></span>
+<span class="normal"><a href="#__codelineno-0-805">805</a></span>
+<span class="normal"><a href="#__codelineno-0-806">806</a></span>
+<span class="normal"><a href="#__codelineno-0-807">807</a></span>
+<span class="normal"><a href="#__codelineno-0-808">808</a></span>
+<span class="normal"><a href="#__codelineno-0-809">809</a></span>
+<span class="normal"><a href="#__codelineno-0-810">810</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-797"><a id="__codelineno-0-797" name="__codelineno-0-797"></a><span class="k">class</span> <span class="nc">GlobalStep</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+</span><span id="__span-0-798"><a id="__codelineno-0-798" name="__codelineno-0-798"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A special kind of `Step` which it&#39;s `process` method receives all the data processed</span>
+</span><span id="__span-0-799"><a id="__codelineno-0-799" name="__codelineno-0-799"></a><span class="sd">    by their previous steps at once, instead of receiving it in batches. This kind of steps</span>
+</span><span id="__span-0-800"><a id="__codelineno-0-800" name="__codelineno-0-800"></a><span class="sd">    are useful when the processing logic requires to have all the data at once, for example</span>
+</span><span id="__span-0-801"><a id="__codelineno-0-801" name="__codelineno-0-801"></a><span class="sd">    to train a model, to perform a global aggregation, etc.</span>
+</span><span id="__span-0-802"><a id="__codelineno-0-802" name="__codelineno-0-802"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-803"><a id="__codelineno-0-803" name="__codelineno-0-803"></a>
+</span><span id="__span-0-804"><a id="__codelineno-0-804" name="__codelineno-0-804"></a>    <span class="nd">@property</span>
+</span><span id="__span-0-805"><a id="__codelineno-0-805" name="__codelineno-0-805"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
+</span><span id="__span-0-806"><a id="__codelineno-0-806" name="__codelineno-0-806"></a>        <span class="k">return</span> <span class="p">[]</span>
+</span><span id="__span-0-807"><a id="__codelineno-0-807" name="__codelineno-0-807"></a>
+</span><span id="__span-0-808"><a id="__codelineno-0-808" name="__codelineno-0-808"></a>    <span class="nd">@property</span>
+</span><span id="__span-0-809"><a id="__codelineno-0-809" name="__codelineno-0-809"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
+</span><span id="__span-0-810"><a id="__codelineno-0-810" name="__codelineno-0-810"></a>        <span class="k">return</span> <span class="p">[]</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 
