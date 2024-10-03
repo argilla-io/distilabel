@@ -392,11 +392,6 @@ class ArgillaLabeller(Task):
         examples = input.get(input_keys[3], self.example_records)
         guidelines = input.get(input_keys[4], self.guidelines)
 
-        if any([fields is None, question is None]):
-            raise ValueError(
-                "Fields and question must be provided during init or through `process` method."
-            )
-
         record = record.to_dict() if not isinstance(record, dict) else record
         question = question.serialize() if not isinstance(question, dict) else question
         fields = [
@@ -493,7 +488,19 @@ class ArgillaLabeller(Task):
         Returns:
             StepOutput: The output of the task.
         """
+
         questions = [input.get("question", self.question) for input in inputs]
+        fields = [input.get("fields", self.fields) for input in inputs]
+        # check if any field for the field in fields is None
+        if any([item is None for item in field] for field in fields):
+            raise ValueError(
+                "Fields must be provided during init or through `process` method."
+            )
+        # check if any question is None
+        if any(question is None for question in questions):
+            raise ValueError(
+                "Question must be provided during init or through `process` method."
+            )
         questions = [
             question.serialize() if not isinstance(question, dict) else question
             for question in questions
