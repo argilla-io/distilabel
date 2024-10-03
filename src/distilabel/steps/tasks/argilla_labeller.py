@@ -220,7 +220,7 @@ class ArgillaLabeller(Task):
         "rating": "Provide a rating for the question.",
     }
     example_records: Optional[
-        RuntimeParameter[Union[List[Union[Dict[str, Any], Record]], None]]
+        RuntimeParameter[Union[List[Union[Dict[str, Any], "Record"]], None]]
     ] = Field(
         default=None,
         description="The few shot example records with responses to be used to answer the question.",
