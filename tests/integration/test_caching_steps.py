@@ -105,18 +105,19 @@ def test_cache() -> None:
 
             step_generator >> step_a >> step_b >> step_c
 
-    distiset_0 = pipeline.run()
-    distiset_1 = pipeline.run()
-    assert (
-        distiset_0["default"]["train"].to_list()
-        == distiset_1["default"]["train"].to_list()
-    )
+        distiset_0 = pipeline.run()
+        distiset_1 = pipeline.run()
+        assert (
+            distiset_0["default"]["train"].to_list()
+            == distiset_1["default"]["train"].to_list()
+        )
 
-    distiset_2 = pipeline.run(use_cache=False)
-    assert (
-        distiset_0["default"]["train"].to_list()
-        != distiset_2["default"]["train"].to_list()
-    )
+        distiset_2 = pipeline.run(use_cache=False)
+        assert len(distiset_2["default"]["train"]) == 48
+        assert (
+            distiset_0["default"]["train"].to_list()
+            != distiset_2["default"]["train"].to_list()
+        )
 
 
 def test_cache_with_step_cache_false() -> None:

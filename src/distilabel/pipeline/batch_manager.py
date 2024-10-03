@@ -73,7 +73,6 @@ class _BatchManagerStep(_Serializable):
             batches. Only used if `convergence_step=True`. Defaults to `0`.
         step_signature: The signature that defines a given `Step`. It will be used for the
             caching mechanism.
-        cached_data_dir: Optional path pointing to where the cached batches are stored.
         use_cache: Flag from the original `Step` to indicate whether this step should make use of
             the cached data.
         step_offset: Dictionary with each key the predecessor/s step/s and as value a dict
@@ -96,7 +95,6 @@ class _BatchManagerStep(_Serializable):
     next_expected_created_from_batch_seq_no: int = 0
     next_expected_seq_no: Dict[str, Tuple[int, int]] = field(default_factory=dict)
     step_signature: Optional[str] = None
-    cached_data_dir: Optional[str] = None
     use_cache: bool = False
     step_offset: Dict[str, Tuple[int, int]] = field(default_factory=dict)
 
@@ -697,7 +695,6 @@ class _BatchManagerStep(_Serializable):
             "next_expected_created_from_batch_seq_no": self.next_expected_created_from_batch_seq_no,
             "next_expected_seq_no": self.next_expected_seq_no,
             "step_signature": self.step_signature,
-            "cached_data_dir": self.cached_data_dir,
             "use_cache": self.use_cache,
             "step_offset": self.step_offset,
         }
@@ -725,7 +722,6 @@ class _BatchManager(_Serializable):
         last_batch_received: Dict[str, Union[_Batch, None]],
         last_batch_sent: Dict[str, Union[_Batch, None]],
         last_batch_flag_sent_to: List[str],
-        data_directories: Optional[Dict[str, str]] = None,
     ) -> None:
         """Initialize the `_BatchManager` instance.
 
@@ -738,15 +734,12 @@ class _BatchManager(_Serializable):
                 `_Batch` sent to the step.
             last_batch_flag_sent_to: A list with the names of the steps to which `LAST_BATCH_SENT_FLAG`
                 was sent.
-            data_directories: Dictionary to keep track of the step and the directory with the
-                corresponding cached data.
         """
 
         self._steps = steps
         self._last_batch_received = last_batch_received
         self._last_batch_sent = last_batch_sent
         self._last_batch_flag_sent_to = last_batch_flag_sent_to
-        self._data_directories = data_directories
 
     def can_generate(self) -> bool:
         """Checks if there are still batches to be processed by the steps.
@@ -1046,23 +1039,6 @@ class _BatchManager(_Serializable):
             "last_batch_flag_sent_to": self._last_batch_flag_sent_to,
         }
 
-    def get_data_directories(self, steps_data_path: Path) -> Dict[str, str]:
-        """Helper function to generate the cached_data_dir for each `_BatchManagerStep`.
-
-        Args:
-            steps_data_path: The path where the outputs of each `Step` (considering its
-                signature) will be saved for later reuse in another pipelines executions.
-
-        Returns:
-            Dictionary with the name of the step and the path where the batches
-            are being saved.
-        """
-        batch_manager_data_dirs = {}
-        for step_name, step in self._steps.items():
-            batch_manager_data_dirs[step_name] = str(steps_data_path / step.signature)
-
-        return batch_manager_data_dirs
-
     def cache(self, path: Path, steps_data_path: Path) -> None:  # noqa: C901
         """Cache the `_BatchManager` to a file.
 
@@ -1096,11 +1072,6 @@ class _BatchManager(_Serializable):
                 file.unlink()
 
         path = Path(path)
-
-        # Set the data directories in the `_BatchManagerSteps` before dumping them
-        data_directories = self.get_data_directories(steps_data_path)
-        for step_name, data_dir in data_directories.items():
-            self._steps[step_name].cached_data_dir = data_dir
 
         # Do not include `_Batch` data so `dump` is fast
         dump = self.dump(include_batch_data=False)
@@ -1141,7 +1112,6 @@ class _BatchManager(_Serializable):
             batch_manager_step_files[step_name] = batch_manager_step_file
 
         dump["steps"] = batch_manager_step_files
-        dump["data_directories"] = data_directories
         self.save(path=path, format="json", dump=dump)
 
     @classmethod
@@ -1210,7 +1180,9 @@ class _BatchManager(_Serializable):
         content["steps"] = steps
         return cls.from_dict(content)
 
-    def invalidate_cache_for(self, step_name: str, dag: "DAG") -> None:
+    def invalidate_cache_for(
+        self, step_name: str, dag: "DAG", steps_data_path: Path
+    ) -> None:
         """Invalidate the step that changed and dependent ones.
 
         Once we have loaded the `_BatchManager` from cache in the pipeline,
@@ -1241,9 +1213,13 @@ class _BatchManager(_Serializable):
 
         # Loop on the predecessors to load their batches
         for predecessor in dag.get_step_predecessors(step_name):
-            cached_data_dir = Path(self._steps[predecessor].cached_data_dir)
+            step_predecessor = dag.get_step(predecessor)[STEP_ATTR_NAME]
+            predecessor_step_data_path = (
+                steps_data_path
+                / f"{step_predecessor.name}_{step_predecessor.signature}"
+            )
             batch_files = list_files_in_dir(
-                cached_data_dir, key=lambda x: int(x.stem.split("_")[-1])
+                predecessor_step_data_path, key=lambda x: int(x.stem.split("_")[-1])
             )
             for file in batch_files:
                 batch = _Batch.from_file(file)

@@ -845,7 +845,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
             step: "_Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
             if not step.use_cache:
-                self._batch_manager.invalidate_cache_for(step.name, self.dag)  # type: ignore
+                self._batch_manager.invalidate_cache_for(
+                    step_name=step.name,
+                    dag=self.dag,
+                    steps_data_path=self._cache_location["steps_data"],
+                )  # type: ignore
                 self._logger.info(
                     f"♻️ Step '{step.name}' won't use cache (`use_cache=False`). The cache of this step and their successors won't be"
                     " reused and the results will have to be recomputed."
@@ -856,6 +860,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """Setups the `_WriteBuffer` that will store the data of the leaf steps of the
         pipeline while running, so the `Distiset` can be created at the end.
         """
+        # TODO: if `use_cache=False` we should not use previous parquet files
         buffer_data_path = self._cache_location["data"] / constants.STEPS_OUTPUTS_PATH
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(
