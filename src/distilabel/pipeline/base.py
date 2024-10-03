@@ -823,7 +823,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 batch_manager_path=batch_manager_cache_loc,
                 steps_data_path=self._cache_location["steps_data"],
             )
-            # self._invalidate_steps_cache_if_required()
+            self._invalidate_steps_cache_if_required()
         # In this other case, the pipeline has been changed. We need to create a new batch
         # manager and if `use_cache==True` then check which outputs have we computed and
         # cached for steps that haven't changed but that were executed in another pipeline,
@@ -844,18 +844,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 continue
 
             step: "_Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
-            batch_manager_step = self._batch_manager._steps[step_name]  # type: ignore
-            step_signature_changed = step.signature != batch_manager_step.step_signature
-            if step_signature_changed or not step.use_cache:
+            if not step.use_cache:
                 self._batch_manager.invalidate_cache_for(step.name, self.dag)  # type: ignore
-                if step_signature_changed:
-                    prefix_msg = f"Step '{step.name}' has changed."
-                else:
-                    prefix_msg = (
-                        f"Step '{step.name}' won't use cache (`use_cache=False`)."
-                    )
                 self._logger.info(
-                    f"♻️ {prefix_msg} The cache of this step and their successors won't be"
+                    f"♻️ Step '{step.name}' won't use cache (`use_cache=False`). The cache of this step and their successors won't be"
                     " reused and the results will have to be recomputed."
                 )
                 break
