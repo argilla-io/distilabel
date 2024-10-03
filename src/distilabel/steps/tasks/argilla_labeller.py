@@ -58,7 +58,7 @@ class ArgillaLabeller(Task):
         _template: a Jinja2 template used to format the input for the LLM.
 
     Input columns:
-        - record (`Record`): The record to be annotated.
+        - record (`argilla.Record`): The record to be annotated.
         - fields (`Optional[List[Dict[str, Any]]]`): The list of field settings for the input fields.
         - question (`Optional[Dict[str, Any]]`): The question settings for the question to be answered.
         - example_records (`Optional[List[Dict[str, Any]]]`): The few shot example records with responses to be used to answer the question.
