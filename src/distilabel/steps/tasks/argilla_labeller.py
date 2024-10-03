@@ -489,32 +489,33 @@ class ArgillaLabeller(Task):
             StepOutput: The output of the task.
         """
 
-        questions = [input.get("question", self.question) for input in inputs]
-        fields = [input.get("fields", self.fields) for input in inputs]
+        question_list = [input.get("question", self.question) for input in inputs]
+        fields_list = [input.get("fields", self.fields) for input in inputs]
         # check if any field for the field in fields is None
-        if any([item is None for item in field] for field in fields):
-            raise ValueError(
-                "Fields must be provided during init or through `process` method."
-            )
+        for fields in fields_list:
+            if any(field is None for field in fields):
+                raise ValueError(
+                    "Fields must be provided during init or through `process` method."
+                )
         # check if any question is None
-        if any(question is None for question in questions):
+        if any(question is None for question in question_list):
             raise ValueError(
                 "Question must be provided during init or through `process` method."
             )
-        questions = [
+        question_list = [
             question.serialize() if not isinstance(question, dict) else question
-            for question in questions
+            for question in question_list
         ]
-        if not all(question == questions[0] for question in questions):
+        if not all(question == question_list[0] for question in question_list):
             warnings.warn(
                 "Not all questions are the same. Processing each question separately by setting the structured output for each question. This may impact performance.",
                 stacklevel=2,
             )
-            for input, question in zip(inputs, questions):
+            for input, question in zip(inputs, question_list):
                 self._set_llm_structured_output_for_question(question)
                 yield from super().process([input])
         else:
-            question = questions[0]
+            question = question_list[0]
             self._set_llm_structured_output_for_question(question)
             yield from super().process(inputs)
 
