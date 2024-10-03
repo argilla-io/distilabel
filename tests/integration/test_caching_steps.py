@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 
 class DummyStep(Step):
+    attr: int = 5
     do_fail: bool = False
     _ctr: int = PrivateAttr(default=0)
 
@@ -59,10 +60,13 @@ class DummyStep2(DummyStep):
     def process(
         self, *inputs: StepInput
     ) -> Generator[List[Dict[str, Any]], None, None]:
-        for input in inputs[0]:
-            input["response"] = f"I don't know - {self.ctr}"
-            self.ctr += 1
-        yield inputs[0]
+        outputs = []
+        for input_a, input_b in zip(*inputs):
+            output = {**input_a, **input_b}
+            output["response"] = f"I don't know - {self._ctr}"
+            self._ctr += 1
+            outputs.append(output)
+        yield outputs
 
 
 class OtherDummyStep(DummyStep):
@@ -141,7 +145,80 @@ def test_cache_with_step_cache_false() -> None:
             step_generator >> step_a >> step_b
 
         distiset_0 = pipeline.run()
-        distiset_1 = pipeline.run()
+
+        with mock.patch.object(
+            pipeline, "_run_step", wraps=pipeline._run_step
+        ) as run_step_spy:
+            distiset_1 = pipeline.run()
+
+        # check that only `step_b` has been executed
+        assert run_step_spy.call_count == 1
+
+        assert (
+            distiset_0["default"]["train"].to_list()
+            != distiset_1["default"]["train"].to_list()
+        )
+
+
+def test_cache_with_step_changing() -> None:
+    with TemporaryDirectory() as tmp_dir:
+        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
+            initial_batch_size = 8
+            step_generator = LoadDataFromDicts(
+                data=[{"instruction": "some text"}] * initial_batch_size * 6,
+                batch_size=initial_batch_size,
+            )
+
+            step_a = DummyStep(
+                name="step_a",
+                input_batch_size=4,
+                use_cache=True,
+            )
+            step_b = DummyStep(
+                name="step_b",
+                input_batch_size=10,
+                input_mappings={"instruction": "response"},
+                output_mappings={"response": "response_1"},
+                do_fail=False,
+                use_cache=True,
+            )
+
+            step_generator >> step_a >> step_b
+
+        distiset_0 = pipeline.run()
+
+        with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
+            initial_batch_size = 8
+            step_generator = LoadDataFromDicts(
+                data=[{"instruction": "some text"}] * initial_batch_size * 6,
+                batch_size=initial_batch_size,
+            )
+
+            step_a = DummyStep(
+                name="step_a",
+                input_batch_size=4,
+                use_cache=True,
+            )
+            step_b = DummyStep(
+                name="step_b",
+                attr=103401234,  # change attribute so step is not the same
+                input_batch_size=10,
+                input_mappings={"instruction": "response"},
+                output_mappings={"response": "response_1"},
+                do_fail=False,
+                use_cache=True,
+            )
+
+            step_generator >> step_a >> step_b
+
+        with mock.patch.object(
+            pipeline, "_run_step", wraps=pipeline._run_step
+        ) as run_step_spy:
+            distiset_1 = pipeline.run()
+
+        # check that only `step_b` has been executed
+        assert run_step_spy.call_count == 1
+
         assert (
             distiset_0["default"]["train"].to_list()
             != distiset_1["default"]["train"].to_list()
@@ -181,7 +258,15 @@ def test_cache_with_intermediate_step_cache_false() -> None:
             step_generator >> step_a >> step_b >> step_c
 
         distiset_0 = pipeline.run()
-        distiset_1 = pipeline.run()
+
+        with mock.patch.object(
+            pipeline, "_run_step", wraps=pipeline._run_step
+        ) as run_step_spy:
+            distiset_1 = pipeline.run()
+
+        # check that only `step_b` and `step_c` has been executed
+        assert run_step_spy.call_count == 2
+
         assert (
             distiset_0["default"]["train"].to_list()
             != distiset_1["default"]["train"].to_list()
@@ -245,7 +330,13 @@ def test_cache_adding_step() -> None:
 
             step_generator >> step_a >> step_b >> step_c
 
-        distiset_1 = pipeline.run()
+        with mock.patch.object(
+            pipeline, "_run_step", wraps=pipeline._run_step
+        ) as run_step_spy:
+            distiset_1 = pipeline.run()
+
+        # check that only `step_c` has been executed
+        assert run_step_spy.call_count == 1
 
         dict_0 = distiset_0["default"]["train"].to_dict()
         dict_1 = distiset_1["default"]["train"].to_dict()
@@ -265,12 +356,13 @@ def test_cache_adding_step_with_multiple_predecessor() -> None:
             step_a = DummyStep(
                 name="step_a",
                 input_batch_size=4,
+                output_mappings={"response": "response_1"},
                 use_cache=True,
             )
             step_b = DummyStep(
                 name="step_b",
                 input_batch_size=10,
-                output_mappings={"response": "response_1"},
+                output_mappings={"response": "response_2"},
                 do_fail=False,
                 use_cache=True,
             )
@@ -278,7 +370,6 @@ def test_cache_adding_step_with_multiple_predecessor() -> None:
             step_generator >> [step_a, step_b]
 
         distiset_0 = pipeline.run()
-        print(distiset_0)
 
         with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
             initial_batch_size = 8
@@ -290,27 +381,40 @@ def test_cache_adding_step_with_multiple_predecessor() -> None:
             step_a = DummyStep(
                 name="step_a",
                 input_batch_size=4,
+                output_mappings={"response": "response_1"},
                 use_cache=True,
             )
             step_b = DummyStep(
                 name="step_b",
                 input_batch_size=10,
-                output_mappings={"response": "response_1"},
+                output_mappings={"response": "response_2"},
                 do_fail=False,
                 use_cache=True,
             )
             step_c = DummyStep2(
                 name="step_c",
                 input_batch_size=12,
-                input_mappings={"instruction": "response"},
-                output_mappings={"response": "response_2"},
+                output_mappings={"response": "response_3"},
                 use_cache=True,
             )
 
             step_generator >> [step_a, step_b] >> step_c
 
-        distiset_1 = pipeline.run()
-        print(distiset_1)
+        with mock.patch.object(
+            pipeline, "_run_step", wraps=pipeline._run_step
+        ) as run_step_spy:
+            distiset_1 = pipeline.run()
+
+        # check that only `step_c` has been executed
+        assert run_step_spy.call_count == 1
+
+        for row_1, row_0_a, row_0_b in zip(
+            distiset_1["default"]["train"],
+            distiset_0["step_a"]["train"],
+            distiset_0["step_b"]["train"],
+        ):
+            assert row_1["response_1"] == row_0_a["response_1"]
+            assert row_1["response_2"] == row_0_b["response_2"]
 
 
 def test_cache_with_offset() -> None:
@@ -392,258 +496,3 @@ def test_cache_with_offset() -> None:
         distiset_1 = pipeline_1.run()
 
     assert len(distiset_1["default"]["train"]) == 48
-
-
-def test_cached_steps() -> None:
-    use_cache_per_step = True
-    with TemporaryDirectory() as tmp_dir:
-        from pathlib import Path
-
-        tmp_dir = Path.home() / "Downloads/test_pipeline_caching"
-
-        def run_pipeline(do_fail: bool = False, use_cache: bool = True):
-            with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
-                initial_batch_size = 8
-                step_generator = LoadDataFromDicts(
-                    data=[{"instruction": "some text"}] * initial_batch_size * 6,
-                    batch_size=initial_batch_size,
-                )
-
-                step_a = DummyStep(
-                    name="step_a", input_batch_size=4, use_cache=use_cache_per_step
-                )
-                step_b = DummyStep(
-                    name="step_b",
-                    input_batch_size=10,
-                    input_mappings={"instruction": "response"},
-                    output_mappings={"response": "response_1"},
-                    do_fail=do_fail,
-                    use_cache=use_cache_per_step,
-                )
-                step_c = DummyStep(
-                    name="step_c",
-                    input_batch_size=12,
-                    input_mappings={"instruction": "response"},
-                    output_mappings={"response": "response_2"},
-                    use_cache=use_cache_per_step,
-                )
-
-                step_generator >> step_a >> step_b >> step_c
-
-                # Controlled failure of the Pipeline
-                original_process_batch = pipeline._process_batch
-
-                def _process_batch_wrapper(batch: "_Batch") -> None:
-                    if batch.step_name == step_b.name and batch.seq_no == 3:
-                        pipeline._stop_called = True
-                    original_process_batch(batch)
-
-            # Run first time and stop the pipeline when specific batch received (simulate CTRL + C)
-            with mock.patch.object(pipeline, "_process_batch", _process_batch_wrapper):
-                failed_distiset = pipeline.run(use_cache=use_cache)
-
-            print("*****\nRun again\n*****")
-            assert len(failed_distiset["default"]["train"]) == 24
-            distiset = pipeline.run(use_cache=use_cache)
-            # This is the dataset size that we should have after succeeding
-            assert len(distiset["default"]["train"]) == 48
-
-        run_pipeline(do_fail=False, use_cache=True)
-
-
-# def test_cached_steps_with_multiple_predecessors():
-#     use_cache_per_step = True
-#     with TemporaryDirectory() as tmp_dir:
-
-#         def run_pipeline(use_cache: bool = True):
-#             with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
-#                 initial_batch_size = 8
-#                 step_generator = LoadDataFromDicts(
-#                     data=[{"instruction": "some text"}] * initial_batch_size * 6,
-#                     batch_size=initial_batch_size,
-#                 )
-
-#                 a = DummyStep(
-#                     name="step_a", input_batch_size=4, use_cache=use_cache_per_step
-#                 )
-#                 b = DummyStep(
-#                     name="step_b",
-#                     input_batch_size=10,
-#                     output_mappings={"response": "response_1"},
-#                     use_cache=use_cache_per_step,
-#                 )
-#                 c = DummyStep2(
-#                     name="step_c",
-#                     input_batch_size=12,
-#                     input_mappings={"instruction": "response"},
-#                     output_mappings={"response": "response_2"},
-#                     use_cache=use_cache_per_step,
-#                 )
-
-#                 step_generator >> [a, b] >> c
-
-#                 # Controlled failure of the Pipeline
-#                 original_process_batch = pipeline._process_batch
-
-#                 def _process_batch_wrapper(batch: "_Batch") -> None:
-#                     if batch.step_name == c.name and batch.seq_no == 1:
-#                         pipeline._stop_called = True
-#                     original_process_batch(batch)
-
-#             # Run first time and stop the pipeline when specific batch received (simulate CTRL + C)
-#             with mock.patch.object(pipeline, "_process_batch", _process_batch_wrapper):
-#                 failed_distiset = pipeline.run(use_cache=use_cache)
-
-#             print("*****\nRun again\n*****")
-#             assert len(failed_distiset["default"]["train"]) == 36
-#             distiset = pipeline.run(use_cache=use_cache)
-#             # This is the dataset size that we should have after succeeding
-#             assert len(distiset["default"]["train"]) == 48
-
-#         run_pipeline(use_cache=True)
-
-
-# @pytest.mark.parametrize("with_successor", (True, False))
-# def test_cached_steps_changing(with_successor: bool) -> None:
-#     with TemporaryDirectory() as tmp_dir:
-
-#         def run_pipeline(
-#             step_b_name: str = "step_b", step_flag: bool = True
-#         ) -> "Distiset":
-#             # with Pipeline(name="test_pipeline_caching") as pipeline:
-#             with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
-#                 initial_batch_size = 8
-#                 step_generator = LoadDataFromDicts(
-#                     data=[{"instruction": "some text"}] * initial_batch_size * 6,
-#                     batch_size=initial_batch_size,
-#                 )
-
-#                 step_a = DummyStep(name="step_a", input_batch_size=4, use_cache=True)
-#                 if step_flag:
-#                     step_b = DummyStep(
-#                         name=step_b_name,
-#                         input_batch_size=10,
-#                         input_mappings={"instruction": "response"},
-#                         output_mappings={"response": "response_1"},
-#                         use_cache=True,
-#                     )
-#                 else:
-#                     step_b = OtherDummyStep(
-#                         name=step_b_name,
-#                         input_batch_size=10,
-#                         input_mappings={"instruction": "response"},
-#                         output_mappings={"response": "response_2"},
-#                         use_cache=True,
-#                     )
-
-#                 step_generator >> step_a >> step_b
-
-#                 if with_successor:
-#                     # TODO: Test including an extra step to check it
-#                     step_c = DummyStep(
-#                         name="step_c",
-#                         input_batch_size=12,
-#                         input_mappings={"instruction": "response"},
-#                         output_mappings={"response": "response_3"},
-#                         use_cache=True,
-#                     )
-#                     step_b >> step_c
-
-#             distiset = pipeline.run(use_cache=True)
-
-#             return distiset
-
-#         distiset_one = run_pipeline(step_flag=True)
-
-#         print("---\nRun again\n---")
-#         distiset_two = run_pipeline(step_flag=False)
-
-#         df1 = distiset_one["default"]["train"].to_pandas()
-#         df2 = distiset_two["default"]["train"].to_pandas()
-
-#         assert len(df1) == len(df2) == 48
-
-#         if not with_successor:
-#             assert df1.columns.to_list() == ["response", "response_1"]
-#             assert df2.columns.to_list() == ["response", "response_2"]
-#         else:
-#             assert df1.columns.to_list() == ["response", "response_1", "response_3"]
-#             assert df2.columns.to_list() == ["response", "response_2", "response_3"]
-
-
-# def test_use_cache_per_step() -> None:
-#     with TemporaryDirectory() as tmp_dir:
-
-#         def run_pipeline():
-#             with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
-#                 initial_batch_size = 8
-#                 step_generator = LoadDataFromDicts(
-#                     data=[{"instruction": "some text"}] * initial_batch_size * 6,
-#                     batch_size=initial_batch_size,
-#                 )
-
-#                 step_a = DummyStep(name="step_a", input_batch_size=4)
-#                 step_b = DummyStep(
-#                     name="step_b",
-#                     input_batch_size=10,
-#                     input_mappings={"instruction": "response"},
-#                     use_cache=False,
-#                 )
-#                 step_c = DummyStep(
-#                     name="step_c",
-#                     input_batch_size=12,
-#                     input_mappings={"instruction": "response"},
-#                 )
-
-#                 step_generator >> step_a >> step_b >> step_c
-
-#             distiset = pipeline.run(use_cache=True)
-
-#             print("*****\nRun again\n*****")
-#             assert len(distiset["default"]["train"]) == 48
-#             distiset = pipeline.run(use_cache=True)
-#             # This is the dataset size that we should have after succeeding
-#             assert len(distiset["default"]["train"]) == 48
-
-#             # We test that even if the pipeline is the same, we are recomputing from the step b onwards,
-#             # by checking a specific message in the logs.
-#             msg2 = (
-#                 "♻️ `_BatchManagerStep` for 'step_b' and successors will be recomputed"
-#             )
-#             with pipeline._cache_location["log_file"].open() as f:
-#                 lines = "\n".join(f.readlines()[-50:])
-
-#             assert msg2 in lines
-
-#         run_pipeline()
-
-
-# TODO: In a next step we have to include more tests (when the feature is developed)
-# to check if a pipeline: a >> b >> c has a new step at the end: a >> b >> c >> d, and
-# we can start from the previous pipeline. Currently this is not possible.
-
-if __name__ == "__main__":
-    # Cases taken into account
-    # - Recover cache from stop taking into account step offset (A->B)
-    # - Recover cache from stop taking into account step offset with multiple predecessors ([A, B] -> C)
-    # - Recover cache when one step use_cache=False (A -> B)
-    # - Recover cache when one middle step use_cache=False (A -> B -> C)
-    # - Recover cache adding one step (A -> B) -> (A -> B -> C)
-
-    # test_cached_steps()
-    # test_cache()
-    # test_cache_adding_step()
-    # test_cache_adding_step_with_multiple_predecessor()
-    # test_cache_with_step_cache_false()
-    test_cache_with_offset()
-
-    # TODO: CONTINUE HERE, RUN THE STEP.
-    # TODO: THE LAST MERGE FROM DEVELOP INTRODUCED A VARIABLE:
-    # send_last_batch_flag WHICH ISN'T TRACKED
-    # print("\n\n test_cached_steps_changing \n\n")
-    # test_cached_steps_changing(False)
-    # print("\n\n test_cached_steps_changing with successor \n\n")
-    # test_cached_steps_changing(True)
-    # print("\n\n test_cached_steps_with_multiple_predecessors \n\n")
-    # test_cached_steps_with_multiple_predecessors()
-    ## test_use_cache_per_step()
