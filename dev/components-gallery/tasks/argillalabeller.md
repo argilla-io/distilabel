@@ -89,6 +89,7 @@ graph TD
 #### Annotate a record with the same dataset and question
 ```python
 import argilla as rg
+from argilla import Suggestion
 from distilabel.steps.tasks import ArgillaLabeller
 from distilabel.llms.huggingface import InferenceEndpointsLLM
 
@@ -115,7 +116,7 @@ question = dataset.settings.questions["label"]
 labeller = ArgillaLabeller(
     llm=InferenceEndpointsLLM(
         model_id="mistralai/Mistral-7B-Instruct-v0.2",
-    )
+    ),
     fields=[field],
     question=question,
     example_records=example_records,
@@ -136,7 +137,7 @@ result = next(
 
 # Add the suggestions to the records
 for record, suggestion in zip(pending_records, result):
-    record.suggestions.add(suggestion["suggestion"])
+    record.suggestions.add(Suggestion(**suggestion["suggestion"]))
 
 # Log the updated records
 dataset.records.log(pending_records)
@@ -182,10 +183,11 @@ result = next(
 )
 
 # Add the suggestions to the record
-record.suggestions.add(result[0]["suggestion"])
+for suggestion in result:
+    record.suggestions.add(rg.Suggestion(**suggestion["suggestion"]))
 
 # Log the updated record
-dataset.records.log(record)
+dataset.records.log([record])
 ```
 
 #### Overwrite default prompts and instructions
