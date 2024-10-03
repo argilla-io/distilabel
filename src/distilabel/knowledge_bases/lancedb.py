@@ -53,7 +53,7 @@ class LanceDBKnowledgeBase(KnowledgeBase):
     def unload(self) -> None:
         self._db.close()
 
-    def query(
+    def vector_search(
         self, query_vector: List[float], n_retrieved_documents: int
     ) -> List[Dict[str, Any]]:
         return self._tbl.search(query_vector).limit(n_retrieved_documents).to_list()

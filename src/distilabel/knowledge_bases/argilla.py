@@ -36,18 +36,18 @@ class ArgillaKnowledgeBase(KnowledgeBase, ArgillaBase):
             )
 
         self._dataset = self._client.datasets(
-            name=self.dataset, workspace=self.workspace
+            name=self.dataset_name, workspace=self.dataset_workspace
         )
 
     def unload(self) -> None:
         self._client = None
         self._dataset = None
 
-    def query(
+    def vector_search(
         self, query_vector: List[float], n_retrieved_documents: int
     ) -> List[Dict[str, Any]]:
         return self._dataset.records(
-            query=Query(similar=Similar(name=self.vector_field, vector=query_vector)),
+            query=Query(similar=Similar(name=self.vector_field, value=query_vector)),
             limit=n_retrieved_documents,
         ).to_list(flatten=True)
 

@@ -129,8 +129,9 @@ class VectorSearch(Step):
                 input["embedding"] = embedding
                 input["model_name"] = self.embeddings.model_name
         for input in inputs:
-            retrieved_documents = self.knowledge_base.query(
-                input["embedding"], n_retrieved_documents=self.n_retrieved_documents
+            retrieved_documents = self.knowledge_base.search(
+                vector=input["embedding"],
+                n_retrieved_documents=self.n_retrieved_documents,
             )
             grouped_documents = group_dicts(*retrieved_documents)
             input.update(grouped_documents)

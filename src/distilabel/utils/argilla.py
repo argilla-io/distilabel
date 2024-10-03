@@ -105,8 +105,6 @@ class ArgillaBase(BaseModel):
         """Method to perform any initialization logic before the `process` method is
         called. For example, to load an LLM, stablish a connection to a database, etc.
         """
-        super().load()
-
         if self.api_url is None or self.api_key is None:
             raise DistilabelUserError(
                 "`Argilla` step requires the `api_url` and `api_key` to be provided. Please,"

@@ -16,26 +16,13 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from distilabel.mixins.runtime_parameters import RuntimeParametersMixin
 from distilabel.utils.serialization import _Serializable
 
 
 class KnowledgeBase(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
-    context_turn: Optional[int] = Field(
-        default=-1,
-        description=(
-            "The index of the turn to which the context should be added. "
-            "-1 means that the context is added to the last turn. "
-            "0 means that the context is added to the first turn or system message."
-        ),
-    )
-    context_prompt: Optional[str] = Field(
-        default="\nTake the following context into account in your response.\n\n",
-        description="The prompt to be used to add the context to the knowledge base.",
-    )
-
     @abstractmethod
     def load(self) -> None:
         pass
@@ -44,11 +31,35 @@ class KnowledgeBase(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     def unload(self) -> None:
         pass
 
-    @abstractmethod
-    def query(
-        self, query_vector: List[float], n_retrieved_documents: int
+    def keyword_search(
+        self, keywords: List[str], n_retrieved_documents: int
+    ) -> List[str]:
+        raise NotImplementedError
+
+    def vector_search(
+        self, vector: List[float], n_retrieved_documents: int
     ) -> List[Dict[str, Any]]:
-        pass
+        raise NotImplementedError
+
+    def hybrid_search(
+        self, vector: List[float], keywords: List[str], n_retrieved_documents: int
+    ) -> List[Dict[str, Any]]:
+        raise NotImplementedError
+
+    def search(
+        self,
+        vector: Optional[List[float]] = None,
+        keywords: Optional[List[str]] = None,
+        n_retrieved_documents: int = 5,
+    ) -> List[Dict[str, Any]]:
+        if vector is not None and keywords is not None:
+            return self.hybrid_search(vector, keywords, n_retrieved_documents)
+        elif vector is not None:
+            return self.vector_search(vector, n_retrieved_documents)
+        elif keywords is not None:
+            return self.keyword_search(keywords, n_retrieved_documents)
+        else:
+            raise ValueError("Either vector or keywords must be provided.")
 
     @property
     @abstractmethod

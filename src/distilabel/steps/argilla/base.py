@@ -52,6 +52,10 @@ class ArgillaStepBase(Step, ArgillaBase, ABC):
     """
 
     @property
+    def load(self) -> None:
+        super().load()
+
+    @property
     def outputs(self) -> "StepColumns":
         """The outputs of the step is an empty list, since the steps subclassing from this one, will
         always be leaf nodes and won't propagate the inputs neither generate any outputs.
