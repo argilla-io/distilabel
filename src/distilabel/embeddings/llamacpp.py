@@ -144,7 +144,9 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
 
     """
 
-    model: str
+    model: str = Field(
+        description="The name of the model to use for embeddings.",
+    )
 
     model_path: RuntimeParameter[str] = Field(
         default=None,
