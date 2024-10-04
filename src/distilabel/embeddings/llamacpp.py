@@ -53,7 +53,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         - [Offline inference embeddings](https://llama-cpp-python.readthedocs.io/en/stable/#embeddings)
 
     Examples:
-        Generating sentence embeddings using a local model:
+        Generate sentence embeddings using a local model:
 
         ```python
         from pathlib import Path
@@ -75,15 +75,11 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         # ]
         ```
 
-        Generating sentence embeddings using a Hugging Face Hub model:
+        Generate sentence embeddings using a HuggingFace Hub public model:
 
         ```python
         from pathlib import Path
         from distilabel.embeddings import LlamaCppEmbeddings
-
-        # You can follow along this example downloading the following model running the following
-        # command in the terminal, that will download the model to the `Downloads` folder:
-        # curl -L -o ~/Downloads/All-MiniLM-L6-v2-Embedding-GGUF https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/blob/main/all-MiniLM-L6-v2-Q2_K.gguf
 
         repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
         model_path = "all-MiniLM-L6-v2-Q5_K_M.gguf"
@@ -97,6 +93,31 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         #   [4.4889533455716446e-05, 0.044016145169734955, ...],
         # ]
         ```
+
+        Generate sentence embeddings using a HuggingFace Hub private model:
+
+        ```python
+        from pathlib import Path
+        from distilabel.embeddings import LlamaCppEmbeddings
+
+        # You need to set environment variable to download private model to the local machine
+        os.environ["HF_TOKEN"] = "hf_..."
+
+        repo_id = "private_repo_id"
+        model_path = "model"
+        embeddings = LlamaCppEmbeddings(repo_id=repo_id,model_path=model_path)
+
+        embeddings.load()
+
+        results = embeddings.encode(inputs=["distilabel is awesome!", "and Argilla!"])
+        # [
+        #   [-0.05447685346007347, -0.01623094454407692, ...],
+        #   [4.4889533455716446e-05, 0.044016145169734955, ...],
+        # ]
+        ```
+
+
+
     """
 
     model_path: str
