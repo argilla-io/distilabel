@@ -82,7 +82,6 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         Generate sentence embeddings using a HuggingFace Hub public model:
 
         ```python
-        from pathlib import Path
         from distilabel.embeddings import LlamaCppEmbeddings
 
         repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
@@ -101,7 +100,6 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         Generate sentence embeddings using a HuggingFace Hub private model:
 
         ```python
-        from pathlib import Path
         from distilabel.embeddings import LlamaCppEmbeddings
 
         # You need to set environment variable to download private model to the local machine
@@ -109,7 +107,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
 
         repo_id = "private_repo_id"
         model = "model"
-        embeddings = LlamaCppEmbeddings(repo_id=repo_id,model=model)
+        embeddings = LlamaCppEmbeddings(model=model,repo_id=repo_id)
 
         embeddings.load()
 
@@ -119,6 +117,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         #   [4.4889533455716446e-05, 0.044016145169734955, ...],
         # ]
         ```
+
         Generate sentence embeddings with cpu:
 
         ```python
