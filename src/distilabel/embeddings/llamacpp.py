@@ -67,8 +67,8 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         # curl -L -o ~/Downloads/All-MiniLM-L6-v2-Embedding-GGUF https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/blob/main/all-MiniLM-L6-v2-Q2_K.gguf
 
         model_path = "Downloads/"
-        model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
-        embeddings = LlamaCppEmbeddings(model_name=model_name,model_path=str(Path.home() / model_path))
+        model = "all-MiniLM-L6-v2-Q2_K.gguf"
+        embeddings = LlamaCppEmbeddings(model=model,model_path=str(Path.home() / model_path))
 
         embeddings.load()
 
@@ -86,8 +86,8 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         from distilabel.embeddings import LlamaCppEmbeddings
 
         repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
-        model_name = "all-MiniLM-L6-v2-Q5_K_M.gguf"
-        embeddings = LlamaCppEmbeddings(model_name=model_name,repo_id=repo_id)
+        model = "all-MiniLM-L6-v2-Q5_K_M.gguf"
+        embeddings = LlamaCppEmbeddings(model=model,repo_id=repo_id)
 
         embeddings.load()
 
@@ -108,8 +108,8 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         os.environ["HF_TOKEN"] = "hf_..."
 
         repo_id = "private_repo_id"
-        model_path = "model"
-        embeddings = LlamaCppEmbeddings(repo_id=repo_id,model_path=model_path)
+        model = "model"
+        embeddings = LlamaCppEmbeddings(repo_id=repo_id,model=model)
 
         embeddings.load()
 
@@ -129,8 +129,9 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         # command in the terminal, that will download the model to the `Downloads` folder:
         # curl -L -o ~/Downloads/All-MiniLM-L6-v2-Embedding-GGUF https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/blob/main/all-MiniLM-L6-v2-Q2_K.gguf
 
-        model_path = "Downloads/all-MiniLM-L6-v2-Q2_K.gguf"
-        embeddings = LlamaCppEmbeddings(model_path=str(Path.home() / model_path), n_gpu_layers=0)
+        model_path = "Downloads/"
+        model = "all-MiniLM-L6-v2-Q2_K.gguf"
+        embeddings = LlamaCppEmbeddings(model=model,model_path=str(Path.home() / model_path), n_gpu_layers=0)
 
         embeddings.load()
 
