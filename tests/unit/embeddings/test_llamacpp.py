@@ -26,26 +26,27 @@ pytest tests/unit/embeddings/test_llamacpp.py --cpu-only
 
 
 class TestLlamaCppEmbeddings:
-    model_path = "Downloads/all-MiniLM-L6-v2-Q2_K.gguf"
-    repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
-    hub_model = "all-MiniLM-L6-v2-Q5_K_M.gguf"
-
     @pytest.fixture(autouse=True)
     def setup_embeddings(self, local_llamacpp_model_path, use_cpu):
         """
         Fixture to set up embeddings for each test, considering CPU usage.
         """
+        self.model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
+        self.repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
         n_gpu_layers = 0 if use_cpu else -1
         self.embeddings = LlamaCppEmbeddings(
-            model_path=local_llamacpp_model_path, n_gpu_layers=n_gpu_layers
+            model=self.model_name,
+            model_path=local_llamacpp_model_path,
+            n_gpu_layers=n_gpu_layers,
         )
+
         self.embeddings.load()
 
-    def test_model_name(self, local_llamacpp_model_path) -> None:
+    def test_model_name(self) -> None:
         """
         Test if the model name is correctly set.
         """
-        assert self.embeddings.model_name == local_llamacpp_model_path
+        assert self.embeddings.model_name == self.model_name
 
     def test_encode(self) -> None:
         """
@@ -88,8 +89,8 @@ class TestLlamaCppEmbeddings:
         n_gpu_layers = 0 if use_cpu else -1
         embeddings = LlamaCppEmbeddings(
             repo_id=self.repo_id,
+            model=self.model_name,
             normalize_embeddings=True,
-            model_path=self.hub_model,
             n_gpu_layers=n_gpu_layers,
         )
         inputs = [
@@ -117,8 +118,8 @@ class TestLlamaCppEmbeddings:
         n_gpu_layers = 0 if use_cpu else -1
         embeddings = LlamaCppEmbeddings(
             repo_id=self.repo_id,
+            model=self.model_name,
             normalize_embeddings=True,
-            model_path=self.hub_model,
             n_gpu_layers=n_gpu_layers,
         )
         embeddings.load()

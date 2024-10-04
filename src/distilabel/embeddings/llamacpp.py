@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import Field, PrivateAttr
@@ -28,6 +29,8 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
     """`LlamaCpp` library implementation for embedding generation.
 
     Attributes:
+        model_name: contains the name of the GGUF quantized model, compatible with the
+            installed version of the `llama.cpp` Python bindings.
         model_path: contains the path to the GGUF quantized model, compatible with the
             installed version of the `llama.cpp` Python bindings.
         repo_id: the Hugging Face Hub repository id.
@@ -63,8 +66,9 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         # command in the terminal, that will download the model to the `Downloads` folder:
         # curl -L -o ~/Downloads/All-MiniLM-L6-v2-Embedding-GGUF https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/blob/main/all-MiniLM-L6-v2-Q2_K.gguf
 
-        model_path = "Downloads/all-MiniLM-L6-v2-Q2_K.gguf"
-        embeddings = LlamaCppEmbeddings(model_path=str(Path.home() / model_path))
+        model_path = "Downloads/"
+        model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
+        embeddings = LlamaCppEmbeddings(model_name=model_name,model_path=str(Path.home() / model_path))
 
         embeddings.load()
 
@@ -82,8 +86,8 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         from distilabel.embeddings import LlamaCppEmbeddings
 
         repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
-        model_path = "all-MiniLM-L6-v2-Q5_K_M.gguf"
-        embeddings = LlamaCppEmbeddings(repo_id=repo_id,model_path=model_path)
+        model_name = "all-MiniLM-L6-v2-Q5_K_M.gguf"
+        embeddings = LlamaCppEmbeddings(model_name=model_name,repo_id=repo_id)
 
         embeddings.load()
 
@@ -140,7 +144,12 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
 
     """
 
-    model_path: str
+    model: str
+
+    model_path: RuntimeParameter[str] = Field(
+        default=None,
+        description="The path to the GGUF quantized model, compatible with the installed version of the `llama.cpp` Python bindings.",
+    )
 
     repo_id: RuntimeParameter[str] = Field(
         default=None, description="The Hugging Face Hub repository id.", exclude=True
@@ -186,19 +195,25 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
             ) from ie
 
         if self.repo_id is not None:
-            try:
-                from huggingface_hub.utils import validate_repo_id
+            # use repo_id to download the model
+            from huggingface_hub.utils import validate_repo_id
 
-                validate_repo_id(self.repo_id)
-            except ImportError as ie:
-                raise ImportError(
-                    "Llama.from_pretrained requires the huggingface-hub package. "
-                    "You can install it with `pip install huggingface-hub`."
-                ) from ie
+            validate_repo_id(self.repo_id)
+            self._model = Llama.from_pretrained(
+                repo_id=self.repo_id,
+                filename=self.model,
+                n_gpu_layers=self.n_gpu_layers,
+                seed=self.seed,
+                n_ctx=self.n_ctx,
+                n_batch=self.n_batch,
+                verbose=self.verbose,
+                embedding=True,
+                kwargs=self.extra_kwargs,
+            )
+        elif self.model_path is not None:
             try:
-                self._model = Llama.from_pretrained(
-                    repo_id=self.repo_id,
-                    filename=self.model_path,
+                self._model = Llama(
+                    model_path=str(Path(self.model_path) / self.model),
                     n_gpu_layers=self.n_gpu_layers,
                     seed=self.seed,
                     n_ctx=self.n_ctx,
@@ -210,19 +225,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
             except Exception:
                 raise
         else:
-            try:
-                self._model = Llama(
-                    model_path=self.model_path,
-                    n_gpu_layers=self.n_gpu_layers,
-                    seed=self.seed,
-                    n_ctx=self.n_ctx,
-                    n_batch=self.n_batch,
-                    verbose=self.verbose,
-                    embedding=True,
-                    kwargs=self.extra_kwargs,
-                )
-            except Exception:
-                raise
+            raise ValueError("Either 'model_path' or 'repo_id' must be provided")
 
     def unload(self) -> None:
         """Unloads the `gguf` model."""
@@ -232,7 +235,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
     @property
     def model_name(self) -> str:
         """Returns the name of the model."""
-        return self.model_path
+        return self.model
 
     def encode(self, inputs: List[str]) -> List[List[Union[int, float]]]:
         """Generates embeddings for the provided inputs.

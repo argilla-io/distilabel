@@ -153,20 +153,16 @@ def local_llamacpp_model_path(tmp_path_factory):
     model_path = tmp_path / model_name
 
     if not model_path.exists():
-        print(f"Downloading test model to {model_path}...")
         urlretrieve(model_url, model_path)
-        print("Download complete.")
 
     def cleanup():
         if model_path.exists():
-            print(f"Cleaning up downloaded model at {model_path}...")
             os.remove(model_path)
-            print("Cleanup complete.")
 
     # Register the cleanup function to be called at exit
     atexit.register(cleanup)
 
-    return str(model_path)
+    return str(tmp_path)
 
 
 def pytest_addoption(parser):
