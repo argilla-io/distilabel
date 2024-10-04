@@ -1183,35 +1183,56 @@ class _BatchManager(_Serializable):
     def invalidate_cache_for(
         self, step_name: str, dag: "DAG", steps_data_path: Path
     ) -> None:
-        """Invalidate the step that changed and dependent ones.
-
-        Once we have loaded the `_BatchManager` from cache in the pipeline,
-        if there are steps that changed (the signature is different), we will
-        make the step and successors invalid, meaning the `_BatchManagerStep`
-        will be regenerated, and the batches of the first step that was invalidated
-        will be loaded from where we left.
+        """Invalidates the cache for the given step and its predecessors.
 
         Args:
-            step_name: Name of the `_BatchManagerStep` that changed.
+            step_name: the name of the step for which the cache will be invalidated.
+            dag: the `DAG` of the pipeline containing the steps.
+            steps_data_path: the path where the output batches of each `Step` were saved
+                for reuse in another pipeline execution.
         """
-        # Loop over the steps sorted, so we can invalidate successor steps
-        invalidate_after = False
+        invalidate_if_predecessor = []
         for sorted_step in dag:
-            if (sorted_step == step_name) or invalidate_after:
-                predecessors = list(dag.get_step_predecessors(sorted_step))
-                convergence_step = dag.is_convergence_step(step_name)
-                step = dag.get_step(sorted_step)[STEP_ATTR_NAME]
-                self._steps[sorted_step] = _BatchManagerStep.from_step(
-                    step, predecessors=predecessors, convergence_step=convergence_step
-                )
+            if (sorted_step == step_name) or any(
+                predecessor in invalidate_if_predecessor
+                for predecessor in dag.get_step_predecessors(sorted_step)
+            ):
+                self._reset_batch_manager_for_step(sorted_step, dag)
+                invalidate_if_predecessor.append(sorted_step)
 
-                invalidate_after = True
-                self._last_batch_received[sorted_step] = None
-                self._last_batch_sent[sorted_step] = None
-                if sorted_step in self._last_batch_flag_sent_to:
-                    self._last_batch_flag_sent_to.remove(sorted_step)
+        self._load_predecessor_batches(step_name, dag, steps_data_path)
 
-        # Loop on the predecessors to load their batches
+    def _reset_batch_manager_for_step(self, step_name: str, dag: "DAG") -> None:
+        """Resets the batch manager state for a given step i.e. creates a new clean `_BatchManagerStep`
+        for the step and removes the step name from the lists of states of the `BatchManager`.
+
+        Args:
+            step_name: the name of step for which its batch manager state needs to be cleaned.
+            dag: the `DAG` of the pipeline containing the steps.
+        """
+        predecessors = list(dag.get_step_predecessors(step_name))
+        convergence_step = dag.is_convergence_step(step_name)
+        step = dag.get_step(step_name)[STEP_ATTR_NAME]
+        self._steps[step_name] = _BatchManagerStep.from_step(
+            step, predecessors=predecessors, convergence_step=convergence_step
+        )
+
+        self._last_batch_received[step_name] = None
+        self._last_batch_sent[step_name] = None
+        if step_name in self._last_batch_flag_sent_to:
+            self._last_batch_flag_sent_to.remove(step_name)
+
+    def _load_predecessor_batches(
+        self, step_name: str, dag: "DAG", steps_data_path: Path
+    ) -> None:
+        """Loads the cached batches of the predecessors of the step in its `_BatchManagerStep`.
+
+        Args:
+            step_name: the name of the step whose predecessors' batches will be loaded.
+            dag: the `DAG` of the pipeline containing the steps.
+            steps_data_path: the path where the output batches of each `Step` were saved
+                for reuse in another pipeline execution.
+        """
         for predecessor in dag.get_step_predecessors(step_name):
             step_predecessor = dag.get_step(predecessor)[STEP_ATTR_NAME]
             predecessor_step_data_path = (

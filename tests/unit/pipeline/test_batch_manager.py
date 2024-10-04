@@ -15,13 +15,17 @@
 import tempfile
 from pathlib import Path
 from typing import Dict, List
+from unittest import mock
 
 import pytest
 
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager, _BatchManagerStep
+from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step
+
+from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
 
 class TestBatchManagerStep:
@@ -1738,6 +1742,108 @@ class TestBatchManager:
         )
 
         assert not batch_manager.can_generate()
+
+    def test_invalidate_cache_for(self) -> None:
+        with Pipeline() as pipeline:
+            generator = DummyGeneratorStep()
+            step_a = DummyStep1()
+            step_b = DummyStep1()
+            step_c = DummyStep2()
+
+            generator >> [step_a, step_b] >> step_c
+
+        pipeline._load_batch_manager()
+        batch_manager: "_BatchManager" = pipeline._batch_manager  # type: ignore
+
+        with (
+            mock.patch.object(
+                batch_manager, "_reset_batch_manager_for_step"
+            ) as reset_mock,
+            mock.patch.object(batch_manager, "_load_predecessor_batches") as load_mock,
+        ):
+            batch_manager.invalidate_cache_for(
+                step_name=step_a.name,  # type: ignore
+                dag=pipeline.dag,
+                steps_data_path=pipeline._cache_location["steps_data"],
+            )
+
+        # shouldn't have been called for step b
+        reset_mock.assert_has_calls(
+            [
+                mock.call(step_a.name, pipeline.dag),
+                mock.call(step_c.name, pipeline.dag),
+            ]
+        )
+
+        load_mock.assert_called_once_with(
+            step_a.name, pipeline.dag, pipeline._cache_location["steps_data"]
+        )
+
+    def test_reset_batch_manager_for_step(self) -> None:
+        batch_manager = _BatchManager(
+            steps={
+                "step1": _BatchManagerStep(
+                    step_name="step1",
+                    accumulate=True,
+                    input_batch_size=5,
+                    data={
+                        "step0": [_Batch(seq_no=0, step_name="step0", last_batch=True)]
+                    },
+                )
+            },
+            last_batch_received={
+                "step1": _Batch(seq_no=0, step_name="step1", last_batch=True)
+            },
+            last_batch_sent={
+                "step1": _Batch(seq_no=0, step_name="step1", last_batch=True)
+            },
+            last_batch_flag_sent_to=["step1"],
+        )
+
+        dag = DAG()
+        dag.add_step(DummyStep1(name="step1"))
+
+        batch_manager._reset_batch_manager_for_step("step1", dag)
+        assert batch_manager._steps["step1"].data == {}
+        assert batch_manager._last_batch_received["step1"] is None
+        assert batch_manager._last_batch_sent["step1"] is None
+        assert batch_manager._last_batch_flag_sent_to == []
+
+    def test_load_predecessor_batches(self) -> None:
+        with Pipeline() as pipeline:
+            generator = DummyGeneratorStep()
+            step_a = DummyStep1()
+            step_b = DummyStep1()
+            step_c = DummyStep2()
+
+            generator >> [step_a, step_b] >> step_c
+
+        pipeline._load_batch_manager()
+        batch_manager: "_BatchManager" = pipeline._batch_manager  # type: ignore
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            previous_step_dir = (
+                Path(tmp_dir) / f"{generator.name}_{generator.signature}"
+            )  # type: ignore
+            batches = []
+            for i in range(3):
+                batch = _Batch(
+                    seq_no=i,
+                    step_name=generator.name,  # type: ignore
+                    data=[[{"a": i} for _ in range(5)]],
+                    last_batch=i % 3 == 0,
+                )
+                batches.append(batch)
+                batch.save(path=previous_step_dir / f"batch_{i}.json")
+
+            batch_manager._load_predecessor_batches(
+                step_name=step_a.name,  # type: ignore
+                dag=pipeline.dag,
+                steps_data_path=Path(tmp_dir),  # type: ignore
+            )
+
+        assert batch_manager._steps[step_a.name].data[generator.name] == batches  # type: ignore
+        assert generator.name in batch_manager._steps[step_a.name].last_batch_received  # type: ignore
 
     def test_dump(self) -> None:
         built_batch = _Batch(
