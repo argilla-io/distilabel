@@ -420,14 +420,6 @@ class TestStepSerialization:
                 "replicas": 1,
                 "resources": None,
             },
-            "exclude_from_signature": {
-                "disable_cuda_device_placement",
-                "gpu_memory_utilization",
-                "input_batch_size",
-                "resources",
-                "type_info",
-                "exclude_from_signature",
-            },
             "runtime_parameters_info": [
                 {
                     "name": "resources",

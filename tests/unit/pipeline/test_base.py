@@ -145,12 +145,18 @@ class TestBasePipeline:
 
             if use_cache:
                 mock_load_from_cache.assert_called_once_with(
-                    pipeline._cache_location["batch_manager"]
+                    dag=pipeline.dag,
+                    batch_manager_path=pipeline._cache_location["batch_manager"],
+                    steps_data_path=pipeline._cache_location["steps_data"],
                 )
                 mock_from_dag.assert_not_called()
             else:
                 mock_load_from_cache.assert_not_called()
-                mock_from_dag.assert_called_once_with(pipeline.dag)
+                mock_from_dag.assert_called_once_with(
+                    dag=pipeline.dag,
+                    use_cache=use_cache,
+                    steps_data_path=pipeline._cache_location["steps_data"],
+                )
 
     def test_setup_write_buffer(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
@@ -350,6 +356,7 @@ class TestBasePipeline:
 
             generator >> [step, step2] >> step3 >> step4
 
+        pipeline._load_batch_manager()
         pipeline._steps_load_status = {  # type: ignore
             generator.name: 1,
             step.name: 1,
@@ -373,6 +380,7 @@ class TestBasePipeline:
             generator >> [step, step2] >> step3 >> step4
 
         pipeline._init_steps_load_status()
+        pipeline._load_batch_manager()
         pipeline._steps_load_status[generator.name] = _STEP_LOAD_FAILED_CODE  # type: ignore
         caplog.set_level(logging.INFO)
 
@@ -390,6 +398,7 @@ class TestBasePipeline:
             generator >> [step, step2] >> step3 >> step4
 
         pipeline._init_steps_load_status()
+        pipeline._load_batch_manager()
         pipeline._stop_called = True
 
         assert pipeline._run_stage_steps_and_wait(stage=0) is False
@@ -649,7 +658,7 @@ class TestBasePipeline:
         pipeline._register_batch(batch)
 
         pipeline._batch_manager.register_batch.assert_called_once_with(
-            batch, path=pipeline._cache_location["batch_manager"]
+            batch, steps_data_path=pipeline._cache_location["steps_data"]
         )
 
     def test_send_last_batch_flag_to_step(self) -> None:
@@ -768,7 +777,7 @@ class TestBasePipeline:
         pipeline._handle_batch_on_stop(batch)
 
         batch_manager_mock.register_batch.assert_called_once_with(
-            batch, path=pipeline._cache_location["batch_manager"]
+            batch, steps_data_path=pipeline._cache_location["steps_data"]
         )
         batch_manager_mock.add_batch.assert_has_calls(
             [

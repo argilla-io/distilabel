@@ -40,7 +40,7 @@ class SignatureMixin(BaseModel):
     """
 
     exclude_from_signature: Set[str] = Field(
-        _EXCLUDE_FROM_SIGNATURE_DEFAULTS, exclude=True
+        default=_EXCLUDE_FROM_SIGNATURE_DEFAULTS, exclude=True
     )
 
     @property
