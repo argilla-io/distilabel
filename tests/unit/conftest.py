@@ -167,3 +167,20 @@ def local_llamacpp_model_path(tmp_path_factory):
     atexit.register(cleanup)
 
     return str(model_path)
+
+
+def pytest_addoption(parser):
+    """
+    Add a command-line option to pytest for CPU-only testing.
+    """
+    parser.addoption(
+        "--cpu-only", action="store", default=False, help="Run tests on CPU only"
+    )
+
+
+@pytest.fixture
+def use_cpu(request):
+    """
+    Fixture to determine whether to use CPU based on command-line option.
+    """
+    return request.config.getoption("--cpu-only")

@@ -12,11 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
 
 import numpy as np
+import pytest
 
 from distilabel.embeddings import LlamaCppEmbeddings
+
+"""
+To test with CPU only, run the following command:
+pytest tests/unit/embeddings/test_llamacpp.py --cpu-only
+
+"""
 
 
 class TestLlamaCppEmbeddings:
@@ -24,60 +30,67 @@ class TestLlamaCppEmbeddings:
     repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
     hub_model = "all-MiniLM-L6-v2-Q5_K_M.gguf"
 
-    def test_model_name(self) -> None:
+    @pytest.fixture(autouse=True)
+    def setup_embeddings(self, local_llamacpp_model_path, use_cpu):
+        """
+        Fixture to set up embeddings for each test, considering CPU usage.
+        """
+        n_gpu_layers = 0 if use_cpu else -1
+        self.embeddings = LlamaCppEmbeddings(
+            model_path=local_llamacpp_model_path, n_gpu_layers=n_gpu_layers
+        )
+        self.embeddings.load()
+
+    def test_model_name(self, local_llamacpp_model_path) -> None:
         """
         Test if the model name is correctly set.
         """
-        embeddings = LlamaCppEmbeddings(model_path=str(Path.home() / self.model_path))
-        assert embeddings.model_name == str(Path.home() / self.model_path)
+        assert self.embeddings.model_name == local_llamacpp_model_path
 
-    def test_encode(self, local_llamacpp_model_path) -> None:
+    def test_encode(self) -> None:
         """
         Test if the model can generate embeddings.
-
-        Args:
-            local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
         inputs = [
             "Hello, how are you?",
             "What a nice day!",
             "I hear that llamas are very popular now.",
         ]
-        embeddings.load()
-        results = embeddings.encode(inputs=inputs)
+        results = self.embeddings.encode(inputs=inputs)
 
         for result in results:
             assert len(result) == 384
 
-    def test_load_model_from_local(self, local_llamacpp_model_path):
+    def test_load_model_from_local(self):
         """
         Test if the model can be loaded from a local file and generate embeddings.
 
         Args:
             local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
+
         inputs = [
             "Hello, how are you?",
             "What a nice day!",
             "I hear that llamas are very popular now.",
         ]
-        embeddings.load()
+
         # Test if the model is loaded by generating an embedding
-        results = embeddings.encode(inputs=inputs)
+        results = self.embeddings.encode(inputs=inputs)
 
         for result in results:
             assert len(result) == 384
 
-    def test_load_model_from_repo(self):
+    def test_load_model_from_repo(self, use_cpu):
         """
         Test if the model can be loaded from a Hugging Face repository.
         """
+        n_gpu_layers = 0 if use_cpu else -1
         embeddings = LlamaCppEmbeddings(
             repo_id=self.repo_id,
             normalize_embeddings=True,
             model_path=self.hub_model,
+            n_gpu_layers=n_gpu_layers,
         )
         inputs = [
             "Hello, how are you?",
@@ -92,21 +105,23 @@ class TestLlamaCppEmbeddings:
         for result in results:
             assert len(result) == 384
 
-    def test_normalize_embeddings_true(self, local_llamacpp_model_path):
+    def test_normalize_embeddings(self, use_cpu):
         """
         Test if embeddings are normalized when normalize_embeddings is True.
         """
-        embeddings = LlamaCppEmbeddings(
-            model_path=local_llamacpp_model_path, normalize_embeddings=True
-        )
-        embeddings.load()
-
         inputs = [
             "Hello, how are you?",
             "What a nice day!",
             "I hear that llamas are very popular now.",
         ]
-
+        n_gpu_layers = 0 if use_cpu else -1
+        embeddings = LlamaCppEmbeddings(
+            repo_id=self.repo_id,
+            normalize_embeddings=True,
+            model_path=self.hub_model,
+            n_gpu_layers=n_gpu_layers,
+        )
+        embeddings.load()
         results = embeddings.encode(inputs=inputs)
 
         for result in results:
@@ -116,14 +131,10 @@ class TestLlamaCppEmbeddings:
                 norm, 1.0, atol=1e-6
             ), f"Norm is {norm}, expected close to 1.0"
 
-    def test_normalize_embeddings_false(self, local_llamacpp_model_path):
+    def test_normalize_embeddings_false(self):
         """
         Test if embeddings are not normalized when normalize_embeddings is False.
         """
-        embeddings = LlamaCppEmbeddings(
-            model_path=local_llamacpp_model_path, normalize_embeddings=False
-        )
-        embeddings.load()
 
         inputs = [
             "Hello, how are you?",
@@ -131,7 +142,7 @@ class TestLlamaCppEmbeddings:
             "I hear that llamas are very popular now.",
         ]
 
-        results = embeddings.encode(inputs=inputs)
+        results = self.embeddings.encode(inputs=inputs)
 
         for result in results:
             # Check if the embedding is not normalized (L2 norm should not be close to 1)
@@ -146,21 +157,15 @@ class TestLlamaCppEmbeddings:
             not np.isclose(norm, 1.0, atol=0.1) for norm in norms
         ), "Expected at least one embedding with norm not close to 1.0"
 
-    def test_encode_batch(self, local_llamacpp_model_path) -> None:
+    def test_encode_batch(self) -> None:
         """
         Test if the model can generate embeddings for batches of inputs.
-
-        Args:
-            local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
-        embeddings.load()
-
         # Test with different batch sizes
         batch_sizes = [1, 2, 5, 10]
         for batch_size in batch_sizes:
             inputs = [f"This is test sentence {i}" for i in range(batch_size)]
-            results = embeddings.encode(inputs=inputs)
+            results = self.embeddings.encode(inputs=inputs)
 
             assert (
                 len(results) == batch_size
@@ -172,28 +177,25 @@ class TestLlamaCppEmbeddings:
 
         # Test with a large batch to ensure it doesn't cause issues
         large_batch = ["Large batch test" for _ in range(100)]
-        large_results = embeddings.encode(inputs=large_batch)
+        large_results = self.embeddings.encode(inputs=large_batch)
         assert (
             len(large_results) == 100
         ), f"Expected 100 results for large batch, got {len(large_results)}"
 
-    def test_encode_batch_consistency(self, local_llamacpp_model_path) -> None:
+    def test_encode_batch_consistency(self) -> None:
         """
         Test if the model produces consistent embeddings for the same input in different batch sizes.
 
         Args:
             local_llamacpp_model_path (str): Fixture providing the local model path.
         """
-        embeddings = LlamaCppEmbeddings(model_path=local_llamacpp_model_path)
-        embeddings.load()
-
         input_text = "This is a test sentence for consistency"
 
         # Generate embedding individually
-        single_result = embeddings.encode([input_text])[0]
+        single_result = self.embeddings.encode([input_text])[0]
 
         # Generate embedding as part of a batch
-        batch_result = embeddings.encode([input_text, "Another sentence"])[0]
+        batch_result = self.embeddings.encode([input_text, "Another sentence"])[0]
 
         # Compare the embeddings
         assert np.allclose(

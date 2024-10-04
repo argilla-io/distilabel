@@ -115,7 +115,27 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         #   [4.4889533455716446e-05, 0.044016145169734955, ...],
         # ]
         ```
+        Generate sentence embeddings with cpu:
 
+        ```python
+        from pathlib import Path
+        from distilabel.embeddings import LlamaCppEmbeddings
+
+        # You can follow along this example downloading the following model running the following
+        # command in the terminal, that will download the model to the `Downloads` folder:
+        # curl -L -o ~/Downloads/All-MiniLM-L6-v2-Embedding-GGUF https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/blob/main/all-MiniLM-L6-v2-Q2_K.gguf
+
+        model_path = "Downloads/all-MiniLM-L6-v2-Q2_K.gguf"
+        embeddings = LlamaCppEmbeddings(model_path=str(Path.home() / model_path), n_gpu_layers=0)
+
+        embeddings.load()
+
+        results = embeddings.encode(inputs=["distilabel is awesome!", "and Argilla!"])
+        # [
+        #   [-0.05447685346007347, -0.01623094454407692, ...],
+        #   [4.4889533455716446e-05, 0.044016145169734955, ...],
+        # ]
+        ```
 
 
     """
@@ -127,7 +147,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
     )
 
     n_gpu_layers: RuntimeParameter[int] = Field(
-        default=0,
+        default=-1,
         description="The number of layers that will be loaded in the GPU.",
     )
 
