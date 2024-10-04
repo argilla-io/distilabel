@@ -23,6 +23,34 @@ from distilabel.utils.argilla import ArgillaBase
 
 
 class ArgillaKnowledgeBase(KnowledgeBase, ArgillaBase):
+    """`argilla` library implementation for knowledge base.
+
+    Attributes:
+        dataset_name: the name of the dataset to use.
+        dataset_workspace: the workspace of the dataset to use.
+        api_url: the url of the argilla api to use. Defaults to `ARGILLA_API_URL` environment variable.
+        api_key: the key of the argilla api to use. Defaults to `ARGILLA_API_KEY` environment variable.
+        vector_field: the name of the field containing the vector.
+
+    References:
+        - [Argilla Knowledge Base](https://docs.argilla.io/)
+
+    Examples:
+        Connecting to a Argilla Knowledge Base.
+
+        ```python
+        from distilabel.knowledge_bases import ArgillaKnowledgeBase
+
+        knowledge_base = ArgillaKnowledgeBase(
+            dataset_name="my_dataset",
+            dataset_workspace="my_workspace",
+            vector_field="my_vector_field",
+        )
+        knowledge_base.load()
+        ```
+
+    """
+
     vector_field: RuntimeParameter[str] = Field(
         None, description="The name of the field containing the vector."
     )

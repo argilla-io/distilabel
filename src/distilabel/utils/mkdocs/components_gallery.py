@@ -501,7 +501,6 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         # Create detail page for each `Knowledge Base`
         for knowledge_base in knowledge_bases:
             content = _LLM_DETAIL_TEMPLATE.render(llm=knowledge_base)
-
             knowledge_base_path = f"components-gallery/knowledge_bases/{knowledge_base['name'].lower()}.md"
             path = src_dir / knowledge_base_path
             with open(path, "w") as f:

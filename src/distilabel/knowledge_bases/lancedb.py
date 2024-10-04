@@ -25,6 +25,34 @@ from distilabel.knowledge_bases.base import KnowledgeBase
 
 
 class LanceDBKnowledgeBase(KnowledgeBase):
+    """
+    `lancedb` library implementation for knowledge base.
+
+    Attributes:
+        uri: the uri of the lancedb database.
+        table_name: the name of the table to use.
+        api_key: the api key to use to connect to the lancedb database.
+        region: the region of the lancedb database.
+        read_consistency_interval: the read consistency interval of the lancedb database.
+        request_thread_pool_size: the request thread pool size of the lancedb database.
+        index_cache_size: the index cache size of the lancedb database.
+
+    References:
+        - [LanceDB](https://lancedb.github.io/lancedb/)
+
+    Examples:
+        Connecting to a LanceDB Knowledge Base.
+
+        ```python
+        from distilabel.knowledge_bases import LanceDBKnowledgeBase
+
+        knowledge_base = LanceDBKnowledgeBase(uri="my_uri", table_name="my_table")
+
+        knowledge_base.load()
+        ```
+
+    """
+
     uri: str = Field(..., description="The URI of the LanceDB database.")
     table_name: str = Field(..., description="The name of the table to use.")
     api_key: Optional[str] = Field(
