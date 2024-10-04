@@ -94,7 +94,7 @@ class _Batch(_Serializable):
 
         if num_rows is None:
             data = self.data[0]
-            self.data = []
+            self.data = [[]]
         else:
             data = self.data[0][:num_rows]
             self.data[0] = self.data[0][num_rows:]

@@ -1131,10 +1131,13 @@ class _BatchManager(_Serializable):
         for step_name, step_file in content["steps"].items():
             steps[step_name] = read_json(step_file)
 
-            # When reading back from JSON, `next_expected_seq_no` is a list (because JSON
-            # files do not have tuples).
+            # When reading back from JSON, `next_expected_seq_no` and `step_offset` is a
+            # list (because JSON files do not have tuples).
             steps[step_name]["next_expected_seq_no"] = {
                 k: tuple(v) for k, v in steps[step_name]["next_expected_seq_no"].items()
+            }
+            steps[step_name]["step_offset"] = {
+                k: tuple(v) for k, v in steps[step_name]["step_offset"].items()
             }
 
             # TODO: where are we writing built batches now? xD

@@ -148,6 +148,7 @@ class TestBatchManagerStep:
                     )
                 ],
             },
+            step_offset={"step1": (0, 0), "step2": (0, 0)},
             built_batches=[previously_built_batch],
             next_expected_seq_no={"step1": (1, 1), "step2": (1, 1)},
         )
@@ -172,7 +173,7 @@ class TestBatchManagerStep:
                     {"b": 2},
                 ],
             ],
-            created_from={"step1": [(1, 5)], "step2": [(1, 5)]},
+            created_from={"step1": [(1, 2)], "step2": [(1, 2)]},
         )
 
         batch = batch_manager_step.get_batch()
@@ -191,7 +192,7 @@ class TestBatchManagerStep:
                     {"b": 4},
                 ],
             ],
-            created_from={"step1": [(1, 5)], "step2": [(1, 5)]},
+            created_from={"step1": [(1, 2)], "step2": [(1, 2)]},
         )
 
     def test_get_batches_accumulate(self) -> None:
@@ -235,6 +236,7 @@ class TestBatchManagerStep:
                     )
                 ],
             },
+            step_offset={"step1": (0, 0), "step2": (0, 0)},
             last_batch_received=["step1", "step2"],
         )
 
@@ -434,7 +436,7 @@ class TestBatchManagerStep:
             [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}],
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}],
         ]
-        assert created_from == {"step1": [(0, 6)], "step2": [(0, 7)]}
+        assert created_from == {"step1": [(0, 5)], "step2": [(0, 5)]}
         assert routed_to == ["step1", "step2"]
 
         assert batch_manager_step.data == {
@@ -445,7 +447,7 @@ class TestBatchManagerStep:
                     last_batch=False,
                     data=[[{"a": 6}]],
                     data_hash=batch_step_1.data_hash,
-                    size=6,
+                    size=1,
                     batch_routed_to=["step1", "step2"],
                 )
             ],
@@ -456,7 +458,7 @@ class TestBatchManagerStep:
                     last_batch=False,
                     data=[[{"b": 6}, {"b": 7}]],
                     data_hash=batch_step_2.data_hash,
-                    size=7,
+                    size=2,
                     batch_routed_to=["step1", "step2"],
                 )
             ],
@@ -1221,7 +1223,6 @@ class TestBatchManagerStep:
                 "step1": (0, 0),
                 "step2": (0, 0),
             },
-            "cached_data_dir": None,
             "step_offset": {},
             "step_signature": None,
             "use_cache": False,
@@ -1507,8 +1508,8 @@ class TestBatchManager:
         )
 
         assert batch_manager.step_has_finished("step1") is True
-        assert batch_manager.step_has_finished("step2") is False
-        assert batch_manager.step_has_finished("step1") is False
+        assert batch_manager.step_has_finished("step2") is True
+        assert batch_manager.step_has_finished("step3") is False
 
     def test_add_batch_with_prepend(self) -> None:
         batch_1 = _Batch(
@@ -1614,14 +1615,9 @@ class TestBatchManager:
                 input_batch_size=50,
                 data={"dummy_generator_step": []},
                 next_expected_seq_no={"dummy_generator_step": (0, 0)},
-                step_signature="757e51801b4e6d14ed67c1b610e6ab1b4309218d",
+                step_signature="bc765d5801dc71c88a1a444e1b1e26035d309724",
                 use_cache=True,
-                step_offset={
-                    "dummy_generator_step": {
-                        "batch": "batch_0",
-                        "offset": 0,
-                    }
-                },
+                step_offset={"dummy_generator_step": (0, 0)},
             ),
             "dummy_global_step": _BatchManagerStep(
                 step_name="dummy_global_step",
@@ -1629,14 +1625,9 @@ class TestBatchManager:
                 input_batch_size=50,
                 data={"dummy_generator_step": []},
                 next_expected_seq_no={"dummy_generator_step": (0, 0)},
-                step_signature="00be5ed553bb01774ac484d799bf954bdc3ba8ed",
+                step_signature="6a0e9f45043fa7dc37e2b36269d660dfef63dbb7",
                 use_cache=True,
-                step_offset={
-                    "dummy_generator_step": {
-                        "batch": "batch_0",
-                        "offset": 0,
-                    }
-                },
+                step_offset={"dummy_generator_step": (0, 0)},
             ),
             "dummy_step_2": _BatchManagerStep(
                 step_name="dummy_step_2",
@@ -1644,14 +1635,9 @@ class TestBatchManager:
                 input_batch_size=50,
                 data={"dummy_step_1": []},
                 next_expected_seq_no={"dummy_step_1": (0, 0)},
-                step_signature="54b9b14cd897cff91484c8bd27dd8c7d4ca89511",
+                step_signature="2d1076164acb43431aad1a54a781b7bad22c7037",
                 use_cache=True,
-                step_offset={
-                    "dummy_step_1": {
-                        "batch": "batch_0",
-                        "offset": 0,
-                    }
-                },
+                step_offset={"dummy_step_1": (0, 0)},
             ),
         }
 
@@ -1659,7 +1645,7 @@ class TestBatchManager:
         # We test the cache starting from the DAG because we need the signature
         with tempfile.TemporaryDirectory() as tmp_dir:
             batch_manager_path = Path(tmp_dir) / "batch_manager.json"
-            dummy_batch_manager.cache(batch_manager_path)
+            dummy_batch_manager.cache(batch_manager_path, Path(tmp_dir))
 
             assert batch_manager_path.exists() and batch_manager_path.is_file()
 
@@ -1700,15 +1686,19 @@ class TestBatchManager:
                 #         )
                 #         assert batch_path.exists() and batch_path.is_file()
 
-    def test_load_from_cache(self, dummy_batch_manager: _BatchManager) -> None:
+    def test_load_from_cache(
+        self, dummy_dag: DAG, dummy_batch_manager: _BatchManager
+    ) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             from pathlib import Path
 
             tmp_dir = Path.home() / "Downloads/test_batch_manager"
 
             batch_manager_path = Path(tmp_dir) / "batch_manager.json"
-            dummy_batch_manager.cache(batch_manager_path)
-            loaded_batch_manager = _BatchManager.load_from_cache(batch_manager_path)
+            dummy_batch_manager.cache(batch_manager_path, Path(tmp_dir))
+            loaded_batch_manager = _BatchManager.load_from_cache(
+                dummy_dag, batch_manager_path, Path(tmp_dir)
+            )
 
         assert dummy_batch_manager.dump() == loaded_batch_manager.dump()
 
@@ -1918,7 +1908,6 @@ class TestBatchManager:
                         "step1": (1, 1),
                         "step2": (1, 1),
                     },
-                    "cached_data_dir": None,
                     "step_offset": {},
                     "step_signature": None,
                     "use_cache": False,
