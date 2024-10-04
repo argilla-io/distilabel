@@ -15,27 +15,33 @@
 import hashlib
 from typing import TYPE_CHECKING, Set
 
+from pydantic import BaseModel, Field
+
 from distilabel.utils.serialization import TYPE_INFO_KEY
 
 if TYPE_CHECKING:
     pass
 
+_EXCLUDE_FROM_SIGNATURE_DEFAULTS = {
+    TYPE_INFO_KEY,
+    "disable_cuda_device_placement",
+    "input_batch_size",
+    "gpu_memory_utilization",
+    "resources",
+    "exclude_from_signature",
+}
 
-class SignatureMixin:
+
+class SignatureMixin(BaseModel):
     """Mixin for creating a signature (for cache) of the class.
 
     Attributes:
         exclude_from_signature: list of attributes to exclude from the signature.
     """
 
-    exclude_from_signature: Set[str] = {
-        TYPE_INFO_KEY,
-        "disable_cuda_device_placement",
-        "input_batch_size",
-        "gpu_memory_utilization",
-        "resources",
-        "exclude_from_signature",
-    }
+    exclude_from_signature: Set[str] = Field(
+        _EXCLUDE_FROM_SIGNATURE_DEFAULTS, exclude=True
+    )
 
     @property
     def signature(self) -> str:
