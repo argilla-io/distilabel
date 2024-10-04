@@ -85,6 +85,7 @@ _STEPS_CATEGORY_TO_ICON = {
     "scorer": ":octicons-number-16:",
     "preference": ":material-poll:",
     "embedding": ":material-vector-line:",
+    "knowledge_base": ":material-database:",
     "clustering": ":material-scatter-plot:",
     "columns": ":material-table-column:",
     "filtering": ":material-filter:",
@@ -103,6 +104,7 @@ _STEP_CATEGORY_TO_DESCRIPTION = {
     "scorer": "Scorer steps are used to evaluate and score the data with a numerical value.",
     "preference": "Preference steps are used to collect preferences on the data with numerical values or ranks.",
     "embedding": "Embedding steps are used to generate embeddings for the data.",
+    "knowledge_base": "Knowledge bases are used to store and retrieve data.",
     "clustering": "Clustering steps are used to group similar data points together.",
     "columns": "Columns steps are used to manipulate columns in the data.",
     "filtering": "Filtering steps are used to filter the data based on some criteria.",
@@ -111,9 +113,18 @@ _STEP_CATEGORY_TO_DESCRIPTION = {
     "save": "Save steps are used to save the data.",
 }
 
-assert list(_STEP_CATEGORY_TO_DESCRIPTION.keys()) == list(
-    _STEPS_CATEGORY_TO_ICON.keys()
-)
+if list(_STEP_CATEGORY_TO_DESCRIPTION.keys()) != list(_STEPS_CATEGORY_TO_ICON.keys()):
+    missing_from_icon = set(_STEP_CATEGORY_TO_DESCRIPTION.keys()) - set(
+        _STEPS_CATEGORY_TO_ICON.keys()
+    )
+    missing_from_description = set(_STEPS_CATEGORY_TO_ICON.keys()) - set(
+        _STEP_CATEGORY_TO_DESCRIPTION.keys()
+    )
+    raise ValueError(
+        f"The following keys are in _STEPS_CATEGORY_TO_ICON but not in _STEP_CATEGORY_TO_DESCRIPTION: {missing_from_description}.\n"
+        f"The following keys are in _STEP_CATEGORY_TO_DESCRIPTION but not in _STEPS_CATEGORY_TO_ICON: {missing_from_icon}.\n"
+        "The keys in _STEP_CATEGORY_TO_DESCRIPTION and _STEPS_CATEGORY_TO_ICON must match."
+    )
 
 _STEP_CATEGORIES = list(_STEP_CATEGORY_TO_DESCRIPTION.keys())
 _STEP_CATEGORY_TABLE = pd.DataFrame(
@@ -197,6 +208,9 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         self.file_paths["embeddings"] = self._generate_embeddings_pages(
             src_dir=src_dir, embeddings=components_info["embeddings"]
         )
+        self.file_paths["knowledge_bases"] = self._generate_knowledge_bases_pages(
+            src_dir=src_dir, knowledge_bases=components_info["knowledge_bases"]
+        )
 
         # Add the new files to the files collections
         for relative_file_path in [
@@ -205,6 +219,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             *self.file_paths["tasks"],
             *self.file_paths["llms"],
             *self.file_paths["embeddings"],
+            *self.file_paths["knowledge_bases"],
         ]:
             file = File(
                 path=relative_file_path,
@@ -459,6 +474,48 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             components=embeddings,
             component_group="embeddings",
             default_icon=":material-vector-line:",
+        )
+
+        with open(steps_gallery_page_path, "w") as f:
+            f.write(content)
+
+        return paths
+
+    def _generate_knowledge_bases_pages(
+        self, src_dir: Path, knowledge_bases: list
+    ) -> List[str]:
+        """Generates the files for the `Knowledge Bases` subsection of the components gallery.
+
+        Args:
+            src_dir: The path to the source directory.
+            knowledge_bases: The list of `Knowledge Base` components.
+
+        Returns:
+            The relative paths to the generated files.
+        """
+
+        paths = ["components-gallery/knowledge_bases/index.md"]
+        steps_gallery_page_path = src_dir / paths[0]
+        steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Create detail page for each `Knowledge Base`
+        for knowledge_base in knowledge_bases:
+            content = _LLM_DETAIL_TEMPLATE.render(llm=knowledge_base)
+
+            knowledge_base_path = f"components-gallery/knowledge_bases/{knowledge_base['name'].lower()}.md"
+            path = src_dir / knowledge_base_path
+            with open(path, "w") as f:
+                f.write(content)
+
+            paths.append(knowledge_base_path)
+
+        # Create the `components-gallery/knowledge_bases/index.md` file
+        content = _COMPONENTS_LIST_TEMPLATE.render(
+            title="KnowledgeBases Gallery",
+            description="",
+            components=knowledge_bases,
+            component_group="knowledge_bases",
+            default_icon=":material-database:",
         )
 
         with open(steps_gallery_page_path, "w") as f:

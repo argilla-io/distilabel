@@ -237,6 +237,9 @@ nav:
       - Embedding:
           - "api/embedding/index.md"
           - Embedding Gallery: "api/embedding/embedding_gallery.md"
+      - KnowledgeBase:
+          - "api/knowledge_bases/index.md"
+          - KnowledgeBase Gallery: "api/knowledge_bases/knowledge_base_gallery.md"
       - Pipeline:
           - "api/pipeline/index.md"
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
