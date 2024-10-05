@@ -253,6 +253,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        from sglang.srt.sampling.sampling_params import SamplingParams
 
         if not logits_processors:
             logits_processors = []
@@ -281,14 +282,23 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                     self._prepare_structured_output(structured_output)
                 )
 
-            sampling_params = {"max_new_tokens": 128}
-
-            self._model.generate(
-                prepared_inputs,
-                sampling_params,
-                use_tqdm=False,  # type: ignore
+            sampling_params = SamplingParams(  # type: ignore
+                n=num_generations,
+                presence_penalty=presence_penalty,
+                frequency_penalty=frequency_penalty,
+                repetition_penalty=repetition_penalty,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                min_p=min_p,
+                max_new_tokens=max_new_tokens,
+                stop=stop,
+                stop_token_ids=stop_token_ids,
+                include_stop_str_in_output=include_stop_str_in_output,
+                **extra_sampling_params,
             )
-            batch_outputs = self._model.add_request(
+
+            batch_outputs = self._model.generate(
                 prepared_inputs,
                 sampling_params,
                 use_tqdm=False,  # type: ignore
