@@ -26,6 +26,7 @@ from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixi
 from distilabel.llms.moa import MixtureOfAgentsLLM
 from distilabel.llms.ollama import OllamaLLM
 from distilabel.llms.openai import OpenAILLM
+from distilabel.llms.sglang import SGLang
 from distilabel.llms.together import TogetherLLM
 from distilabel.llms.typing import GenerateOutput, HiddenState
 from distilabel.llms.vertexai import VertexAILLM
@@ -54,4 +55,5 @@ __all__ = [
     "VertexAILLM",
     "ClientvLLM",
     "vLLM",
+    "SGLang",
 ]

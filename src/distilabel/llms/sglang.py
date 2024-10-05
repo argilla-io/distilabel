@@ -15,11 +15,14 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     List,
     Optional,
+    Union,
 )
 
+import numpy as np
 from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
@@ -30,9 +33,17 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
-    from openai import OpenAI  # noqa
+    from sglang.srt.server import Runtime
+    from transformers import PreTrainedTokenizer
 
     from distilabel.steps.tasks.typing import StandardInput
+
+LogitsProcessorFn = Union[
+    Callable[[List[int], Any], Any],
+    Callable[[List[int], List[int], Any], Any],
+]
+
+LogitsProcessors = List[LogitsProcessorFn]
 
 
 class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
@@ -79,11 +90,9 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     dtype: str = "auto"
     trust_remote_code: bool = False
     quantization: Optional[str] = None
-    revision: Optional[str] = None
 
-    tokenizer_path: Optional[str] = None
+    tokenizer: Optional[str] = None
     tokenizer_mode: str = "auto"
-    tokenizer_revision: Optional[str] = None
     skip_tokenizer_init: bool = False
     chat_template: Optional[str] = None
 
@@ -109,8 +118,8 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         description="The log level to use for the SGLang server.",
     )
 
-    _model: Any = PrivateAttr(None)
-    _tokenizer: Any = PrivateAttr(None)
+    _model: "Runtime" = PrivateAttr(None)
+    _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
 
     def load(self) -> None:
         """
@@ -126,7 +135,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             from sglang.srt.server import Runtime
         except ImportError as ie:
             raise ImportError(
-                'SGLang is not installed. Please install it using `pip install "sglang[all]"`.'
+                '`SGLang` is not installed. Please install it using `pip install "sglang[all]"`.'
                 " Also, install FlashInfer CUDA kernels using:\n"
                 "`pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.4/`"
             ) from ie
@@ -136,17 +145,15 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             dtype=self.dtype,
             trust_remote_code=self.trust_remote_code,
             quantization=self.quantization,
-            revision=self.revision,
-            tokenizer=self.tokenizer,
+            tokenizer_path=self.tokenizer,
             tokenizer_mode=self.tokenizer_mode,
-            tokenizer_revision=self.tokenizer_revision,
             skip_tokenizer_init=self.skip_tokenizer_init,
             load_format=self.load_format,
             kv_cache_dtype=self.kv_cache_dtype,
             context_length=self.context_length,
             served_model_name=self.served_model_name,
             is_embedding=self.is_embedding,
-            seed=self.seed,
+            random_seed=self.seed,
             **self.extra_kwargs,
         )
 
@@ -196,16 +203,173 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         return super().apply_magpie_pre_query_template(prompt, input)
 
     @validate_call
-    def generate(
+    def generate(  # type: ignore
         self,
         inputs: List[FormattedInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
-        # Add other relevant parameters here
+        presence_penalty: float = 0.0,
+        frequency_penalty: float = 0.0,
+        repetition_penalty: float = 1.0,
+        temperature: float = 1.0,
+        top_p: float = 1.0,
+        top_k: int = -1,
+        min_p: float = 0.0,
+        stop: Optional[List[str]] = None,
+        stop_token_ids: Optional[List[int]] = None,
+        include_stop_str_in_output: bool = False,
+        logits_processors: Optional[LogitsProcessors] = None,
+        extra_sampling_params: Optional[Dict[str, Any]] = None,
     ) -> List[GenerateOutput]:
-        """Generates responses for each input."""
-        # Implement generation logic here
-        pass
+        """Generates `num_generations` responses for each input.
+
+        Args:
+            inputs: a list of inputs in chat format to generate responses for.
+            num_generations: the number of generations to create per input. Defaults to
+                `1`.
+            max_new_tokens: the maximum number of new tokens that the model will generate.
+                Defaults to `128`.
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            repetition_penalty: the repetition penalty to use for the generation Defaults to
+                `1.0`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            top_k: the top-k value to use for the generation. Defaults to `0`.
+            min_p: the minimum probability to use for the generation. Defaults to `0.0`.
+            stop: a list of strings that will be used to stop the generation when found.
+                Defaults to `None`.
+            stop_token_ids: a list of token ids that will be used to stop the generation
+                when found. Defaults to `None`.
+            include_stop_str_in_output: whether to include the stop string in the output.
+                Defaults to `False`.
+            logits_processors: a list of functions to process the logits before sampling.
+                Defaults to `None`.
+            extra_sampling_params: dictionary with additional arguments to be passed to
+                the `SamplingParams` class from `vllm`.
+
+        Returns:
+            A list of lists of strings containing the generated responses for each input.
+        """
+
+        if not logits_processors:
+            logits_processors = []
+
+        if extra_sampling_params is None:
+            extra_sampling_params = {}
+
+        structured_output = None
+
+        if isinstance(inputs[0], tuple):
+            prepared_batches, sorted_indices = self._prepare_batches(inputs)
+        else:
+            # Simulate a batch without the structured output content
+            prepared_batches = [([self.prepare_input(input) for input in inputs], None)]
+            sorted_indices = None
+
+        # Case in which we have a single structured output for the dataset
+        if self._structured_output_logits_processor:
+            logits_processors.append(self._structured_output_logits_processor)
+
+        batched_outputs = []
+
+        for prepared_inputs, structured_output in prepared_batches:
+            if structured_output:
+                logits_processors.append(
+                    self._prepare_structured_output(structured_output)
+                )
+
+            sampling_params = {"max_new_tokens": 128}
+
+            self._model.generate(
+                prepared_inputs,
+                sampling_params,
+                use_tqdm=False,  # type: ignore
+            )
+            batch_outputs = self._model.add_request(
+                prepared_inputs,
+                sampling_params,
+                use_tqdm=False,  # type: ignore
+            )
+
+            batched_outputs += [
+                [output.text for output in outputs.outputs] for outputs in batch_outputs
+            ]
+
+        # If logits_processor is set, we need to sort the outputs back to the original order
+        # (would be needed only if we have multiple structured outputs in the dataset)
+        if sorted_indices is not None:
+            batched_outputs = _sort_batches(
+                batched_outputs, sorted_indices, num_generations=num_generations
+            )
+        return batched_outputs
+
+    def _prepare_structured_output(
+        self, structured_output: Optional[OutlinesStructuredOutputType] = None
+    ) -> Union[Callable, None]:
+        """Creates the appropriate function to filter tokens to generate structured outputs.
+
+        Args:
+            structured_output: the configuration dict to prepare the structured output.
+
+        Returns:
+            The callable that will be used to guide the generation of the model.
+        """
+        from distilabel.steps.tasks.structured_outputs.outlines import (
+            prepare_guided_output,
+        )
+
+        result = prepare_guided_output(structured_output, "vllm", self._model)
+        if (schema := result.get("schema")) and self.structured_output:
+            self.structured_output["schema"] = schema
+        return result["processor"]
+
+
+def _sort_batches(
+    batches: List[List[FormattedInput]], indices: List[int], num_generations: int = 1
+) -> List[str]:
+    """Helper function to sort back the mini-batches generated by the model.
+
+    It must take into account the number of `num_generations` to repeat the indices
+    accordingly.
+
+    Args:
+        batches: The mini-batches generated by the model.
+        indices: The indices that would sort the mini-batches back to the original order.
+        num_generations: The number of generations requested to vLLM. Defaults to 1.
+
+    Returns:
+        Sorted batched_outputs.
+    """
+    batch_sizes = [len(batch) for batch in batches]
+    flattened_batches = np.array([b for batch in batches for b in batch])
+    sorted_batches = np.take_along_axis(
+        flattened_batches,
+        np.argsort(np.repeat(indices, num_generations)),
+        axis=0,
+    ).tolist()
+    sorted_batches = _batchify(sorted_batches, batch_sizes)
+    return sorted_batches
+
+
+def _batchify(sorted_batches: List[str], batch_sizes: List[int]) -> List[List[str]]:
+    """Helper function to regenerate the sorted batches from the flattened sorted ones.
+
+    Args:
+        sorted_batches: Output obtained from the `_sort_batches` function.
+        batch_sizes: The batch sizes to be used to split the sorted batches.
+
+    Returns:
+        Batched sorted batches in the original shape.
+    """
+    batches = []
+    idx = 0
+    for bs in batch_sizes:
+        batches.append(sorted_batches[idx : idx + bs])
+        idx += bs
+    return batches
 
 
 # You can add a ClientSGLang class here if needed, similar to ClientvLLM
