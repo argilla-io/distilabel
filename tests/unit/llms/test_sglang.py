@@ -105,7 +105,7 @@ class DummyTokenizer:
         return input
 
 
-class TestvLLM:
+class TestSGLang:
     @pytest.mark.parametrize(
         "num_generations, expected_sorted_batches",
         [
@@ -195,6 +195,38 @@ class TestvLLM:
         llm.load()
         assert llm._model is not None
         assert llm._tokenizer is not None
+        llm.unload()
 
+    def test_sglang_generate(self):
+        """Test the generate method of SGLang class."""
+        llm = SGLang(model="meta-llama/Llama-2-7b-chat-hf")
+        llm.load()
 
-# Add more tests as needed for other methods and edge cases
+        # Mock the _model.generate method to avoid actual API calls
+        def mock_generate(inputs, sampling_params, use_tqdm):
+            from collections import namedtuple
+
+            Output = namedtuple("Output", ["text"])
+            Outputs = namedtuple("Outputs", ["outputs"])
+            return [
+                Outputs(
+                    [
+                        Output(f"Generated text for {input}")
+                        for _ in range(sampling_params.n)
+                    ]
+                )
+                for input in inputs
+            ]
+
+        # llm.generate = mock_generate
+
+        inputs = [
+            [{"role": "user", "content": "Hello, how are you?"}],
+            [{"role": "user", "content": "What's the weather like today?"}],
+        ]
+
+        outputs = llm.generate(inputs, num_generations=2, max_new_tokens=10)
+        assert len(outputs) == 2  # Two input prompts
+        llm.unload()
+
+    # Add more tests as needed for other methods and edge cases

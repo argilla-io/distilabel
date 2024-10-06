@@ -122,6 +122,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     _model: "Runtime" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
+    _structured_output_logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """
@@ -170,6 +171,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     def unload(self) -> None:
         """Unloads the SGLang model."""
+        self._model.shutdown()
         self._model = None
         self._tokenizer = None
         CudaDevicePlacementMixin.unload(self)
@@ -261,7 +263,6 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         min_p: float = 0.0,
         stop: Optional[List[str]] = None,
         stop_token_ids: Optional[List[int]] = None,
-        include_stop_str_in_output: bool = False,
         logits_processors: Optional[LogitsProcessors] = None,
         extra_sampling_params: Optional[Dict[str, Any]] = None,
     ) -> List[GenerateOutput]:
@@ -315,6 +316,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             sorted_indices = None
 
         # Case in which we have a single structured output for the dataset
+        # Case in which we have a single structured output for the dataset
         if self._structured_output_logits_processor:
             logits_processors.append(self._structured_output_logits_processor)
 
@@ -337,19 +339,18 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 min_p=min_p,
                 max_new_tokens=max_new_tokens,
                 stop=stop,
-                stop_token_ids=stop_token_ids,
-                include_stop_str_in_output=include_stop_str_in_output,
+                stop_token_ids=[] if stop_token_ids is None else stop_token_ids,
                 **extra_sampling_params,
             )
 
             batch_outputs = self._model.generate(
                 prepared_inputs,
-                sampling_params,
-                use_tqdm=False,  # type: ignore
+                sampling_params.to_srt_kwargs(),
             )
 
             batched_outputs += [
-                [output.text for output in outputs.outputs] for outputs in batch_outputs
+                [output.text for output in outputs.outputs]
+                for outputs in json.loads(batch_outputs)
             ]
 
         # If logits_processor is set, we need to sort the outputs back to the original order
