@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -19,6 +20,7 @@ from typing import (
     Dict,
     List,
     Optional,
+    Tuple,
     Union,
 )
 
@@ -201,6 +203,48 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             else ""
         )
         return super().apply_magpie_pre_query_template(prompt, input)
+
+    def _prepare_batches(
+        self, inputs: List[FormattedInput]
+    ) -> Tuple[List[List[FormattedInput]], List[int]]:
+        """Prepares the inputs by grouping them by the structured output.
+
+        When we generate structured outputs with schemas obtained from a dataset, we need to
+        prepare the data to try to send batches of inputs instead of single inputs to the model
+        to take advante of the engine. So we group the inputs by the structured output to be
+        passed in the `generate` method.
+
+        Args:
+            inputs: The batch of inputs passed to the generate method. As we expect to be generating
+                structured outputs, each element will be a tuple containing the instruction and the
+                structured output.
+
+        Returns:
+            The prepared batches (sub-batches let's say) to be passed to the `generate` method.
+            Each new tuple will contain instead of the single instruction, a list of instructions
+        """
+        instruction_order = {}
+        batches = {}
+        for i, (instruction, structured_output) in enumerate(inputs):
+            instruction = self.prepare_input(instruction)
+            instruction_order[instruction] = i
+            structured_output = json.dumps(structured_output)
+            if structured_output not in batches:
+                batches[structured_output] = [instruction]
+            else:
+                batches[structured_output].append(instruction)
+
+        # Flatten the instructions in prepared_data
+        flat_instructions = [
+            instruction for _, group in batches.items() for instruction in group
+        ]
+        # Generate the list of indices based on the original order
+        sorted_indices = [
+            instruction_order[instruction] for instruction in flat_instructions
+        ]
+        return [
+            (batch, json.loads(schema)) for schema, batch in batches.items()
+        ], sorted_indices
 
     @validate_call
     def generate(  # type: ignore
