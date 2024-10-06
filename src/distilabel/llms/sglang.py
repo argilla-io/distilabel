@@ -348,10 +348,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 sampling_params.to_srt_kwargs(),
             )
 
-            batched_outputs += [
-                [output.text for output in outputs.outputs]
-                for outputs in json.loads(batch_outputs)
-            ]
+            batched_outputs += [output["text"] for output in json.loads(batch_outputs)]
 
         # If logits_processor is set, we need to sort the outputs back to the original order
         # (would be needed only if we have multiple structured outputs in the dataset)
