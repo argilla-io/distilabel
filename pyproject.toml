@@ -84,7 +84,7 @@ llama-cpp = ["llama-cpp-python >= 0.2.0"]
 mistralai = ["mistralai >= 1.0.0"]
 ollama = ["ollama >= 0.1.7"]
 openai = ["openai >= 1.0.0"]
-outlines = ["outlines >= 0.0.40", "numba >= 0.54.0", "numpy < 2.0.0"]
+outlines = ["outlines >= 0.0.40", "numba >= 0.54.0"]
 ray = ["ray[default] >= 2.31.0"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 vllm = [
