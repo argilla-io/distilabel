@@ -382,10 +382,13 @@ class ArgillaLabeller(Task):
         """Format the input into a chat message.
 
         Args:
-            input (Dict[str, Union[Dict[str, Any], Record, TextField, MultiLabelQuestion, LabelQuestion, RatingQuestion, TextQuestion]]): The input to format.
+            input: The input to format.
 
         Returns:
-            ChatType: The formatted chat message.
+            The formatted chat message.
+
+        Raises:
+            ValueError: If question or fields are not provided.
         """
         input_keys = list(self.inputs.keys())
         record = input[input_keys[0]]
@@ -393,6 +396,11 @@ class ArgillaLabeller(Task):
         question = input.get(input_keys[2], self.question)
         examples = input.get(input_keys[3], self.example_records)
         guidelines = input.get(input_keys[4], self.guidelines)
+
+        if question is None:
+            raise ValueError("Question must be provided.")
+        if fields is None or any(field is None for field in fields):
+            raise ValueError("Fields must be provided.")
 
         record = record.to_dict() if not isinstance(record, dict) else record
         question = question.serialize() if not isinstance(question, dict) else question
@@ -416,6 +424,7 @@ class ArgillaLabeller(Task):
             if examples
             else False
         )
+
         prompt = self._template.render(
             fields=formatted_fields,
             question=formatted_question,
