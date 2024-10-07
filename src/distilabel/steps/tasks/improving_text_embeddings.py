@@ -12,16 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib.resources as importlib_resources
 import random
 import re
-import sys
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Literal, Optional, Union
-
-if sys.version_info < (3, 9):
-    import importlib_resources
-else:
-    import importlib.resources as importlib_resources
 
 from jinja2 import Template
 from pydantic import Field, PrivateAttr
@@ -232,6 +227,10 @@ class _EmbeddingDataGenerator(_JSONFormatter, GeneratorTask, ABC):
                 )
         yield task_outputs, True
 
+    @override
+    def _sample_input(self) -> ChatType:
+        return self.prompt
+
 
 # IMPLEMENTED TASKS
 class EmbeddingTaskGenerator(GeneratorTask):
@@ -401,6 +400,10 @@ class EmbeddingTaskGenerator(GeneratorTask):
         except Exception:
             pass
         return {"tasks": output}
+
+    @override
+    def _sample_input(self) -> ChatType:
+        return self.prompt
 
 
 class GenerateTextRetrievalData(_EmbeddingDataGeneration):
