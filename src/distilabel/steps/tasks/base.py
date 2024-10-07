@@ -127,7 +127,7 @@ class _Task(_Step, ABC):
         result = []
         for row in step_output:
             data = row.copy()
-            for output in self.outputs:
+            for output in self.get_outputs().keys():
                 data[output] = None
             data = self._maybe_add_raw_input_output(
                 data,

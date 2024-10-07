@@ -15,6 +15,7 @@
 from distilabel.steps.tasks.apigen.execution_checker import APIGenExecutionChecker
 from distilabel.steps.tasks.apigen.generator import APIGenGenerator
 from distilabel.steps.tasks.apigen.semantic_checker import APIGenSemanticChecker
+from distilabel.steps.tasks.argilla_labeller import ArgillaLabeller
 from distilabel.steps.tasks.base import GeneratorTask, Task
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
@@ -55,6 +56,7 @@ from distilabel.steps.tasks.urial import URIAL
 __all__ = [
     "GeneratorTask",
     "Task",
+    "ArgillaLabeller",
     "APIGenExecutionChecker",
     "APIGenGenerator",
     "APIGenSemanticChecker",
