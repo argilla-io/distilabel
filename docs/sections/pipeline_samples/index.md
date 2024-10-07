@@ -83,6 +83,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Paper](papers/ultrafeedback.md)
 
+-   __APIGen__
+
+    ---
+
+    Learn how to create verifiable high-quality datases for function-calling applications.
+
+    [:octicons-arrow-right-24: Paper](papers/apigen.md)
+
 -   __CLAIR__
 
     ---
@@ -90,7 +98,6 @@ hide: toc
     Learn Contrastive Learning from AI Revisions (CLAIR), a data-creation method which leads to more contrastive preference pairs.
 
     [:octicons-arrow-right-24: Paper](papers/clair.md)
-
 
 </div>
 

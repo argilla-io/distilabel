@@ -208,6 +208,7 @@ nav:
           - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
           - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
+          - APIGen: "sections/pipeline_samples/papers/apigen.md"
           - CLAIR: "sections/pipeline_samples/papers/clair.md"
       - Examples:
           - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
@@ -253,4 +254,5 @@ nav:
   - Community:
       - sections/community/index.md
       - How to contribute?: sections/community/contributor.md
+      - Developer Documentation: sections/community/developer_documentation.md
       - Issue dashboard: sections/community/popular_issues.md

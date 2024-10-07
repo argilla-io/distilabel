@@ -129,7 +129,7 @@ These were some simple examples, but one can see the options this opens.
 
 ## Instructor
 
-When working with model providers behind an API, there's no direct way of accessing the internal logit processor like `outlines` does, but thanks to [`instructor`](https://python.useinstructor.com/) we can generate structured output from LLM providers based on `pydantic.BaseModel` objects. We have integrated `instructor` to deal with the [`AsyncLLM`][distilabel.llms.AsyncLLM], so you can work with the following LLMs: [`OpenAILLM`][distilabel.llms.OpenAILLM], [`AzureOpenAILLM`][distilabel.llms.AzureOpenAILLM], [`CohereLLM`][distilabel.llms.CohereLLM], [`GroqLLM`][distilabel.llms.GroqLLM], [`LiteLLM`][distilabel.llms.LiteLLM] and [`MistralLLM`][distilabel.llms.MistralLLM].
+For other LLM providers behind APIs, there's no direct way of accessing the internal logit processor like `outlines` does, but thanks to [`instructor`](https://python.useinstructor.com/) we can generate structured output from LLM providers based on `pydantic.BaseModel` objects. We have integrated `instructor` to deal with the [`AsyncLLM`][distilabel.llms.AsyncLLM].
 
 !!! Note
     For `instructor` integration to work you may need to install the corresponding dependencies:
@@ -155,14 +155,15 @@ class User(BaseModel):
 
 And then we provide that schema to the `structured_output` argument of the LLM:
 
-!!! Note
-    In this example we are using *open-mixtral-8x22b*, keep in mind not all the models work with the function calling functionality required for this example to work.
+!!! NOTE
+    In this example we are using *Meta Llama 3.1 8B Instruct*, keep in mind not all the models support structured outputs.
 
 ```python
 from distilabel.llms import MistralLLM
 
-llm = MistralLLM(
-    model="open-mixtral-8x22b",
+llm = InferenceEndpointsLLM(
+    model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+    tokenizer_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
     structured_output={"schema": User}
 )
 llm.load()
