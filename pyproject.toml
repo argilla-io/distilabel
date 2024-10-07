@@ -101,6 +101,14 @@ text-clustering = [
     "scikit-learn >= 1.4.1",
     "matplotlib >= 3.8.3"  # For the figure (even though it's optional)
 ]
+sglang = [
+    "sglang >= 0.3.2",
+    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp38-cp38-linux_x86_64.whl ; python_version == '3.8'",
+    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp39-cp39-linux_x86_64.whl ; python_version == '3.9'",
+    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp310-cp310-linux_x86_64.whl ; python_version == '3.10'",
+    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp311-cp311-linux_x86_64.whl ; python_version == '3.11'",
+    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp312-cp312-linux_x86_64.whl ; python_version == '3.12'",
+]
 
 # minhash
 minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]
