@@ -29,6 +29,8 @@ from distilabel.utils.serialization import TYPE_INFO_KEY
 
 
 class DummyStep(Step):
+    attr1: int = 5
+
     @property
     def inputs(self) -> List[str]:
         return ["instruction"]
@@ -66,6 +68,16 @@ class DummyGlobalStep(GlobalStep):
 
 
 class TestStep:
+    def test_signature(self) -> None:
+        step = DummyStep(attr1=5)
+        assert step.signature == "a0ce83adedabec3fba270ec7bc8a52a62cbbee40"
+
+        step = DummyStep(attr1=5)
+        assert step.signature == "a0ce83adedabec3fba270ec7bc8a52a62cbbee40"
+
+        step = DummyStep(attr1=1234)
+        assert step.signature == "c00e67df4f7ed97a2bf8d9b1178d6c728e577c3b"
+
     def test_create_step_with_invalid_name(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
 
@@ -397,6 +409,7 @@ class TestStepSerialization:
         step = DummyStep(name="dummy", pipeline=pipeline)
         assert step.dump() == {
             "name": "dummy",
+            "attr1": 5,
             "input_batch_size": 50,
             "input_mappings": {},
             "output_mappings": {},
@@ -444,6 +457,7 @@ class TestStepSerialization:
                     "optional": True,
                 },
             ],
+            "use_cache": True,
             TYPE_INFO_KEY: {
                 "module": "tests.unit.steps.test_base",
                 "name": "DummyStep",

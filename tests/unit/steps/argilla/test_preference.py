@@ -180,6 +180,7 @@ class TestPreferenceToArgilla:
                     "description": "The API key to authenticate the requests to the Argilla API.",
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": "distilabel.steps.argilla.preference",
                 "name": "PreferenceToArgilla",

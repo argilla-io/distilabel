@@ -39,6 +39,7 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
 )
+from distilabel.mixins.signature import SignatureMixin
 from distilabel.utils.serialization import _Serializable, write_json
 from distilabel.utils.typing_ import is_parameter_annotated_with
 
@@ -133,7 +134,14 @@ class StepResources(RuntimeParametersMixin, BaseModel):
     )
 
 
-class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable, ABC):
+class _Step(
+    RuntimeParametersMixin,
+    RequirementsMixin,
+    SignatureMixin,
+    BaseModel,
+    _Serializable,
+    ABC,
+):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this
@@ -193,6 +201,7 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
     pipeline: Any = Field(default=None, exclude=True, repr=False)
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
+    use_cache: bool = True
 
     _pipeline_artifacts_path: Path = PrivateAttr(None)
     _built_from_decorator: bool = PrivateAttr(default=False)

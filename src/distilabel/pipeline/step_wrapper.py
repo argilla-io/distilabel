@@ -166,6 +166,7 @@ class _StepWrapper:
                 `process` method.
         """
         step = cast("GeneratorStep", self.step)
+
         try:
             if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(

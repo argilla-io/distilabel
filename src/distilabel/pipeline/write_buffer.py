@@ -15,7 +15,7 @@
 import logging
 from os import PathLike
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -33,12 +33,21 @@ class _WriteBuffer:
     is full, the content is written to a parquet file.
     """
 
-    def __init__(self, path: "PathLike", leaf_steps: Set[str]) -> None:
+    def __init__(
+        self,
+        path: "PathLike",
+        leaf_steps: Set[str],
+        steps_cached: Optional[Dict[str, bool]] = None,
+    ) -> None:
         """
         Args:
             path: Folder where the files will be written, the idea
                 is for this path to be in the cache folder under /data.
             leaf_steps: Leaf steps from either the DAG of the Pipeline.
+            steps_cached: Dictionary with the name of a step and the variable
+                use_cache. We will use this to determine whether we have to read
+                a previous parquet table to concatenate before saving the cached
+                datasets.
 
         Raises:
             ValueError: If the path is not a directory.
@@ -61,6 +70,7 @@ class _WriteBuffer:
         }
         self._buffer_last_schema = {}
         self._buffers_last_file: Dict[str, int] = {step: 1 for step in leaf_steps}
+        self._steps_cached = steps_cached or {}
         self._logger = logging.getLogger("distilabel.write_buffer")
 
     def _get_filename(self, step_name: str) -> Path:
@@ -141,6 +151,17 @@ class _WriteBuffer:
         self._buffers_last_file[step_name] = next_file_number + 1
 
         parquet_file = step_parquet_dir / f"{str(next_file_number).zfill(5)}.parquet"
+        if parquet_file.exists():
+            # If the file already exists, due to some error in a pipeline that was cached
+            prev_table = pq.read_table(parquet_file)
+            # If some columns differ, it means some of the step changed, we won't load the previous table
+            # NOTE: If any step has use_cache=False, we cannot assume the previous parquet file is
+            # valid, so we will overwrite the previous parquet file. Is this the best option?
+            use_cache = False not in self._steps_cached.values()
+
+            if prev_table.column_names == table.column_names and use_cache:
+                table = pa.concat_tables([prev_table, table])
+
         pq.write_table(table, parquet_file)
         self._logger.debug(f"Written to file '{parquet_file}'")
 
