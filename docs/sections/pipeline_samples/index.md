@@ -83,6 +83,15 @@ hide: toc
 
     [:octicons-arrow-right-24: Paper](papers/ultrafeedback.md)
 
+-   __APIGen__
+
+    ---
+
+    Learn how to create verifiable high-quality datases for function-calling applications.
+
+    [:octicons-arrow-right-24: Paper](papers/apigen.md)
+
+
 </div>
 
 ## Examples

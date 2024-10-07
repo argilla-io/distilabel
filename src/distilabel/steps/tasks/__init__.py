@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.steps.tasks.apigen.execution_checker import APIGenExecutionChecker
+from distilabel.steps.tasks.apigen.generator import APIGenGenerator
+from distilabel.steps.tasks.apigen.semantic_checker import APIGenSemanticChecker
 from distilabel.steps.tasks.argilla_labeller import ArgillaLabeller
 from distilabel.steps.tasks.base import GeneratorTask, Task
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
@@ -54,6 +57,9 @@ __all__ = [
     "GeneratorTask",
     "Task",
     "ArgillaLabeller",
+    "APIGenExecutionChecker",
+    "APIGenGenerator",
+    "APIGenSemanticChecker",
     "ComplexityScorer",
     "EvolInstruct",
     "EvolComplexity",

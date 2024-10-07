@@ -695,8 +695,9 @@ def _grab_citations(dag: "DAG") -> List[str]:
             for ref in references.values():
                 try:
                     bibtex_refs.append(get_bibtex(ref))
-                except ValueError as e:
-                    print(f"Error: {e}")
+                except ValueError:
+                    # No need to inform in this case, it's noise
+                    pass
                 except AttributeError as e:
                     print(
                         f"Couldn't obtain the bibtex format for the ref: '{ref}', error: {e}"
