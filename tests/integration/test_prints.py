@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from functools import partial
+from typing import Union
 
 import pytest
 
@@ -57,14 +58,14 @@ tasks = [
 
 
 class TestLLM(DummyLLM, MagpieChatTemplateMixin):
-    magpie_pre_query_template: str = "llama3"
+    magpie_pre_query_template: Union[str, None] = "llama3"
 
 
 llm = TestLLM()
 
 
 @pytest.mark.parametrize("task", tasks)
-def test_prints(task):
+def test_prints(task) -> None:
     t = task(llm=llm)
     t.load()
     t.print()
