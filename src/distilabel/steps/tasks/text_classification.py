@@ -336,6 +336,8 @@ class TextClassification(Task):
     ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `generation`. The `model_name`
         will be automatically included within the `process` method of `Task`."""
+        if self.use_default_structured_output:
+            return self._format_structured_output(output)
         return self._format_structured_output(output)
 
     @override
