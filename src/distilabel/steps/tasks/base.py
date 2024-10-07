@@ -14,7 +14,7 @@
 
 import importlib
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import Field, PrivateAttr
 from typing_extensions import override
@@ -34,7 +34,7 @@ from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import FormattedInput
+    from distilabel.steps.tasks.typing import ChatType, FormattedInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -127,7 +127,7 @@ class _Task(_Step, ABC):
         result = []
         for row in step_output:
             data = row.copy()
-            for output in self.outputs:
+            for output in self.get_outputs().keys():
                 data[output] = None
             data = self._maybe_add_raw_input_output(
                 data,
@@ -275,6 +275,93 @@ class _Task(_Step, ABC):
         schema that enforces the response from the LLM so that it's easier to parse.
         """
         return None
+
+    def _sample_input(self) -> "ChatType":
+        """Returns a sample input to be used in the `print` method.
+        Tasks that don't adhere to a format input that returns a map of the type
+        str -> str should override this method to return a sample input.
+        """
+        return self.format_input(
+            {input: f"<PLACEHOLDER_{input.upper()}>" for input in self.inputs}
+        )
+
+    def print(self, sample_input: Optional["ChatType"] = None) -> None:
+        """Prints a sample input to the console using the `rich` library.
+        Helper method to visualize the prompt of the task.
+
+        Args:
+            sample_input: A sample input to be printed. If not provided, a default will be
+                generated using the `_sample_input` method, which can be overriden by
+                subclasses. This should correspond to the same example you could pass to
+                the `format_input` method.
+                The variables be named <PLACEHOLDER_VARIABLE_NAME> by default.
+
+        Examples:
+            Print the URIAL prompt:
+
+            ```python
+            from distilabel.steps.tasks import URIAL
+            from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+            # Consider this as a placeholder for your actual LLM.
+            urial = URIAL(
+                llm=InferenceEndpointsLLM(
+                    model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                ),
+            )
+            urial.load()
+            urial.print()
+            ╭─────────────────────────────────────── Prompt: URIAL  ────────────────────────────────────────╮
+            │ ╭────────────────────────────────────── User Message ───────────────────────────────────────╮ │
+            │ │ # Instruction                                                                             │ │
+            │ │                                                                                           │ │
+            │ │ Below is a list of conversations between a human and an AI assistant (you).               │ │
+            │ │ Users place their queries under "# User:", and your responses are under  "# Assistant:".  │ │
+            │ │ You are a helpful, respectful, and honest assistant.                                      │ │
+            │ │ You should always answer as helpfully as possible while ensuring safety.                  │ │
+            │ │ Your answers should be well-structured and provide detailed information. They should also │ │
+            │ │ have an engaging tone.                                                                    │ │
+            │ │ Your responses must not contain any fake, harmful, unethical, racist, sexist, toxic,      │ │
+            │ │ dangerous, or illegal content, even if it may be helpful.                                 │ │
+            │ │ Your response must be socially responsible, and thus you can refuse to answer some        │ │
+            │ │ controversial topics.                                                                     │ │
+            │ │                                                                                           │ │
+            │ │                                                                                           │ │
+            │ │ # User:                                                                                   │ │
+            │ │                                                                                           │ │
+            │ │ <PLACEHOLDER_INSTRUCTION>                                                                 │ │
+            │ │                                                                                           │ │
+            │ │ # Assistant:                                                                              │ │
+            │ ╰───────────────────────────────────────────────────────────────────────────────────────────╯ │
+            ╰───────────────────────────────────────────────────────────────────────────────────────────────╯
+            ```
+        """
+        from rich.console import Console, Group
+        from rich.panel import Panel
+        from rich.text import Text
+
+        console = Console()
+        sample_input = sample_input or self._sample_input()
+
+        panels = []
+        for item in sample_input:
+            content = Text.assemble((item.get("content", ""),))
+            panel = Panel(
+                content,
+                title=f"[bold][magenta]{item.get('role', '').capitalize()} Message[/magenta][/bold]",
+                border_style="light_cyan3",
+            )
+            panels.append(panel)
+
+        # Create a group of panels
+        # Wrap the group in an outer panel
+        outer_panel = Panel(
+            Group(*panels),
+            title=f"[bold][magenta]Prompt: {type(self).__name__} [/magenta][/bold]",
+            border_style="light_cyan3",
+            expand=False,
+        )
+        console.print(outer_panel)
 
 
 class Task(_Task, Step):

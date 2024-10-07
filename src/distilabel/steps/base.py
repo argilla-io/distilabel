@@ -600,7 +600,7 @@ class _Step(
         result = []
         for row in step_output:
             data = row.copy()
-            for output in self.outputs:
+            for output in self.get_outputs().keys():
                 data[output] = None
             result.append(data)
         return result
