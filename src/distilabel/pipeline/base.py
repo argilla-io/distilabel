@@ -14,6 +14,7 @@
 import hashlib
 import logging
 import os
+import shutil
 import signal
 import threading
 import time
@@ -384,7 +385,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             stop_logging()
             return distiset
 
-        self._setup_write_buffer()
+        self._setup_write_buffer(use_cache)
 
         self._print_load_stages_info()
 
@@ -856,11 +857,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 )
                 break
 
-    def _setup_write_buffer(self) -> None:
+    def _setup_write_buffer(self, use_cache: bool = True) -> None:
         """Setups the `_WriteBuffer` that will store the data of the leaf steps of the
         pipeline while running, so the `Distiset` can be created at the end.
         """
-        # TODO: if `use_cache=False` we should not use previous parquet files
+        if not use_cache and self._cache_location["data"].exists():
+            shutil.rmtree(self._cache_location["data"])
         buffer_data_path = self._cache_location["data"] / constants.STEPS_OUTPUTS_PATH
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(
