@@ -168,14 +168,6 @@
     }
   },
   {
-    "version": "pr-766",
-    "title": "pr-766",
-    "aliases": [],
-    "properties": {
-      "hidden": true
-    }
-  },
-  {
     "version": "dev",
     "title": "dev",
     "aliases": []
