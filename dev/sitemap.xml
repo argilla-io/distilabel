@@ -249,6 +249,10 @@
          <lastmod>2024-10-07</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/clair/</loc>
+         <lastmod>2024-10-07</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/deepseek_prover/</loc>
          <lastmod>2024-10-07</lastmod>
     </url>
@@ -486,6 +490,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/qualityscorer/</loc>
+         <lastmod>2024-10-07</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/clair/</loc>
          <lastmod>2024-10-07</lastmod>
     </url>
     <url>

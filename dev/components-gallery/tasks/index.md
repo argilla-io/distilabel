@@ -182,6 +182,14 @@ hide:
 
     [:octicons-arrow-right-24: QualityScorer](qualityscorer.md){ .bottom }
 
+-   :material-poll:{ .lg .middle } __CLAIR__
+
+    ---
+
+    Contrastive Learning from AI Revisions (CLAIR).
+
+    [:octicons-arrow-right-24: CLAIR](clair.md){ .bottom }
+
 -   :material-poll:{ .lg .middle } __UltraFeedback__
 
     ---
