@@ -173,7 +173,7 @@ class TestBatchManagerStep:
                     {"b": 2},
                 ],
             ],
-            created_from={"step1": [(1, 2)], "step2": [(1, 2)]},
+            created_from={"step1": [(1, 5, 2)], "step2": [(1, 5, 2)]},
         )
 
         batch = batch_manager_step.get_batch()
@@ -192,7 +192,7 @@ class TestBatchManagerStep:
                     {"b": 4},
                 ],
             ],
-            created_from={"step1": [(1, 2)], "step2": [(1, 2)]},
+            created_from={"step1": [(1, 5, 2)], "step2": [(1, 5, 2)]},
         )
 
     def test_get_batches_accumulate(self) -> None:
@@ -264,7 +264,7 @@ class TestBatchManagerStep:
                     {"b": 6},
                 ],
             ],
-            created_from={"step1": [(0, 5)], "step2": [(0, 6)]},
+            created_from={"step1": [(0, 5, 5)], "step2": [(0, 6, 6)]},
         )
 
     def test_get_batches_not_enough_data(self) -> None:
@@ -436,7 +436,7 @@ class TestBatchManagerStep:
             [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}],
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}],
         ]
-        assert created_from == {"step1": [(0, 5)], "step2": [(0, 5)]}
+        assert created_from == {"step1": [(0, 6, 5)], "step2": [(0, 7, 5)]}
         assert routed_to == ["step1", "step2"]
 
         assert batch_manager_step.data == {
@@ -447,7 +447,7 @@ class TestBatchManagerStep:
                     last_batch=False,
                     data=[[{"a": 6}]],
                     data_hash=batch_step_1.data_hash,
-                    size=1,
+                    size=6,
                     batch_routed_to=["step1", "step2"],
                 )
             ],
@@ -458,7 +458,7 @@ class TestBatchManagerStep:
                     last_batch=False,
                     data=[[{"b": 6}, {"b": 7}]],
                     data_hash=batch_step_2.data_hash,
-                    size=2,
+                    size=7,
                     batch_routed_to=["step1", "step2"],
                 )
             ],
@@ -508,7 +508,7 @@ class TestBatchManagerStep:
             [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}],
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}, {"b": 7}],
         ]
-        assert created_from == {"step1": [(0, 6)], "step2": [(0, 7)]}
+        assert created_from == {"step1": [(0, 6, 6)], "step2": [(0, 7, 7)]}
         assert routed_to == []
 
         assert batch_manager_step.data == {"step1": [], "step2": []}
@@ -526,7 +526,7 @@ class TestBatchManagerStep:
                 ]
             ],
             size=3,
-            created_from={"Z": [(0, 3)]},
+            created_from={"Z": [(0, 3, 3)]},
         )
 
         batch_a_1 = _Batch(
@@ -541,7 +541,7 @@ class TestBatchManagerStep:
                 ]
             ],
             size=3,
-            created_from={"Z": [(1, 3)]},
+            created_from={"Z": [(1, 3, 3)]},
         )
 
         batch_b_0 = _Batch(
@@ -556,7 +556,7 @@ class TestBatchManagerStep:
                 ]
             ],
             size=3,
-            created_from={"Z": [(0, 3)]},
+            created_from={"Z": [(0, 3, 3)]},
         )
 
         batch_c_0 = _Batch(
@@ -571,7 +571,7 @@ class TestBatchManagerStep:
                 ]
             ],
             size=3,
-            created_from={"Z": [(1, 3)]},
+            created_from={"Z": [(1, 3, 3)]},
         )
 
         batch_manager_step = _BatchManagerStep(
@@ -596,7 +596,7 @@ class TestBatchManagerStep:
                 {"generation": "Hello, I'm B 0"},
             ],
         ]
-        assert created_from == {"A": [(0, 3)], "B": [(0, 3)]}
+        assert created_from == {"A": [(0, 3, 3)], "B": [(0, 3, 3)]}
         assert routed_to == []
         assert batch_manager_step.next_expected_created_from_batch_seq_no == 1
 
@@ -614,7 +614,7 @@ class TestBatchManagerStep:
                 {"generation": "Hello, I'm C 0"},
             ],
         ]
-        assert created_from == {"A": [(1, 3)], "C": [(0, 3)]}
+        assert created_from == {"A": [(1, 3, 3)], "C": [(0, 3, 3)]}
         assert routed_to == []
         assert batch_manager_step.next_expected_created_from_batch_seq_no == 2
 
@@ -809,7 +809,7 @@ class TestBatchManagerStep:
                             step_name="step1",
                             last_batch=False,
                             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                            created_from={"step0": [(0, 5)]},
+                            created_from={"step0": [(0, 5, 5)]},
                         )
                     ],
                     "step2": [
@@ -818,7 +818,7 @@ class TestBatchManagerStep:
                             step_name="step1",
                             last_batch=False,
                             data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                            created_from={"step0": [(0, 5)]},
+                            created_from={"step0": [(0, 5, 5)]},
                         )
                     ],
                 },
@@ -833,7 +833,7 @@ class TestBatchManagerStep:
                             step_name="step1",
                             last_batch=True,
                             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                            created_from={"step0": [(0, 5)]},
+                            created_from={"step0": [(0, 5, 5)]},
                         )
                     ],
                     "step2": [
@@ -842,7 +842,7 @@ class TestBatchManagerStep:
                             step_name="step1",
                             last_batch=True,
                             data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                            created_from={"step0": [(0, 5)]},
+                            created_from={"step0": [(0, 5, 5)]},
                         )
                     ],
                 },
@@ -857,7 +857,7 @@ class TestBatchManagerStep:
                             step_name="step1",
                             last_batch=True,
                             data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
-                            created_from={"step0": [(0, 3)]},
+                            created_from={"step0": [(0, 3, 3)]},
                         )
                     ],
                     "step2": [
@@ -866,7 +866,7 @@ class TestBatchManagerStep:
                             step_name="step1",
                             last_batch=True,
                             data=[[{"b": 1}, {"b": 2}, {"b": 3}]],
-                            created_from={"step0": [(0, 3)]},
+                            created_from={"step0": [(0, 3, 3)]},
                         )
                     ],
                 },
@@ -1244,7 +1244,7 @@ class TestBatchManagerStep:
                             last_batch=False,
                             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
                             batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
+                            created_from={"step0": [(0, 5, 5)]},
                         )
                     ],
                     "step2": [],
@@ -1261,7 +1261,7 @@ class TestBatchManagerStep:
                             last_batch=False,
                             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
                             batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
+                            created_from={"step0": [(0, 5, 5)]},
                         )
                     ],
                     "step2": [
@@ -1271,7 +1271,7 @@ class TestBatchManagerStep:
                             last_batch=False,
                             data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
                             batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
+                            created_from={"step0": [(0, 5, 5)]},
                         )
                     ],
                 },
@@ -1287,7 +1287,7 @@ class TestBatchManagerStep:
                             last_batch=False,
                             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
                             batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 4)]},
+                            created_from={"step0": [(0, 4, 4)]},
                         )
                     ],
                     "step2": [
@@ -1297,7 +1297,7 @@ class TestBatchManagerStep:
                             last_batch=False,
                             data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
                             batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
+                            created_from={"step0": [(0, 5, 5)]},
                         )
                     ],
                 },
@@ -1313,7 +1313,7 @@ class TestBatchManagerStep:
                             last_batch=True,
                             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
                             batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 4)]},
+                            created_from={"step0": [(0, 4, 4)]},
                         )
                     ],
                     "step2": [
@@ -1323,7 +1323,7 @@ class TestBatchManagerStep:
                             last_batch=True,
                             data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}]],
                             batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 4)]},
+                            created_from={"step0": [(0, 4, 4)]},
                         )
                     ],
                 },
@@ -1339,7 +1339,7 @@ class TestBatchManagerStep:
                             last_batch=False,
                             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
                             batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 4)]},
+                            created_from={"step0": [(0, 4, 4)]},
                         )
                     ],
                     "step2": [
@@ -1349,7 +1349,7 @@ class TestBatchManagerStep:
                             last_batch=False,
                             data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
                             batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
+                            created_from={"step0": [(0, 5, 5)]},
                         )
                     ],
                 },

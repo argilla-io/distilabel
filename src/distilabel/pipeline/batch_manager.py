@@ -249,7 +249,9 @@ class _BatchManagerStep(_Serializable):
 
     def _get_data(
         self,
-    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]], List[str]]:
+    ) -> Tuple[
+        List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int, int]]], List[str]
+    ]:
         """Gets the data needed to create a batch for the step to process. If the step is
         accumulating data, then it will return a list with all the data received from the
         predecessors. Otherwise, it will return a list of data with the `input_batch_size`
@@ -275,7 +277,7 @@ class _BatchManagerStep(_Serializable):
 
     def _get_data_for_accumulate(
         self,
-    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]]]:
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int, int]]]]:
         """Gets the data needed to create a batch for the step to process when the step
         is accumulating data. It will return a list with all the data received from the
         predecessors. In addition, it will remove the data used to create the batch from
@@ -291,7 +293,7 @@ class _BatchManagerStep(_Serializable):
         for step_name, batches in self.data.items():
             batches_used[step_name] = []
             for batch in batches:
-                batches_used[step_name].append((batch.seq_no, batch.size))
+                batches_used[step_name].append((batch.seq_no, batch.size, batch.size))
             data.append([row for batch in batches for row in batch.get_data()])
         # Reset the data buffer
         self.data = {step_name: [] for step_name in self.data}
@@ -299,7 +301,7 @@ class _BatchManagerStep(_Serializable):
 
     def _get_data_for_convergence_step(
         self,
-    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]]]:
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int, int]]]]:
         """Gets the data needed to create a batch for the step to process when the step is
         a convergence step.
 
@@ -338,7 +340,7 @@ class _BatchManagerStep(_Serializable):
             remaining_rows_per_step[batch.step_name] -= num_rows  # type: ignore
 
             # Keep track of the batches used to create the batch
-            batches_used[batch.step_name].append((batch.seq_no, len(selected_data)))
+            batches_used[batch.step_name].append((batch.seq_no, batch.size, num_rows))
 
             # If the batch was entirely consumed, then remove it from the buffer
             if len(batch.data[0]) == 0:
@@ -359,7 +361,9 @@ class _BatchManagerStep(_Serializable):
 
     def _get_data_normal(
         self,
-    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]], List[str]]:
+    ) -> Tuple[
+        List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int, int]]], List[str]
+    ]:
         """Gets the data needed to create a batch for the step to process when the step is
         not accumulating data. It will return a list of data with the `input_batch_size`
         for each predecessor. In addition, it will remove the data used to create the batch
@@ -397,7 +401,7 @@ class _BatchManagerStep(_Serializable):
                 remaining_rows -= num_rows
 
                 # Keep track of the batches used to create the batch
-                batches_used[step_name].append((batch.seq_no, len(selected_data)))
+                batches_used[step_name].append((batch.seq_no, batch.size, num_rows))
 
                 next_expected_seq_no = batch.seq_no
 
@@ -575,21 +579,23 @@ class _BatchManagerStep(_Serializable):
 
         return self._last_batch_normal()
 
-    def _update_offset(self, created_from: Dict[str, List[Tuple[int, int]]]) -> None:
+    def _update_offset(
+        self, created_from: Dict[str, List[Tuple[int, int, int]]]
+    ) -> None:
         """Update the offset for the batch buffers of the upstream steps.
 
         Args:
-            created_from: a dictionary containing the names of the steps and the batches
-                that were used to create the batch for this step. The key is the name of
-                one step and the value is a list of tuples in which the first value is the
-                seq no of the batch used and the second value is the number of rows from
-                that batch used.
+            created_from: A dictionary containing which batches from which steps were used
+                to created this batch. The keys are the names of the steps and the values
+                are lists for each step containing the `seq_no` of each batch used, the original         containing the `seq_no` of the batches of the steps that
+                size of the batch used and the number of rows used from the batch to create
+                this batch.
         """
         for predecessor, seq_no_and_batch in created_from.items():
             prev_last_batch_seq_no, prev_last_batch_offset = self.step_offset[
                 predecessor
             ]
-            last_batch_seq_no, last_batch_size = seq_no_and_batch[-1]
+            last_batch_seq_no, _, last_batch_size = seq_no_and_batch[-1]
             batch_offset = (
                 prev_last_batch_offset + last_batch_size
                 if prev_last_batch_seq_no == last_batch_seq_no
@@ -665,7 +671,7 @@ class _BatchManagerStep(_Serializable):
         for batches in self.data.values():
             for batch in batches:
                 first_key = next(iter(batch.created_from))
-                batch_seq_no, batch_size = batch.created_from[first_key][0]
+                batch_seq_no, batch_size, _ = batch.created_from[first_key][0]
                 grouped_batches[batch_seq_no].append((batch, batch_size))
         return sorted((seq_no, batches) for seq_no, batches in grouped_batches.items())
 
