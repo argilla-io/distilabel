@@ -126,7 +126,6 @@ class _GlobalPipelineManager:
 _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
 
-_ATTRIBUTES_IGNORED_CACHE = ("disable_cuda_device_placement", "jobs_ids")
 _PIPELINE_DEFAULT_NAME = "__default_pipeline_name__"
 
 
