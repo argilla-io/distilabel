@@ -24,10 +24,19 @@ hide:
     | :material-filter:               | filtering           | Filtering steps are used to filter the data based on some criteria.                                |
     | :material-format-list-bulleted: | format              | Format steps are used to format the data.                                                          |
     | :material-file-download:        | load                | Load steps are used to load the data.                                                              |
+    | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
 
 <div class="grid cards" markdown>
 
+
+-   :material-text-box-edit:{ .lg .middle } __APIGenGenerator__
+
+    ---
+
+    Generate queries and answers for the given functions in JSON format.
+
+    [:octicons-arrow-right-24: APIGenGenerator](apigengenerator.md){ .bottom }
 
 -   :material-text-box-edit:{ .lg .middle } __Genstruct__
 
@@ -84,6 +93,14 @@ hide:
     Generates text based on a conversation.
 
     [:octicons-arrow-right-24: ChatGeneration](chatgeneration.md){ .bottom }
+
+-   :material-label:{ .lg .middle } __ArgillaLabeller__
+
+    ---
+
+    Annotate Argilla records based on input fields, example records and question settings.
+
+    [:octicons-arrow-right-24: ArgillaLabeller](argillalabeller.md){ .bottom }
 
 -   :material-label:{ .lg .middle } __TextClassification__
 
@@ -220,6 +237,14 @@ hide:
     Task that clusters a set of texts and generates summary labels for each cluster.
 
     [:octicons-arrow-right-24: TextClustering](textclustering.md){ .bottom }
+
+-   :material-filter:{ .lg .middle } __APIGenSemanticChecker__
+
+    ---
+
+    Generate queries and answers for the given functions in JSON format.
+
+    [:octicons-arrow-right-24: APIGenSemanticChecker](apigensemanticchecker.md){ .bottom }
 
 -   :material-check-outline:{ .lg .middle } __GenerateTextRetrievalData__
 

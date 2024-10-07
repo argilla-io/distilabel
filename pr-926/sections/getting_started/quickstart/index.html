@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.36">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.06209087.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -1533,6 +1533,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/datasampler/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
         
   
@@ -1576,6 +1597,27 @@
   
     <li class="md-nav__item">
       <a href="../../../components-gallery/steps/loaddatafromdisk/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/prepareexamples/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1723,6 +1765,27 @@
   
     <li class="md-nav__item">
       <a href="../../../components-gallery/steps/embeddingdedup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/apigenexecutionchecker/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2072,6 +2135,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../components-gallery/tasks/apigengenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../components-gallery/tasks/genstruct/" class="md-nav__link">
         
   
@@ -2199,6 +2283,27 @@
   
     <li class="md-nav__item">
       <a href="../../../components-gallery/tasks/chatgeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components-gallery/tasks/argillalabeller/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2556,6 +2661,27 @@
   
     <li class="md-nav__item">
       <a href="../../../components-gallery/tasks/textclustering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components-gallery/tasks/apigensemanticchecker/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3481,6 +3607,27 @@
   
   <span class="md-ellipsis">
     UltraFeedback
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline_samples/papers/apigen/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    APIGen
   </span>
   
 
@@ -4640,6 +4787,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../community/developer_documentation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Developer Documentation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../community/popular_issues/" class="md-nav__link">
         
   
@@ -4747,7 +4915,7 @@
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>distilabel<span class="o">[</span>hf-inference-endpoints<span class="o">]</span><span class="w"> </span>--upgrade
 </span></code></pre></div>
 <h2 id="define-a-pipeline">Define a pipeline<a class="headerlink" href="#define-a-pipeline" title="Permanent link">&para;</a></h2>
-<p>In this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text based on the dataset using the <a class="autorefs autorefs-internal" href="../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task.</p>
+<p>In this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text based on the dataset using the <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> task.</p>
 <blockquote>
 <p>You can check the available models in the <a href="https://huggingface.co/models?pipeline_tag=text-generation&amp;sort=trending">Hugging Face Model Hub</a> and filter by <code>Inference status</code>.</p>
 </blockquote>
@@ -4769,28 +4937,30 @@
 </span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
 </span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
 </span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="p">),</span>  <span class="c1"># (5)</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="p">)</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="n">load_dataset</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span>  <span class="c1"># (6)</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="n">system_prompt</span><span class="o">=</span><span class="s2">&quot;You are a creative AI Assistant writer.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="n">template</span><span class="o">=</span><span class="s2">&quot;Follow the following instruction: {{ instruction }}&quot;</span>  <span class="c1"># (6)</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="p">)</span>
 </span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># (7)</span>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>            <span class="n">load_dataset</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                <span class="s2">&quot;repo_id&quot;</span><span class="p">:</span> <span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini&quot;</span><span class="p">,</span>
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>            <span class="p">},</span>
-</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>            <span class="n">text_generation</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
-</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>                    <span class="p">}</span>
-</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>                <span class="p">}</span>
-</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>            <span class="p">},</span>
-</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>        <span class="p">},</span>
-</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>    <span class="p">)</span>
-</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;distilabel-example&quot;</span><span class="p">)</span>  <span class="c1"># (8)</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="n">load_dataset</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span>  <span class="c1"># (7)</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># (8)</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>            <span class="n">load_dataset</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>                <span class="s2">&quot;repo_id&quot;</span><span class="p">:</span> <span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini&quot;</span><span class="p">,</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>                <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>            <span class="p">},</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>            <span class="n">text_generation</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>                    <span class="p">}</span>
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>                <span class="p">}</span>
+</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>            <span class="p">},</span>
+</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>        <span class="p">},</span>
+</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>    <span class="p">)</span>
+</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;distilabel-example&quot;</span><span class="p">)</span>  <span class="c1"># (9)</span>
 </span></code></pre></div>
 <ol>
 <li>
@@ -4803,10 +4973,13 @@
 <p>We define a <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> step named <code>load_dataset</code> that will load a dataset from the Hugging Face Hub, as provided via runtime parameters in the <code>pipeline.run</code> method below, but it can also be defined within the class instance via the arg <code>repo_id=...</code>. This step will produce output batches with the rows from the dataset, and the column <code>prompt</code> will be mapped to the <code>instruction</code> field.</p>
 </li>
 <li>
-<p>We define a <a class="autorefs autorefs-internal" href="../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task named <code>text_generation</code> that will generate text based on the <code>instruction</code> field from the dataset. This task will use the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class with the model <code>Meta-Llama-3.1-8B-Instruct</code>.</p>
+<p>We define a <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> task named <code>text_generation</code> that will generate text based on the <code>instruction</code> field from the dataset. This task will use the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class with the model <code>Meta-Llama-3.1-8B-Instruct</code>.</p>
 </li>
 <li>
-<p>We define the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class with the model <code>Meta-Llama-3.1-8B-Instruct</code> that will be used by the <a class="autorefs autorefs-internal" href="../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task. In this case, since the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> is used, we assume that the <code>HF_TOKEN</code> environment variable is set.</p>
+<p>We define the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class with the model <code>Meta-Llama-3.1-8B-Instruct</code> that will be used by the <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> task. In this case, since the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> is used, we assume that the <code>HF_TOKEN</code> environment variable is set.</p>
+</li>
+<li>
+<p>Both <code>system_prompt</code> and <code>template</code> are optional fields. The <code>template</code> must be informed as a string following the <a href="https://jinja.palletsprojects.com/en/3.1.x/templates/#synopsis">Jinja2</a> template format, and the fields that appear there ("instruction" in this case, which corresponds to the default) must be informed in the <code>columns</code> attribute. The component gallery for <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> has examples to get you started. </p>
 </li>
 <li>
 <p>We connect the <code>load_dataset</code> step to the <code>text_generation</code> task using the <code>rshift</code> operator, meaning that the output from the <code>load_dataset</code> step will be used as input for the <code>text_generation</code> task.</p>
@@ -5012,7 +5185,7 @@
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       
