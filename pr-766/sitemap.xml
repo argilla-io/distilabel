@@ -245,6 +245,10 @@
          <lastmod>2024-10-07</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-766/sections/pipeline_samples/papers/apigen/</loc>
+         <lastmod>2024-10-07</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-766/sections/pipeline_samples/papers/deepseek_prover/</loc>
          <lastmod>2024-10-07</lastmod>
     </url>
@@ -305,6 +309,10 @@
          <lastmod>2024-10-07</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/steps/datasampler/</loc>
+         <lastmod>2024-10-07</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/steps/loaddatafromhub/</loc>
          <lastmod>2024-10-07</lastmod>
     </url>
@@ -314,6 +322,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/steps/loaddatafromdisk/</loc>
+         <lastmod>2024-10-07</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/steps/prepareexamples/</loc>
          <lastmod>2024-10-07</lastmod>
     </url>
     <url>
@@ -342,6 +354,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/steps/embeddingdedup/</loc>
+         <lastmod>2024-10-07</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/steps/apigenexecutionchecker/</loc>
          <lastmod>2024-10-07</lastmod>
     </url>
     <url>
@@ -394,6 +410,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/tasks/</loc>
+         <lastmod>2024-10-07</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/tasks/apigengenerator/</loc>
          <lastmod>2024-10-07</lastmod>
     </url>
     <url>
@@ -486,6 +506,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/tasks/textclustering/</loc>
+         <lastmod>2024-10-07</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-766/components-gallery/tasks/apigensemanticchecker/</loc>
          <lastmod>2024-10-07</lastmod>
     </url>
     <url>
