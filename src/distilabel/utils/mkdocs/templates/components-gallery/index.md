@@ -39,4 +39,12 @@ hide:
 
     [:octicons-arrow-right-24: Embeddings](embeddings/index.md){ .bottom }
 
+-   :material-database:{ .lg .middle } __Knowledge Bases__
+
+    ---
+
+    Explore all the available `KnowledgeBase` models integrated with `distilabel`.
+
+    [:octicons-arrow-right-24: Knowledge Bases](knowledge_bases/index.md){ .bottom }
+
 </div>

@@ -16,6 +16,7 @@ import inspect
 from typing import Generator, List, Type, TypedDict, TypeVar
 
 from distilabel.embeddings.base import Embeddings
+from distilabel.knowledge_bases.base import KnowledgeBase
 from distilabel.llms.base import LLM
 from distilabel.steps.base import _Step
 from distilabel.steps.tasks.base import _Task
@@ -31,6 +32,7 @@ class ComponentsInfo(TypedDict):
     steps: List
     tasks: List
     embeddings: List
+    knowledge_bases: List
 
 
 def export_components_info() -> ComponentsInfo:
@@ -61,6 +63,13 @@ def export_components_info() -> ComponentsInfo:
                 "docstring": parse_google_docstring(embeddings_type),
             }
             for embeddings_type in _get_embeddings()
+        ],
+        "knowledge_bases": [
+            {
+                "name": knowledge_base_type.__name__,
+                "docstring": parse_google_docstring(knowledge_base_type),
+            }
+            for knowledge_base_type in _get_knowledge_bases()
         ],
     }
 
@@ -123,6 +132,19 @@ def _get_embeddings() -> List[Type["Embeddings"]]:
         embeddings_type
         for embeddings_type in _recursive_subclasses(Embeddings)
         if not inspect.isabstract(embeddings_type)
+    ]
+
+
+def _get_knowledge_bases() -> List[Type["KnowledgeBase"]]:
+    """Get all `KnowledgeBase` subclasses, that are not abstract classes.
+
+    Returns:
+        A list of `KnowledgeBase` subclasses
+    """
+    return [
+        knowledge_base_type
+        for knowledge_base_type in _recursive_subclasses(KnowledgeBase)
+        if not inspect.isabstract(knowledge_base_type)
     ]
 
 
