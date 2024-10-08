@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict
 
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.base import LLM
 from distilabel.steps.base import Step, StepInput
 from distilabel.utils.chat import is_openai_format
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class GenerateEmbeddings(Step):
@@ -49,7 +50,6 @@ class GenerateEmbeddings(Step):
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)
 
     Examples:
-
         Rank LLM candidates:
 
         ```python
@@ -76,7 +76,6 @@ class GenerateEmbeddings(Step):
         ```
 
     Citations:
-
         ```
         @misc{liu2024makesgooddataalignment,
             title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},
@@ -99,13 +98,13 @@ class GenerateEmbeddings(Step):
         self.llm.load()
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The inputs for the task is a `text` column containing either a string or a
         list of dictionaries in OpenAI chat-like format."""
         return ["text"]
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The outputs for the task is an `embedding` column containing the embedding of
         the `text` input."""
         return ["embedding", "model_name"]
@@ -130,9 +129,10 @@ class GenerateEmbeddings(Step):
         if is_openai_format(text):
             return text
 
-        raise ValueError(
+        raise DistilabelUserError(
             f"Couldn't format input for step {self.name}. The `text` input column has to"
-            " be a string or a list of dictionaries in OpenAI chat-like format."
+            " be a string or a list of dictionaries in OpenAI chat-like format.",
+            page="components-gallery/tasks/generateembeddings/",
         )
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore

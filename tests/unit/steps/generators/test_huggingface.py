@@ -27,6 +27,7 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromFileSystem,
     LoadDataFromHub,
 )
+from tests.unit.pipeline.utils import DummyStep1
 
 DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)
 
@@ -103,7 +104,7 @@ class TestLoadDataFromFileSystem:
 
             loader = LoadDataFromFileSystem(
                 filetype=filetype,
-                data_files=tmpdir,
+                data_files=str(Path(tmpdir) / "*.jsonl"),
             )
             loader.load()
             generator_step_output = next(loader.process())
@@ -126,7 +127,7 @@ class TestLoadDataFromFileSystem:
 
             loader = LoadDataFromFileSystem(
                 filetype=filetype,
-                data_files=tmpdir,
+                data_files=str(Path(tmpdir) / "**/*.jsonl"),
             )
             loader.load()
             generator_step_output = next(loader.process())
@@ -134,18 +135,23 @@ class TestLoadDataFromFileSystem:
             assert isinstance(generator_step_output[1], bool)
             assert len(generator_step_output[0]) == 22
 
-    @pytest.mark.parametrize("load", [True, False])
-    def test_outputs(self, load: bool) -> None:
+    def test_outputs(self) -> None:
         loader = LoadDataFromFileSystem(
             filetype="json",
             data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
         )
-        if load:
-            loader.load()
-            assert loader.outputs == ["type", "function"]
-        else:
-            with pytest.raises(ValueError):
-                loader.outputs  # noqa: B018
+        loader.load()
+        assert loader.outputs == ["type", "function"]
+
+    def test_loading_in_pipeline(self):
+        with Pipeline():
+            loader = LoadDataFromFileSystem(
+                filetype="json",
+                data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
+            )
+            dummy = DummyStep1(input_mappings={"instruction": "function"})
+            loader >> dummy
+        assert loader.outputs == ["type", "function"]
 
 
 class TestLoadDataFromDisk:
@@ -161,6 +167,32 @@ class TestLoadDataFromDisk:
             assert isinstance(generator_step_output, tuple)
             assert isinstance(generator_step_output[1], bool)
             assert len(generator_step_output[0]) == 3
+
+    @pytest.mark.parametrize("config_name", ["default", "missnamed_config"])
+    def test_load_distiset_from_disk_default(self, config_name: str) -> None:
+        distiset = Distiset(
+            {
+                "default": Dataset.from_dict({"a": [1, 2, 3]}),
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_path = str(Path(tmpdir) / "dataset_path")
+            distiset.save_to_disk(dataset_path)
+
+            loader = LoadDataFromDisk(
+                dataset_path=dataset_path,
+                is_distiset=True,
+                config=config_name,
+            )
+            if config_name != "default":
+                with pytest.raises(ValueError):
+                    loader.load()
+            else:
+                loader.load()
+                generator_step_output = next(loader.process())
+                assert isinstance(generator_step_output, tuple)
+                assert isinstance(generator_step_output[1], bool)
+                assert len(generator_step_output[0]) == 3
 
     def test_load_distiset_from_disk(self) -> None:
         distiset = Distiset(

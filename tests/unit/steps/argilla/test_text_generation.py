@@ -26,7 +26,7 @@ from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 @pytest.fixture
 def mock_dataset() -> rg.Dataset:
     rg.Argilla._validate_connection = mock.MagicMock()  # type: ignore
-    client = rg.Argilla(api_url="<api_url>", api_key="<api_key>")
+    client = rg.Argilla(api_url="https://example.com", api_key="<api_key>")
     return rg.Dataset(
         name="dataset",
         settings=rg.Settings(
@@ -155,6 +155,7 @@ class TestTextGenerationToArgilla:
                     "description": "The API key to authenticate the requests to the Argilla API.",
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": "distilabel.steps.argilla.text_generation",
                 "name": "TextGenerationToArgilla",

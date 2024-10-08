@@ -24,6 +24,8 @@ from typing import (
     get_args,
 )
 
+from distilabel.errors import DistilabelUserError
+
 if TYPE_CHECKING:
     import instructor
     from anthropic import AsyncAnthropic
@@ -115,8 +117,9 @@ def prepare_instructor(
 
     mode = mode or default_mode
     if mode.value not in [m.value for m in instructor.mode.Mode]:
-        raise ValueError(
-            f"Invalid mode '{mode}'. Must be one of {[m.value for m in instructor.mode.Mode]}"
+        raise DistilabelUserError(
+            f"Invalid mode '{mode}'. Must be one of {[m.value for m in instructor.mode.Mode]}",
+            page="sections/how_to_guides/advanced/structured_generation/#instructor",
         )
 
     patched_client: instructor.AsyncInstructor = builder(client, mode=mode)

@@ -194,15 +194,14 @@ class TestvLLM:
 @mock.patch("openai.AsyncOpenAI")
 class TestClientvLLM:
     def test_clientvllm_model_name(
-        self, _openai_mock: mock.MagicMock, _async_openai_mock: mock.MagicMock
+        self, _: mock.MagicMock, openai_mock: mock.MagicMock
     ) -> None:
         llm = ClientvLLM(
             base_url="http://localhost:8000/v1",
             tokenizer="google-bert/bert-base-uncased",
         )
 
-        llm.load()
-
+        llm._client = mock.MagicMock()
         llm._client.models.list.return_value = SyncPage[Model](  # type: ignore
             data=[Model(id="llama", created=1234, object="model", owned_by="")],
             object="model",

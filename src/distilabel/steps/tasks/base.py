@@ -12,17 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.constants import DISTILABEL_METADATA_KEY
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
     GeneratorStep,
+    GlobalStep,
     Step,
     StepInput,
     _Step,
@@ -31,7 +34,7 @@ from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import FormattedInput
+    from distilabel.steps.tasks.typing import ChatType, FormattedInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -60,13 +63,52 @@ class _Task(_Step, ABC):
             " of the `distilabel_metadata` dictionary output column"
         ),
     )
+    add_raw_input: RuntimeParameter[bool] = Field(
+        default=True,
+        description=(
+            "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>`"
+            " of the `distilabel_metadata` dictionary column"
+        ),
+    )
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )
+    use_default_structured_output: bool = False
+
+    _can_be_used_with_offline_batch_generation: bool = PrivateAttr(False)
+
+    def model_post_init(self, __context: Any) -> None:
+        if (
+            self.llm.use_offline_batch_generation
+            and not self._can_be_used_with_offline_batch_generation
+        ):
+            raise DistilabelUserError(
+                f"`{self.__class__.__name__}` task cannot be used with offline batch generation"
+                " feature.",
+                page="sections/how_to_guides/advanced/offline-batch-generation",
+            )
+
+        super().model_post_init(__context)
+
+    @property
+    def is_global(self) -> bool:
+        """Extends the `is_global` property to return `True` if the task is using the
+        offline batch generation feature, otherwise it returns the value of the parent
+        class property. `offline_batch_generation` requires to receive all the inputs
+        at once, so for the `_BatchManager` this is a global step.
+
+        Returns:
+            Whether the task is a global step or not.
+        """
+        if self.llm.use_offline_batch_generation:
+            return True
+
+        return super().is_global
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method."""
         super().load()
+        self._set_default_structured_output()
         self.llm.load()
 
     @override
@@ -74,6 +116,28 @@ class _Task(_Step, ABC):
         """Unloads the LLM."""
         self._logger.debug("Executing task unload logic.")
         self.llm.unload()
+
+    @override
+    def impute_step_outputs(
+        self, step_output: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Imputes the outputs of the task in case the LLM failed to generate a response.
+        """
+        result = []
+        for row in step_output:
+            data = row.copy()
+            for output in self.get_outputs().keys():
+                data[output] = None
+            data = self._maybe_add_raw_input_output(
+                data,
+                None,
+                None,
+                add_raw_output=self.add_raw_output,
+                add_raw_input=self.add_raw_input,
+            )
+            result.append(data)
+        return result
 
     @abstractmethod
     def format_output(
@@ -110,10 +174,12 @@ class _Task(_Step, ABC):
         for output, input in zip(outputs, inputs * len(outputs)):  # type: ignore
             try:
                 formatted_output = self.format_output(output, input)
-                formatted_output = self._maybe_add_raw_output(
+                formatted_output = self._maybe_add_raw_input_output(
                     formatted_output,
                     output,
+                    input,
                     add_raw_output=self.add_raw_output,  # type: ignore
+                    add_raw_input=self.add_raw_input,  # type: ignore
                 )
                 formatted_outputs.append(formatted_output)
             except Exception as e:
@@ -132,25 +198,170 @@ class _Task(_Step, ABC):
         # Create a dictionary with the outputs of the task (every output set to None)
         outputs = {output: None for output in self.outputs}
         outputs["model_name"] = self.llm.model_name  # type: ignore
-        outputs = self._maybe_add_raw_output(
+        outputs = self._maybe_add_raw_input_output(
             outputs,
             output,
+            input,
             add_raw_output=self.add_raw_output,  # type: ignore
+            add_raw_input=self.add_raw_input,  # type: ignore
         )
         return outputs
 
-    def _maybe_add_raw_output(
+    def _maybe_add_raw_input_output(
         self,
         output: Dict[str, Any],
         raw_output: Union[str, None],
+        input: Union[str, None],
         add_raw_output: bool = True,
-    ) -> Dict[str, Any]:
-        """Adds the raw output of the LLM to the output dictionary if `add_raw_output` is True."""
+        add_raw_input: bool = True,
+    ):
+        """Adds the raw output and or the formatted input of the LLM to the output dictionary
+        if `add_raw_output` is True or `add_raw_input` is True.
+        """
+        meta = output.get(DISTILABEL_METADATA_KEY, {})
+
         if add_raw_output:
-            meta = output.get(DISTILABEL_METADATA_KEY, {})
             meta[f"raw_output_{self.name}"] = raw_output
+        if add_raw_input:
+            meta[f"raw_input_{self.name}"] = self.format_input(input) if input else None
+        if meta:
             output[DISTILABEL_METADATA_KEY] = meta
+
         return output
+
+    def _set_default_structured_output(self) -> None:
+        """Prepares the structured output to be set in the selected `LLM`.
+
+        If the method `get_structured_output` returns None (the default), there's no need
+        to set anything, as it doesn't apply.
+        If the `use_default_structured_output` and there's no previous structured output
+        set by hand, then decide the type of structured output to select depending on the
+        `LLM` provider.
+        """
+        schema = self.get_structured_output()
+        if not schema:
+            return
+
+        if self.use_default_structured_output and not self.llm.structured_output:
+            # In case the default structured output is required, we have to set it before
+            # the LLM is loaded
+            from distilabel.llms import InferenceEndpointsLLM
+            from distilabel.llms.base import AsyncLLM
+
+            def check_dependency(module_name: str) -> None:
+                if not importlib.util.find_spec(module_name):
+                    raise ImportError(
+                        f"`{module_name}` is not installed and is needed for the structured generation with this LLM."
+                        f" Please install it using `pip install {module_name}`."
+                    )
+
+            dependency = "outlines"
+            structured_output = {"schema": schema}
+            if isinstance(self.llm, InferenceEndpointsLLM):
+                structured_output.update({"format": "json"})
+            # To determine instructor or outlines format
+            elif isinstance(self.llm, AsyncLLM) and not isinstance(
+                self.llm, InferenceEndpointsLLM
+            ):
+                dependency = "instructor"
+                structured_output.update({"format": "json"})
+
+            check_dependency(dependency)
+            self.llm.structured_output = structured_output
+
+    def get_structured_output(self) -> Union[Dict[str, Any], None]:
+        """Returns the structured output for a task that implements one by default,
+        must be overriden by subclasses of `Task`. When implemented, should be a json
+        schema that enforces the response from the LLM so that it's easier to parse.
+        """
+        return None
+
+    def _sample_input(self) -> "ChatType":
+        """Returns a sample input to be used in the `print` method.
+        Tasks that don't adhere to a format input that returns a map of the type
+        str -> str should override this method to return a sample input.
+        """
+        return self.format_input(
+            {input: f"<PLACEHOLDER_{input.upper()}>" for input in self.inputs}
+        )
+
+    def print(self, sample_input: Optional["ChatType"] = None) -> None:
+        """Prints a sample input to the console using the `rich` library.
+        Helper method to visualize the prompt of the task.
+
+        Args:
+            sample_input: A sample input to be printed. If not provided, a default will be
+                generated using the `_sample_input` method, which can be overriden by
+                subclasses. This should correspond to the same example you could pass to
+                the `format_input` method.
+                The variables be named <PLACEHOLDER_VARIABLE_NAME> by default.
+
+        Examples:
+            Print the URIAL prompt:
+
+            ```python
+            from distilabel.steps.tasks import URIAL
+            from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+            # Consider this as a placeholder for your actual LLM.
+            urial = URIAL(
+                llm=InferenceEndpointsLLM(
+                    model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                ),
+            )
+            urial.load()
+            urial.print()
+            ╭─────────────────────────────────────── Prompt: URIAL  ────────────────────────────────────────╮
+            │ ╭────────────────────────────────────── User Message ───────────────────────────────────────╮ │
+            │ │ # Instruction                                                                             │ │
+            │ │                                                                                           │ │
+            │ │ Below is a list of conversations between a human and an AI assistant (you).               │ │
+            │ │ Users place their queries under "# User:", and your responses are under  "# Assistant:".  │ │
+            │ │ You are a helpful, respectful, and honest assistant.                                      │ │
+            │ │ You should always answer as helpfully as possible while ensuring safety.                  │ │
+            │ │ Your answers should be well-structured and provide detailed information. They should also │ │
+            │ │ have an engaging tone.                                                                    │ │
+            │ │ Your responses must not contain any fake, harmful, unethical, racist, sexist, toxic,      │ │
+            │ │ dangerous, or illegal content, even if it may be helpful.                                 │ │
+            │ │ Your response must be socially responsible, and thus you can refuse to answer some        │ │
+            │ │ controversial topics.                                                                     │ │
+            │ │                                                                                           │ │
+            │ │                                                                                           │ │
+            │ │ # User:                                                                                   │ │
+            │ │                                                                                           │ │
+            │ │ <PLACEHOLDER_INSTRUCTION>                                                                 │ │
+            │ │                                                                                           │ │
+            │ │ # Assistant:                                                                              │ │
+            │ ╰───────────────────────────────────────────────────────────────────────────────────────────╯ │
+            ╰───────────────────────────────────────────────────────────────────────────────────────────────╯
+            ```
+        """
+        from rich.console import Console, Group
+        from rich.panel import Panel
+        from rich.text import Text
+
+        console = Console()
+        sample_input = sample_input or self._sample_input()
+
+        panels = []
+        for item in sample_input:
+            content = Text.assemble((item.get("content", ""),))
+            panel = Panel(
+                content,
+                title=f"[bold][magenta]{item.get('role', '').capitalize()} Message[/magenta][/bold]",
+                border_style="light_cyan3",
+            )
+            panels.append(panel)
+
+        # Create a group of panels
+        # Wrap the group in an outer panel
+        outer_panel = Panel(
+            Group(*panels),
+            title=f"[bold][magenta]Prompt: {type(self).__name__} [/magenta][/bold]",
+            border_style="light_cyan3",
+            expand=False,
+        )
+        console.print(outer_panel)
 
 
 class Task(_Task, Step):
@@ -195,7 +406,7 @@ class Task(_Task, Step):
         formatted_inputs = self._format_inputs(inputs)
 
         # `outputs` is a list containing a list of generations per input
-        outputs = self.llm.generate(
+        outputs = self.llm.generate_outputs(
             inputs=formatted_inputs,
             num_generations=self.num_generations,  # type: ignore
             **self.llm.get_generation_kwargs(),  # type: ignore
@@ -222,7 +433,7 @@ class Task(_Task, Step):
 
 
 class GeneratorTask(_Task, GeneratorStep):
-    """GeneratorTask is a class that implements the `_Task` abstract class and adds the
+    """`GeneratorTask` is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
     Attributes:
@@ -230,6 +441,15 @@ class GeneratorTask(_Task, GeneratorStep):
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
+    """
+
+    pass
+
+
+class GlobalTask(_Task, GlobalStep):
+    """`GlobalTask` is a class that implements the `_Task` abstract class and adds the
+    `GlobalStep` interface to be used as a step in the pipeline. It's generally used in
+    combination with `LLM`s that can be used for offline batched inference.
     """
 
     pass

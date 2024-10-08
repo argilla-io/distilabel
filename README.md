@@ -78,6 +78,8 @@ Requires Python 3.9+
 
 In addition, the following extras are available:
 
+### LLMs
+
 - `anthropic`: for using models available in [Anthropic API](https://www.anthropic.com/api) via the `AnthropicLLM` integration.
 - `cohere`: for using models available in [Cohere](https://cohere.ai/) via the `CohereLLM` integration.
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
@@ -91,19 +93,32 @@ In addition, the following extras are available:
 - `openai`: for using [OpenAI API](https://openai.com/blog/openai-api) models via the `OpenAILLM` integration, or the rest of the integrations based on OpenAI and relying on its client as `AnyscaleLLM`, `AzureOpenAILLM`, and `TogetherLLM`.
 - `vertexai`: for using [Google Vertex AI](https://cloud.google.com/vertex-ai) proprietary models via the `VertexAILLM` integration.
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
+- `sentence-transformers`: for generating sentence embeddings using [sentence-transformers](https://github.com/UKPLab/sentence-transformers).
+
+### Structured generation
+
+- `outlines`: for using structured generation of LLMs with [outlines](https://github.com/outlines-dev/outlines).
+- `instructor`: for using structured generation of LLMs with [Instructor](https://github.com/jxnl/instructor/).
+
+### Data processing
+
+- `ray`: for scaling and distributing a pipeline with [Ray](https://github.com/ray-project/ray).
+- `faiss-cpu` and `faiss-gpu`: for generating sentence embeddings using [faiss](https://github.com/facebookresearch/faiss).
+- `text-clustering`: for using text clustering with [UMAP](https://github.com/lmcinnes/umap) and [Scikit-learn](https://github.com/scikit-learn/scikit-learn).
+- `minhash`: for using minhash for duplicate detection with [datasketch](https://github.com/datasketch/datasketch) and [nltk](https://github.com/nltk/nltk).
 
 ### Example
 
-To run the following example you must install `distilabel` with both `openai` extra:
+To run the following example you must install `distilabel` with the `hf-inference-endpoints` extra:
 
 ```sh
-pip install "distilabel[openai]" --upgrade
+pip install "distilabel[hf-inference-endpoints]" --upgrade
 ```
 
 Then run:
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.llms import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
@@ -114,9 +129,14 @@ with Pipeline(
 ) as pipeline:
     load_dataset = LoadDataFromHub(output_mappings={"prompt": "instruction"})
 
-    generate_with_openai = TextGeneration(llm=OpenAILLM(model="gpt-3.5-turbo"))
+    text_generation = TextGeneration(
+        llm=InferenceEndpointsLLM(
+            model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+            tokenizer_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+        ),
+    )
 
-    load_dataset >> generate_with_openai
+    load_dataset >> text_generation
 
 if __name__ == "__main__":
     distiset = pipeline.run(
@@ -125,7 +145,7 @@ if __name__ == "__main__":
                 "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
                 "split": "test",
             },
-            generate_with_openai.name: {
+            text_generation.name: {
                 "llm": {
                     "generation_kwargs": {
                         "temperature": 0.7,
@@ -135,6 +155,7 @@ if __name__ == "__main__":
             },
         },
     )
+    distiset.push_to_hub(repo_id="distilabel-example")
 ```
 
 ## Badges

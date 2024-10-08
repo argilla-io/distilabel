@@ -25,6 +25,11 @@ from fsspec.implementations.local import LocalFileSystem
 from pydantic import Field
 from upath import UPath
 
+from distilabel.constants import (
+    INPUT_QUEUE_ATTR_NAME,
+    LAST_BATCH_SENT_FLAG,
+    STEPS_ARTIFACTS_PATH,
+)
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.base import (
     _STEP_LOAD_FAILED_CODE,
@@ -34,7 +39,6 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
-from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME, LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.routing_batch_function import (
     routing_batch_function,
     sample_n_steps,
@@ -91,6 +95,28 @@ class TestGlobalPipelineManager:
 
 
 class TestBasePipeline:
+    def test_aggregated_steps_signature(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline_0:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        with DummyPipeline(name="dummy") as pipeline_1:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        assert (
+            pipeline_0.aggregated_steps_signature
+            == pipeline_1.aggregated_steps_signature
+        )
+
     def test_context_manager(self) -> None:
         assert _GlobalPipelineManager.get_pipeline() is None
 
@@ -102,28 +128,35 @@ class TestBasePipeline:
 
     @pytest.mark.parametrize("use_cache", [False, True])
     def test_load_batch_manager(self, use_cache: bool) -> None:
-        pipeline = DummyPipeline(name="unit-test-pipeline")
-        pipeline._load_batch_manager(use_cache=True)
-        pipeline._cache()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            pipeline = DummyPipeline(name="unit-test-pipeline", cache_dir=temp_dir)
+            pipeline._load_batch_manager(use_cache=True)
+            pipeline._cache()
 
-        with (
-            mock.patch(
-                "distilabel.pipeline.base._BatchManager.load_from_cache"
-            ) as mock_load_from_cache,
-            mock.patch(
-                "distilabel.pipeline.base._BatchManager.from_dag"
-            ) as mock_from_dag,
-        ):
-            pipeline._load_batch_manager(use_cache=use_cache)
+            with (
+                mock.patch(
+                    "distilabel.pipeline.base._BatchManager.load_from_cache"
+                ) as mock_load_from_cache,
+                mock.patch(
+                    "distilabel.pipeline.base._BatchManager.from_dag"
+                ) as mock_from_dag,
+            ):
+                pipeline._load_batch_manager(use_cache=use_cache)
 
-        if use_cache:
-            mock_load_from_cache.assert_called_once_with(
-                pipeline._cache_location["batch_manager"]
-            )
-            mock_from_dag.assert_not_called()
-        else:
-            mock_load_from_cache.assert_not_called()
-            mock_from_dag.assert_called_once_with(pipeline.dag)
+            if use_cache:
+                mock_load_from_cache.assert_called_once_with(
+                    dag=pipeline.dag,
+                    batch_manager_path=pipeline._cache_location["batch_manager"],
+                    steps_data_path=pipeline._cache_location["steps_data"],
+                )
+                mock_from_dag.assert_not_called()
+            else:
+                mock_load_from_cache.assert_not_called()
+                mock_from_dag.assert_called_once_with(
+                    dag=pipeline.dag,
+                    use_cache=use_cache,
+                    steps_data_path=pipeline._cache_location["steps_data"],
+                )
 
     def test_setup_write_buffer(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
@@ -154,6 +187,23 @@ class TestBasePipeline:
 
         with pytest.raises(ValueError, match="The 'path' key must be present"):
             pipeline._setup_fsspec({"key": "random"})
+
+    def test_set_pipeline_artifacts_path_in_steps(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._set_pipeline_artifacts_path_in_steps()
+
+        artifacts_directory = pipeline._cache_location["data"] / STEPS_ARTIFACTS_PATH
+        assert generator.artifacts_directory == artifacts_directory / generator.name  # type: ignore
+        assert step.artifacts_directory == artifacts_directory / step.name  # type: ignore
+        assert step2.artifacts_directory == artifacts_directory / step2.name  # type: ignore
+        assert step3.artifacts_directory == artifacts_directory / step3.name  # type: ignore
 
     def test_init_steps_load_status(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
@@ -207,6 +257,15 @@ class TestBasePipeline:
         pipeline._batch_manager.can_generate.return_value = False
 
         assert not pipeline._should_continue_processing()
+
+    def test_set_step_for_recovering_offline_batch_generation(self) -> None:
+        with DummyPipeline() as pipeline:
+            step = DummyStep1()
+
+        data = [[{"a": 0}, {"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]]
+        pipeline._set_step_for_recovering_offline_batch_generation(step=step, data=data)
+
+        assert pipeline._recover_offline_batch_generate_for_step == (step.name, data)
 
     def test_should_load_next_stage(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
@@ -297,6 +356,7 @@ class TestBasePipeline:
 
             generator >> [step, step2] >> step3 >> step4
 
+        pipeline._load_batch_manager()
         pipeline._steps_load_status = {  # type: ignore
             generator.name: 1,
             step.name: 1,
@@ -320,6 +380,7 @@ class TestBasePipeline:
             generator >> [step, step2] >> step3 >> step4
 
         pipeline._init_steps_load_status()
+        pipeline._load_batch_manager()
         pipeline._steps_load_status[generator.name] = _STEP_LOAD_FAILED_CODE  # type: ignore
         caplog.set_level(logging.INFO)
 
@@ -337,6 +398,7 @@ class TestBasePipeline:
             generator >> [step, step2] >> step3 >> step4
 
         pipeline._init_steps_load_status()
+        pipeline._load_batch_manager()
         pipeline._stop_called = True
 
         assert pipeline._run_stage_steps_and_wait(stage=0) is False
@@ -353,6 +415,7 @@ class TestBasePipeline:
         pipeline._add_batches_back_to_batch_manager = mock.MagicMock()
         pipeline._wait_step_input_queue_empty = mock.MagicMock()
         pipeline._consume_output_queue = mock.MagicMock()
+        pipeline._stages_last_batch = [[]]
 
         pipeline._handle_stop()
 
@@ -594,7 +657,9 @@ class TestBasePipeline:
         batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
         pipeline._register_batch(batch)
 
-        pipeline._batch_manager.register_batch.assert_called_once_with(batch)
+        pipeline._batch_manager.register_batch.assert_called_once_with(
+            batch, steps_data_path=pipeline._cache_location["steps_data"]
+        )
 
     def test_send_last_batch_flag_to_step(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
@@ -711,7 +776,9 @@ class TestBasePipeline:
         batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
         pipeline._handle_batch_on_stop(batch)
 
-        batch_manager_mock.register_batch.assert_called_once_with(batch)
+        batch_manager_mock.register_batch.assert_called_once_with(
+            batch, steps_data_path=pipeline._cache_location["steps_data"]
+        )
         batch_manager_mock.add_batch.assert_has_calls(
             [
                 mock.call(step.name, batch),
@@ -1166,13 +1233,16 @@ class TestBasePipeline:
             )
 
     def test_optional_name(self):
-        import random
+        from distilabel.pipeline.base import _PIPELINE_DEFAULT_NAME
 
-        random.seed(42)
+        assert DummyPipeline().name == _PIPELINE_DEFAULT_NAME
+
         with DummyPipeline() as pipeline:
-            name = pipeline.name
-            assert name.startswith("pipeline")
-            assert len(name.split("_")[-1]) == 8
+            gen_step = DummyGeneratorStep()
+            step1_0 = DummyStep1()
+            gen_step >> step1_0
+
+        assert pipeline.name == "pipeline_dummy_generator_step_0_dummy_step1_0"
 
 
 class TestPipelineSerialization:
@@ -1265,8 +1335,7 @@ class TestPipelineSerialization:
         pipeline = DummyPipeline(name="unit-test-pipeline")
         # Doesn't matter if it's exactly this or not, the test should fail if we change the
         # way this is created.
-        signature = pipeline._create_signature()
-        assert signature == "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+        assert pipeline.signature == "da39a3ee5e6b4b0d3255bfef95601890afd80709"
 
         # Maybe not the best place for this test, but does the work for now
         from distilabel.pipeline.local import Pipeline
@@ -1276,11 +1345,11 @@ class TestPipelineSerialization:
         sample_two_steps = sample_n_steps(2)
 
         with Pipeline(name="unit-test-pipeline") as pipeline:
-            dummy_generator = DummyGeneratorStep()
-            dummy_step_1_0 = DummyStep1()
-            dummy_step_1_1 = DummyStep1()
-            dummy_step_1_2 = DummyStep1()
-            dummy_step_2 = DummyStep2()
+            dummy_generator = DummyGeneratorStep(name="dummy_generator")
+            dummy_step_1_0 = DummyStep1(name="dummy_step_1_0")
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1")
+            dummy_step_1_2 = DummyStep1(name="dummy_step_1_2")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
 
             (
                 dummy_generator
@@ -1289,8 +1358,68 @@ class TestPipelineSerialization:
                 >> dummy_step_2
             )
 
-        signature = pipeline._create_signature()
-        assert signature == "d3c7c572fe31233aa1198174c6c793b67ef3744b"
+        assert pipeline.signature == "edff8f5bb8b51da406ff274e640f87264f014e3b"
+
+        # attributes shouldn't affect in pipeline signature
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator")
+            dummy_step_1_0 = DummyStep1(name="dummy_step_1_0", attr1=17238497128934)
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1")
+            dummy_step_1_2 = DummyStep1(name="dummy_step_1_2")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+            (
+                dummy_generator
+                >> sample_two_steps
+                >> [dummy_step_1_0, dummy_step_1_1, dummy_step_1_2]
+                >> dummy_step_2
+            )
+
+        assert pipeline.signature == "edff8f5bb8b51da406ff274e640f87264f014e3b"
+
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator")
+            dummy_step_1_0 = DummyStep1(name="dummy_step_1_0")
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1")
+            dummy_step_1_2 = DummyStep1(name="dummy_step_1_2")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+            (
+                dummy_generator
+                >> [dummy_step_1_0, dummy_step_1_1, dummy_step_1_2]
+                >> dummy_step_2
+            )
+
+        assert pipeline.signature == "5634172be496319d50848b1679b2a8781cc5581f"
+
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_second_time")
+            dummy_step_1_0 = DummyStep1(
+                name="dummy_step_1_0_second_time", attr1=17238497128934
+            )
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1_second_time")
+            dummy_step_1_2 = DummyStep1(name="dummy_step_1_2_second_time")
+            dummy_step_2 = DummyStep2(name="dummy_step_2_second_time")
+
+            (
+                dummy_generator
+                >> sample_two_steps
+                >> [dummy_step_1_0, dummy_step_1_1, dummy_step_1_2]
+                >> dummy_step_2
+            )
+
+        assert pipeline.signature == "806dad3fca0f8274af0f374660d4e3eb25d62d12"
+
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_second_time")
+            dummy_step_1_0 = DummyStep1(
+                name="dummy_step_1_0_second_time", attr1=17238497128934
+            )
+            dummy_step_1_1 = DummyStep1(name="dummy_step_1_1_second_time")
+
+            (dummy_generator >> sample_two_steps >> [dummy_step_1_0, dummy_step_1_1])
+
+        assert pipeline.signature == "7222ce34c677bea3720ef3d08c2673b29b61ff9b"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.
@@ -1305,7 +1434,7 @@ class TestPipelineSerialization:
             dummy_generator.connect(dummy_step_1)
             dummy_step_1.connect(dummy_step_2)
 
-            signature_1 = pipeline_1._create_signature()
+            signature_1 = pipeline_1.signature
 
         with Pipeline(name="unit-test-pipeline-3") as pipeline_2:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -1314,7 +1443,7 @@ class TestPipelineSerialization:
 
             dummy_generator >> dummy_step_1 >> dummy_step_2
 
-            signature_2 = pipeline_2._create_signature()
+            signature_2 = pipeline_2.signature
 
         assert signature_1 == signature_2
 
@@ -1331,7 +1460,7 @@ class TestPipelineSerialization:
             dummy_generator.connect(dummy_step_1)
             dummy_generator.connect(dummy_step_2)
 
-            signature_1 = pipeline_1._create_signature()
+            signature_1 = pipeline_1.signature
 
         with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -1340,7 +1469,7 @@ class TestPipelineSerialization:
 
             dummy_generator >> [dummy_step_1, dummy_step_2]
 
-            signature_2 = pipeline_2._create_signature()
+            signature_2 = pipeline_2.signature
 
         assert signature_1 == signature_2
 
@@ -1360,7 +1489,7 @@ class TestPipelineSerialization:
             dummy_step_1.connect(dummy_global)
             dummy_step_2.connect(dummy_global)
 
-            signature_1 = pipeline_1._create_signature()
+            signature_1 = pipeline_1.signature
 
         with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
             dummy_step_1 = DummyStep1(name="dummy_step_1")
@@ -1368,7 +1497,7 @@ class TestPipelineSerialization:
             dummy_global = DummyGlobalStep(name="dummy_global_step")
 
             [dummy_step_1, dummy_step_2] >> dummy_global
-            signature_2 = pipeline_2._create_signature()
+            signature_2 = pipeline_2.signature
 
         assert signature_1 == signature_2
 
@@ -1394,7 +1523,7 @@ class TestPipelineSerialization:
             dummy_step_1.connect(dummy_global)
             dummy_step_2.connect(dummy_global)
 
-            signature_1 = pipeline_1._create_signature()
+            signature_1 = pipeline_1.signature
 
         with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -1403,6 +1532,6 @@ class TestPipelineSerialization:
             dummy_global = DummyGlobalStep(name="dummy_global_step")
 
             dummy_generator >> [dummy_step_1, dummy_step_2] >> dummy_global
-            signature_2 = pipeline_2._create_signature()
+            signature_2 = pipeline_2.signature
 
         assert signature_1 == signature_2

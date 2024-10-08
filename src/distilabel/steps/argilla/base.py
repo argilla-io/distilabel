@@ -15,7 +15,7 @@
 import importlib.util
 import os
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr
 
@@ -24,13 +24,14 @@ try:
 except ImportError:
     pass
 
+from distilabel.errors import DistilabelUserError
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
     from argilla import Argilla, Dataset
 
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 _ARGILLA_API_URL_ENV_VAR_NAME = "ARGILLA_API_URL"
@@ -110,7 +111,10 @@ class ArgillaBase(Step, ABC):
                 else {},
             )
         except Exception as e:
-            raise ValueError(f"Failed to initialize the Argilla API: {e}") from e
+            raise DistilabelUserError(
+                f"Failed to initialize the Argilla API: {e}",
+                page="sections/how_to_guides/advanced/argilla/",
+            ) from e
 
     @property
     def _dataset_exists_in_workspace(self) -> bool:
@@ -128,7 +132,7 @@ class ArgillaBase(Step, ABC):
         )
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The outputs of the step is an empty list, since the steps subclassing from this one, will
         always be leaf nodes and won't propagate the inputs neither generate any outputs.
         """
@@ -141,17 +145,18 @@ class ArgillaBase(Step, ABC):
         super().load()
 
         if self.api_url is None or self.api_key is None:
-            raise ValueError(
+            raise DistilabelUserError(
                 "`Argilla` step requires the `api_url` and `api_key` to be provided. Please,"
                 " provide those at step instantiation, via environment variables `ARGILLA_API_URL`"
-                " and `ARGILLA_API_KEY`, or as `Step` runtime parameters via `pipeline.run(parameters={...})`."
+                " and `ARGILLA_API_KEY`, or as `Step` runtime parameters via `pipeline.run(parameters={...})`.",
+                page="sections/how_to_guides/advanced/argilla/",
             )
 
         self._client_init()
 
     @property
     @abstractmethod
-    def inputs(self) -> List[str]: ...
+    def inputs(self) -> "StepColumns": ...
 
     @abstractmethod
     def process(self, *inputs: StepInput) -> "StepOutput": ...

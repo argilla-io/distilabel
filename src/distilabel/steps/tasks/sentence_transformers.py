@@ -16,7 +16,9 @@ import re
 import sys
 from typing import TYPE_CHECKING, Any, Dict, Final, List, Literal, Optional, Union
 
+import orjson
 from jinja2 import Template
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 
@@ -31,7 +33,7 @@ if TYPE_CHECKING:
 GenerationAction = Literal["paraphrase", "semantically-similar", "query", "answer"]
 
 POSITIVE_NEGATIVE_PAIR_REGEX = re.compile(
-    r"## Positive\s+(.*?)(?:\s+## Negative\s+(.*?))?\s*$",
+    r"\s*## Positive\s+(.*?)(?:\s+## Negative\s+(.*?))?\s*$",
     re.DOTALL,
 )
 
@@ -102,7 +104,6 @@ class GenerateSentencePair(Task):
         - embedding
 
     Examples:
-
         Paraphrasing:
 
         ```python
@@ -232,6 +233,28 @@ class GenerateSentencePair(Task):
         result = generate_sentence_pair.process([{"anchor": "I want to generate queries for my LLM."}])
         ```
 
+        Generating structured data with default schema (**applies to every action**):
+
+        ```python
+        from distilabel.steps.tasks import GenerateSentencePair
+        from distilabel.llms import InferenceEndpointsLLM
+
+        generate_sentence_pair = GenerateSentencePair(
+            triplet=True, # `False` to generate only positive
+            action="query",
+            context="Argilla is an open-source data curation platform for LLMs.",
+            hard_negative=True,
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            ),
+            input_batch_size=10,
+            use_default_structured_output=True
+        )
+
+        generate_sentence_pair.load()
+
+        result = generate_sentence_pair.process([{"anchor": "I want to generate queries for my LLM."}])
+        ```
     """
 
     triplet: bool = False
@@ -320,6 +343,9 @@ class GenerateSentencePair(Task):
         if output is None:
             return {"positive": None, "negative": None}
 
+        if self.use_default_structured_output:
+            return self._format_structured_output(output)
+
         match = POSITIVE_NEGATIVE_PAIR_REGEX.match(output)
         if match is None:
             formatted_output = {"positive": None}
@@ -331,9 +357,53 @@ class GenerateSentencePair(Task):
         if self.triplet:
             return {
                 "positive": groups[0].strip(),
-                "negative": groups[1].strip()
-                if len(groups) > 1 and groups[1] is not None
-                else None,
+                "negative": (
+                    groups[1].strip()
+                    if len(groups) > 1 and groups[1] is not None
+                    else None
+                ),
             }
 
         return {"positive": groups[0].strip()}
+
+    @override
+    def get_structured_output(self) -> Dict[str, Any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        if self.triplet:
+            return {
+                "properties": {
+                    "positive": {"title": "Positive", "type": "string"},
+                    "negative": {"title": "Negative", "type": "string"},
+                },
+                "required": ["positive", "negative"],
+                "title": "Schema",
+                "type": "object",
+            }
+        return {
+            "properties": {"positive": {"title": "Positive", "type": "string"}},
+            "required": ["positive"],
+            "title": "Schema",
+            "type": "object",
+        }
+
+    def _format_structured_output(self, output: str) -> Dict[str, str]:
+        """Parses the structured response, which should correspond to a dictionary
+        with either `positive`, or `positive` and `negative` keys.
+
+        Args:
+            output: The output from the `LLM`.
+
+        Returns:
+            Formatted output.
+        """
+        try:
+            return orjson.loads(output)
+        except orjson.JSONDecodeError:
+            if self.triplet:
+                return {"positive": None, "negative": None}
+            return {"positive": None}

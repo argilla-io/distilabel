@@ -22,8 +22,10 @@ else:
 
 from typing import Any, Dict, List, Union
 
+import orjson
 from jinja2 import Template
 from pydantic import PrivateAttr
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
@@ -61,7 +63,6 @@ class QualityScorer(Task):
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
 
     Examples:
-
         Evaluate the quality of your instructions:
 
         ```python
@@ -97,8 +98,41 @@ class QualityScorer(Task):
         ]
         ```
 
-    Citations:
+        Generate structured output with default schema:
 
+        ```python
+        from distilabel.steps.tasks import QualityScorer
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        scorer = QualityScorer(
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            ),
+            use_default_structured_output=True
+        )
+
+        scorer.load()
+
+        result = next(
+            scorer.process(
+                [
+                    {
+                        "instruction": "instruction",
+                        "responses": ["good response", "weird response", "bad response"]
+                    }
+                ]
+            )
+        )
+
+        # result
+        [{'instruction': 'instruction',
+        'responses': ['good response', 'weird response', 'bad response'],
+        'scores': [1, 2, 3],
+        'distilabel_metadata': {'raw_output_quality_scorer_0': '{  "scores": [1, 2, 3] }'},
+        'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]
+        ```
+
+    Citations:
         ```
         @misc{liu2024makesgooddataalignment,
             title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},
@@ -113,6 +147,7 @@ class QualityScorer(Task):
     """
 
     _template: Union[Template, None] = PrivateAttr(...)
+    _can_be_used_with_offline_batch_generation = True
 
     def load(self) -> None:
         """Loads the Jinja2 template."""
@@ -166,6 +201,9 @@ class QualityScorer(Task):
         if output is None:
             return {"scores": [None] * len(input["responses"])}
 
+        if self.use_default_structured_output:
+            return self._format_structured_output(output, input)
+
         scores = []
         score_lines = output.split("\n")
 
@@ -176,3 +214,62 @@ class QualityScorer(Task):
             if i == len(input["responses"]) - 1:
                 break
         return {"scores": scores}
+
+    @override
+    def get_structured_output(self) -> Dict[str, Any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        The schema corresponds to the following:
+
+        ```python
+        from pydantic import BaseModel
+        from typing import List
+
+        class SchemaQualityScorer(BaseModel):
+            scores: List[int]
+        ```
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        return {
+            "properties": {
+                "scores": {
+                    "items": {"type": "integer"},
+                    "title": "Scores",
+                    "type": "array",
+                }
+            },
+            "required": ["scores"],
+            "title": "SchemaQualityScorer",
+            "type": "object",
+        }
+
+    def _format_structured_output(
+        self, output: str, input: Dict[str, Any]
+    ) -> Dict[str, str]:
+        """Parses the structured response, which should correspond to a dictionary
+        with the scores, and a list with them.
+
+        Args:
+            output: The output from the `LLM`.
+
+        Returns:
+            Formatted output.
+        """
+        try:
+            return orjson.loads(output)
+        except orjson.JSONDecodeError:
+            return {"scores": [None] * len(input["responses"])}
+
+    @override
+    def _sample_input(self) -> ChatType:
+        return self.format_input(
+            {
+                "instruction": f"<PLACEHOLDER_{'instruction'.upper()}>",
+                "responses": [
+                    f"<PLACEHOLDER_{f'RESPONSE_{i}'.upper()}>" for i in range(2)
+                ],
+            }
+        )

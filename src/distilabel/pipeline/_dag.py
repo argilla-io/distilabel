@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import base64
 import inspect
 from collections import defaultdict
 from functools import cached_property
@@ -29,12 +29,15 @@ from typing import (
 )
 
 import networkx as nx
+import requests
 
 from distilabel.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
+    RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
+from distilabel.errors import DistilabelUserError
 from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
 from distilabel.steps.base import GeneratorStep
 from distilabel.utils.serialization import (
@@ -46,6 +49,8 @@ from distilabel.utils.serialization import (
 if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.base import GeneratorStep, Step, _Step
+
+_MERMAID_URL = "https://mermaid.ink/img/"
 
 
 class DAG(_Serializable):
@@ -153,8 +158,9 @@ class DAG(_Serializable):
         Args:
             step: The generator step that will be set as the new root.
         """
-        self.add_step(step)
-        self.add_edge(step.name, next(iter(self)))
+        for other_step, level in self.trophic_levels.items():
+            if level == 1 and other_step != step.name:
+                self.add_edge(step.name, other_step)  # type: ignore
 
     @cached_property
     def root_steps(self) -> Set[str]:
@@ -174,14 +180,14 @@ class DAG(_Serializable):
         """
         return {node for node, degree in self.G.out_degree() if degree == 0}
 
-    @cached_property
+    @property
     def trophic_levels(self) -> Dict[str, int]:
         """The trophic level of each step in the DAG.
 
         Returns:
             A dictionary with the trophic level of each step.
         """
-        return {step: int(level) for step, level in nx.trophic_levels(self.G).items()}
+        return nx.trophic_levels(self.G)
 
     def get_step_predecessors(self, step_name: str) -> Iterable[str]:
         """Gets the predecessors of a step.
@@ -248,6 +254,21 @@ class DAG(_Serializable):
         """
         return self.get_step_trophic_level(step_name) == trophic_level
 
+    def is_convergence_step(self, step_name: str) -> bool:
+        """Checks if a given step is a convegence step.
+
+        Args:
+            step_name: Name of the step to check if a convergence step.
+
+        Returns:
+            True if it is, False otherwise.
+        """
+        predecessors = list(self.get_step_predecessors(step_name))
+        return all(
+            self.get_step(predecessor).get(RECEIVES_ROUTED_BATCHES_ATTR_NAME, False)
+            for predecessor in predecessors
+        )
+
     def step_in_last_trophic_level(self, step_name: str) -> bool:
         """Checks if a step is in the last trophic level.
 
@@ -292,13 +313,19 @@ class DAG(_Serializable):
         current_stage = []
         stages_last_steps = []
 
-        for step_name in nx.topological_sort(self.G):
+        steps_sorted = list(nx.topological_sort(self.G))
+        for i, step_name in enumerate(steps_sorted):
             step: "_Step" = self.get_step(step_name)[STEP_ATTR_NAME]
             if not step.is_global:
                 current_stage.append(step_name)
             else:
-                stages.append(current_stage)
-                stages_last_steps.append(_get_stage_last_steps(current_stage))
+                previous_step = None
+                if i > 0:
+                    previous_step_name = steps_sorted[i - 1]
+                    previous_step = self.get_step(previous_step_name)[STEP_ATTR_NAME]
+                if not previous_step or not previous_step.is_global:
+                    stages.append(current_stage)
+                    stages_last_steps.append(_get_stage_last_steps(current_stage))
                 stages.append([step_name])
                 stages_last_steps.append([step_name])
                 current_stage = []
@@ -339,9 +366,10 @@ class DAG(_Serializable):
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
                 if trophic_level == 1:
                     if not isinstance(step, GeneratorStep):
-                        raise ValueError(
+                        raise DistilabelUserError(
                             f"Step '{step_name}' cannot be a root step because it is not"
-                            " a `GeneratorStep`. It should have a previous step in the pipeline."
+                            " a `GeneratorStep`. It should have a previous step in the pipeline.",
+                            page="sections/how_to_guides/basic/step/#types-of-steps",
                         )
                     self._validate_generator_step_process_signature(step)
                 else:
@@ -374,9 +402,10 @@ class DAG(_Serializable):
             for output in self.get_step(step_name)[STEP_ATTR_NAME].get_outputs()  # type: ignore
         ]
         step_inputs = step.get_inputs()
-        if not all(input in inputs_available_for_step for input in step_inputs):
+        required_inputs = [input for input, required in step_inputs.items() if required]
+        if not all(input in inputs_available_for_step for input in required_inputs):
             raise ValueError(
-                f"Step '{step.name}' requires inputs {step_inputs}, but only the inputs"
+                f"Step '{step.name}' requires inputs {required_inputs}, but only the inputs"
                 f"={inputs_available_for_step} are available, which means that the inputs"
                 f"={list(set(step_inputs) - set(inputs_available_for_step))} are missing or not"
                 " available when the step gets to be executed in the pipeline."
@@ -442,7 +471,7 @@ class DAG(_Serializable):
 
         # Check if the `input_batch_size` of the step is equal or lower than the
         for predecessor in predecessors:
-            prev_step: "Step" = self.get_step(predecessor)[STEP_ATTR_NAME]
+            prev_step: "Step" = self.get_step(predecessor)[STEP_ATTR_NAME]  # type: ignore
             if step.input_batch_size > prev_step.input_batch_size:  # type: ignore
                 raise ValueError(
                     "A convergence step should have an `input_batch_size` equal or lower"
@@ -478,9 +507,10 @@ class DAG(_Serializable):
             node = self.get_step(predecessor)
             routing_batch_function = node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME)
             if routing_batch_function is not None and len(predecessors) > 1:
-                raise ValueError(
+                raise DistilabelUserError(
                     f"Step '{step.name}' cannot have multiple predecessors when the batches"
-                    " of one are being routed with a `routing_batch_function`."
+                    " of one are being routed with a `routing_batch_function`.",
+                    page="sections/how_to_guides/basic/pipeline/?h=routing#routing-batches-to-specific-downstream-steps",
                 )
 
         if routing_batch_function is None:
@@ -541,24 +571,27 @@ class DAG(_Serializable):
         if step_input_parameter is None:
             if num_predecessors > 1:
                 prev_steps = ", ".join([f"'{step_name}'" for step_name in predecessors])
-                raise ValueError(
+                raise DistilabelUserError(
                     f"Step '{step_name}' should have a `*args` parameter with type hint"
-                    f" `StepInput` to receive outputs from previous steps: {prev_steps}."
+                    f" `StepInput` to receive outputs from previous steps: {prev_steps}.",
+                    page="sections/how_to_guides/basic/step/#define-steps-for-your-pipeline",
                 )
 
             prev_step_name = next(iter(predecessors))
-            raise ValueError(
+            raise DistilabelUserError(
                 f"Step '{step_name}' should have a parameter with type hint `StepInput`"
-                f" to receive the output from the previous step: '{prev_step_name}'."
+                f" to receive the output from the previous step: '{prev_step_name}'.",
+                page="sections/how_to_guides/basic/step/#define-steps-for-your-pipeline",
             )
 
         if (
             num_predecessors > 1
             and step_input_parameter.kind != inspect.Parameter.VAR_POSITIONAL
         ):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"Step '{step_name}' should have a `*args` parameter with type hint `StepInput`"
-                f" to receive outputs from previous steps."
+                f" to receive outputs from previous steps.",
+                page="sections/how_to_guides/basic/step/#define-steps-for-your-pipeline",
             )
 
     def _validate_step_process_runtime_parameters(  # noqa: C901
@@ -735,3 +768,186 @@ class DAG(_Serializable):
             )
 
         return dag
+
+    def _get_graph_info_for_draw(
+        self,
+    ) -> Tuple[
+        Set[str],
+        Dict[str, str],
+        List[Dict[str, Any]],
+        Dict[str, Dict[str, Any]],
+        Dict[str, Dict[str, Any]],
+        Dict[str, Dict[str, Any]],
+    ]:
+        """Returns the graph info.
+
+        Returns:
+            all_steps: The set of all steps in the graph.
+            step_name_to_class: The mapping of step names to their classes.
+            connections: The list of connections in the graph.
+            step_outputs: The mapping of step names to their outputs.
+            step_output_mappings: The mapping of step names to their output mappings.
+            step_input_mappings: The mapping of step names to their input mappings.
+        """
+        dump = self.dump()
+        step_name_to_class = {
+            step["step"].get("name"): step["step"].get("type_info", {}).get("name")
+            for step in dump["steps"]
+        }
+        connections = dump["connections"]
+
+        step_outputs = {}
+        for step in dump["steps"]:
+            try:
+                step_outputs[step["name"]] = self.get_step(step["name"])[
+                    STEP_ATTR_NAME
+                ].get_outputs()
+            except AttributeError:
+                step_outputs[step["name"]] = {"dynamic": True}
+        step_inputs = {}
+        for step in dump["steps"]:
+            try:
+                step_inputs[step["name"]] = self.get_step(step["name"])[
+                    STEP_ATTR_NAME
+                ].get_inputs()
+            except AttributeError:
+                step_inputs[step["name"]] = {"dynamic": True}
+
+        # Add Argilla and Distiset steps to the graph
+        leaf_steps = self.leaf_steps
+        for idx, leaf_step in enumerate(leaf_steps):
+            if "to_argilla" in leaf_step:
+                connections.append({"from": leaf_step, "to": [f"to_argilla_{idx}"]})
+                step_name_to_class[f"to_argilla_{idx}"] = "Argilla"
+                step_outputs[leaf_step] = {"records": True}
+            else:
+                connections.append({"from": leaf_step, "to": [f"distiset_{idx}"]})
+                step_name_to_class[f"distiset_{idx}"] = "Distiset"
+
+        # Create a set of all steps in the graph
+        all_steps = {con["from"] for con in connections} | {
+            to_step for con in connections for to_step in con["to"]
+        }
+
+        # Create a mapping of step outputs
+        step_output_mappings = {
+            step["name"]: {
+                k: v
+                for k, v in {
+                    **{output: output for output in step_outputs[step["name"]]},
+                    **step["step"]["output_mappings"],
+                }.items()
+                if list(
+                    dict(
+                        {
+                            **{output: output for output in step_outputs[step["name"]]},
+                            **step["step"]["output_mappings"],
+                        }.items()
+                    ).values()
+                ).count(v)
+                == 1
+                or k != v
+            }
+            for step in dump["steps"]
+        }
+        step_input_mappings = {
+            step["name"]: dict(
+                {
+                    **{input: input for input in step_inputs[step["name"]]},
+                    **step["step"]["input_mappings"],
+                }.items()
+            )
+            for step in dump["steps"]
+        }
+
+        return (
+            all_steps,
+            step_name_to_class,
+            connections,
+            step_outputs,
+            step_output_mappings,
+            step_input_mappings,
+        )
+
+    def draw(self, top_to_bottom: bool = False, show_edge_labels: bool = True) -> str:  # noqa: C901
+        """Draws the DAG and returns the image content.
+
+        Parameters:
+            top_to_bottom: Whether to draw the DAG top to bottom. Defaults to `False`.
+            show_edge_labels: Whether to show the edge labels. Defaults to `True`.
+
+        Returns:
+            The image content.
+        """
+        (
+            all_steps,
+            step_name_to_class,
+            connections,
+            step_outputs,
+            step_output_mappings,
+            step_input_mappings,
+        ) = self._get_graph_info_for_draw()
+        graph = [f"flowchart {'TD' if top_to_bottom else 'LR'}"]
+        for step in all_steps:
+            graph.append(f'    {step}["{step_name_to_class[step]}"]')
+
+        if show_edge_labels:
+            for connection in connections:
+                from_step = connection["from"]
+                from_mapping = step_output_mappings[from_step]
+                for to_step in connection["to"]:
+                    for from_column in set(
+                        list(step_outputs[from_step].keys())
+                        + list(step_output_mappings[from_step].keys())
+                    ):
+                        if from_column not in from_mapping:
+                            continue
+                        to_column = from_mapping.get(from_column)
+
+                        # walk through mappings
+                        to_mapping = step_input_mappings.get(to_step, {})
+                        edge_label = [from_column]
+                        if from_column != to_column:
+                            edge_label.append(to_column)
+                        if edge_label[-1] in to_mapping:
+                            edge_label.append(to_mapping[edge_label[-1]])
+
+                        if (
+                            edge_label[-1] not in to_mapping
+                            and from_step not in self.leaf_steps
+                        ):
+                            edge_label.append("**_pass_**")
+                        edge_label = ":".join(list(dict.fromkeys(edge_label)))
+                        graph.append(f"    {from_step} --> |{edge_label}| {to_step}")
+
+        else:
+            for connection in connections:
+                from_step = connection["from"]
+                for to_step in connection["to"]:
+                    graph.append(f"    {from_step} --> {to_step}")
+
+        graph.append("classDef component text-align:center;")
+        graph_styled = "\n".join(graph)
+        return _to_mermaid_image(graph_styled)
+
+
+def _to_mermaid_image(graph_styled: str) -> str:
+    """Converts a Mermaid graph to an image using the Mermaid Ink service.
+
+    Parameters:
+        graph_styled: The Mermaid graph to convert to an image.
+
+    Returns:
+        The image content.
+    """
+    base64_string = base64.b64encode(graph_styled.encode("ascii")).decode("ascii")
+    url = f"{_MERMAID_URL}{base64_string}?type=png"
+
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.content
+    except requests.RequestException as e:
+        raise ValueError(
+            "Error accessing https://mermaid.ink/. See stacktrace for details."
+        ) from e

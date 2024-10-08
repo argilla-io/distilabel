@@ -116,6 +116,9 @@ class TestVertexAILLM:
         _dump = {
             "model": "gemini-1.0-pro",
             "generation_kwargs": {},
+            "jobs_ids": None,
+            "offline_batch_generation_block_until_done": None,
+            "use_offline_batch_generation": False,
             "type_info": {
                 "module": "distilabel.llms.vertexai",
                 "name": "VertexAILLM",

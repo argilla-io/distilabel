@@ -94,6 +94,7 @@ class TestEvolQuality:
         assert task.dump() == {
             "name": "task",
             "add_raw_output": True,
+            "add_raw_input": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
             "resources": {
@@ -106,6 +107,10 @@ class TestEvolQuality:
             "input_batch_size": task.input_batch_size,
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
+                "jobs_ids": None,
+                "offline_batch_generation_block_until_done": None,
+                "use_offline_batch_generation": False,
                 "type_info": {
                     "module": task.llm.__module__,
                     "name": task.llm.__class__.__name__,
@@ -118,6 +123,7 @@ class TestEvolQuality:
             "group_generations": task.group_generations,
             "include_original_response": task.include_original_response,
             "seed": task.seed,
+            "use_default_structured_output": False,
             "runtime_parameters_info": [
                 {
                     "name": "resources",
@@ -162,11 +168,30 @@ class TestEvolQuality:
                             "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
                             "keys": [],
                         },
+                        {
+                            "description": "Whether to use the `offline_batch_generate` method to "
+                            "generate the responses.",
+                            "name": "use_offline_batch_generation",
+                            "optional": True,
+                        },
+                        {
+                            "description": "If provided, then polling will be done until the "
+                            "`ofline_batch_generate` method is able to retrieve the "
+                            "results. The value indicate the time to wait between each "
+                            "polling.",
+                            "name": "offline_batch_generation_block_until_done",
+                            "optional": True,
+                        },
                     ],
                 },
                 {
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
                     "name": "add_raw_output",
+                    "optional": True,
+                },
+                {
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                    "name": "add_raw_input",
                     "optional": True,
                 },
                 {
@@ -180,6 +205,7 @@ class TestEvolQuality:
                     "description": "As `numpy` is being used in order to randomly pick a mutation method, then is nice to set a random seed.",
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": task.__module__,
                 "name": task.__class__.__name__,

@@ -26,7 +26,7 @@ from distilabel.steps.argilla.preference import PreferenceToArgilla
 @pytest.fixture
 def mock_dataset() -> rg.Dataset:  # type: ignore
     rg.Argilla._validate_connection = mock.MagicMock()  # type: ignore
-    client = rg.Argilla(api_url="<api_url>", api_key="<api_key>")
+    client = rg.Argilla(api_url="https://example.com", api_key="<api_key>")
     return rg.Dataset(
         name="dataset",
         settings=rg.Settings(
@@ -180,6 +180,7 @@ class TestPreferenceToArgilla:
                     "description": "The API key to authenticate the requests to the Argilla API.",
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": "distilabel.steps.argilla.preference",
                 "name": "PreferenceToArgilla",

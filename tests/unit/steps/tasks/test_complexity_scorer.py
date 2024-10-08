@@ -18,14 +18,14 @@ import pytest
 
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import DummyAsyncLLM
 
 
 class TestComplexityScorer:
     def test_format_input(self) -> None:
         task = ComplexityScorer(
             name="complexity_scorer",
-            llm=DummyLLM(),
+            llm=DummyAsyncLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
@@ -42,29 +42,44 @@ class TestComplexityScorer:
         ]
 
     @pytest.mark.parametrize(
-        "output, expected",
+        "output, use_default_structured_output, expected",
         [
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\n",
+                False,
                 {"scores": [1.0, 2.0, 3.0]},
             ),
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\njfjfjfjjfjfjf this is noise from the llm\nlallalalala more noise\nand more noise",
+                False,
                 {"scores": [1.0, 2.0, 3.0]},
             ),
             (
                 None,
+                False,
+                {"scores": [None, None, None]},
+            ),
+            (
+                '{"scores":[1,2,3]}',
+                True,
+                {"scores": [1.0, 2.0, 3.0]},
+            ),
+            (
+                "wrong",
+                True,
                 {"scores": [None, None, None]},
             ),
         ],
     )
     def test_format_output(
-        self, output: Union[str, None], expected: Dict[str, Any]
+        self,
+        output: Union[str, None],
+        use_default_structured_output: bool,
+        expected: Dict[str, Any],
     ) -> None:
         task = ComplexityScorer(
-            name="complexity_scorer",
-            llm=DummyLLM(),
-            pipeline=Pipeline(name="unit-test-pipeline"),
+            llm=DummyAsyncLLM(),
+            use_default_structured_output=use_default_structured_output,
         )
         task.load()
 

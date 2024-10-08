@@ -46,6 +46,8 @@ class FaissNearestNeighbour(GlobalStep):
         search_batch_size: the number of rows to include in a search batch. The value can
             be adjusted to maximize the resources usage or to avoid OOM issues. Defaults
             to `50`.
+        train_size: If the index needs a training step, specifies how many vectors will be
+            used to train the index.
 
     Runtime parameters:
         - `device`: the CUDA device ID or a list of IDs to be used. If negative integer,
@@ -60,6 +62,8 @@ class FaissNearestNeighbour(GlobalStep):
         - `search_batch_size`: the number of rows to include in a search batch. The value
             can be adjusted to maximize the resources usage or to avoid OOM issues. Defaults
             to `50`.
+        - `train_size`: If the index needs a training step, specifies how many vectors will
+            be used to train the index.
 
     Input columns:
         - embedding (`List[Union[float, int]]`): a sentence embedding.
@@ -77,7 +81,6 @@ class FaissNearestNeighbour(GlobalStep):
         - [`The Faiss library`](https://arxiv.org/abs/2401.08281)
 
     Examples:
-
         Generating embeddings and getting the nearest neighbours:
 
         ```python
@@ -111,7 +114,6 @@ class FaissNearestNeighbour(GlobalStep):
         ```
 
     Citations:
-
         ```
         @misc{douze2024faisslibrary,
             title={The Faiss library},
@@ -150,6 +152,10 @@ class FaissNearestNeighbour(GlobalStep):
         description="The number of rows to include in a search batch. The value can be adjusted"
         " to maximize the resources usage or to avoid OOM issues.",
     )
+    train_size: Optional[RuntimeParameter[int]] = Field(
+        default=None,
+        description="If the index needs a training step, specifies how many vectors will be used to train the index.",
+    )
 
     def load(self) -> None:
         super().load()
@@ -178,13 +184,33 @@ class FaissNearestNeighbour(GlobalStep):
             The build `datasets.Dataset` with its `faiss` index.
         """
         dataset = Dataset.from_list(inputs)
+        if self.train_size is not None and self.string_factory:
+            self._logger.info("🏋️‍♀️ Starting Faiss index training...")
         dataset.add_faiss_index(
             column="embedding",
             device=self.device,  # type: ignore
             string_factory=self.string_factory,
             metric_type=self.metric_type,
+            train_size=self.train_size,
         )
         return dataset
+
+    def _save_index(self, dataset: Dataset) -> None:
+        """Save the generated Faiss index as an artifact of the step.
+
+        Args:
+            dataset: the dataset with the `faiss` index built.
+        """
+        self.save_artifact(
+            name="faiss_index",
+            write_function=lambda path: dataset.save_faiss_index(
+                index_name="embedding", file=path / "index.faiss"
+            ),
+            metadata={
+                "num_rows": len(dataset),
+                "embedding_dim": len(dataset[0]["embedding"]),
+            },
+        )
 
     def _search(self, dataset: Dataset) -> Dataset:
         """Search the top `k` nearest neighbours for each row in the dataset.
@@ -214,5 +240,6 @@ class FaissNearestNeighbour(GlobalStep):
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         dataset = self._build_index(inputs)
-        dataset = self._search(dataset)
-        yield dataset.to_list()
+        dataset_with_search_results = self._search(dataset)
+        self._save_index(dataset)
+        yield dataset_with_search_results.to_list()

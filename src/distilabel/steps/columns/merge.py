@@ -16,11 +16,11 @@ from typing import TYPE_CHECKING, List, Optional
 
 from typing_extensions import override
 
-from distilabel.pipeline.utils import merge_columns
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.columns.utils import merge_columns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class MergeColumns(Step):
@@ -47,8 +47,10 @@ class MergeColumns(Step):
         - dynamic (determined by `columns` and `output_column` attributes): The columns
             that were merged.
 
-    Examples:
+    Categories:
+        - columns
 
+    Examples:
         Combine columns in rows of a dataset:
 
         ```python
@@ -79,11 +81,11 @@ class MergeColumns(Step):
     output_column: Optional[str] = None
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         return self.columns
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         return [self.output_column] if self.output_column else ["merged_column"]
 
     @override

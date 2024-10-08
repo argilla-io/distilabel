@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tempfile
+from pathlib import Path
 from typing import List, Optional
 
 import pytest
 from pydantic import ValidationError
 
+from distilabel.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.pipeline.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.decorator import step
@@ -27,6 +29,8 @@ from distilabel.utils.serialization import TYPE_INFO_KEY
 
 
 class DummyStep(Step):
+    attr1: int = 5
+
     @property
     def inputs(self) -> List[str]:
         return ["instruction"]
@@ -64,6 +68,16 @@ class DummyGlobalStep(GlobalStep):
 
 
 class TestStep:
+    def test_signature(self) -> None:
+        step = DummyStep(attr1=5)
+        assert step.signature == "a0ce83adedabec3fba270ec7bc8a52a62cbbee40"
+
+        step = DummyStep(attr1=5)
+        assert step.signature == "a0ce83adedabec3fba270ec7bc8a52a62cbbee40"
+
+        step = DummyStep(attr1=1234)
+        assert step.signature == "c00e67df4f7ed97a2bf8d9b1178d6c728e577c3b"
+
     def test_create_step_with_invalid_name(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
 
@@ -161,7 +175,18 @@ class TestStep:
             pipeline=Pipeline(name="unit-test-pipeline"),
             input_mappings={"instruction": "prompt"},
         )
-        assert step.get_inputs() == ["prompt"]
+        assert step.get_inputs() == {"prompt": True}
+
+    def test_get_inputs_with_dict(self) -> None:
+        @step(inputs={"instruction": False, "completion": True}, outputs=["score"])
+        def DummyStepWithDict(input: StepInput):
+            pass
+
+        dummy_step_with_dict = DummyStepWithDict()
+        assert dummy_step_with_dict.get_inputs() == {
+            "instruction": False,
+            "completion": True,
+        }
 
     def test_get_outputs(self) -> None:
         step = DummyStep(
@@ -169,7 +194,15 @@ class TestStep:
             pipeline=Pipeline(name="unit-test-pipeline"),
             output_mappings={"response": "generation"},
         )
-        assert step.get_outputs() == ["generation"]
+        assert step.get_outputs() == {"generation": True}
+
+    def test_get_outputs_with_dict(self) -> None:
+        @step(outputs={"score": False})
+        def DummyStepWithDict(input: StepInput):
+            pass
+
+        dummy_step_with_dict = DummyStepWithDict()
+        assert dummy_step_with_dict.get_outputs() == {"score": False}
 
     def test_apply_input_mappings(self) -> None:
         step = DummyStep(
@@ -193,18 +226,21 @@ class TestStep:
             )
         )
 
-        assert inputs == [
-            [
-                {"instruction": "hello 1"},
-                {"instruction": "hello 2"},
-                {"instruction": "hello 3"},
-            ],
-            [
-                {"instruction": "bye 1"},
-                {"instruction": "bye 2"},
-                {"instruction": "bye 3"},
-            ],
-        ]
+        assert inputs == (
+            (
+                [
+                    {"instruction": "hello 1"},
+                    {"instruction": "hello 2"},
+                    {"instruction": "hello 3"},
+                ],
+                [
+                    {"instruction": "bye 1"},
+                    {"instruction": "bye 2"},
+                    {"instruction": "bye 3"},
+                ],
+            ),
+            [{}, {}, {}],
+        )
 
     def test_process_applying_mappings(self) -> None:
         step = DummyStep(
@@ -228,6 +264,42 @@ class TestStep:
             {"prompt": "hello 1", "generation": "unit test"},
             {"prompt": "hello 2", "generation": "unit test"},
             {"prompt": "hello 3", "generation": "unit test"},
+        ]
+
+    def test_process_applying_mappings_and_overriden_inputs(self) -> None:
+        step = DummyStep(
+            name="dummy",
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            input_mappings={"instruction": "prompt"},
+            output_mappings={"response": "generation"},
+        )
+
+        outputs = next(
+            step.process_applying_mappings(
+                [
+                    {"prompt": "hello 1", "instruction": "overriden 1"},
+                    {"prompt": "hello 2", "instruction": "overriden 2"},
+                    {"prompt": "hello 3", "instruction": "overriden 3"},
+                ]
+            )
+        )
+
+        assert outputs == [
+            {
+                "prompt": "hello 1",
+                "generation": "unit test",
+                "instruction": "overriden 1",
+            },
+            {
+                "prompt": "hello 2",
+                "generation": "unit test",
+                "instruction": "overriden 2",
+            },
+            {
+                "prompt": "hello 3",
+                "generation": "unit test",
+                "instruction": "overriden 3",
+            },
         ]
 
     def test_connect(self) -> None:
@@ -259,6 +331,48 @@ class TestStep:
             pipeline.dag.get_step("dummy_generator")[ROUTING_BATCH_FUNCTION_ATTR_NAME]
             == routing_batch_function
         )
+
+    def test_set_pipeline_artifacts_path(self) -> None:
+        step = DummyStep()
+        step.set_pipeline_artifacts_path(Path("/tmp"))
+        assert step.artifacts_directory == Path(f"/tmp/{step.name}")
+
+    def test_save_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            pipeline_artifacts_path = Path(tempdir)
+            step = DummyStep()
+            step.load()
+            step.set_pipeline_artifacts_path(pipeline_artifacts_path)
+            step.save_artifact(
+                name="unit-test",
+                write_function=lambda path: Path(path / "file.txt").write_text(
+                    "unit test"
+                ),
+                metadata={"unit-test": True},
+            )
+
+            artifact_path = pipeline_artifacts_path / step.name / "unit-test"  # type: ignore
+
+            assert artifact_path.is_dir()
+            assert (artifact_path / "file.txt").read_text() == "unit test"
+            assert (artifact_path / "metadata.json").read_text() == '{"unit-test":true}'
+
+    def test_save_artifact_without_setting_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            pipeline_artifacts_path = Path(tempdir)
+            step = DummyStep()
+            step.load()
+            step.save_artifact(
+                name="unit-test",
+                write_function=lambda path: Path(path / "file.txt").write_text(
+                    "unit test"
+                ),
+                metadata={"unit-test": True},
+            )
+
+            artifact_path = pipeline_artifacts_path / step.name / "unit-test"  # type: ignore
+
+            assert not artifact_path.exists()
 
 
 class TestGeneratorStep:
@@ -295,6 +409,7 @@ class TestStepSerialization:
         step = DummyStep(name="dummy", pipeline=pipeline)
         assert step.dump() == {
             "name": "dummy",
+            "attr1": 5,
             "input_batch_size": 50,
             "input_mappings": {},
             "output_mappings": {},
@@ -342,6 +457,7 @@ class TestStepSerialization:
                     "optional": True,
                 },
             ],
+            "use_cache": True,
             TYPE_INFO_KEY: {
                 "module": "tests.unit.steps.test_base",
                 "name": "DummyStep",

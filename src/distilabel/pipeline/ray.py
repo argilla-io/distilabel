@@ -15,15 +15,17 @@
 import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
-from distilabel.constants import INPUT_QUEUE_ATTR_NAME
+from distilabel.constants import INPUT_QUEUE_ATTR_NAME, STEP_ATTR_NAME
 from distilabel.distiset import create_distiset
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.vllm import vLLM
-from distilabel.pipeline.base import BasePipeline
+from distilabel.pipeline.base import BasePipeline, set_pipeline_running_env_variables
 from distilabel.pipeline.step_wrapper import _StepWrapper
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import TYPE_INFO_KEY
 
 if TYPE_CHECKING:
+    import logging
     from os import PathLike
     from queue import Queue
 
@@ -81,6 +83,7 @@ class RayPipeline(BasePipeline):
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
         dataset: Optional["InputDataset"] = None,
+        logging_handlers: Optional[List["logging.Handler"]] = None,
     ) -> "Distiset":
         """Runs the pipeline in the Ray cluster.
 
@@ -103,6 +106,9 @@ class RayPipeline(BasePipeline):
             dataset: If given, it will be used to create a `GeneratorStep` and put it as the
                 root step. Convenient method when you have already processed the dataset in
                 your script and just want to pass it already processed. Defaults to `None`.
+            logging_handlers: A list of logging handlers that will be used to log the
+                output of the pipeline. This argument can be useful so the logging messages
+                can be extracted and used in a different context. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -110,6 +116,8 @@ class RayPipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
+        self._check_no_llms_using_offline_batch_generation()
+
         self._init_ray()
 
         self._log_queue = self.QueueClass(
@@ -117,11 +125,12 @@ class RayPipeline(BasePipeline):
         )
 
         if distiset := super().run(
-            parameters,
-            use_cache,
-            storage_parameters,
-            use_fs_to_pass_data,
+            parameters=parameters,
+            use_cache=use_cache,
+            storage_parameters=storage_parameters,
+            use_fs_to_pass_data=use_fs_to_pass_data,
             dataset=dataset,
+            logging_handlers=logging_handlers,
         ):
             return distiset
 
@@ -159,6 +168,21 @@ class RayPipeline(BasePipeline):
         stop_logging()
 
         return distiset
+
+    def _check_no_llms_using_offline_batch_generation(self) -> None:
+        """Checks if there are any `LLM` steps using the `offline_batch_generate` method
+        and raises an exception if so. This method is not supported in the Ray pipeline."""
+        for step_name in self.dag:
+            step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+            if not hasattr(step, "llm"):
+                continue
+            if step.llm.use_offline_batch_generation:  # type: ignore
+                raise DistilabelUserError(
+                    f"Step '{step_name}' uses an `LLM` with offline batch generation because"
+                    "`use_offline_batch_generation=True`. `LLM`s using this method are not"
+                    " supported in the Ray pipeline.",
+                    page="sections/how_to_guides/advanced/offline-batch-generation",
+                )
 
     def _init_ray(self) -> None:
         """Inits or connects to a Ray cluster."""
@@ -231,13 +255,22 @@ class RayPipeline(BasePipeline):
         @ray.remote
         class _StepWrapperRay:
             def __init__(
-                self, step_wrapper: _StepWrapper, log_queue: "Queue[Any]"
+                self,
+                step_wrapper: _StepWrapper,
+                log_queue: "Queue[Any]",
+                pipeline_name: str,
+                pipeline_cache_id: str,
             ) -> None:
                 self._step_wrapper = step_wrapper
                 self._log_queue = log_queue
+                self._pipeline_name = pipeline_name
+                self._pipeline_cache_id = pipeline_cache_id
 
             def run(self) -> str:
                 setup_logging(log_queue=self._log_queue)
+                set_pipeline_running_env_variables(
+                    self._pipeline_name, self._pipeline_cache_id
+                )
                 return self._step_wrapper.run()
 
         resources: Dict[str, Any] = {
@@ -276,6 +309,8 @@ class RayPipeline(BasePipeline):
                 ray_pipeline=True,
             ),
             log_queue=self._log_queue,
+            pipeline_name=self.name,
+            pipeline_cache_id=self.signature,
         )
 
         self._logger.debug(
@@ -399,7 +434,6 @@ class RayPipeline(BasePipeline):
             "🛑 Stopping pipeline. Waiting for steps to finish processing batches..."
         )
 
-        self._stop_load_queue_loop()
         self._stop_output_queue_loop()
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:

@@ -16,20 +16,31 @@ import multiprocessing as mp
 import signal
 import sys
 from multiprocessing.pool import Pool
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Union,
+    cast,
+)
 
 import tblib
 
+from distilabel.constants import SIGINT_HANDLER_CALLED_ENV_NAME
 from distilabel.distiset import create_distiset
-from distilabel.pipeline.base import (
-    BasePipeline,
-)
+from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
+from distilabel.pipeline.base import BasePipeline, set_pipeline_running_env_variables
 from distilabel.pipeline.ray import RayPipeline
 from distilabel.pipeline.step_wrapper import _StepWrapper, _StepWrapperException
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.ray import script_executed_in_ray_cluster
 
 if TYPE_CHECKING:
+    import logging
     from queue import Queue
 
     from distilabel.distiset import Distiset
@@ -40,13 +51,27 @@ if TYPE_CHECKING:
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
-def _init_worker(log_queue: "Queue[Any]") -> None:
+def _init_worker(
+    log_queue: "Queue[Any]", pipeline_name: str, pipeline_cache_id: str
+) -> None:
     """Init function for the child processes that will execute the `Step`s of the `Pipeline`.
 
     Args:
         log_queue: The queue to send the logs to the main process.
     """
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+    # Register a signal handler for SIGINT to avoid the default behavior of the process
+    # to terminate when the parent process receives a SIGINT signal. Instead, set an env
+    # variable when SIGINT is received. Child process can check the value of this env
+    # variable in sections of the code where they need to stop the execution if SIGINT
+    # was received (such as offline batch generation polling).
+    def signal_handler(sig: int, frame: Any) -> None:
+        import os
+
+        os.environ[SIGINT_HANDLER_CALLED_ENV_NAME] = "1"
+
+    signal.signal(signal.SIGINT, signal_handler)
+    set_pipeline_running_env_variables(pipeline_name, pipeline_cache_id)
     setup_logging(log_queue)
 
 
@@ -122,11 +147,12 @@ class Pipeline(BasePipeline):
 
     def run(
         self,
-        parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        parameters: Optional[Dict[Any, Dict[str, Any]]] = None,
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
         dataset: Optional["InputDataset"] = None,
+        logging_handlers: Optional[List["logging.Handler"]] = None,
     ) -> "Distiset":
         """Runs the pipeline.
 
@@ -149,6 +175,9 @@ class Pipeline(BasePipeline):
             dataset: If given, it will be used to create a `GeneratorStep` and put it as the
                 root step. Convenient method when you have already processed the dataset in
                 your script and just want to pass it already processed. Defaults to `None`.
+            logging_handlers: A list of logging handlers that will be used to log the
+                output of the pipeline. This argument can be useful so the logging messages
+                can be extracted and used in a different context. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -169,11 +198,12 @@ class Pipeline(BasePipeline):
         self._log_queue = cast("Queue[Any]", mp.Queue())
 
         if distiset := super().run(
-            parameters,
-            use_cache,
-            storage_parameters,
-            use_fs_to_pass_data,
+            parameters=parameters,
+            use_cache=use_cache,
+            storage_parameters=storage_parameters,
+            use_fs_to_pass_data=use_fs_to_pass_data,
             dataset=dataset,
+            logging_handlers=logging_handlers,
         ):
             return distiset
 
@@ -183,7 +213,11 @@ class Pipeline(BasePipeline):
             _NoDaemonPool(
                 num_processes,
                 initializer=_init_worker,
-                initargs=(self._log_queue,),
+                initargs=(
+                    self._log_queue,
+                    self.name,
+                    self.signature,
+                ),
             ) as pool,
         ):
             self._manager = manager
@@ -288,6 +322,21 @@ class Pipeline(BasePipeline):
             self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
             return
 
+        # Handle tasks using an `LLM` using offline batch generation
+        if isinstance(
+            e.subprocess_exception, DistilabelOfflineBatchGenerationNotFinishedException
+        ):
+            self._logger.info(
+                f"⏹️ '{e.step.name}' task stopped pipeline execution: LLM offline batch"
+                " generation in progress. Rerun pipeline with cache to check results and"
+                " continue execution."
+            )
+            self._set_step_for_recovering_offline_batch_generation(e.step, e.data)  # type: ignore
+            with self._stop_called_lock:
+                if not self._stop_called:
+                    self._stop(acquire_lock=False)
+            return
+
         # Global step with successors failed
         self._logger.error(f"An error occurred in global step '{step_name}'")
         self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
@@ -324,38 +373,45 @@ class Pipeline(BasePipeline):
         )
         self._exception.__cause__ = _SUBPROCESS_EXCEPTION
 
-    def _stop(self) -> None:
+    def _stop(self, acquire_lock: bool = True) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
         of all the steps and then wait until the output queue is empty i.e. all the steps
         finished processing the batches that were sent before the stop flag. Then it will
-        send `None` to the output queue to notify the pipeline to stop."""
+        send `None` to the output queue to notify the pipeline to stop.
 
-        with self._stop_called_lock:
-            if self._stop_called:
-                self._stop_calls += 1
-                if self._stop_calls == 1:
-                    self._logger.warning(
-                        "🛑 Press again to force the pipeline to stop."
-                    )
-                elif self._stop_calls > 1:
-                    self._logger.warning("🛑 Forcing pipeline interruption.")
+        Args:
+            acquire_lock: Whether to acquire the lock to access the `_stop_called` attribute.
+        """
 
-                    if self._pool:
-                        self._pool.terminate()
-                        self._pool.join()
-                        self._pool = None
+        if acquire_lock:
+            self._stop_called_lock.acquire()
 
-                    if self._manager:
-                        self._manager.shutdown()
-                        self._manager.join()
-                        self._manager = None
+        if self._stop_called:
+            self._stop_calls += 1
+            if self._stop_calls == 1:
+                self._logger.warning("🛑 Press again to force the pipeline to stop.")
+            elif self._stop_calls > 1:
+                self._logger.warning("🛑 Forcing pipeline interruption.")
 
-                    stop_logging()
+                if self._pool:
+                    self._pool.terminate()
+                    self._pool.join()
+                    self._pool = None
 
-                    sys.exit(1)
+                if self._manager:
+                    self._manager.shutdown()
+                    self._manager.join()
+                    self._manager = None
 
-                return
-            self._stop_called = True
+                stop_logging()
+
+                sys.exit(1)
+
+            return
+        self._stop_called = True
+
+        if acquire_lock:
+            self._stop_called_lock.release()
 
         self._logger.debug(
             f"Steps loaded before calling `stop`: {self._steps_load_status}"
@@ -364,5 +420,4 @@ class Pipeline(BasePipeline):
             "🛑 Stopping pipeline. Waiting for steps to finish processing batches..."
         )
 
-        self._stop_load_queue_loop()
         self._stop_output_queue_loop()

@@ -87,7 +87,9 @@ class TestStructuredGeneration:
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyStructuredLLM()
-        task = StructuredGeneration(name="task", llm=llm, pipeline=pipeline)
+        task = StructuredGeneration(
+            name="task", llm=llm, pipeline=pipeline, add_raw_input=False
+        )
         assert next(
             task.process(
                 [

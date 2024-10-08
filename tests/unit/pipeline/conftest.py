@@ -14,7 +14,10 @@
 
 import pytest
 
+from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.local import Pipeline
+from distilabel.steps.base import GeneratorStep, GlobalStep, Step
 
 from .utils import DummyGeneratorStep, DummyGlobalStep, DummyStep1, DummyStep2
 
@@ -42,3 +45,26 @@ def dummy_generator_step_fixture(pipeline: "Pipeline") -> DummyGeneratorStep:
 @pytest.fixture(name="dummy_global_step")
 def dummy_global_step_fixture(pipeline: "Pipeline") -> DummyGlobalStep:
     return DummyGlobalStep(name="dummy_global_step", pipeline=pipeline)
+
+
+@pytest.fixture(name="dummy_dag")
+def dummy_dag_fixture(
+    dummy_generator_step: "GeneratorStep",
+    dummy_step_1: "Step",
+    dummy_step_2: "Step",
+    dummy_global_step: "GlobalStep",
+) -> DAG:
+    dag = DAG()
+    dag.add_step(dummy_generator_step)
+    dag.add_step(dummy_step_1)
+    dag.add_step(dummy_step_2)
+    dag.add_step(dummy_global_step)
+    dag.add_edge("dummy_generator_step", "dummy_step_1")
+    dag.add_edge("dummy_generator_step", "dummy_global_step")
+    dag.add_edge("dummy_step_1", "dummy_step_2")
+    return dag
+
+
+@pytest.fixture(name="dummy_batch_manager")
+def dummy_batch_manager_from_dag_fixture(dummy_dag: DAG) -> _BatchManager:
+    return _BatchManager.from_dag(dummy_dag)

@@ -1,14 +1,16 @@
 # DEITA
 
-DEITA (Data-Efficient Instruction Tuning for Alignment) studies an automatic data selection process by first quantifying the data quality based on complexity, quality and diversity. And second, selecting across the best potential combination from an open-source dataset that would fit into the budget you allocate to tune your own LLM.
+[DEITA (Data-Efficient Instruction Tuning for Alignment)](https://arxiv.org/abs/2312.15685) studies an automatic data selection process by first quantifying the data quality based on complexity, quality and diversity. Second, select the best potential combination from an open-source dataset that would fit into the budget you allocate to tune your own LLM.
 
-In most setting we cannot allocate unlimited resources for instruction-tuning LLMs. Therefore, the DEITA authors investigated how to select qualitative data for instruction-tuning based on a principle of fewer high quality samples. Liu et al. tackle the issue of first defining good data and second identifying it to respect an initial budget to instruct-tune your LLM.
+In most setting we cannot allocate unlimited resources for instruction-tuning LLMs. Therefore, the DEITA authors investigated how to select qualitative data for instruction tuning based on the principle of fewer high-quality samples. Liu et al. tackle the issue of first defining good data and second identifying it to respect an initial budget to instruct-tune your LLM.
 
-The strategy utilizes **LLMs to replace human effort in time-intensive data quality tasks on instruction tuning datasets**. DEITA introduces a way to measure data quality across three critical dimensions: complexity, quality and diversity.
+The strategy utilizes **LLMs to replace human effort in time-intensive data quality **tasks on **instruction-tuning** datasets**. DEITA introduces a way to measure data quality across three critical dimensions: complexity, quality and diversity.
 
 ![DEITA pipeline overview](../../../assets/tutorials-assets/deita/overview.png)
 
 You can see that we see again the dataset of instructions/responses and we kind of reproducing the second step when we learn how to optimize the responses according to an instruction by comparing several possibilities.
+
+![DEITA pipeline overview](../../../assets/pipelines/deita.png)
 
 ### Datasets and budget
 

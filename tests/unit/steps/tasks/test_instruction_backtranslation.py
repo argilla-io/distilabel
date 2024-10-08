@@ -76,6 +76,7 @@ class TestInstructionBacktranslation:
             name="instruction-backtranslation",
             llm=InstructionBacktranslationLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
+            add_raw_input=False,
         )
         task.load()
 

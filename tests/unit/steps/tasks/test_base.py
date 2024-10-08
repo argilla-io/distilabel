@@ -14,7 +14,7 @@
 
 import sys
 from dataclasses import field
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import pytest
 from pydantic import ValidationError
@@ -22,42 +22,38 @@ from pydantic import ValidationError
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.base import Task
-from tests.unit.conftest import DummyLLM
+from tests.unit.conftest import (
+    DummyAsyncLLM,
+    DummyTask,
+    DummyTaskOfflineBatchGeneration,
+)
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    pass
 
 
-class DummyTask(Task):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction", "additional_info"]
-
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        return [
-            {"role": "system", "content": ""},
-            {"role": "user", "content": input["instruction"]},
-        ]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["output", "info_from_input"]
-
-    def format_output(
-        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
-    ) -> Dict[str, Any]:
-        return {"output": output, "info_from_input": input["additional_info"]}  # type: ignore
-
-
-class DummyRuntimeLLM(DummyLLM):
+class DummyRuntimeLLM(DummyAsyncLLM):
     runtime_parameter: RuntimeParameter[int]
     runtime_parameter_optional: Optional[RuntimeParameter[int]] = field(default=None)
 
 
 class TestTask:
+    def test_model_post_init_raise_valuerror_use_offline_batch_generation(self) -> None:
+        with pytest.raises(
+            ValidationError,
+            match="`DummyTask` task cannot be used with offline batch generation",
+        ):
+            DummyTask(llm=DummyAsyncLLM(use_offline_batch_generation=True))
+
+    def test_is_global_with_offline_batch_generation(self) -> None:
+        task = DummyTaskOfflineBatchGeneration(
+            llm=DummyAsyncLLM(use_offline_batch_generation=True)
+        )
+        assert task.is_global is True
+
     def test_passing_pipeline(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.name == "task"
         assert task.llm is llm
@@ -67,14 +63,14 @@ class TestTask:
 
     def test_within_pipeline_context(self) -> None:
         with Pipeline(name="unit-test-pipeline") as pipeline:
-            llm = DummyLLM()
+            llm = DummyAsyncLLM()
             task = DummyTask(name="task", llm=llm, pipeline=pipeline)
             assert task.name == "task"
             assert task.llm is llm
         assert task.pipeline == pipeline
 
     def test_with_errors(self, caplog: pytest.LogCaptureFixture) -> None:
-        DummyTask(name="task", llm=DummyLLM())
+        DummyTask(name="task", llm=DummyAsyncLLM())
         assert "Step 'task' hasn't received a pipeline" in caplog.text
 
         with pytest.raises(
@@ -88,7 +84,7 @@ class TestTask:
             if sys.version_info < (3, 12)
             else "Can't instantiate abstract class Task without an implementation for abstract methods 'format_input', 'format_output'",
         ):
-            Task(name="task", llm=DummyLLM())  # type: ignore
+            Task(name="task", llm=DummyAsyncLLM())  # type: ignore
 
     @pytest.mark.parametrize(
         "input, group_generations, expected",
@@ -107,7 +103,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_0",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_0", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_0",
@@ -115,7 +117,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_0",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_0", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_0",
@@ -123,7 +131,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_0",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_0", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_1",
@@ -131,7 +145,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_1",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_1", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_1",
@@ -139,7 +159,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_1",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_1", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_1",
@@ -147,7 +173,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_1",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_1", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_2",
@@ -155,7 +187,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_2",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_2", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_2",
@@ -163,7 +201,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_2",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_2", "role": "user"},
+                            ],
+                        },
                     },
                     {
                         "instruction": "test_2",
@@ -171,7 +215,13 @@ class TestTask:
                         "output": "output",
                         "info_from_input": "additional_info_2",
                         "model_name": "test",
-                        "distilabel_metadata": {"raw_output_task": "output"},
+                        "distilabel_metadata": {
+                            "raw_output_task": "output",
+                            "raw_input_task": [
+                                {"content": "", "role": "system"},
+                                {"content": "test_2", "role": "user"},
+                            ],
+                        },
                     },
                 ],
             ),
@@ -194,9 +244,48 @@ class TestTask:
                         ],
                         "model_name": "test",
                         "distilabel_metadata": [
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_0",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_0",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_0",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            # {"raw_output_task": "output"},
+                            # {"raw_output_task": "output"},
+                            # {"raw_output_task": "output"},
                         ],
                     },
                     {
@@ -210,9 +299,45 @@ class TestTask:
                         ],
                         "model_name": "test",
                         "distilabel_metadata": [
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_1",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_1",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_1",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
                         ],
                     },
                     {
@@ -226,9 +351,45 @@ class TestTask:
                         ],
                         "model_name": "test",
                         "distilabel_metadata": [
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_2",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_2",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_2",
+                                        "role": "user",
+                                    },
+                                ],
+                            },
                         ],
                     },
                 ],
@@ -242,7 +403,7 @@ class TestTask:
         expected: List[Dict[str, Any]],
     ) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = DummyTask(
             name="task",
             llm=llm,
@@ -252,6 +413,94 @@ class TestTask:
         )
         result = next(task.process(input))
         assert result == expected
+
+    def test_process_overriding_inputs(self) -> None:
+        llm = DummyAsyncLLM()
+        task = DummyTask(
+            name="task",
+            llm=llm,
+            group_generations=False,
+            num_generations=3,
+            input_mappings={"instruction": "instruction_2"},
+        )
+
+        result = next(
+            task.process_applying_mappings(
+                [
+                    {
+                        "instruction": "instruction that won't be used but overriden by input mapping",
+                        "instruction_2": "instruction that will be used as input",
+                        "additional_info": "info",
+                    }
+                ]
+            )
+        )
+
+        assert result == [
+            {
+                "additional_info": "info",
+                "distilabel_metadata": {
+                    "raw_input_task": [
+                        {
+                            "content": "",
+                            "role": "system",
+                        },
+                        {
+                            "content": "instruction that will be used as input",
+                            "role": "user",
+                        },
+                    ],
+                    "raw_output_task": "output",
+                },
+                "info_from_input": "info",
+                "instruction": "instruction that won't be used but overriden by input mapping",
+                "instruction_2": "instruction that will be used as input",
+                "model_name": "test",
+                "output": "output",
+            },
+            {
+                "additional_info": "info",
+                "distilabel_metadata": {
+                    "raw_input_task": [
+                        {
+                            "content": "",
+                            "role": "system",
+                        },
+                        {
+                            "content": "instruction that will be used as input",
+                            "role": "user",
+                        },
+                    ],
+                    "raw_output_task": "output",
+                },
+                "info_from_input": "info",
+                "instruction": "instruction that won't be used but overriden by input mapping",
+                "instruction_2": "instruction that will be used as input",
+                "model_name": "test",
+                "output": "output",
+            },
+            {
+                "additional_info": "info",
+                "distilabel_metadata": {
+                    "raw_input_task": [
+                        {
+                            "content": "",
+                            "role": "system",
+                        },
+                        {
+                            "content": "instruction that will be used as input",
+                            "role": "user",
+                        },
+                    ],
+                    "raw_output_task": "output",
+                },
+                "info_from_input": "info",
+                "instruction": "instruction that won't be used but overriden by input mapping",
+                "instruction_2": "instruction that will be used as input",
+                "model_name": "test",
+                "output": "output",
+            },
+        ]
 
     def test_process_with_runtime_parameters(self) -> None:
         # 1. Runtime parameters provided
@@ -268,6 +517,8 @@ class TestTask:
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
             "generation_kwargs": {},
+            "offline_batch_generation_block_until_done": True,
+            "use_offline_batch_generation": True,
         }
 
         # 2. Runtime parameters in init
@@ -283,6 +534,8 @@ class TestTask:
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
             "generation_kwargs": {},
+            "offline_batch_generation_block_until_done": True,
+            "use_offline_batch_generation": True,
         }
 
         # 3. Runtime parameters in init superseded by runtime parameters
@@ -299,15 +552,18 @@ class TestTask:
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
             "generation_kwargs": {},
+            "offline_batch_generation_block_until_done": True,
+            "use_offline_batch_generation": True,
         }
 
     def test_serialization(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
+        llm = DummyAsyncLLM()
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.dump() == {
             "name": "task",
             "add_raw_output": True,
+            "add_raw_input": True,
             "input_mappings": {},
             "output_mappings": {},
             "resources": {
@@ -320,9 +576,13 @@ class TestTask:
             "input_batch_size": 50,
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
+                "jobs_ids": None,
+                "offline_batch_generation_block_until_done": None,
+                "use_offline_batch_generation": False,
                 "type_info": {
                     "module": "tests.unit.conftest",
-                    "name": "DummyLLM",
+                    "name": "DummyAsyncLLM",
                 },
             },
             "group_generations": False,
@@ -372,6 +632,20 @@ class TestTask:
                             "keys": [],
                             "name": "generation_kwargs",
                         },
+                        {
+                            "description": "Whether to use the `offline_batch_generate` method to "
+                            "generate the responses.",
+                            "name": "use_offline_batch_generation",
+                            "optional": True,
+                        },
+                        {
+                            "description": "If provided, then polling will be done until the "
+                            "`ofline_batch_generate` method is able to retrieve the "
+                            "results. The value indicate the time to wait between each "
+                            "polling.",
+                            "name": "offline_batch_generation_block_until_done",
+                            "optional": True,
+                        },
                     ],
                 },
                 {
@@ -380,17 +654,67 @@ class TestTask:
                     "optional": True,
                 },
                 {
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                    "name": "add_raw_input",
+                    "optional": True,
+                },
+                {
                     "name": "num_generations",
                     "description": "The number of generations to be produced per input.",
                     "optional": True,
                 },
             ],
+            "use_cache": True,
             "type_info": {
-                "module": "tests.unit.steps.tasks.test_base",
+                "module": "tests.unit.conftest",
                 "name": "DummyTask",
             },
+            "use_default_structured_output": False,
         }
 
         with Pipeline(name="unit-test-pipeline") as pipeline:
             new_task = DummyTask.from_dict(task.dump())
             assert isinstance(new_task, DummyTask)
+
+    @pytest.mark.parametrize(
+        "add_raw_output, add_raw_input",
+        [
+            (True, False),
+            (False, True),
+            (True, True),
+            (False, False),
+        ],
+    )
+    def test_add_raw_input_and_or_output(
+        self, add_raw_output: bool, add_raw_input: bool
+    ) -> None:
+        task = DummyTask(
+            llm=DummyAsyncLLM(),
+            add_raw_output=add_raw_output,
+            add_raw_input=add_raw_input,
+        )
+        assert task.add_raw_output is add_raw_output
+        assert task.add_raw_input is add_raw_input
+        task.load()
+        input = [
+            {"instruction": "test_0", "additional_info": "additional_info_0"},
+            {"instruction": "test_1", "additional_info": "additional_info_1"},
+            {"instruction": "test_2", "additional_info": "additional_info_2"},
+        ]
+        result = next(task.process(input))
+        import pprint
+
+        pprint.pprint(result)
+
+        if add_raw_output or add_raw_input:
+            assert "distilabel_metadata" in result[0].keys()
+            if add_raw_output:
+                assert (
+                    "raw_output_dummy_task_0" in result[0]["distilabel_metadata"].keys()
+                )
+            if add_raw_input:
+                assert (
+                    "raw_input_dummy_task_0" in result[0]["distilabel_metadata"].keys()
+                )
+        else:
+            assert "distilabel_metadata" not in result[0].keys()

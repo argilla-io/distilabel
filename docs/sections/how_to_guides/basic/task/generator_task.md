@@ -1,4 +1,4 @@
-# GeneratorTask
+# GeneratorTask that produces output
 
 ## Working with GeneratorTasks
 

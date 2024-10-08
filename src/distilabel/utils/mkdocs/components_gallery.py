@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Union
 
+import pandas as pd
 from jinja2 import Template
 from mkdocs.config.base import Config
 from mkdocs.config.config_options import Type
@@ -76,15 +77,68 @@ _LLM_DETAIL_TEMPLATE = Template(
 
 _STEPS_CATEGORY_TO_ICON = {
     "text-generation": ":material-text-box-edit:",
+    "chat-generation": ":material-chat:",
+    "text-classification": ":material-label:",
+    "text-manipulation": ":material-receipt-text-edit:",
     "evol": ":material-dna:",
-    "preference": ":material-poll:",
     "critique": ":material-comment-edit:",
     "scorer": ":octicons-number-16:",
+    "preference": ":material-poll:",
     "embedding": ":material-vector-line:",
-    "format": ":material-format-list-bulleted:",
+    "clustering": ":material-scatter-plot:",
+    "columns": ":material-table-column:",
     "filtering": ":material-filter:",
-    "save": ":material-content-save:",
+    "format": ":material-format-list-bulleted:",
     "load": ":material-file-download:",
+    "execution": ":octicons-code-16:",
+    "save": ":material-content-save:",
+}
+
+_STEP_CATEGORY_TO_DESCRIPTION = {
+    "text-generation": "Text generation steps are used to generate text based on a given prompt.",
+    "chat-generation": "Chat generation steps are used to generate text based on a conversation.",
+    "text-classification": "Text classification steps are used to classify text into a category.",
+    "text-manipulation": "Text manipulation steps are used to manipulate or rewrite an input text.",
+    "evol": "Evol steps are used to rewrite input text and evolve it to a higher quality.",
+    "critique": "Critique steps are used to provide feedback on the quality of the data with a written explanation.",
+    "scorer": "Scorer steps are used to evaluate and score the data with a numerical value.",
+    "preference": "Preference steps are used to collect preferences on the data with numerical values or ranks.",
+    "embedding": "Embedding steps are used to generate embeddings for the data.",
+    "clustering": "Clustering steps are used to group similar data points together.",
+    "columns": "Columns steps are used to manipulate columns in the data.",
+    "filtering": "Filtering steps are used to filter the data based on some criteria.",
+    "format": "Format steps are used to format the data.",
+    "load": "Load steps are used to load the data.",
+    "execution": "Executes python functions.",
+    "save": "Save steps are used to save the data.",
+}
+
+assert list(_STEP_CATEGORY_TO_DESCRIPTION.keys()) == list(
+    _STEPS_CATEGORY_TO_ICON.keys()
+)
+
+_STEP_CATEGORIES = list(_STEP_CATEGORY_TO_DESCRIPTION.keys())
+_STEP_CATEGORY_TABLE = pd.DataFrame(
+    {
+        "Icon": [_STEPS_CATEGORY_TO_ICON[category] for category in _STEP_CATEGORIES],
+        "Category": _STEP_CATEGORIES,
+        "Description": [
+            _STEP_CATEGORY_TO_DESCRIPTION[category] for category in _STEP_CATEGORIES
+        ],
+    }
+).to_markdown(index=False)
+_STEP_CATEGORY_TABLE_DESCRIPTION = [
+    '??? info "Category Overview"',
+    "    The gallery page showcases the different types of components within `distilabel`.",
+    "",
+]
+for row in _STEP_CATEGORY_TABLE.split("\n"):
+    _STEP_CATEGORY_TABLE_DESCRIPTION.append(f"    {row}")
+_STEP_CATEGORY_TABLE_DESCRIPTION = "\n".join(_STEP_CATEGORY_TABLE_DESCRIPTION)
+
+_CATEGORY_ORDER_INDEX = {
+    category: idx
+    for idx, category in enumerate(list(_STEP_CATEGORY_TO_DESCRIPTION.keys()))
 }
 
 
@@ -209,12 +263,29 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         steps_gallery_page_path = src_dir / paths[0]
         steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
 
+        # Sort steps based on the index of their first category in the 'category_order'
+        steps = sorted(
+            steps,
+            key=lambda step: _CATEGORY_ORDER_INDEX.get(
+                step["docstring"]["categories"][0]
+                if step["docstring"]["categories"]
+                else float("inf"),
+                float("inf"),
+            ),
+            reverse=True,
+        )
+
         # Create detail page for each `Step`
         for step in steps:
             docstring = step["docstring"]
             if docstring["icon"] == "" and docstring["categories"]:
                 first_category = docstring["categories"][0]
                 docstring["icon"] = _STEPS_CATEGORY_TO_ICON.get(first_category, "")
+
+            if docstring["icon"]:
+                assert (
+                    docstring["icon"] in _STEPS_CATEGORY_TO_ICON.values()
+                ), f"Icon {docstring['icon']} not found in _STEPS_CATEGORY_TO_ICON"
 
             name = step["name"]
 
@@ -234,10 +305,10 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
             paths.append(step_path)
 
-        # Create the `components-gallery/steps.md` file
+        # Create the `components-gallery/steps/index.md` file
         content = _COMPONENTS_LIST_TEMPLATE.render(
             title="Steps Gallery",
-            description="",
+            description=_STEP_CATEGORY_TABLE_DESCRIPTION,
             components=steps,
             default_icon=":material-step-forward:",
         )
@@ -262,12 +333,27 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         tasks_gallery_page_path = src_dir / paths[0]
         tasks_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
 
+        # Sort tasks based on the index of their first category in the 'category_order'
+        tasks = sorted(
+            tasks,
+            key=lambda task: _CATEGORY_ORDER_INDEX.get(
+                task["docstring"]["categories"][0]
+                if task["docstring"]["categories"]
+                else float("inf"),
+                float("inf"),
+            ),
+        )
+
         # Create detail page for each `Task`
         for task in tasks:
             docstring = task["docstring"]
             if docstring["icon"] == "" and docstring["categories"]:
                 first_category = docstring["categories"][0]
                 docstring["icon"] = _STEPS_CATEGORY_TO_ICON.get(first_category, "")
+            if docstring["icon"]:
+                assert (
+                    docstring["icon"] in _STEPS_CATEGORY_TO_ICON.values()
+                ), f"Icon {docstring['icon']} not found in _STEPS_CATEGORY_TO_ICON"
 
             name = task["name"]
 
@@ -287,10 +373,10 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
             paths.append(task_path)
 
-        # Create the `components-gallery/steps/index.md` file
+        # Create the `components-gallery/tasks/index.md` file
         content = _COMPONENTS_LIST_TEMPLATE.render(
             title="Tasks Gallery",
-            description="",
+            description=_STEP_CATEGORY_TABLE_DESCRIPTION,
             components=tasks,
             default_icon=":material-check-outline:",
         )
