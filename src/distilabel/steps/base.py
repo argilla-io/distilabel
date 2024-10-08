@@ -686,10 +686,19 @@ class Step(_Step, ABC):
         )
 
         for output_rows in generator:
-            yield [
-                self._apply_mappings_and_restore_overriden(row, overriden_inputs[i])
-                for i, row in enumerate(output_rows)
-            ]
+            restored = []
+            for i, row in enumerate(output_rows):
+                # Correct the index here because we don't know the num_generations from the llm
+                # ahead of time. For example, if we have `len(overriden_inputs)==5` and `len(row)==10`,
+                # from `num_generations==2` and `group_generations=False` in the LLM:
+                # The loop will use indices 0, 1, 2, 3, 4, 0, 1, 2, 3, 4
+                ntimes_i = i % len(overriden_inputs)
+                restored.append(
+                    self._apply_mappings_and_restore_overriden(
+                        row, overriden_inputs[ntimes_i]
+                    )
+                )
+            yield restored
 
     def _apply_input_mappings(
         self, inputs: Tuple[List[Dict[str, Any]], ...]
