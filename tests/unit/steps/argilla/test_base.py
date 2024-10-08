@@ -14,25 +14,24 @@
 
 import os
 import sys
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 import pytest
 
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
 class CustomArgilla(ArgillaBase):
+    inputs: StepColumns = ["instruction"]
+
     def load(self) -> None:
         pass
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
 
     def process(self, *inputs: StepInput) -> "StepOutput":
         yield [{}]
@@ -118,6 +117,7 @@ class TestArgilla:
             "name": "step",
             "input_mappings": {},
             "output_mappings": {},
+            "inputs": ["instruction"],
             "resources": {
                 "cpus": None,
                 "gpus": None,

@@ -109,6 +109,12 @@ class TestPreferenceToArgilla:
             "name": "step",
             "input_mappings": {},
             "output_mappings": {},
+            "inputs": {
+                "instruction": True,
+                "generations": True,
+                "ratings": False,
+                "rationales": False,
+            },
             "resources": {
                 "cpus": None,
                 "gpus": None,

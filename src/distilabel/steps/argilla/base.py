@@ -27,11 +27,12 @@ except ImportError:
 from distilabel.errors import DistilabelUserError
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from argilla import Argilla, Dataset
 
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 _ARGILLA_API_URL_ENV_VAR_NAME = "ARGILLA_API_URL"
@@ -85,6 +86,15 @@ class ArgillaBase(Step, ABC):
         description="The API key to authenticate the requests to the Argilla API.",
     )
 
+    outputs: StepColumns = Field(
+        default_factory=list,
+        exclude=True,
+        description=(
+            "The outputs of the step is an empty list, since the steps subclassing from this one, will "
+            "always be leaf nodes and won't propagate the inputs neither generate any outputs."
+        ),
+    )
+
     _client: Optional["Argilla"] = PrivateAttr(...)
     _dataset: Optional["Dataset"] = PrivateAttr(...)
 
@@ -130,13 +140,6 @@ class ArgillaBase(Step, ABC):
             )
             is not None
         )
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The outputs of the step is an empty list, since the steps subclassing from this one, will
-        always be leaf nodes and won't propagate the inputs neither generate any outputs.
-        """
-        return []
 
     def load(self) -> None:
         """Method to perform any initialization logic before the `process` method is

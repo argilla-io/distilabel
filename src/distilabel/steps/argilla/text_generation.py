@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import hashlib
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from pydantic import PrivateAttr
 from typing_extensions import override
@@ -26,6 +26,7 @@ except ImportError:
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
@@ -90,6 +91,7 @@ class TextGenerationToArgilla(ArgillaBase):
         ```
     """
 
+    inputs: StepColumns = ["instruction", "generation"]
     _id: str = PrivateAttr(default="id")
     _instruction: str = PrivateAttr(...)
     _generation: str = PrivateAttr(...)
@@ -148,11 +150,6 @@ class TextGenerationToArgilla(ArgillaBase):
                 client=self._client,
             )
             self._dataset = _dataset.create()
-
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the step are the `instruction` and the `generation`."""
-        return ["instruction", "generation"]
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore

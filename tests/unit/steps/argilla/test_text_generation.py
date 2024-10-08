@@ -85,6 +85,7 @@ class TestTextGenerationToArgilla:
             "name": "step",
             "input_mappings": {},
             "output_mappings": {},
+            "inputs": ["instruction", "generation"],
             "resources": {
                 "cpus": None,
                 "gpus": None,
