@@ -162,6 +162,7 @@ plugins:
   - social
   - mknotebooks
   - material-plausible
+  - glightbox
   - distilabel/components-gallery:
       add_after_page: How-to guides
 
@@ -185,7 +186,7 @@ nav:
           - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
       - Advanced:
           - The Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
-          - Cachinc and recovering pipelines: "sections/how_to_guides/advanced/caching.md"
+          - Pipeline cache: "sections/how_to_guides/advanced/caching.md"
           - Exporting data to Argilla: "sections/how_to_guides/advanced/argilla.md"
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
           - Offline Batch Generation: "sections/how_to_guides/advanced/offline_batch_generation.md"
