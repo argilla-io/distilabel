@@ -40,6 +40,7 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParametersMixin,
 )
 from distilabel.mixins.signature import SignatureMixin
+from distilabel.steps.typing import StepColumns
 from distilabel.utils.serialization import _Serializable, write_json
 from distilabel.utils.typing_ import is_parameter_annotated_with
 
@@ -53,7 +54,7 @@ if TYPE_CHECKING:
         DownstreamConnectableSteps,
         UpstreamConnectableSteps,
     )
-    from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 
 DEFAULT_INPUT_BATCH_SIZE = 50
@@ -202,6 +203,24 @@ class _Step(
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
     use_cache: bool = True
+    inputs: StepColumns = Field(
+        default_factory=list,
+        exclude=True,
+        description=(
+            "List of strings with the names of the columns that the step needs as input "
+            "or dictionary in which the keys are the input columns of the step and the "
+            "values are booleans indicating whether the column is optional or not."
+        ),
+    )
+    outputs: StepColumns = Field(
+        default_factory=list,
+        exclude=True,
+        description=(
+            "List of strings with the names of the columns that the step will produce as "
+            "output or dictionary in which the keys are the output columns of the step and the "
+            "values are booleans indicating whether the column is optional or not."
+        ),
+    )
 
     _pipeline_artifacts_path: Path = PrivateAttr(None)
     _built_from_decorator: bool = PrivateAttr(default=False)
@@ -390,28 +409,28 @@ class _Step(
         """
         return not self.is_generator and not self.is_global
 
-    @property
-    def inputs(self) -> "StepColumns":
-        """List of strings with the names of the mandatory columns that the step needs as
-        input or dictionary in which the keys are the input columns of the step and the
-        values are booleans indicating whether the column is optional or not.
+    # @property
+    # def inputs(cls) -> "StepColumns":
+    #     """List of strings with the names of the mandatory columns that the step needs as
+    #     input or dictionary in which the keys are the input columns of the step and the
+    #     values are booleans indicating whether the column is optional or not.
 
-        Returns:
-            List of strings with the names of the columns that the step needs as input.
-        """
-        return []
+    #     Returns:
+    #         List of strings with the names of the columns that the step needs as input.
+    #     """
+    #     return []
 
-    @property
-    def outputs(self) -> "StepColumns":
-        """List of strings with the names of the columns that the step will produce as
-        output or dictionary in which the keys are the output columns of the step and the
-        values are booleans indicating whether the column is optional or not.
+    # @property
+    # def outputs(cls) -> "StepColumns":
+    #     """List of strings with the names of the columns that the step will produce as
+    #     output or dictionary in which the keys are the output columns of the step and the
+    #     values are booleans indicating whether the column is optional or not.
 
-        Returns:
-            List of strings with the names of the columns that the step will produce as
-            output.
-        """
-        return []
+    #     Returns:
+    #         List of strings with the names of the columns that the step will produce as
+    #         output.
+    #     """
+    #     return []
 
     @cached_property
     def process_parameters(self) -> List[inspect.Parameter]:
@@ -810,10 +829,13 @@ class GlobalStep(Step, ABC):
     to train a model, to perform a global aggregation, etc.
     """
 
-    @property
-    def inputs(self) -> "StepColumns":
-        return []
+    inputs: StepColumns = []
+    outputs: StepColumns = []
 
-    @property
-    def outputs(self) -> "StepColumns":
-        return []
+    # @property
+    # def inputs(self) -> "StepColumns":
+    #     return []
+
+    # @property
+    # def outputs(self) -> "StepColumns":
+    #     return []

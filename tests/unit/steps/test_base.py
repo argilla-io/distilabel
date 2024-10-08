@@ -24,20 +24,14 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.decorator import step
-from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
 
 
 class DummyStep(Step):
     attr1: int = 5
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["response"]
+    inputs: StepColumns = ["instruction"]
+    outputs: StepColumns = ["response"]
 
     def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
         for input in inputs:
@@ -46,22 +40,15 @@ class DummyStep(Step):
 
 
 class DummyGeneratorStep(GeneratorStep):
-    @property
-    def outputs(self) -> List[str]:
-        return []
+    outputs: StepColumns = []
 
     def process(self, inputs: StepInput) -> GeneratorStepOutput:  # type: ignore
         yield [], False
 
 
 class DummyGlobalStep(GlobalStep):
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        return []
+    inputs: StepColumns = []
+    outputs: StepColumns = []
 
     def process(self, inputs: StepInput) -> StepOutput:
         yield []
@@ -405,11 +392,12 @@ class TestGlobalStep:
 
 class TestStepSerialization:
     def test_step_dump(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        step = DummyStep(name="dummy", pipeline=pipeline)
+        step = DummyStep(name="dummy")
         assert step.dump() == {
             "name": "dummy",
             "attr1": 5,
+            "inputs": ["instruction"],
+            "outputs": ["response"],
             "input_batch_size": 50,
             "input_mappings": {},
             "output_mappings": {},

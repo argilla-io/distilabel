@@ -36,6 +36,8 @@ _EXCLUDE_FROM_SIGNATURE_DEFAULTS = {
     "exclude_from_signature",
     "llm_jobs_ids",
     "llm_offline_batch_generation_block_until_done",
+    "inputs",
+    "outputs",
 }
 
 
@@ -51,7 +53,7 @@ class SignatureMixin(BaseModel):
     )
 
     @property
-    def signature(self) -> str:
+    def signature(self) -> str:  # noqa: C901
         """Makes a signature (hash) of the class, using its attributes.
 
         Returns:
@@ -63,8 +65,11 @@ class SignatureMixin(BaseModel):
             for k, v in d.items():
                 new_key = parent_key + sep + k if parent_key else k
                 if isinstance(v, dict):
-                    items.extend(flatten_dump(v, new_key, sep=sep))
+                    if new_key not in {"inputs", "outputs"}:
+                        items.extend(flatten_dump(v, new_key, sep=sep))
                 elif isinstance(v, list):
+                    if new_key in {"inputs", "outputs"}:
+                        continue
                     if len(v) == 0:
                         items.append((new_key, ""))
                     elif isinstance(v[0], str):
@@ -74,6 +79,7 @@ class SignatureMixin(BaseModel):
                             items.extend(flatten_dump(x, f"{new_key}-{i}", sep=sep))
                 elif new_key not in self.exclude_from_signature:
                     items.append((new_key, v))
+
             return items
 
         info = []
