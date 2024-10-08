@@ -670,8 +670,8 @@ class Step(_Step, ABC):
             restored = []
             for i, row in enumerate(output_rows):
                 # Correct the index here because we don't know the num_generations from the llm
-                # ahead of time. For example, if we have len(overriden_inputs)==5 and len(row)==10,
-                # from num_generations==2 in the llm:
+                # ahead of time. For example, if we have `len(overriden_inputs)==5` and `len(row)==10`,
+                # from `num_generations==2` and `group_generations=False` in the LLM:
                 # The loop will use indices 0, 1, 2, 3, 4, 0, 1, 2, 3, 4
                 ntimes_i = i % len(overriden_inputs)
                 restored.append(
