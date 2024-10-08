@@ -19,6 +19,7 @@ from pydantic import Field, PrivateAttr, SecretStr
 
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.typing import StepColumns
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
 if TYPE_CHECKING:
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
     from transformers import PreTrainedModel, PreTrainedTokenizer
 
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class RewardModelScore(Step, CudaDevicePlacementMixin):
@@ -142,6 +143,12 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
     )
     truncation: bool = False
     max_length: Union[int, None] = None
+    inputs: StepColumns = {
+        "instruction": False,
+        "response": False,
+        "conversation": False,
+    }
+    outputs: StepColumns = ["score"]
 
     _model: Union["PreTrainedModel", None] = PrivateAttr(None)
     _tokenizer: Union["PreTrainedTokenizer", None] = PrivateAttr(None)
@@ -176,20 +183,6 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
             trust_remote_code=self.trust_remote_code,
             token=token,
         )
-
-    @property
-    def inputs(self) -> "StepColumns":
-        """Either `response` and `instruction`, or a `conversation` columns."""
-        return {
-            "response": False,
-            "instruction": False,
-            "conversation": False,
-        }
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The `score` given by the reward model."""
-        return ["score"]
 
     def _prepare_conversation(self, input: Dict[str, Any]) -> "ChatType":
         if "instruction" in input and "response" in input:

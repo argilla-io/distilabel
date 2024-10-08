@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Literal
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from pydantic import Field
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import GlobalStep, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
@@ -130,14 +131,12 @@ class DeitaFiltering(GlobalStep):
         default="cosine",
         description="The distance metric to use. Currently only 'cosine' is supported.",
     )
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["evol_instruction_score", "evol_response_score", "embedding"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["deita_score", "nearest_neighbor_distance", "deita_score_computed_with"]
+    inputs: StepColumns = ["evol_instruction_score", "evol_response_score", "embedding"]
+    outputs: StepColumns = [
+        "deita_score",
+        "nearest_neighbor_distance",
+        "deita_score_computed_with",
+    ]
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Filter the dataset based on the DEITA score and the cosine distance between the

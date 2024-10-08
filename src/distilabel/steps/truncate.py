@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import importlib
-from typing import TYPE_CHECKING, Any, Callable, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from typing_extensions import override
 
@@ -118,13 +118,10 @@ class TruncateTextColumn(Step):
         else:
             self._truncator = self._truncate_with_length
 
-    @property
-    def inputs(self) -> List[str]:
-        return [self.column]
-
-    @property
-    def outputs(self) -> List[str]:
-        return self.inputs
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.inputs = [self.column]
+        self.outputs = self.inputs
 
     def _truncate_with_length(self, text: str) -> str:
         """Truncates the text according to the number of characters."""
