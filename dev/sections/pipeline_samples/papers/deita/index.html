@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1004,7 +1013,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -5035,15 +5044,15 @@
 <p><a href="https://arxiv.org/abs/2312.15685">DEITA (Data-Efficient Instruction Tuning for Alignment)</a> studies an automatic data selection process by first quantifying the data quality based on complexity, quality and diversity. Second, select the best potential combination from an open-source dataset that would fit into the budget you allocate to tune your own LLM.</p>
 <p>In most setting we cannot allocate unlimited resources for instruction-tuning LLMs. Therefore, the DEITA authors investigated how to select qualitative data for instruction tuning based on the principle of fewer high-quality samples. Liu et al. tackle the issue of first defining good data and second identifying it to respect an initial budget to instruct-tune your LLM.</p>
 <p>The strategy utilizes <strong>LLMs to replace human effort in time-intensive data quality </strong>tasks on <strong>instruction-tuning</strong> datasets**. DEITA introduces a way to measure data quality across three critical dimensions: complexity, quality and diversity.</p>
-<p><img alt="DEITA pipeline overview" src="../../../../assets/tutorials-assets/deita/overview.png" /></p>
+<p><a class="glightbox" href="../../../../assets/tutorials-assets/deita/overview.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="DEITA pipeline overview" src="../../../../assets/tutorials-assets/deita/overview.png" /></a></p>
 <p>You can see that we see again the dataset of instructions/responses and we kind of reproducing the second step when we learn how to optimize the responses according to an instruction by comparing several possibilities.</p>
-<p><img alt="DEITA pipeline overview" src="../../../../assets/pipelines/deita.png" /></p>
+<p><a class="glightbox" href="../../../../assets/pipelines/deita.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="DEITA pipeline overview" src="../../../../assets/pipelines/deita.png" /></a></p>
 <h3 id="datasets-and-budget">Datasets and budget<a class="headerlink" href="#datasets-and-budget" title="Permanent link">&para;</a></h3>
 <p>We will dive deeper into the whole process. We will investigate each stage to efficiently select the final dataset used for supervised fine-tuning with a budget constraint. We will tackle technical challenges by explaining exactly how you would assess good data as presented in the paper.</p>
 <p>As a reminder, we're looking for a strategy to automatically select good data for the instruction-tuning step when you want to fine-tune an LLM to your own use case taking into account a resource constraint. This means that you cannot blindly train a model on any data you encounter on the internet.</p>
 <p>The DEITA authors assume that you have access to open-source datasets that fit your use case. This may not be the case entirely. But with open-source communities tackling many use cases, with projects such as <a href="https://arxiv.org/pdf/2110.08207.pdf">BLOOM</a> or <a href="https://cohere.com/research/aya">AYA</a>, it's likely that your use case will be tackled at some point. Furthermore, you could generate your own instruction/response pairs with methods such as <a href="https://aclanthology.org/2023.acl-long.754/">self-generated instructions</a> using distilabel. This tutorial assumes that we have a data pool with excessive samples for the project's cost constraint. In short, we aim to achieve adequate performance from fewer samples.</p>
 <p>The authors claim that the subsample size "correlates proportionally with the computation consumed in instruction tuning". Hence on a first approximation, reducing the sample size means reducing computation consumption and so the total development cost. Reproducing the paper notations, we will associate the budget m to a number of instruction/response pairs that you can set depending on your real budget.</p>
-<p><img alt="Datasets table" src="../../../../assets/tutorials-assets/deita/datasets.png" /></p>
+<p><a class="glightbox" href="../../../../assets/tutorials-assets/deita/datasets.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Datasets table" src="../../../../assets/tutorials-assets/deita/datasets.png" /></a></p>
 <p>To match the experimental set-up, dataset <em>X_sota</em> is a meta-dataset combining major open-source datasets available to instruct-tune LLMs. This dataset is composed of <a href="https://huggingface.co/datasets/shibing624/sharegpt_gpt4">ShareGPT</a> (58k instruction/response pairs), <a href="https://huggingface.co/datasets/stingning/ultrachat">UltraChat</a> (105k instruction/response pairs) and <a href="https://github.com/nlpxucan/WizardLM">WizardLM</a> (143k instruction/response pairs). It sums to more than 300k instruction/response pairs. We aim to reduce the final subsample to 6k instruction/response pairs.</p>
 <h2 id="setup-the-notebook-and-packages">Setup the notebook and packages<a class="headerlink" href="#setup-the-notebook-and-packages" title="Permanent link">&para;</a></h2>
 <p>Let's prepare our dependencies:</p>
@@ -5245,7 +5254,7 @@
 <h2 id="improving-data-diversity">Improving Data Diversity<a class="headerlink" href="#improving-data-diversity" title="Permanent link">&para;</a></h2>
 <p>One main component of good data to instruct-tune LLMs is diversity. Real world data can often contain <a href="https://openreview.net/forum?id=u96ZBg_Shna">redundancy</a> due repetitive and homogeneous data.</p>
 <p>The authors of the DEITA paper tackle the challenge of ensuring data diversity in the instruction tuning LLMs to avoid the pitfalls of data redundancy that can lead to over-fitting or poor generalization. They propose an embedding-based method to filter data for diversity. This method, called Repr Filter, uses embeddings generated by the <em>Llama 1 13B</em> model to represent instruction-response pairs in a vector space. The diversity of a new data sample is assessed based on the cosine distance between its embedding and that of its nearest neighbor in the already selected dataset. If this distance is greater than a specified threshold, the sample is considered diverse and is added to the selection. This process prioritizes diversity by assessing each sample's contribution to the variety of the dataset until the data selection budget is met. This approach effectively maintains the diversity of the data used for instruction tuning, as demonstrated by the DEITA models outperforming or matching state-of-the-art models with significantly less training data. In this implementation of DEITA we use the hidden state of the last layer of the Llama 2 model to generate embeddings, instead of a sentence transformer model, because we found that it improved the diversity of the data selection.</p>
-<p><img alt="jdjd" src="../../../../assets/tutorials-assets/deita/diversity.png" /></p>
+<p><a class="glightbox" href="../../../../assets/tutorials-assets/deita/diversity.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="jdjd" src="../../../../assets/tutorials-assets/deita/diversity.png" /></a></p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">generate_conversation</span> <span class="o">=</span> <span class="n">ConversationTemplate</span><span class="p">(</span>
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;generate_conversation&quot;</span><span class="p">,</span>
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="n">input_mappings</span><span class="o">=</span><span class="p">{</span>
@@ -5308,7 +5317,7 @@
 </span></code></pre></div>
 <h2 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h2>
 <p>Again, to show the relevance of EVOL QUALITY method, the authors evaluated on the MT-bench models fine-tuned with different data selections according to how we defined quality responses according to an instruction. Each time they selected 6k data according to the quality score:</p>
-<p><img alt="DEITA results" src="../../../../assets/tutorials-assets/deita/results.png" /></p>
+<p><a class="glightbox" href="../../../../assets/tutorials-assets/deita/results.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="DEITA results" src="../../../../assets/tutorials-assets/deita/results.png" /></a></p>
 <p>Credit: Liu et al. (2023)</p>
 <p>The score is much better when selecting data with the EVOL QUALITY method than when we select randomly or according to the length, making a more qualitative response if longer. Nevertheless, we see that the margin we may have seen in the complexity score is thinner. And we'll discuss the strategy in a later part. Nevertheless, this strategy looks to improve the fine-tuning compared to the baselines and now we're interested in mixing quality and complexity assessment with a diversity evaluation to find the right trade-off in our selection process.</p>
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
@@ -5512,5 +5521,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

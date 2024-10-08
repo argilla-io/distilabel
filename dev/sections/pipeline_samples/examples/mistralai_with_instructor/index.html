@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1006,7 +1015,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -4838,7 +4847,7 @@
 <h1 id="structured-generation-with-instructor">Structured generation with <code>instructor</code><a class="headerlink" href="#structured-generation-with-instructor" title="Permanent link">&para;</a></h1>
 <p>Answer instructions with knowledge graphs defined as <code>pydantic.BaseModel</code> objects using <code>instructor</code> in <code>distilabel</code>.</p>
 <p>This script makes use of <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.MistralLLM"><code>MistralLLM</code></a> and the structured output capabilities thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> to generate knowledge graphs from complex topics.</p>
-<p><img alt="Knowledge graph figure" src="../../../../assets/pipelines/knowledge_graphs.png" /></p>
+<p><a class="glightbox" href="../../../../assets/pipelines/knowledge_graphs.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Knowledge graph figure" src="../../../../assets/pipelines/knowledge_graphs.png" /></a></p>
 <p>This example is translated from this <a href="https://python.useinstructor.com/examples/knowledge_graph/">awesome example</a> from <code>instructor</code> cookbook.</p>
 <details class="run">
 <summary>Run</summary>
@@ -4944,7 +4953,7 @@
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">draw_kg</span><span class="o">.</span><span class="n">py</span> <span class="mi">2</span>  <span class="c1"># You can pass 0,1,2 to visualize each of the samples.</span>
 </span></code></pre></div>
-<p><img alt="Knowledge graph figure" src="../../../../assets/images/sections/examples/knowledge-graph-example.png" /></p>
+<p><a class="glightbox" href="../../../../assets/images/sections/examples/knowledge-graph-example.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Knowledge graph figure" src="../../../../assets/images/sections/examples/knowledge-graph-example.png" /></a></p>
 </details>
 
 
@@ -5149,5 +5158,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1004,7 +1013,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -5136,7 +5145,7 @@
 <li><strong>Libraries</strong>: <a href="https://github.com/argilla-io/argilla">argilla</a>, <a href="https://github.com/huggingface/huggingface_hub">hf-inference-endpoints</a></li>
 <li><strong>Components</strong>: <a href="https://distilabel.argilla.io/dev/components-gallery/steps/loaddatafromdicts/">LoadDataFromDicts</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/tasks/ultrafeedback/">UltraFeedback</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/steps/groupcolumns/">KeepColumns</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/steps/textgenerationtoargilla/">PreferenceToArgilla</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/llms/inferenceendpointsllm/">InferenceEndpointsLLM</a>, <a href="../../../how_to_guides/basic/step/global_step/">GlobalStep</a></li>
 </ul>
-<p><img alt="Knowledge graph figure" src="../../../../assets/pipelines/clean-dataset.png" /></p>
+<p><a class="glightbox" href="../../../../assets/pipelines/clean-dataset.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Knowledge graph figure" src="../../../../assets/pipelines/clean-dataset.png" /></a></p>
 </div>
 </div>
 </div>
@@ -5861,5 +5870,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

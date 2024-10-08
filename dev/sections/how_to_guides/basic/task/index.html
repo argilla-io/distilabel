@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1019,7 +1028,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -4939,7 +4948,7 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 </span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">uf</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 </span></code></pre></div>
 <p>The result will be a rendered prompt, with the System prompt (if contained for the task) and the User prompt, rendered with rich (it will show exactly the same in a jupyter notebook).</p>
-<p><img alt="task-print" src="../../../../assets/images/sections/how_to_guides/tasks/task_print.png" /></p>
+<p><a class="glightbox" href="../../../../assets/images/sections/how_to_guides/tasks/task_print.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task-print" src="../../../../assets/images/sections/how_to_guides/tasks/task_print.png" /></a></p>
 <p>In case you want to test with a custom input, you can pass an example to the tasks<code></code>format_input` method (or generate it on your own depending on the task), and pass it to the print method so that it shows your example:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">uf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">uf</span><span class="o">.</span><span class="n">format_input</span><span class="p">({</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">]})</span>
@@ -5289,5 +5298,7 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

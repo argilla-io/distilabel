@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1004,7 +1013,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -4955,7 +4964,7 @@
 
 <h1 id="prometheus-2">Prometheus 2<a class="headerlink" href="#prometheus-2" title="Permanent link">&para;</a></h1>
 <p><a href="https://arxiv.org/pdf/2405.01535">"Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models"</a> presents Prometheus 2, a new and more powerful evaluator LLM compared to Prometheus (its predecessor) presented in <a href="https://arxiv.org/abs/2310.08491">"Prometheus: Inducing Fine-grained Evaluation Capability in Language Models"</a>; since GPT-4, as well as other proprietary LLMs, are commonly used to assess the quality of the responses for various LLMs, but there are concerns about transparency, controllability, and affordability, that motivate the need of open-source LLMs specialized in evaluations.</p>
-<p><img alt="Prometheus 2 pipeline overview" src="../../../../assets/pipelines/prometheus.png" /></p>
+<p><a class="glightbox" href="../../../../assets/pipelines/prometheus.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Prometheus 2 pipeline overview" src="../../../../assets/pipelines/prometheus.png" /></a></p>
 <p>Existing open evaluator LMs exhibit critical shortcomings:</p>
 <ol>
 <li>They issue scores that significantly diverge from those assigned by humans.</li>
@@ -5260,5 +5269,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

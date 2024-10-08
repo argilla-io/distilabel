@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1004,7 +1013,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -5274,7 +5283,7 @@
 <li><strong>Libraries</strong>: <a href="https://github.com/argilla-io/argilla">argilla</a>, <a href="https://github.com/huggingface/huggingface_hub">hf-inference-endpoints</a>, <a href="https://github.com/UKPLab/sentence-transformers">sentence-transformers</a></li>
 <li><strong>Components</strong>: <a href="https://distilabel.argilla.io/latest/components-gallery/steps/loaddatafromhub/">LoadDataFromHub</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/tasks/generatesentencepair/">GenerateSentencePair</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/llms/inferenceendpointsllm/">InferenceEndpointsLLM</a></li>
 </ul>
-<p><img alt="GenerateSentencePair pipeline overview" src="../../../../assets/pipelines/sentence-transformer.png" /></p>
+<p><a class="glightbox" href="../../../../assets/pipelines/sentence-transformer.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="GenerateSentencePair pipeline overview" src="../../../../assets/pipelines/sentence-transformer.png" /></a></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For a comprehensive overview on optimizing the retrieval performance in a RAG pipeline, check this <a href="https://docs.zenml.io/user-guide/llmops-guide/finetuning-embeddings">guide</a> in collaboration with <a href="https://github.com/zenml-io/zenml">ZenML</a>, an open-source MLOps framework designed for building portable and production-ready machine learning pipelines.</p>
@@ -6009,5 +6018,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

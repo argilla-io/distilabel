@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1006,7 +1015,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -4949,7 +4958,7 @@
 <p>This example will introduce <a href="https://arxiv.org/abs/2406.18518">APIGen: Automated Pipeline for Generating Verifiable and Diverse Function-Calling Datasets</a>, a data generation pipeline designed to synthesize verifiable high-quality datasets for function-calling applications.</p>
 <h2 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h2>
 <p>The following figure showcases the APIGen framework:</p>
-<p><img alt="APIGen framework" src="../../../../assets/tutorials-assets/overview-apigen.jpg" /></p>
+<p><a class="glightbox" href="../../../../assets/tutorials-assets/overview-apigen.jpg" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="APIGen framework" src="../../../../assets/tutorials-assets/overview-apigen.jpg" /></a></p>
 <p>Now, let's walk through the key steps illustrated in the figure:</p>
 <ul>
 <li>
@@ -4996,7 +5005,7 @@
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="p">}</span>
 </span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="p">]</span>
 </span></code></pre></div>
-<p>The original paper refers to both python functions and APIs, but we will make use of python functions exclusively for simplicity. In order to execute and check this functions/APIs, we need access to the code, which we have moved to a python file: <a href="../../../../examples/lib_apigen.py">lib_apigen.py</a>. All this functions are executable, but we also need access to their <em>tool</em> representation. For this, we will make use of transformers' <em>get_json_schema</em> function<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.</p>
+<p>The original paper refers to both python functions and APIs, but we will make use of python functions exclusively for simplicity. In order to execute and check this functions/APIs, we need access to the code, which we have moved to a Python file: <a href="https://github.com/argilla-io/distilabel/blob/main/examples/lib_apigen.py">lib_apigen.py</a>. All this functions are executable, but we also need access to their <em>tool</em> representation. For this, we will make use of transformers' <em>get_json_schema</em> function<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.</p>
 <p>We have all the machinery prepared in our libpath, except from the <em>tool</em> definition. With the help of our helper function <code>load_module_from_path</code> we will load this python module, collect all the tools, and add them to each row in our <code>data</code> variable.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks.apigen.utils</span> <span class="kn">import</span> <span class="n">load_module_from_path</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
@@ -5488,5 +5497,7 @@ examples from the original dataset to be fed in our prompt.</p>
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

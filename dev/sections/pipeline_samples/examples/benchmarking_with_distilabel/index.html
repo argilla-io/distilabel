@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1006,7 +1015,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -4838,7 +4847,7 @@
 <h1 id="benchmarking-with-distilabel">Benchmarking with <code>distilabel</code><a class="headerlink" href="#benchmarking-with-distilabel" title="Permanent link">&para;</a></h1>
 <p>Benchmark LLMs with <code>distilabel</code>: reproducing the Arena Hard benchmark.</p>
 <p>The script below first defines both the <code>ArenaHard</code> and the <code>ArenaHardResults</code> tasks, so as to generate responses for a given collection of prompts/questions with up to two LLMs, and then calculate the results as per the original implementation, respectively. Additionally, the second part of the example builds a <code>Pipeline</code> to run the generation on top of the prompts with <code>InferenceEndpointsLLM</code> while streaming the rest of the generations from a pre-computed set of GPT-4 generations, and then evaluate one against the other with <code>OpenAILLM</code> generating an alternate response, a comparison between the responses, and a result as A&gt;&gt;B, A&gt;B, B&gt;A, B&gt;&gt;A, or tie.</p>
-<p><img alt="Arena Hard" src="../../../../assets/pipelines/arena-hard.png" /></p>
+<p><a class="glightbox" href="../../../../assets/pipelines/arena-hard.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Arena Hard" src="../../../../assets/pipelines/arena-hard.png" /></a></p>
 <p>To run this example you will first need to install the Arena Hard optional dependencies, being <code>pandas</code>, <code>scikit-learn</code>, and <code>numpy</code>.</p>
 <details class="run">
 <summary>Run</summary>
@@ -5507,5 +5516,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

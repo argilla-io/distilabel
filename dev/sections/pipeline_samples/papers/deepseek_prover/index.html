@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1004,7 +1013,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -5009,10 +5018,10 @@
 
 <h1 id="deepseek-prover">DeepSeek Prover<a class="headerlink" href="#deepseek-prover" title="Permanent link">&para;</a></h1>
 <p><a href="https://arxiv.org/abs/2405.14333">"DeepSeek-Prover: Advancing Theorem Proving in LLMs through Large-Scale Synthetic Data"</a> presents an approach to generate mathematical proofs for theorems generated from informal math problems. This approach shows promising results to advance the capabilities of models towards theorem proving using synthetic data. Until this moment the dataset and the model trained on top of it haven't been opened, let's see how the approach works to reproduce the pipeline using <code>distilabel</code>. The following figure depicts the approach taken to generate the dataset:</p>
-<p><img alt="DeepSeep prover approach" src="../../../../assets/tutorials-assets/deepseek_prover.png" /></p>
+<p><a class="glightbox" href="../../../../assets/tutorials-assets/deepseek_prover.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="DeepSeep prover approach" src="../../../../assets/tutorials-assets/deepseek_prover.png" /></a></p>
 <p>The authors propose a method for generating <a href="https://github.com/leanprover/lean4">Lean 4</a> proof data from informal mathematical problems. Their approach translates high-school and undergraduate-level mathematical competition problems into formal statements.</p>
 <p>Here we show how to deal with steps 1 and 2, but the authors ensure the theorems are checked using the <a href="https://github.com/leanprover/lean4">lean4</a> program on the generated proofs, and iterate for a series of steps, fine-tuning a model on the synthetic data (DeepSeek prover 7B), regenerating the dataset, and continue the process until no further improvement is found.</p>
-<p><img alt="DEITA pipeline overview" src="../../../../assets/pipelines/deepseek.png" /></p>
+<p><a class="glightbox" href="../../../../assets/pipelines/deepseek.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="DEITA pipeline overview" src="../../../../assets/pipelines/deepseek.png" /></a></p>
 <h3 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -5976,5 +5985,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

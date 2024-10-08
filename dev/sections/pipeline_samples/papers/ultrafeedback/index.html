@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1004,7 +1013,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -4956,7 +4965,7 @@
 <h1 id="ultrafeedback">UltraFeedback<a class="headerlink" href="#ultrafeedback" title="Permanent link">&para;</a></h1>
 <p><a href="https://arxiv.org/abs/2310.01377">UltraFeedback: Boosting Language Models with High-quality Feedback</a> is a paper published by <a href="https://www.openbmb.cn/home">OpenBMB</a> which proposes <code>UltraFeedback</code>, a large-scale, fine-grained, diverse preference dataset, used for training powerful reward models and critic models.</p>
 <p>UltraFeedback collects about 64k prompts from diverse resources (including UltraChat, ShareGPT, Evol-Instruct, TruthfulQA, FalseQA, and FLAN), then they use these prompts to query multiple LLMs (commercial models, Llama models ranging 7B to 70B, and non-Llama models) and generate four different responses for each prompt, resulting in a total of 256k samples i.e. the UltraFeedback will rate four responses on every OpenAI request.</p>
-<p><img alt="UltraFeedback pipeline overview" src="../../../../assets/pipelines/ultrafeedback.png" /></p>
+<p><a class="glightbox" href="../../../../assets/pipelines/ultrafeedback.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="UltraFeedback pipeline overview" src="../../../../assets/pipelines/ultrafeedback.png" /></a></p>
 <p>To collect high-quality preference and textual feedback, they design a fine-grained annotation instruction, which contains four different aspects, namely instruction-following, truthfulness, honesty and helpfulness (even though within the paper they also mention a fifth one named verbalized calibration). Finally, GPT-4 is used to generate the ratings for the generated responses to the given prompt using the previously mentioned aspects.</p>
 <h2 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h2>
 <p>To replicate the paper we will be using <code>distilabel</code> and a smaller dataset created by the Hugging Face H4 team named <a href="https://huggingface.co/datasets/HuggingFaceH4/instruction-dataset"><code>HuggingFaceH4/instruction-dataset</code></a> for testing purposes.</p>
@@ -5369,5 +5378,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

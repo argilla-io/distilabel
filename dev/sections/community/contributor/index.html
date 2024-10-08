@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1006,7 +1015,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -5140,7 +5149,7 @@
 <p>⚠️ Never work directly on the <code>main</code> or <code>develop</code> branch. Always create a new branch for your changes.</p>
 </blockquote>
 <p>Navigate to your issue, and on the right column, select <code>Create a branch</code>.</p>
-<p><img alt="Create a branch" src="../../../assets/images/sections/community/create-branch.PNG" /></p>
+<p><a class="glightbox" href="../../../assets/images/sections/community/create-branch.PNG" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Create a branch" src="../../../assets/images/sections/community/create-branch.PNG" /></a></p>
 <p>After the new window pops up, the branch will be named after the issue and include a prefix such as feature/, bug/, or docs/ to facilitate quick recognition of the issue type. In the <code>Repository destination</code>, pick your fork ( [your-github-username]/distilabel), and then select <code>Change branch source</code> to specify the source branch for creating the new one. Complete the process by clicking <code>Create branch</code>.</p>
 <blockquote>
 <p>🤔 Remember that the <code>main</code> branch is only used to work with the documentation. For any other changes, use the <code>develop</code> branch.</p>
@@ -5172,7 +5181,7 @@
 <p>When pushing, you will be asked to enter your GitHub login credentials. Once the push is complete, all local commits will be on your GitHub repository.</p>
 <h3 id="create-a-pull-request">Create a pull request<a class="headerlink" href="#create-a-pull-request" title="Permanent link">&para;</a></h3>
 <p>Come back to GitHub, navigate to the original repository where you created your fork, and click on <code>Compare &amp; pull request</code>.</p>
-<p><img alt="compare-and-pr" src="../../../assets/images/sections/community/compare-pull-request.PNG" /></p>
+<p><a class="glightbox" href="../../../assets/images/sections/community/compare-pull-request.PNG" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="compare-and-pr" src="../../../assets/images/sections/community/compare-pull-request.PNG" /></a></p>
 <p>First, click on <code>compare across forks</code> and select the right repositories and branches.</p>
 <blockquote>
 <p>In the base repository, keep in mind that you should select either <code>main</code> or <code>develop</code> based on the modifications made. In the head repository, indicate your forked repository and the branch corresponding to the issue.</p>
@@ -5184,7 +5193,7 @@
 <h3 id="review-your-pull-request">Review your pull request<a class="headerlink" href="#review-your-pull-request" title="Permanent link">&para;</a></h3>
 <p>Once you submit your PR, a team member will review your proposal. We may ask questions, request additional information, or ask for changes to be made before a PR can be merged, either using <a href="https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/incorporating-feedback-in-your-pull-request">suggested changes</a> or pull request comments.</p>
 <p>You can apply the changes directly through the UI (check the files changed and click on the right-corner three dots; see image below) or from your fork, and then commit them to your branch. The PR will be updated automatically, and the suggestions will appear as <code>outdated</code>.</p>
-<p><img alt="edit-file-from-UI" src="../../../assets/images/sections/community/edit-file.PNG" /></p>
+<p><a class="glightbox" href="../../../assets/images/sections/community/edit-file.PNG" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="edit-file-from-UI" src="../../../assets/images/sections/community/edit-file.PNG" /></a></p>
 <blockquote>
 <p>If you run into any merge issues, check out this <a href="https://github.com/skills/resolve-merge-conflicts">git tutorial</a> to help you resolve merge conflicts and other issues.</p>
 </blockquote>
@@ -5403,5 +5412,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

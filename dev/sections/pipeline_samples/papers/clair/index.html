@@ -147,7 +147,16 @@
       
     
     
-  </head>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -1004,7 +1013,7 @@
         
   
   <span class="md-ellipsis">
-    Cachinc and recovering pipelines
+    Pipeline cache
   </span>
   
 
@@ -4957,7 +4966,7 @@
 <p><a href="https://huggingface.co/papers/2408.06266">"Anchored Preference Optimization and Contrastive Revisions: Addressing Underspecification in Alignment"</a> introduces both Contrastive
 Learning from AI Revisions (CLAIR), a data-creation method which leads to more contrastive preference pairs, and Anchored Preference Optimization (APO), a controllable and more stable alignment objective. While APO can be found in <a href="https://huggingface.co/docs/trl/dpo_trainer#loss-functions">TRL</a>, we have implemented a task for CLAIR in <code>distilabel</code>.</p>
 <p>CLAIR is a method for creating preference pairs which minimally revises one output to express a preference, resulting in a more precise learning signal as opposed to conventional methods which use a judge to select a preferred response. </p>
-<p><img alt="CLAIR overview" src="../../../../assets/pipelines/clair.png" /></p>
+<p><a class="glightbox" href="../../../../assets/pipelines/clair.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="CLAIR overview" src="../../../../assets/pipelines/clair.png" /></a></p>
 <p>The athors from the original paper shared a <a href="https://huggingface.co/collections/ContextualAI/clair-and-apo-66b52868672bb1c984d1f3d5">collection of datasets from CLAIR and APO</a>, where <a href="https://huggingface.co/datasets/ContextualAI/ultrafeedback_clair_32k">ContextualAI/ultrafeedback_clair_32k</a> corresponds to the CLAIR implementation.</p>
 <h3 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h3>
 <div class="admonition note">
@@ -5225,5 +5234,7 @@ Learning from AI Revisions (CLAIR), a data-creation method which leads to more c
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  </body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>
