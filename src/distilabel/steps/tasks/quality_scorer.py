@@ -20,7 +20,7 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Union
 
 import orjson
 from jinja2 import Template
@@ -29,6 +29,7 @@ from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.typing import StepColumns
 
 _PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
@@ -146,6 +147,9 @@ class QualityScorer(Task):
         ```
     """
 
+    inputs: StepColumns = ["instruction", "responses"]
+    outputs: StepColumns = ["scores", "model_name"]
+
     _template: Union[Template, None] = PrivateAttr(...)
     _can_be_used_with_offline_batch_generation = True
 
@@ -163,11 +167,6 @@ class QualityScorer(Task):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task are `instruction` and `responses`."""
-        return ["instruction", "responses"]
-
     def format_input(self, input: Dict[str, Any]) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
@@ -179,12 +178,6 @@ class QualityScorer(Task):
                 ),
             }
         ]
-
-    @property
-    def outputs(self):
-        """The output for the task is a list of `scores` containing the quality score for each
-        response in `responses`."""
-        return ["scores", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

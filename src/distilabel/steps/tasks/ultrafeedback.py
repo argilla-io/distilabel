@@ -23,6 +23,7 @@ from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.typing import StepColumns
 from distilabel.utils.dicts import group_dicts
 
 
@@ -205,8 +206,19 @@ class UltraFeedback(Task):
             "The {no_texts} texts given are independent, and should be evaluated separately.\n"
         )
     )
+    inputs: StepColumns = ["instruction", "generations"]
+
     _template: Optional["Template"] = PrivateAttr(default=...)
     _can_be_used_with_offline_batch_generation = True
+
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        columns = []
+        if self.aspect in ["honesty", "instruction-following", "overall-rating"]:
+            columns = ["ratings", "rationales"]
+        elif self.aspect in ["helpfulness", "truthfulness"]:
+            columns = ["types", "rationales", "ratings", "rationales-for-ratings"]
+        self.outputs = columns + ["model_name"]
 
     def load(self) -> None:
         """Loads the Jinja2 template for the given `aspect`."""
@@ -222,11 +234,6 @@ class UltraFeedback(Task):
         )
 
         self._template = Template(open(_path).read())
-
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`, and the `generations` for it."""
-        return ["instruction", "generations"]
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -245,16 +252,6 @@ class UltraFeedback(Task):
                 ),
             },
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
-        columns = []
-        if self.aspect in ["honesty", "instruction-following", "overall-rating"]:
-            columns = ["ratings", "rationales"]
-        elif self.aspect in ["helpfulness", "truthfulness"]:
-            columns = ["types", "rationales", "ratings", "rationales-for-ratings"]
-        return columns + ["model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None

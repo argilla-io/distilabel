@@ -14,13 +14,14 @@
 
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Dict, Final, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Final, Literal, Optional, Union
 
 import orjson
 from jinja2 import Template
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 
 if sys.version_info < (3, 9):
     import importlib_resources
@@ -261,6 +262,13 @@ class GenerateSentencePair(Task):
     action: GenerationAction
     hard_negative: bool = False
     context: str = ""
+    inputs: StepColumns = ["anchor"]
+
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        columns = ["positive", "negative"] if self.triplet else ["positive"]
+        columns += ["model_name"]
+        self.outputs = columns
 
     def load(self) -> None:
         """Loads the Jinja2 template."""
@@ -275,11 +283,6 @@ class GenerateSentencePair(Task):
         )
 
         self._template = Template(open(_path).read())
-
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task is the `anchor` sentence."""
-        return ["anchor"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The inputs are formatted as a `ChatType`, with a system prompt describing the
@@ -317,14 +320,6 @@ class GenerateSentencePair(Task):
                 ),
             },
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs for the task are the `positive` and `negative` sentences, as well
-        as the `model_name` used to generate the sentences."""
-        columns = ["positive", "negative"] if self.triplet else ["positive"]
-        columns += ["model_name"]
-        return columns
 
     def format_output(
         self, output: Union[str, None], input: Optional[Dict[str, Any]] = None

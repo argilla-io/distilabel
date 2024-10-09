@@ -17,11 +17,12 @@ from typing import TYPE_CHECKING, Any, Dict
 from distilabel.errors import DistilabelUserError
 from distilabel.llms.base import LLM
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.typing import StepColumns
 from distilabel.utils.chat import is_openai_format
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class GenerateEmbeddings(Step):
@@ -90,24 +91,14 @@ class GenerateEmbeddings(Step):
     """
 
     llm: LLM
+    inputs: StepColumns = ["text"]
+    outputs: StepColumns = ["embedding", "model_name"]
 
     def load(self) -> None:
         """Loads the `LLM` used to generate the embeddings."""
         super().load()
 
         self.llm.load()
-
-    @property
-    def inputs(self) -> "StepColumns":
-        """The inputs for the task is a `text` column containing either a string or a
-        list of dictionaries in OpenAI chat-like format."""
-        return ["text"]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The outputs for the task is an `embedding` column containing the embedding of
-        the `text` input."""
-        return ["embedding", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Formats the input to be used by the LLM to generate the embeddings. The input

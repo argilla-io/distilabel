@@ -18,10 +18,10 @@ from typing import TYPE_CHECKING, Any, Dict, Union
 from jinja2 import Template
 
 from distilabel.steps.tasks import Task
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
 
 
 class URIAL(Task):
@@ -76,6 +76,9 @@ class URIAL(Task):
         ```
     """
 
+    inputs: StepColumns = {"instruction": False, "conversation": False}
+    outputs: StepColumns = ["generation", "model_name"]
+
     def load(self) -> None:
         """Loads the Jinja2 template for the given `aspect`."""
         super().load()
@@ -90,10 +93,6 @@ class URIAL(Task):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> "StepColumns":
-        return {"instruction": False, "conversation": False}
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         messages = (
             [{"role": "user", "content": input["instruction"]}]
@@ -105,10 +104,6 @@ class URIAL(Task):
             raise ValueError("The last message must be from the user.")
 
         return [{"role": "user", "content": self._template.render(messages=messages)}]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        return ["generation", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None

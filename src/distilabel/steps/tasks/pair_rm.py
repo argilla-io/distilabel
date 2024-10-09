@@ -18,9 +18,10 @@ import numpy as np
 
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Step
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class PairRM(Step):
@@ -96,6 +97,8 @@ class PairRM(Step):
 
     model: str = "llm-blender/PairRM"
     instructions: Optional[str] = None
+    inputs: StepColumns = ["input", "candidates"]
+    outputs: StepColumns = ["ranks", "ranked_candidates", "model_name"]
 
     def load(self) -> None:
         """Loads the PairRM model provided via `model` with `llm_blender.Blender`, which is the
@@ -110,17 +113,6 @@ class PairRM(Step):
 
         self._blender = llm_blender.Blender()
         self._blender.loadranker(self.model)
-
-    @property
-    def inputs(self) -> "StepColumns":
-        """The input columns correspond to the two required arguments from `Blender.rank`:
-        `inputs` and `candidates`."""
-        return ["input", "candidates"]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The outputs will include the `ranks` and the `ranked_candidates`."""
-        return ["ranks", "ranked_candidates", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> Dict[str, Any]:
         """The input is expected to be a dictionary with the keys `input` and `candidates`,

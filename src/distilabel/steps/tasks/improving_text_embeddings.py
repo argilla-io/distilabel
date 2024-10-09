@@ -24,7 +24,7 @@ from typing_extensions import override
 
 from distilabel.steps.tasks.base import GeneratorTask, Task
 from distilabel.steps.tasks.typing import ChatType
-from distilabel.steps.typing import GeneratorStepOutput
+from distilabel.steps.typing import GeneratorStepOutput, StepColumns
 
 
 # BASE CLASSES
@@ -41,18 +41,15 @@ class _JSONFormatter(ABC):
         of an `LLM` subclass.
     """
 
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.outputs = self.keys + ["model_name"]
+
     @property
     @abstractmethod
     def keys(self) -> List[str]:
         """Contains the `keys` that will be parsed from the `LLM` output into a Python dict."""
         ...
-
-    @property
-    def outputs(self) -> List[str]:
-        """Contains the output columns produced by the `process` method of the task. In this
-        case, it consists of the `keys` (i.e. the JSON keys) and the `model_name`.
-        """
-        return self.keys + ["model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
@@ -122,6 +119,7 @@ class _EmbeddingDataGeneration(_JSONFormatter, Task, ABC):
     """
 
     seed: int = 42
+    inputs: StepColumns = ["task"]
 
     _template: Union[Template, None] = PrivateAttr(...)
     _template_name: str = PrivateAttr(...)
@@ -142,13 +140,6 @@ class _EmbeddingDataGeneration(_JSONFormatter, Task, ABC):
         )
 
         self._template = Template(open(_path).read())
-
-    @property
-    def inputs(self) -> List[str]:
-        """Contains the input columns expected by the `process` method of the task. In this
-        case, it consists of the `task`; ideally produced in a previous task which should be
-        preferrably `EmbeddingTaskGenerator` (as per the original implementation)."""
-        return ["task"]
 
 
 class _EmbeddingDataGenerator(_JSONFormatter, GeneratorTask, ABC):
@@ -307,6 +298,10 @@ class EmbeddingTaskGenerator(GeneratorTask):
     _template: Union[Template, None] = PrivateAttr(...)
     _can_be_used_with_offline_batch_generation = True
 
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.outputs = ["tasks" if not self.flatten_tasks else "task", "model_name"]
+
     def load(self) -> None:
         """Loads the Jinja2 template."""
         super().load()
@@ -373,14 +368,6 @@ class EmbeddingTaskGenerator(GeneratorTask):
                         {**formatted_output, "model_name": self.llm.model_name}
                     )
         yield task_outputs, True
-
-    @property
-    def outputs(self) -> List[str]:
-        """Contains the output columns produced by the `process` method of the task. In this
-        case, it consists of the `tasks` or `task` (depending on the `flatten_tasks` attribute)
-        and the `model_name`.
-        """
-        return ["tasks" if not self.flatten_tasks else "task", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None

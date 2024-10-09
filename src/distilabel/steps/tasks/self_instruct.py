@@ -19,12 +19,13 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from jinja2 import Template
 from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
@@ -110,6 +111,8 @@ class SelfInstruct(Task):
         'Blend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles.'
     )
     application_description: str = "AI assistant"
+    inputs: StepColumns = ["input"]
+    outputs: StepColumns = ["instructions", "model_name"]
 
     _template: Union[Template, None] = PrivateAttr(...)
     _can_be_used_with_offline_batch_generation = True
@@ -128,11 +131,6 @@ class SelfInstruct(Task):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `input` i.e. seed text."""
-        return ["input"]
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
@@ -147,11 +145,6 @@ class SelfInstruct(Task):
                 ),
             }
         ]
-
-    @property
-    def outputs(self):
-        """The output for the task is a list of `instructions` containing the generated instructions."""
-        return ["instructions", "model_name"]
 
     def format_output(
         self,

@@ -20,11 +20,11 @@ from pydantic import Field, PrivateAttr
 
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 from distilabel.utils.chat import is_openai_format
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
 
 
 class TextGeneration(Task):
@@ -207,6 +207,7 @@ class TextGeneration(Task):
             "then they should be provided here. By default it will use `instruction`."
         ),
     )
+    outputs: StepColumns = ["generation", "model_name"]
 
     _can_be_used_with_offline_batch_generation = True
     _template: Optional["Template"] = PrivateAttr(default=...)
@@ -214,6 +215,9 @@ class TextGeneration(Task):
     def model_post_init(self, __context: Any) -> None:
         self.columns = [self.columns] if isinstance(self.columns, str) else self.columns
         super().model_post_init(__context)
+        columns = {column: True for column in self.columns}
+        columns["system_prompt"] = False
+        self.inputs = columns
 
     def load(self) -> None:
         super().load()
@@ -243,13 +247,6 @@ class TextGeneration(Task):
     def unload(self) -> None:
         super().unload()
         self._template = None
-
-    @property
-    def inputs(self) -> "StepColumns":
-        """The input for the task is the `instruction` by default, or the `columns` given as input."""
-        columns = {column: True for column in self.columns}
-        columns["system_prompt"] = False
-        return columns
 
     def _prepare_message_content(self, input: Dict[str, Any]) -> "ChatType":
         """Prepares the content for the template and returns the formatted messages."""
@@ -285,11 +282,6 @@ class TextGeneration(Task):
             messages.insert(0, {"role": "system", "content": self.system_prompt})
 
         return messages  # type: ignore
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
-        return ["generation", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
@@ -358,10 +350,8 @@ class ChatGeneration(Task):
         ```
     """
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task are the `messages`."""
-        return ["messages"]
+    inputs: StepColumns = ["messages"]
+    outputs: StepColumns = ["generation", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the messages provided
@@ -382,11 +372,6 @@ class ChatGeneration(Task):
             )
 
         return input["messages"]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
-        return ["generation", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
