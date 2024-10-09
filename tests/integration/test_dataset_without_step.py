@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import Dict, List, Union
 
 import pandas as pd
 import pytest
@@ -21,20 +21,12 @@ from datasets import Dataset
 from distilabel.pipeline import Pipeline
 from distilabel.steps import make_generator_step
 from distilabel.steps.base import Step, StepInput
-from distilabel.steps.typing import StepOutput
-
-if TYPE_CHECKING:
-    pass
+from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class DummyStep(Step):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["response"]
+    inputs: StepColumns = ["instruction"]
+    outputs: StepColumns = ["response"]
 
     def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
         for input in inputs:
