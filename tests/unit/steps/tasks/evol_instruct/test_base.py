@@ -126,6 +126,7 @@ class TestEvolInstruct:
             "add_raw_input": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
+            "inputs": ["instruction"],
             "resources": {
                 "cpus": None,
                 "gpus": None,
