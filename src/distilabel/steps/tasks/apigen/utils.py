@@ -18,11 +18,12 @@ import signal
 from typing import TYPE_CHECKING, Any, Callable, Dict, TypedDict, Union
 
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from types import ModuleType
 
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class PrepareExamples(Step):
@@ -62,14 +63,8 @@ class PrepareExamples(Step):
     """
 
     template: str = "## Query:\n{query}\n## Answers:\n{answers}"
-
-    @property
-    def inputs(self) -> "StepColumns":
-        return ["query", "answers"]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        return ["examples"]
+    inputs: StepColumns = ["query", "answers"]
+    outputs: StepColumns = ["examples"]
 
     def process(self, inputs: StepInput) -> "StepOutput":
         """The process prepares the data for the `APIGenGenerator` task.

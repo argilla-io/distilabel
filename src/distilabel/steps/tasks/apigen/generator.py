@@ -24,10 +24,10 @@ from typing_extensions import override
 
 from distilabel.steps.tasks.apigen.utils import remove_fences
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
 
 
 SYSTEM_PROMPT_API_GEN: Final[str] = """\
@@ -187,6 +187,14 @@ class APIGenGenerator(Task):
     number: Union[int, List[int], Dict[int, float]] = 1
     use_tools: bool = True
 
+    inputs: StepColumns = {
+        "examples": True,
+        "func_name": True,
+        "func_desc": True,
+        "tools": False,
+    }
+    outputs: StepColumns = ["query", "answers", "model_name"]
+
     _number: Union[int, None] = PrivateAttr(None)
     _fn_parallel_queries: Union[Callable[[], str], None] = PrivateAttr(None)
     _format_inst: Union[str, None] = PrivateAttr(None)
@@ -275,16 +283,6 @@ class APIGenGenerator(Task):
             extra = f"\n\nThis is the available tool to guide you (respect the order of the parameters):\n{input['tools']}"
         return input["func_desc"] + extra
 
-    @property
-    def inputs(self) -> "StepColumns":
-        """The inputs for the task."""
-        return {
-            "examples": True,
-            "func_name": True,
-            "func_desc": True,
-            "tools": False,
-        }
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType`."""
         number = self._get_number()
@@ -303,11 +301,6 @@ class APIGenGenerator(Task):
                 ),
             },
         ]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The output for the task are the queries and corresponding answers."""
-        return ["query", "answers", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
