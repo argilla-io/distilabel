@@ -7,10 +7,10 @@ from typing import List, TYPE_CHECKING
 from typing_extensions import override
 
 from distilabel.steps import GeneratorStep
-from distilabel.steps.typing import StepColumns
+from distilabel.typing import StepColumns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.typing import GeneratorStepOutput
 
 class MyGeneratorStep(GeneratorStep):
     instructions: List[str]
@@ -77,10 +77,10 @@ We can define a custom generator step by creating a new subclass of the [`Genera
     from typing_extensions import override
 
     from distilabel.steps import GeneratorStep
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import StepColumns
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import GeneratorStepOutput
+        from distilabel.typing import GeneratorStepOutput
 
     class MyGeneratorStep(GeneratorStep):
         instructions: List[str]
@@ -100,7 +100,7 @@ We can define a custom generator step by creating a new subclass of the [`Genera
     from distilabel.steps import step
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import GeneratorStepOutput
+        from distilabel.typing import GeneratorStepOutput
 
     @step(outputs=[...], step_type="generator")
     def CustomGeneratorStep(offset: int = 0) -> "GeneratorStepOutput":

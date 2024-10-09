@@ -51,5 +51,5 @@ __all__ = [
     "StructuredOutputType",
     "GeneratorStepOutput",
     "StepColumns",
-    "StepOutput"
+    "StepOutput",
 ]

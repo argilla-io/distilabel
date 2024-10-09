@@ -25,10 +25,10 @@ We can define a custom step by creating a new subclass of the [`GlobalStep`][dis
     ```python
     from typing import TYPE_CHECKING
     from distilabel.steps import GlobalStep, StepInput
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import StepColumns
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepOutput
+        from distilabel.typing import StepOutput
 
     class CustomStep(Step):
         inputs: StepColumns = ...
@@ -57,7 +57,7 @@ We can define a custom step by creating a new subclass of the [`GlobalStep`][dis
     from distilabel.steps import StepInput, step
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepOutput
+        from distilabel.typing import StepOutput
 
     @step(inputs=[...], outputs=[...], step_type="global")
     def CustomStep(inputs: StepInput) -> "StepOutput":

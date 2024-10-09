@@ -12,9 +12,7 @@ from typing import Any, Dict, List, Union
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import GeneratorTask
-from distilabel.steps.tasks.typing import ChatType
-from distilabel.steps.typing import GeneratorOutput
-from distilabel.steps.typing import StepColumns
+from distilabel.typing import ChatType, GeneratorOutput, StepColumns
 
 
 class MyCustomTask(GeneratorTask):
@@ -76,8 +74,7 @@ We can define a custom generator task by creating a new subclass of the [`Genera
 from typing import Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import GeneratorTask
-from distilabel.steps.tasks.typing import ChatType
-from distilabel.steps.typing import StepColumns
+from distilabel.typing import ChatType, StepColumns
 
 
 class MyCustomTask(GeneratorTask):

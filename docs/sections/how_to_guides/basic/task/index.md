@@ -215,10 +215,10 @@ We can define a custom step by creating a new subclass of the [`Task`][distilabe
 from typing import Any, Dict, List, Union, TYPE_CHECKING
 
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.typing import StepColumns
+from distilabel.typing import StepColumns
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 
 class MyCustomTask(Task):
