@@ -19,7 +19,7 @@ import pytest
 from distilabel.pipeline import Pipeline
 from distilabel.steps import Step
 from distilabel.steps.base import StepInput
-from distilabel.steps.typing import StepOutput
+from distilabel.steps.typing import StepColumns, StepOutput
 from distilabel.utils.requirements import requirements
 
 from ..pipeline.utils import DummyGeneratorStep
@@ -28,13 +28,8 @@ from ..pipeline.utils import DummyGeneratorStep
 def test_add_requirements_decorator():
     @requirements(["distilabel>=0.0.1"])
     class CustomStep(Step):
-        @property
-        def inputs(self) -> List[str]:
-            return ["instruction"]
-
-        @property
-        def outputs(self) -> List[str]:
-            return ["response"]
+        inputs: StepColumns = ["instruction"]
+        outputs: StepColumns = ["response"]
 
         def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
             for input in inputs:
@@ -58,13 +53,8 @@ def test_add_requirements_to_pipeline(
 
     @requirements(["distilabel>=0.0.1"])
     class CustomStep(Step):
-        @property
-        def inputs(self) -> List[str]:
-            return ["instruction"]
-
-        @property
-        def outputs(self) -> List[str]:
-            return ["response"]
+        inputs: StepColumns = ["instruction"]
+        outputs: StepColumns = ["response"]
 
         def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
             for input in inputs:
@@ -73,13 +63,8 @@ def test_add_requirements_to_pipeline(
 
     @requirements(["numpy"])
     class OtherStep(Step):
-        @property
-        def inputs(self) -> List[str]:
-            return ["instruction"]
-
-        @property
-        def outputs(self) -> List[str]:
-            return ["response"]
+        inputs: StepColumns = ["instruction"]
+        outputs: StepColumns = ["response"]
 
         def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
             for input in inputs:
@@ -94,8 +79,6 @@ def test_add_requirements_to_pipeline(
         global_step = OtherStep()
 
         generator >> [step, global_step]
-    print("REQS", pipeline.requirements)
-    print("REQS_PRIVATE", pipeline._requirements)
     assert pipeline.requirements == expected
 
 
