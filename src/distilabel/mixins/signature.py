@@ -36,8 +36,6 @@ _EXCLUDE_FROM_SIGNATURE_DEFAULTS = {
     "exclude_from_signature",
     "llm_jobs_ids",
     "llm_offline_batch_generation_block_until_done",
-    "inputs",
-    "outputs",
 }
 
 
@@ -63,13 +61,13 @@ class SignatureMixin(BaseModel):
         def flatten_dump(d: Any, parent_key: str = "", sep: str = "_") -> List:
             items = []
             for k, v in d.items():
+                # Skip inputs and outputs from the signature
+                if k in {"inputs", "outputs"}:
+                    continue
                 new_key = parent_key + sep + k if parent_key else k
                 if isinstance(v, dict):
-                    if new_key not in {"inputs", "outputs"}:
-                        items.extend(flatten_dump(v, new_key, sep=sep))
+                    items.extend(flatten_dump(v, new_key, sep=sep))
                 elif isinstance(v, list):
-                    if new_key in {"inputs", "outputs"}:
-                        continue
                     if len(v) == 0:
                         items.append((new_key, ""))
                     elif isinstance(v[0], str):

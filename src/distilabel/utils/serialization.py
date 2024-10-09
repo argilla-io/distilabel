@@ -199,6 +199,11 @@ class _Serializable:
         # Check if any attribute in value within the `dump` is an `EnumType`,
         # as it needs a specific serialization.
         for k, v in dump.items():
+            # TODO: This is Work in progress. Skip the inputs and outputs attributes
+
+            if k in {"inputs", "outputs"}:
+                continue
+
             if isinstance(v, EnumType):
                 dump[k] = {
                     "_type": "enum",
