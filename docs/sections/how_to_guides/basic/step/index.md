@@ -4,23 +4,19 @@
 
 The [`Step`][distilabel.steps.Step] is intended to be used within the scope of a [`Pipeline`][distilabel.pipeline.Pipeline], which will orchestrate the different steps defined but can also be used standalone.
 
-Assuming that we have a [`Step`][distilabel.steps.Step] already defined as it follows:
+Assuming that we have a [`Step`][distilabel.steps.Step] already defined as follows:
 
 ```python
 from typing import TYPE_CHECKING
 from distilabel.steps import Step, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 class MyStep(Step):
-    @property
-    def inputs(self) -> "StepColumns":
-        return ["input_field"]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        return ["output_field"]
+    inputs: StepColumns = ["input_field"]
+    outputs: StepColumns = ["output_field"]
 
     def process(self, inputs: StepInput) -> "StepOutput":
         for input in inputs:
@@ -77,9 +73,9 @@ There are two special types of [`Step`][distilabel.steps.Step] in `distilabel`:
 
 We can define a custom step by creating a new subclass of the [`Step`][distilabel.steps.Step] and defining the following:
 
-- `inputs`: is a property that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
+- `inputs`: is an attribute that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
-- `outputs`: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
+- `outputs`: is an attribute that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
 - `process`: is a method that receives the input data and returns the output data, and it should be a generator, meaning that it should `yield` the output data.
 
@@ -96,18 +92,14 @@ We can define a custom step by creating a new subclass of the [`Step`][distilabe
     ```python
     from typing import TYPE_CHECKING
     from distilabel.steps import Step, StepInput
-
+    from distilabel.steps.typing import StepColumns
+    
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepColumns, StepOutput
+        from distilabel.steps.typing import StepOutput
 
     class CustomStep(Step):
-        @property
-        def inputs(self) -> "StepColumns":
-            ...
-
-        @property
-        def outputs(self) -> "StepColumns":
-            ...
+        inputs: StepColumns = ...
+        outputs: StepColumns = ...
 
         def process(self, *inputs: StepInput) -> "StepOutput":
             for upstream_step_inputs in inputs:

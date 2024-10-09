@@ -7,12 +7,14 @@ from typing import List, TYPE_CHECKING
 from typing_extensions import override
 
 from distilabel.steps import GeneratorStep
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, GeneratorStepOutput
+    from distilabel.steps.typing import GeneratorStepOutput
 
 class MyGeneratorStep(GeneratorStep):
     instructions: List[str]
+    outputs: StepColumns = ["instruction"]
 
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
@@ -30,10 +32,6 @@ class MyGeneratorStep(GeneratorStep):
                 batch,
                 True if len(self.instructions) == 0 else False,
             )
-
-    @property
-    def outputs(self) -> "StepColumns":
-        return ["instruction"]
 ```
 
 Then we can use it as follows:
@@ -59,7 +57,7 @@ next(step.process(offset=1))
 
 We can define a custom generator step by creating a new subclass of the [`GeneratorStep`][distilabel.steps.GeneratorStep] and defining the following:
 
-- `outputs`: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
+- `outputs`: is an attribute that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
 - `process`: is a method that yields output data and a boolean flag indicating whether that's the last batch to be generated.
 
@@ -79,19 +77,17 @@ We can define a custom generator step by creating a new subclass of the [`Genera
     from typing_extensions import override
 
     from distilabel.steps import GeneratorStep
+    from distilabel.steps.typing import StepColumns
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepColumns, GeneratorStepOutput
+        from distilabel.steps.typing import GeneratorStepOutput
 
     class MyGeneratorStep(GeneratorStep):
         instructions: List[str]
+        outputs: StepColumns = ...
 
         @override
         def process(self, offset: int = 0) -> "GeneratorStepOutput":
-            ...
-
-        @property
-        def outputs(self) -> "StepColumns":
             ...
     ```
 

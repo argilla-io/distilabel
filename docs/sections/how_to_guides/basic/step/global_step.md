@@ -6,9 +6,9 @@ The [`GlobalStep`][distilabel.steps.GlobalStep] is a subclass of [`Step`][distil
 
 We can define a custom step by creating a new subclass of the [`GlobalStep`][distilabel.steps.GlobalStep] and defining the following:
 
-- `inputs`: is a property that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
+- `inputs`: is an attribute that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
-- `outputs`: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
+- `outputs`: is an attribute that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
 - `process`: is a method that receives the input data and returns the output data, and it should be a generator, meaning that it should `yield` the output data.
 
@@ -25,18 +25,14 @@ We can define a custom step by creating a new subclass of the [`GlobalStep`][dis
     ```python
     from typing import TYPE_CHECKING
     from distilabel.steps import GlobalStep, StepInput
+    from distilabel.steps.typing import StepColumns
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepColumns, StepOutput
+        from distilabel.steps.typing import StepOutput
 
     class CustomStep(Step):
-        @property
-        def inputs(self) -> "StepColumns":
-            ...
-
-        @property
-        def outputs(self) -> "StepColumns":
-            ...
+        inputs: StepColumns = ...
+        outputs: StepColumns = ...
 
         def process(self, *inputs: StepInput) -> StepOutput:
             for upstream_step_inputs in inputs:

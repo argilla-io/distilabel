@@ -14,10 +14,12 @@ from typing_extensions import override
 from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.typing import ChatType
 from distilabel.steps.typing import GeneratorOutput
+from distilabel.steps.typing import StepColumns
 
 
 class MyCustomTask(GeneratorTask):
     instruction: str
+    outputs: StepColumns = ["output_field", "model_name"]
 
     @override
     def process(self, offset: int = 0) -> GeneratorOutput:
@@ -33,10 +35,6 @@ class MyCustomTask(GeneratorTask):
             self.format_output(output=output, input=None)
         )
         yield output
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["output_field", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -70,7 +68,7 @@ We can define a custom generator task by creating a new subclass of the [`Genera
 
 - `process`: is a method that generates the data based on the [`LLM`][distilabel.llms.LLM] and the `instruction` provided within the class instance, and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in `outputs`. Note that the `inputs` argument is not allowed in this function since this is a [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask]. The signature only expects the `offset` argument, which is used to keep track of the current iteration in the generator.
 
-- `outputs`: is a property that returns a list of strings with the names of the output fields, this property should always include `model_name` as one of the outputs since that's automatically injected from the LLM.
+- `outputs`: is an attribute that returns a list of strings with the names of the output fields, this attribute should always include `model_name` as one of the outputs since that's automatically injected from the LLM.
 
 - `format_output`: is a method that receives the output from the [`LLM`][distilabel.llms.LLM] and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in `outputs`. Note that there's no need to include the `model_name` in the output.
 
@@ -79,9 +77,12 @@ from typing import Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.typing import StepColumns
 
 
 class MyCustomTask(GeneratorTask):
+    outputs: StepColumns = ["output_field", "model_name"]
+
     @override
     def process(self, offset: int = 0) -> GeneratorOutput:
         output = self.llm.generate(
@@ -94,10 +95,6 @@ class MyCustomTask(GeneratorTask):
             self.format_output(output=output, input=None)
         )
         yield output
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["output_field", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
