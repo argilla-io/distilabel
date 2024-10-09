@@ -21,6 +21,7 @@ from pydantic import Field
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps import GlobalStep, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
@@ -156,6 +157,8 @@ class FaissNearestNeighbour(GlobalStep):
         default=None,
         description="If the index needs a training step, specifies how many vectors will be used to train the index.",
     )
+    inputs: StepColumns = ["embedding"]
+    outputs: StepColumns = ["nn_indices", "nn_scores"]
 
     def load(self) -> None:
         super().load()
@@ -165,14 +168,6 @@ class FaissNearestNeighbour(GlobalStep):
                 "`faiss` package is not installed. Please install it using `pip install"
                 " faiss-cpu` or `pip install faiss-gpu`."
             )
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["embedding"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["nn_indices", "nn_scores"]
 
     def _build_index(self, inputs: List[Dict[str, Any]]) -> Dataset:
         """Builds a `faiss` index using `datasets` integration.

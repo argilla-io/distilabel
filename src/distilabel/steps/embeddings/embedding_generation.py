@@ -16,9 +16,10 @@ from typing import TYPE_CHECKING
 
 from distilabel.embeddings.base import Embeddings
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class EmbeddingGeneration(Step):
@@ -61,14 +62,8 @@ class EmbeddingGeneration(Step):
     """
 
     embeddings: Embeddings
-
-    @property
-    def inputs(self) -> "StepColumns":
-        return ["text"]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        return ["embedding", "model_name"]
+    inputs: StepColumns = ["text"]
+    outputs: StepColumns = ["embedding", "model_name"]
 
     def load(self) -> None:
         """Loads the `Embeddings` model."""
