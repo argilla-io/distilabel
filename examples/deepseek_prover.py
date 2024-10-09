@@ -17,14 +17,16 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any, Dict, List, Optional, Union
 
+from jinja2 import Template
+from pydantic import PrivateAttr
+from typing_extensions import override
+
 from distilabel.llms import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
-from jinja2 import Template
-from pydantic import PrivateAttr
-from typing_extensions import override
+from distilabel.steps.typing import StepColumns
 
 _PARSE_DEEPSEEK_PROVER_AUTOFORMAL_REGEX = r"```lean4(.*?)```"
 
@@ -144,6 +146,9 @@ class DeepSeekProverAutoFormalization(Task):
 
     examples: Optional[List[str]] = None
     system_prompt: str = "Translate the problem to Lean 4 (only the core declaration):\n```lean4\nformal statement goes here\n```"
+    inputs: StepColumns = ["informal_statement"]
+    outputs: StepColumns = ["formal_statement", "model_name"]
+
     _template: Union[Template, None] = PrivateAttr(...)
     _few_shot: bool = PrivateAttr(default=False)
 
@@ -152,16 +157,6 @@ class DeepSeekProverAutoFormalization(Task):
         super().load()
 
         self._template = Template(template_deepseek_prover_auto_formalization)
-
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`."""
-        return ["informal_statement"]
-
-    @property
-    def outputs(self):
-        """The output for the task is a list of `instructions` containing the generated instructions."""
-        return ["formal_statement", "model_name"]
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -280,6 +275,9 @@ class DeepSeekProverScorer(Task):
         ```
     """
 
+    inputs: StepColumns = ["informal_statement", "formal_statement"]
+    outputs: StepColumns = ["natural_language", "analysis", "assessment"]
+
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
@@ -287,16 +285,6 @@ class DeepSeekProverScorer(Task):
         super().load()
 
         self._template = Template(template_deepseek_prover_scorer)
-
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`."""
-        return ["informal_statement", "formal_statement"]
-
-    @property
-    def outputs(self):
-        """The output for the task is a list of `instructions` containing the generated instructions."""
-        return ["natural_language", "analysis", "assessment", "model_name"]
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -355,20 +343,13 @@ class DeepSeekProverSolver(Task):
         - [`DeepSeek-Prover: Advancing Theorem Proving in LLMs through Large-Scale Synthetic Data`](https://arxiv.org/abs/2405.14333).
     """
 
+    inputs: StepColumns = ["formal_statement"]
+    outputs: StepColumns = ["proof"]
+
     system_prompt: str = (
         "You are an expert in proving mathematical theorems formalized in lean4 language. "
         "Your answers consist just in the proof to the theorem given, and nothing else."
     )
-
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `formal_statement`."""
-        return ["formal_statement"]
-
-    @property
-    def outputs(self):
-        """The output for the task is the proof for the formal statement theorem."""
-        return ["proof"]
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType`, with a system prompt to guide our model."""
