@@ -157,9 +157,5 @@ class ArgillaBase(Step, ABC):
 
         self._client_init()
 
-    @property
-    @abstractmethod
-    def inputs(self) -> "StepColumns": ...
-
     @abstractmethod
     def process(self, *inputs: StepInput) -> "StepOutput": ...

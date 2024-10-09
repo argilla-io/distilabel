@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import importlib.util
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import numpy as np
 from pydantic import Field, PrivateAttr
@@ -23,6 +23,7 @@ from distilabel.steps import (
     GlobalStep,
     StepInput,
 )
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from sklearn.cluster import DBSCAN as _DBSCAN
@@ -117,6 +118,8 @@ class DBSCAN(GlobalStep):
     n_jobs: Optional[RuntimeParameter[int]] = Field(
         default=8, description="The number of parallel jobs to run."
     )
+    inputs: StepColumns = ["projection"]
+    outputs: StepColumns = ["cluster_label"]
 
     _clusterer: Optional["_DBSCAN"] = PrivateAttr(None)
 
@@ -137,14 +140,6 @@ class DBSCAN(GlobalStep):
 
     def unload(self) -> None:
         self._clusterer = None
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["projection"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["cluster_label"]
 
     def _save_model(self, model: Any) -> None:
         import joblib

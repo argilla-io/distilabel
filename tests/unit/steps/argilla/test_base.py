@@ -84,9 +84,9 @@ class TestArgilla:
 
         with pytest.raises(
             TypeError,
-            match="Can't instantiate abstract class ArgillaBase with abstract methods inputs, process"
+            match="Can't instantiate abstract class ArgillaBase with abstract method process"
             if sys.version_info < (3, 12)
-            else "Can't instantiate abstract class ArgillaBase without an implementation for abstract methods 'inputs', 'process'",
+            else "Can't instantiate abstract class ArgillaBase without an implementation for abstract method 'process'",
         ):
             ArgillaBase(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
