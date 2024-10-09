@@ -135,6 +135,10 @@ class DataSampler(GeneratorStep):
         ),
     )
 
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.outputs = list(self.data[0].keys())
+
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
         """Yields batches from a list of dictionaries.
@@ -173,7 +177,3 @@ class DataSampler(GeneratorStep):
                 result[key].append(value)
 
         return [result]
-
-    @property
-    def outputs(self) -> List[str]:
-        return list(self.data[0].keys())

@@ -62,6 +62,10 @@ class LoadDataFromDicts(GeneratorStep):
 
     data: List[Dict[str, Any]] = Field(default_factory=list, exclude=True)
 
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.outputs = list(self.data[0].keys())
+
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
         """Yields batches from a list of dictionaries.
@@ -83,8 +87,3 @@ class LoadDataFromDicts(GeneratorStep):
                 batch,
                 True if len(self.data) == 0 else False,
             )
-
-    @property
-    def outputs(self) -> List[str]:
-        """Returns a list of strings with the names of the columns that the step will generate."""
-        return list(self.data[0].keys())

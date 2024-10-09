@@ -151,6 +151,9 @@ class TestLoadDataFromFileSystem:
             )
             dummy = DummyStep1(input_mappings={"instruction": "function"})
             loader >> dummy
+        # We need the step loaded to check the outputs, for this step it's necessary
+        # to load the data to find the outputs columns.
+        loader.load()
         assert loader.outputs == ["type", "function"]
 
 
