@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 from pydantic import Field
@@ -21,6 +21,7 @@ from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import GlobalStep, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
@@ -165,14 +166,8 @@ class EmbeddingDedup(GlobalStep):
         "Higher values detect less duplicates in such an index, but that should be "
         "taken into account when building it.",
     )
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["nn_scores", "nn_indices"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["keep_row_after_embedding_filtering"]
+    inputs: StepColumns = ["nn_scores", "nn_indices"]
+    outputs: StepColumns = ["keep_row_after_embedding_filtering"]
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
