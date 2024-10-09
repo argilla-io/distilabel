@@ -24,6 +24,7 @@ from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.routing_batch_function import routing_batch_function
 from distilabel.steps.base import GeneratorStep, Step, StepInput, StepResources
+from distilabel.steps.typing import StepColumns
 
 from .utils import DummyGeneratorStep, DummyGlobalStep, DummyStep1, DummyStep2
 
@@ -369,13 +370,8 @@ class TestDAG:
         self, dummy_generator_step: "GeneratorStep", pipeline: "Pipeline"
     ) -> None:
         class DummyStep3(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
+            inputs: StepColumns = ["instruction"]
+            outputs: StepColumns = ["response"]
 
             def process(self) -> "StepOutput":  # type: ignore
                 yield [{"response": "response1"}]
@@ -395,13 +391,8 @@ class TestDAG:
         self, pipeline: "Pipeline"
     ) -> None:
         class DummyStep3(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return []
-
-            @property
-            def outputs(self) -> List[str]:
-                return []
+            inputs: StepColumns = []
+            outputs: StepColumns = []
 
             def process(self) -> List[Dict[str, Any]]:
                 return []
@@ -428,14 +419,8 @@ class TestDAG:
         class DummyGeneratorStep(GeneratorStep):
             runtime_param1: RuntimeParameter[int]
             runtime_param2: RuntimeParameter[int] = 5
-
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
+            inputs: StepColumns = []
+            outputs: StepColumns = []
 
             def process(self, offset: int = 0) -> "GeneratorStepOutput":
                 yield [{"response": "response1"}], False
@@ -458,14 +443,8 @@ class TestDAG:
         class DummyGeneratorStep(GeneratorStep):
             runtime_param1: RuntimeParameter[int]
             runtime_param2: RuntimeParameter[int] = 5
-
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
+            inputs: StepColumns = ["instruction"]
+            outputs: StepColumns = ["response"]
 
             def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
                 yield [{"response": "response1"}], False
@@ -482,13 +461,8 @@ class TestDAG:
 
     def test_validate_step_invalid_input_mappings(self, pipeline: "Pipeline") -> None:
         class DummyStep(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
+            inputs: StepColumns = ["instruction"]
+            outputs: StepColumns = ["response"]
 
             def process(self, *inputs: StepInput) -> "StepOutput":
                 yield []
@@ -510,13 +484,8 @@ class TestDAG:
 
     def test_validate_step_invalid_output_mappings(self, pipeline: "Pipeline") -> None:
         class DummyStep(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
+            inputs: StepColumns = ["instruction"]
+            outputs: StepColumns = ["response"]
 
             def process(self, *inputs: StepInput) -> "StepOutput":
                 yield []
@@ -540,13 +509,8 @@ class TestDAG:
         self, pipeline: "Pipeline"
     ) -> None:
         class DummyGeneratorStep(GeneratorStep):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
+            inputs: StepColumns = ["instruction"]
+            outputs: StepColumns = ["response"]
 
             def process(
                 self, *inputs: StepInput, offset: int = 0
@@ -567,14 +531,11 @@ class TestDAG:
     def test_validate_generator_step_process_without_offset_parameter(
         self, pipeline: "Pipeline"
     ) -> None:
-        class DummyGeneratorStep(GeneratorStep):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
+        from distilabel.steps.typing import StepColumns
 
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
+        class DummyGeneratorStep(GeneratorStep):
+            inputs: StepColumns = ["instruction"]
+            outputs: StepColumns = ["response"]
 
             def process(self) -> "GeneratorStepOutput":  # type: ignore
                 yield [{"response": "response1"}], False
