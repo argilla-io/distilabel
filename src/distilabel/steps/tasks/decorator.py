@@ -127,7 +127,7 @@ def _parse_docstring(docstring: str) -> Tuple[str, str]:
             page="",
         )
 
-    yaml_content = parts[1].strip()
+    yaml_content = parts[1]
 
     try:
         parsed_yaml = yaml.safe_load(yaml_content)
@@ -148,7 +148,7 @@ def _parse_docstring(docstring: str) -> Tuple[str, str]:
                 page="",
             )
 
-        return system_prompt, user_template
+        return system_prompt.strip(), user_template.strip()
 
     except yaml.YAMLError as e:
         raise DistilabelUserError(_DOCSTRING_FORMATTING_FUNCTION_ERROR, page="") from e
