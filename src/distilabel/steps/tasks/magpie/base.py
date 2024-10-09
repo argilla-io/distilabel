@@ -27,10 +27,11 @@ from distilabel.mixins.runtime_parameters import (
 )
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 MAGPIE_MULTI_TURN_SYSTEM_PROMPT = (
     "You are a helpful Al assistant. The user will engage in a multi−round conversation"
@@ -508,6 +509,8 @@ class Magpie(Task, MagpieBase):
         ```
     """
 
+    inputs: StepColumns = {"system_prompt": True}
+
     def model_post_init(self, __context: Any) -> None:
         """Checks that the provided `LLM` uses the `MagpieChatTemplateMixin`."""
         super().model_post_init(__context)
@@ -520,18 +523,6 @@ class Magpie(Task, MagpieBase):
             )
 
         self.llm.use_magpie_template = True
-
-    @property
-    def inputs(self) -> "StepColumns":
-        return {"system_prompt": False}
-
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        """Does nothing."""
-        return []
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """Either a multi-turn conversation or the instruction generated."""
         outputs = []
 
         if self.only_instruction:
@@ -546,7 +537,11 @@ class Magpie(Task, MagpieBase):
 
         outputs.append("model_name")
 
-        return outputs
+        self.outputs = outputs
+
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
+        """Does nothing."""
+        return []
 
     def format_output(
         self,
