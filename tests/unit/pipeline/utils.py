@@ -12,61 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
 
 from distilabel.pipeline.batch import _Batch
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
-from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
 
 
 class DummyGeneratorStep(GeneratorStep):
+    outputs: StepColumns = ["instruction"]
+
     def process(self, offset: int = 0) -> GeneratorStepOutput:  # type: ignore
         yield [{"instruction": "Generate an email..."}], False
 
-    @property
-    def outputs(self) -> List[str]:
-        return ["instruction"]
-
 
 class DummyGlobalStep(GlobalStep):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
+    inputs: StepColumns = ["instruction"]
+    outputs: StepColumns = []
 
     def process(self) -> StepOutput:  # type: ignore
         yield [{"instruction": "Generate an email..."}]
 
-    @property
-    def outputs(self) -> List[str]:
-        return []
-
 
 class DummyStep1(Step):
     attr1: int = 5
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
+    inputs: StepColumns = ["instruction"]
+    outputs: StepColumns = ["response"]
 
     def process(self, input: StepInput) -> StepOutput:  # type: ignore
         yield [{"response": "response1"}]
 
-    @property
-    def outputs(self) -> List[str]:
-        return ["response"]
-
 
 class DummyStep2(Step):
-    @property
-    def inputs(self) -> List[str]:
-        return ["response"]
+    inputs: StepColumns = ["response"]
+    outputs: StepColumns = ["evol_response"]
 
     def process(self, *inputs: StepInput) -> StepOutput:  # type: ignore
         yield [{"response": "response1"}]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["evol_response"]
 
 
 def batch_gen(

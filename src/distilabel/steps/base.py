@@ -840,11 +840,3 @@ class GlobalStep(Step, ABC):
 
     inputs: StepColumns = []
     outputs: StepColumns = []
-
-    # @property
-    # def inputs(self) -> "StepColumns":
-    #     return []
-
-    # @property
-    # def outputs(self) -> "StepColumns":
-    #     return []

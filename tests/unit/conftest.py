@@ -19,6 +19,7 @@ import pytest
 from distilabel.llms.base import LLM, AsyncLLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
@@ -75,19 +76,14 @@ class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
 
 
 class DummyTask(Task):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction", "additional_info"]
+    inputs: StepColumns = ["instruction", "additional_info"]
+    outputs: StepColumns = ["output", "info_from_input"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         return [
             {"role": "system", "content": ""},
             {"role": "user", "content": input["instruction"]},
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["output", "info_from_input"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
