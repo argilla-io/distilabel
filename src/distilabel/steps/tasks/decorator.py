@@ -14,17 +14,14 @@
 
 import inspect
 import re
-from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Tuple, Type, Union
+from typing import Any, Callable, Dict, Final, List, Tuple, Type, Union
 
 import yaml
 
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import FormattedInput
-
-if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns
-
+from distilabel.steps.typing import StepColumns
 
 TaskFormattingOutputFunc = Callable[..., Dict[str, Any]]
 
@@ -64,12 +61,6 @@ def task(
         system_prompt, user_message_template = _parse_docstring(doc)
         _validate_templates(inputs, system_prompt, user_message_template)
 
-        def inputs_property(self) -> "StepColumns":
-            return inputs
-
-        def outputs_property(self) -> "StepColumns":
-            return outputs
-
         def format_input(self, input: Dict[str, Any]) -> "FormattedInput":
             return [
                 {"role": "system", "content": system_prompt.format(**input)},
@@ -85,11 +76,12 @@ def task(
             func.__name__,
             (Task,),
             {
-                "inputs": property(inputs_property),
-                "outputs": property(outputs_property),
                 "__module__": func.__module__,
                 "format_input": format_input,
                 "format_output": format_output,
+                "inputs": inputs,
+                "outputs": outputs,
+                "__annotations__": {"inputs": StepColumns, "outputs": StepColumns},
             },
         )
 
