@@ -330,8 +330,9 @@ Use the following format for your response:
 ```
 """.lstrip()
 
+# Sometimes `LLM`s doesn't generate the `</output>` that's why it's optional
 COT_REFLECTION_OUTPUT_REGEX = re.compile(
-    r"<thinking>([\s\S]*?)</thinking>\s*<output>([\s\S]*?)</output>"
+    r"<thinking>([\s\S]*?)</thinking>\s*<output>([\s\S]*?)(?:</output>)?"
 )
 
 
@@ -424,7 +425,7 @@ class TextGenerationWithCotReflection(Task):
 
         match = COT_REFLECTION_OUTPUT_REGEX.search(output)
         if match is None:
-            return {"thinking": None, "output": output}
+            return {"thinking": None, "output": None}
 
         return {"thinking": match.group(1).strip(), "output": match.group(2).strip()}
 
