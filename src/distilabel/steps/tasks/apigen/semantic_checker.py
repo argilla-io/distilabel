@@ -22,10 +22,10 @@ from typing_extensions import override
 
 from distilabel.steps.tasks.apigen.utils import remove_fences
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
 
 
 SYSTEM_PROMPT_SEMANTIC_CHECKER: Final[str] = """\
@@ -169,6 +169,14 @@ class APIGenSemanticChecker(Task):
 
     system_prompt: str = SYSTEM_PROMPT_SEMANTIC_CHECKER
     use_default_structured_output: bool = False
+    inputs: StepColumns = [
+        "func_desc",
+        "query",
+        "answers",
+        "execution_result",
+        "keep_row_after_execution_check",
+    ]
+    outputs: StepColumns = ["keep_row_after_semantic_check", "thought"]
 
     _format_inst: Union[str, None] = PrivateAttr(None)
 
@@ -204,17 +212,6 @@ class APIGenSemanticChecker(Task):
             "```\n"
         )
 
-    @property
-    def inputs(self) -> "StepColumns":
-        """The inputs for the task."""
-        return {
-            "func_desc": True,
-            "query": True,
-            "answers": True,
-            "execution_result": True,
-            "keep_row_after_execution_check": True,
-        }
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType`."""
         return [
@@ -230,11 +227,6 @@ class APIGenSemanticChecker(Task):
                 ),
             },
         ]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The output for the task are the queries and corresponding answers."""
-        return ["keep_row_after_semantic_check", "thought"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

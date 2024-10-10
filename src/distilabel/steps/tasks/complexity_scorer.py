@@ -20,7 +20,7 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 import orjson
 from jinja2 import Template
@@ -28,6 +28,7 @@ from pydantic import PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
@@ -126,6 +127,8 @@ class ComplexityScorer(Task):
         ```
     """
 
+    inputs: StepColumns = ["instructions"]
+    outputs: StepColumns = ["scores", "model_name"]
     _template: Union[Template, None] = PrivateAttr(...)
     _can_be_used_with_offline_batch_generation = True
 
@@ -143,11 +146,6 @@ class ComplexityScorer(Task):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task are the `instructions`."""
-        return ["instructions"]
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
@@ -157,12 +155,6 @@ class ComplexityScorer(Task):
                 "content": self._template.render(instructions=input["instructions"]),  # type: ignore
             }
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are: a list of `scores` containing the complexity score for each
-        instruction in `instructions`, and the `model_name`."""
-        return ["scores", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

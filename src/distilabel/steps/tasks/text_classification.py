@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field, PositiveInt, PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.tasks import Task
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
@@ -228,6 +229,8 @@ class TextClassification(Task):
         description="Title of the query used to show the example/s to classify.",
     )
     use_default_structured_output: bool = True
+    inputs: StepColumns = ["text"]
+    outputs: StepColumns = ["labels", "model_name"]
 
     _template: Optional[Template] = PrivateAttr(default=None)
 
@@ -298,16 +301,6 @@ class TextClassification(Task):
             "Here are some examples to help you understand the task:\n"
             f"{examples_msg}"
         )
-
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`."""
-        return ["text"]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
-        return ["labels", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction

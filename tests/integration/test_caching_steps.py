@@ -22,6 +22,7 @@ from pydantic import PrivateAttr
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.pipeline.batch import _Batch
@@ -30,17 +31,15 @@ if TYPE_CHECKING:
 class DummyStep(Step):
     attr: int = 5
     do_fail: bool = False
-    _ctr: int = PrivateAttr(default=0)
+    inputs: StepColumns = ["instruction"]
+    outputs: StepColumns = ["response"]
 
+    _ctr: int = PrivateAttr(default=0)
     _random: str = PrivateAttr(default="")
 
     def load(self) -> None:
         super().load()
         self._random = str(uuid4())
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
 
     def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
         for input in inputs:
@@ -50,10 +49,6 @@ class DummyStep(Step):
         if self.do_fail:
             raise ValueError("The step failed")
         yield inputs
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["response"]
 
 
 class DummyStep2(DummyStep):

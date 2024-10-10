@@ -24,6 +24,7 @@ from typing_extensions import override
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 
 if sys.version_info < (3, 9):
     import importlib_resources
@@ -248,6 +249,14 @@ class ArgillaLabeller(Task):
         default=None,
         description="The guidelines for the annotation task.",
     )
+    inputs: StepColumns = {
+        "record": True,
+        "fields": False,
+        "question": False,
+        "example_records": False,
+        "guidelines": False,
+    }
+    outputs: StepColumns = ["suggestion"]
 
     _template: Union[Template, None] = PrivateAttr(...)
     _client: Optional[Any] = PrivateAttr(None)
@@ -265,16 +274,6 @@ class ArgillaLabeller(Task):
         )
 
         self._template = Template(open(_path).read())
-
-    @property
-    def inputs(self) -> Dict[str, bool]:
-        return {
-            "record": True,
-            "fields": False,
-            "question": False,
-            "example_records": False,
-            "guidelines": False,
-        }
 
     def _format_record(
         self, record: Dict[str, Any], fields: List[Dict[str, Any]]
@@ -437,10 +436,6 @@ class ArgillaLabeller(Task):
             messages.append({"role": "system", "content": self.system_prompt})
         messages.append({"role": "user", "content": prompt})
         return messages
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["suggestion"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

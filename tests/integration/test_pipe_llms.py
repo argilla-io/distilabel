@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Any, Dict
 
 from distilabel.llms.huggingface.transformers import TransformersLLM
 from distilabel.llms.openai import OpenAILLM
@@ -30,13 +30,9 @@ if TYPE_CHECKING:
 class RenameColumns(Step):
     rename_mappings: RuntimeParameter[Dict[str, str]] = None
 
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        return list(self.rename_mappings.values())  # type: ignore
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.outputs = list(self.rename_mappings.values())  # type: ignore
 
     def process(self, *inputs: StepInput) -> "StepOutput":
         outputs = []

@@ -659,6 +659,7 @@ class TestMagpie:
             },
             "input_mappings": {},
             "output_mappings": {},
+            "inputs": {"system_prompt": True},
             "input_batch_size": 50,
             "group_generations": False,
             "add_raw_output": True,

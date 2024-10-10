@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Any, Dict
 
 from distilabel.distiset import Distiset
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.data import LoadDataFromDicts
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
@@ -110,13 +111,9 @@ DATA = [
 class RenameColumns(Step):
     rename_mappings: RuntimeParameter[Dict[str, str]] = None
 
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        return list(self.rename_mappings.values())  # type: ignore
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.outputs = list(self.rename_mappings.values())  # type: ignore
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         outputs = []
@@ -128,9 +125,8 @@ class RenameColumns(Step):
 
 
 class GenerateResponse(Step):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
+    inputs: StepColumns = ["instruction"]
+    outputs: StepColumns = ["response"]
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         import time
@@ -141,10 +137,6 @@ class GenerateResponse(Step):
             input["response"] = "I don't know"
 
         yield inputs
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["response"]
 
 
 def run_pipeline():

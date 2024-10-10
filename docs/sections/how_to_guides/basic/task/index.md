@@ -203,11 +203,11 @@ next(task.process([{"instruction": "What's the capital of Spain?"}]))
 
 We can define a custom step by creating a new subclass of the [`Task`][distilabel.steps.tasks.Task] and defining the following:
 
-- `inputs`: is a property that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
+- `inputs`: is an attribute that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
 - `format_input`: is a method that receives a dictionary with the input data and returns a [`ChatType`][distilabel.steps.tasks.ChatType] following [the chat-completion OpenAI message formatting](https://platform.openai.com/docs/guides/text-generation).
 
-- `outputs`: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not. This property should always include `model_name` as one of the outputs since that's automatically injected from the LLM.
+- `outputs`: is an attribute that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not. This attribute should always include `model_name` as one of the outputs since that's automatically injected from the LLM.
 
 - `format_output`: is a method that receives the output from the [`LLM`][distilabel.llms.LLM] and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in `outputs`. Note that there's no need to include the `model_name` in the output.
 
@@ -216,19 +216,16 @@ We can define a custom step by creating a new subclass of the [`Task`][distilabe
     When using the `Task` class inheritance method for creating a custom task, we can also optionally override the `Task.process` method to define a more complex processing logic involving an `LLM`, as the default one just calls the `LLM.generate` method once previously formatting the input and subsequently formatting the output. For example, [EvolInstruct][distilabel.steps.tasks.EvolInstruct] task overrides this method to call the `LLM.generate` multiple times (one for each evolution).
 
     ```python
-    from typing import Any, Dict, List, Union, TYPE_CHECKING
-
-    from distilabel.steps.tasks import Task
+    from distilabel.steps.tasks.base import Task
+    from distilabel.typing import StepColumns
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepColumns
-        from distilabel.steps.tasks.typing import ChatType
+        from distilabel.typing import ChatType
 
 
     class MyCustomTask(Task):
-        @property
-        def inputs(self) -> "StepColumns":
-            return ["input_field"]
+        inputs: StepColumns = ["input_field"]
+        outputs: StepColumns = ["output_field", "model_name"]
 
         def format_input(self, input: Dict[str, Any]) -> "ChatType":
             return [
@@ -237,10 +234,6 @@ We can define a custom step by creating a new subclass of the [`Task`][distilabe
                     "content": input["input_field"],
                 },
             ]
-
-        @property
-        def outputs(self) -> "StepColumns":
-            return ["output_field", "model_name"]
 
         def format_output(
             self, output: Union[str, None], input: Dict[str, Any]

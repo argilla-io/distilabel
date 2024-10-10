@@ -29,11 +29,12 @@ from distilabel.steps.tasks.apigen.utils import (
     execute_from_response,
     load_module_from_path,
 )
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from types import ModuleType
 
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class APIGenExecutionChecker(Step):
@@ -120,6 +121,8 @@ class APIGenExecutionChecker(Step):
             "deal with the OS, or have other potentially dangerous operations.",
         ),
     )
+    inputs: StepColumns = ["answers"]
+    outputs: StepColumns = ["keep_row_after_execution_check", "execution_result"]
 
     _toolbox: Union["ModuleType", None] = PrivateAttr(None)
 
@@ -131,16 +134,6 @@ class APIGenExecutionChecker(Step):
 
     def unload(self) -> None:
         self._toolbox = None
-
-    @property
-    def inputs(self) -> "StepColumns":
-        """The inputs for the task are those found in the original dataset."""
-        return ["answers"]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The outputs are the columns required by `APIGenGenerator` task."""
-        return ["keep_row_after_execution_check", "execution_result"]
 
     def _get_function(self, function_name: str) -> Callable:
         """Retrieves the function from the toolbox.

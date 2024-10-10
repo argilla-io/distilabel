@@ -51,7 +51,7 @@ class SignatureMixin(BaseModel):
     )
 
     @property
-    def signature(self) -> str:
+    def signature(self) -> str:  # noqa: C901
         """Makes a signature (hash) of the class, using its attributes.
 
         Returns:
@@ -61,6 +61,9 @@ class SignatureMixin(BaseModel):
         def flatten_dump(d: Any, parent_key: str = "", sep: str = "_") -> List:
             items = []
             for k, v in d.items():
+                # Skip inputs and outputs from the signature
+                if k in {"inputs", "outputs"}:
+                    continue
                 new_key = parent_key + sep + k if parent_key else k
                 if isinstance(v, dict):
                     items.extend(flatten_dump(v, new_key, sep=sep))
@@ -74,6 +77,7 @@ class SignatureMixin(BaseModel):
                             items.extend(flatten_dump(x, f"{new_key}-{i}", sep=sep))
                 elif new_key not in self.exclude_from_signature:
                     items.append((new_key, v))
+
             return items
 
         info = []

@@ -19,10 +19,10 @@ from jinja2 import Template
 from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
 
 
 SYSTEM_PROMPT: Final[str] = (
@@ -111,6 +111,9 @@ class CLAIR(Task):
     """
 
     system_prompt: str = SYSTEM_PROMPT
+    inputs: StepColumns = ["task", "student_solution"]
+    outputs: StepColumns = ["revision", "rational", "model_name"]
+
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
@@ -124,14 +127,6 @@ class CLAIR(Task):
         )
         with open(_path, "r") as f:
             self._template = Template(f.read())
-
-    @property
-    def inputs(self) -> "StepColumns":
-        return ["task", "student_solution"]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        return ["revision", "rational", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction

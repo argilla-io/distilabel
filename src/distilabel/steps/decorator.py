@@ -124,6 +124,7 @@ def step(
             yield [{"num": num} for num in data[i : i + 100]], last_batch
     ```
     """
+    from distilabel.steps.typing import StepColumns
 
     inputs = inputs or []
     outputs = outputs or []
@@ -174,18 +175,12 @@ def step(
             **runtime_parameters,  # type: ignore
         )
 
-        def inputs_property(self) -> "StepColumns":
-            return inputs
-
-        def outputs_property(self) -> "StepColumns":
-            return outputs
-
         def process(
             self, *args: Any, **kwargs: Any
         ) -> Union["StepOutput", "GeneratorStepOutput"]:
             return func(*args, **kwargs)
 
-        return type(  # type: ignore
+        step_cls = type(  # type: ignore
             func.__name__,
             (
                 BaseClass,
@@ -193,15 +188,18 @@ def step(
             ),
             {
                 "process": process,
-                "inputs": property(inputs_property),
-                "outputs": property(outputs_property),
                 "__module__": func.__module__,
                 "__doc__": func.__doc__,
                 "_built_from_decorator": True,
                 # Override the `get_process_step_input` method to return the parameter
                 # of the original function annotated with `StepInput`.
                 "get_process_step_input": lambda self: step_input_parameter,
+                "inputs": inputs,
+                "outputs": outputs,
+                # Add the annotations to the class to make pydantic happy
+                "__annotations__": {"inputs": StepColumns, "outputs": StepColumns},
             },
         )
+        return step_cls
 
     return decorator

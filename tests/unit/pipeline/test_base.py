@@ -1189,15 +1189,12 @@ class TestBasePipeline:
             assert pipeline.requirements_to_install() == expected
 
     def test_pipeline_error_from_requirements(self):
+        from distilabel.steps.typing import StepColumns
+
         @requirements(["distilabel>=0.0.1"])
         class CustomStep(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
+            inputs: StepColumns = ["instruction"]
+            outputs: StepColumns = ["response"]
 
             def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
                 for input in inputs:

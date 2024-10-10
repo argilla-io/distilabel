@@ -171,6 +171,10 @@ class EvolInstructGenerator(GeneratorTask):
         self._prompts = [
             np.random.choice(self._seed_texts) for _ in range(self.num_instructions)
         ]
+        _outputs = ["instruction", "model_name"]
+        if self.generate_answers:
+            _outputs.append("answer")
+        self.outputs = _outputs
 
     @cached_property
     def _english_nouns(self) -> List[str]:
@@ -185,15 +189,6 @@ class EvolInstructGenerator(GeneratorTask):
         )
         with open(_path, mode="r") as f:
             return [line.strip() for line in f.readlines()]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `instruction`, the `answer` if `generate_answers=True`
-        and the `model_name`."""
-        _outputs = ["instruction", "model_name"]
-        if self.generate_answers:
-            _outputs.append("answer")
-        return _outputs
 
     def format_output(  # type: ignore
         self, instruction: str, answer: Optional[str] = None

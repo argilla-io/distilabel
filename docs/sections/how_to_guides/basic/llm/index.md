@@ -156,8 +156,7 @@ To create custom LLMs, subclass either [`LLM`][distilabel.llms.LLM] for synchron
     from pydantic import validate_call
 
     from distilabel.llms import LLM
-    from distilabel.llms.typing import GenerateOutput, HiddenState
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import GenerateOutput, HiddenState, ChatType
 
     class CustomLLM(LLM):
         @property
@@ -181,8 +180,7 @@ To create custom LLMs, subclass either [`LLM`][distilabel.llms.LLM] for synchron
     from pydantic import validate_call
 
     from distilabel.llms import AsyncLLM
-    from distilabel.llms.typing import GenerateOutput, HiddenState
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import GenerateOutput, HiddenState, ChatType
 
     class CustomAsyncLLM(AsyncLLM):
         @property
