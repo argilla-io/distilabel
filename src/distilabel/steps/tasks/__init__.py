@@ -49,7 +49,11 @@ from distilabel.steps.tasks.self_instruct import SelfInstruct
 from distilabel.steps.tasks.sentence_transformers import GenerateSentencePair
 from distilabel.steps.tasks.structured_generation import StructuredGeneration
 from distilabel.steps.tasks.text_classification import TextClassification
-from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
+from distilabel.steps.tasks.text_generation import (
+    ChatGeneration,
+    TextGeneration,
+    TextGenerationWithCotReflection,
+)
 from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 from distilabel.steps.tasks.urial import URIAL
@@ -88,6 +92,7 @@ __all__ = [
     "TextClassification",
     "ChatGeneration",
     "TextGeneration",
+    "TextGenerationWithCotReflection",
     "ChatItem",
     "ChatType",
     "CLAIR",
