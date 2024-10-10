@@ -25,12 +25,6 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          # Looks like it's not working very well for other people:
-          # https://github.com/actions/setup-python/issues/436
-          # cache: "pip"
-          # cache-dependency-path: pyproject.toml
 
       - uses: actions/cache@v3
         id: cache
