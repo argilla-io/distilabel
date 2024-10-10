@@ -12,13 +12,13 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-1027/sections/pipeline_samples/tutorials/GenerateSentencePair/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-1027/sections/pipeline_samples/tutorials/generate_textcat_dataset/">
       
       
-        <link rel="prev" href="../clean_existing_dataset/">
+        <link rel="prev" href="../GenerateSentencePair/">
       
       
-        <link rel="next" href="../generate_textcat_dataset/">
+        <link rel="next" href="../../papers/deepseek_prover/">
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Synthetic data generation for fine-tuning custom retrieval and reranking models - Distilabel Docs</title>
+        <title>Generate synthetic text classification data - Distilabel Docs</title>
       
     
     
@@ -123,11 +123,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Synthetic data generation for fine-tuning custom retrieval and reranking models - Distilabel Docs" >
+        <meta  property="og:title"  content="Generate synthetic text classification data - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-1027/assets/images/social/sections/pipeline_samples/tutorials/GenerateSentencePair.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-1027/assets/images/social/sections/pipeline_samples/tutorials/generate_textcat_dataset.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -135,15 +135,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-1027/sections/pipeline_samples/tutorials/GenerateSentencePair/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-1027/sections/pipeline_samples/tutorials/generate_textcat_dataset/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Synthetic data generation for fine-tuning custom retrieval and reranking models - Distilabel Docs" >
+        <meta  name="twitter:title"  content="Generate synthetic text classification data - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-1027/assets/images/social/sections/pipeline_samples/tutorials/GenerateSentencePair.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-1027/assets/images/social/sections/pipeline_samples/tutorials/generate_textcat_dataset.png" >
       
     
     
@@ -175,7 +175,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#synthetic-data-generation-for-fine-tuning-custom-retrieval-and-reranking-models" class="md-skip">
+        <a href="#generate-synthetic-text-classification-data" class="md-skip">
           Skip to content
         </a>
       
@@ -212,7 +212,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Synthetic data generation for fine-tuning custom retrieval and reranking models
+              Generate synthetic text classification data
             
           </span>
         </div>
@@ -3400,6 +3400,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../GenerateSentencePair/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Synthetic data generation for fine-tuning custom retrieval and reranking models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -3416,7 +3437,7 @@
           
   
   <span class="md-ellipsis">
-    Synthetic data generation for fine-tuning custom retrieval and reranking models
+    Generate synthetic text classification data
   </span>
   
 
@@ -3427,7 +3448,7 @@
         
   
   <span class="md-ellipsis">
-    Synthetic data generation for fine-tuning custom retrieval and reranking models
+    Generate synthetic text classification data
   </span>
   
 
@@ -3491,127 +3512,55 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#synthetic-data-generation" class="md-nav__link">
+  <a href="#define-the-text-classification-task" class="md-nav__link">
     <span class="md-ellipsis">
-      Synthetic data generation
+      Define the text classification task
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Synthetic data generation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#retrieval" class="md-nav__link">
-    <span class="md-ellipsis">
-      Retrieval
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reranking" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reranking
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#combined-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      Combined pipeline
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-quality-evaluation" class="md-nav__link">
+  <a href="#run-the-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
-      Data quality evaluation
+      Run the pipeline
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Data quality evaluation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#feature-engineering" class="md-nav__link">
-    <span class="md-ellipsis">
-      Feature engineering
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Feature engineering">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#retrieval_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Retrieval
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reranking_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reranking
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-argilla" class="md-nav__link">
-    <span class="md-ellipsis">
-      (Optional) Argilla
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#fine-tuning" class="md-nav__link">
+  <a href="#optional-evaluate-with-argilla" class="md-nav__link">
     <span class="md-ellipsis">
-      Fine-tuning
+      (Optional) Evaluate with Argilla
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Fine-tuning">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#train-your-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Train your models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Train your models">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#retrieval_2" class="md-nav__link">
+  <a href="#formatting-the-data" class="md-nav__link">
     <span class="md-ellipsis">
-      Retrieval
+      Formatting the data
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#reranking_2" class="md-nav__link">
+  <a href="#the-actual-training" class="md-nav__link">
     <span class="md-ellipsis">
-      Reranking
+      The actual training
     </span>
   </a>
   
@@ -3635,27 +3584,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../generate_textcat_dataset/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Generate synthetic text classification data
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -5102,127 +5030,55 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#synthetic-data-generation" class="md-nav__link">
+  <a href="#define-the-text-classification-task" class="md-nav__link">
     <span class="md-ellipsis">
-      Synthetic data generation
+      Define the text classification task
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Synthetic data generation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#retrieval" class="md-nav__link">
-    <span class="md-ellipsis">
-      Retrieval
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reranking" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reranking
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#combined-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      Combined pipeline
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-quality-evaluation" class="md-nav__link">
+  <a href="#run-the-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
-      Data quality evaluation
+      Run the pipeline
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Data quality evaluation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#feature-engineering" class="md-nav__link">
-    <span class="md-ellipsis">
-      Feature engineering
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Feature engineering">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#retrieval_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Retrieval
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reranking_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reranking
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-argilla" class="md-nav__link">
-    <span class="md-ellipsis">
-      (Optional) Argilla
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#fine-tuning" class="md-nav__link">
+  <a href="#optional-evaluate-with-argilla" class="md-nav__link">
     <span class="md-ellipsis">
-      Fine-tuning
+      (Optional) Evaluate with Argilla
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Fine-tuning">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#train-your-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Train your models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Train your models">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#retrieval_2" class="md-nav__link">
+  <a href="#formatting-the-data" class="md-nav__link">
     <span class="md-ellipsis">
-      Retrieval
+      Formatting the data
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#reranking_2" class="md-nav__link">
+  <a href="#the-actual-training" class="md-nav__link">
     <span class="md-ellipsis">
-      Reranking
+      The actual training
     </span>
   </a>
   
@@ -5257,7 +5113,7 @@
                   
 
   
-    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/pipeline_samples/tutorials/GenerateSentencePair.ipynb" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/pipeline_samples/tutorials/generate_textcat_dataset.ipynb" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -5298,17 +5154,18 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="synthetic-data-generation-for-fine-tuning-custom-retrieval-and-reranking-models">Synthetic data generation for fine-tuning custom retrieval and reranking models<a class="headerlink" href="#synthetic-data-generation-for-fine-tuning-custom-retrieval-and-reranking-models" title="Permanent link">&para;</a></h1>
-<ul>
-<li><strong>Goal</strong>: Bootstrap, optimize and maintain your embedding models and rerankers through synthetic data generation and human feedback.</li>
-<li><strong>Libraries</strong>: <a href="https://github.com/argilla-io/argilla">argilla</a>, <a href="https://github.com/huggingface/huggingface_hub">hf-inference-endpoints</a>, <a href="https://github.com/UKPLab/sentence-transformers">sentence-transformers</a></li>
-<li><strong>Components</strong>: <a href="https://distilabel.argilla.io/latest/components-gallery/steps/loaddatafromhub/">LoadDataFromHub</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/tasks/generatesentencepair/">GenerateSentencePair</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/llms/inferenceendpointsllm/">InferenceEndpointsLLM</a></li>
-</ul>
-<p><a class="glightbox" href="../../../../assets/pipelines/sentence-transformer.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="GenerateSentencePair pipeline overview" src="../../../../assets/pipelines/sentence-transformer.png" /></a></p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For a comprehensive overview on optimizing the retrieval performance in a RAG pipeline, check this <a href="https://docs.zenml.io/user-guide/llmops-guide/finetuning-embeddings">guide</a> in collaboration with <a href="https://github.com/zenml-io/zenml">ZenML</a>, an open-source MLOps framework designed for building portable and production-ready machine learning pipelines.</p>
+<h1 id="generate-synthetic-text-classification-data">Generate synthetic text classification data<a class="headerlink" href="#generate-synthetic-text-classification-data" title="Permanent link">&para;</a></h1>
 </div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><strong>Goal</strong>: Generate synthetic text classification data to augment an imbalanced and limited dataset for training a topic classifier. In addition, generate new data for training a fact-based versus opinion-based classifier to add a new label.</li>
+<li><strong>Libraries</strong>: <a href="https://github.com/argilla-io/argilla">argilla</a>, <a href="https://github.com/huggingface/huggingface_hub">hf-inference-endpoints</a>, <a href="https://github.com/huggingface/setfit">SetFit</a></li>
+<li><strong>Components</strong>: <a href="https://distilabel.argilla.io/latest/components-gallery/steps/loaddatafromdicts/">LoadDataFromDicts</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/tasks/embeddingtaskgenerator/">EmbeddingTaskGenerator</a>, <a href="https://distilabel.argilla.io/latest/components-gallery/tasks/generatetextclassificationdata/">GenerateTextClassificationData</a></li>
+</ul>
 </div>
 </div>
 </div>
@@ -5316,6 +5173,12 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="getting-started">Getting started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="install-the-dependencies">Install the dependencies<a class="headerlink" href="#install-the-dependencies" title="Permanent link">&para;</a></h3>
 <p>To complete this tutorial, you need to install the distilabel SDK and a few third-party libraries via pip. We will be using <strong>the free but rate-limited Hugging Face serverless Inference API</strong> for this tutorial, so we need to install this as an extra distilabel dependency. You can install them by running the following command:</p>
 </div>
@@ -5332,7 +5195,7 @@
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;sentence-transformers~=3.0&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;transformers~=4.40&quot;</span> <span class="s2">&quot;torch~=2.0&quot;</span> <span class="s2">&quot;setfit~=1.0&quot;</span>
 </span></code></pre></div>
 
 </div>
@@ -5340,20 +5203,24 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's make the needed imports:</p>
+<p>Let's make the required imports:</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms.huggingface</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">GenerateSentencePair</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span><span class="p">,</span> <span class="n">CrossEncoder</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="kn">import</span> <span class="nn">torch</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span> <span class="nn">random</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span><span class="p">,</span> <span class="n">Dataset</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromDicts</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">GenerateTextClassificationData</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">)</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="kn">from</span> <span class="nn">setfit</span> <span class="kn">import</span> <span class="n">SetFitModel</span><span class="p">,</span> <span class="n">Trainer</span><span class="p">,</span> <span class="n">sample_dataset</span>
 </span></code></pre></div>
 
 </div>
@@ -5361,7 +5228,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>You'll need an <code>HF_TOKEN</code> to use the HF Inference Endpoints. Login to use it directly within this notebook.</p>
+<p>You'll need an <code>HF_TOKEN</code> to use the HF Inference Endpoints. Log in to use it directly within this notebook.</p>
 </div>
 </div>
 </div>
@@ -5380,7 +5247,7 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="optional-deploy-argilla">(optional) Deploy Argilla<a class="headerlink" href="#optional-deploy-argilla" title="Permanent link">&para;</a></h3>
-<p>You can skip this step or replace it with any other data evaluation tool, but the quality of your model will suffer from a lack of data quality, so we do recommend looking at your data. If you already deployed Argilla, you can skip this step. Otherwise, you can quickly deploy Argilla following <a href="https://docs.argilla.io/latest/getting_started/quickstart/">this guide</a>. </p>
+<p>You can skip this step or replace it with any other data evaluation tool, but the quality of your model will suffer from a lack of data quality, so we do recommend looking at your data. If you already deployed Argilla, you can skip this step. Otherwise, you can quickly deploy Argilla following <a href="https://docs.argilla.io/latest/getting_started/quickstart/">this guide</a>.</p>
 <p>Along with that, you will need to install Argilla as a distilabel extra.</p>
 </div>
 </div>
@@ -5396,50 +5263,22 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's make the extra needed imports:</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
-</span></code></pre></div>
-
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="the-dataset">The dataset<a class="headerlink" href="#the-dataset" title="Permanent link">&para;</a></h2>
-<p>Before starting any project, it is always important to look at your data. Our data is publicly available <a href="https://huggingface.co/datasets/plaguss/argilla_sdk_docs_raw_unstructured?row=0">on the Hugging Face Hub</a> so we can have a quick look through <a href="https://huggingface.co/docs/hub/datasets-viewer-embed">their dataset viewer within an embedded iFrame</a>. </p>
-<iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/plaguss/argilla_sdk_docs_raw_unstructured/embed/viewer" width="100%"></iframe>
-<p>As we can see, our dataset contains a column called <code>chunks</code>, which was obtained from the Argilla docs. Normally, you would need to download and chunk the data but we will not cover that in this tutorial. To read a full explanation for how this dataset was generated, please refer to <a href="https://huggingface.co/blog/argilla-chatbot#downloading-and-chunking-data">How we leveraged distilabel to create an Argilla 2.0 Chatbot</a>.</p>
-<p>Alternatively, we can load the entire dataset to disk with <code>datasets.load_dataset</code>.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="synthetic-data-generation">Synthetic data generation<a class="headerlink" href="#synthetic-data-generation" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://distilabel.argilla.io/latest/components-gallery/tasks/generatesentencepair/"><code>GenerateSentencePair</code></a> component from <code>distilabel</code> can be used to generate training datasets for embeddings models. </p>
-<p>It is a pre-defined <code>Task</code> that given an <code>anchor</code> sentence generate data for a specific <code>action</code>. Supported actions are: <code>"paraphrase", "semantically-similar", "query", "answer"</code>. In our case the <code>chunks</code> column corresponds to the <code>anchor</code>. This means we will use <code>query</code> to generate potential queries for a fine-tuning a retrieval model and that we will use <code>semantically-similar</code> to generate texts that are similar to the intial anchor for fine-tuning a reranking model.</p>
-<p>We will <code>triplet=True</code> in order to generate both positive and negative examples, which should help the model generalize better during fine-tuning and we will set <code>hard_negative=True</code> to generate more challenging examples that are closer to the anchor and discussed topics.</p>
-<p>Lastly, we can seed the LLM with <code>context</code> to generate more relevant examples.</p>
+<p>We will use the <a href="https://huggingface.co/datasets/fancyzhx/ag_news"><code>fancyzhx/ag_news</code></a> dataset from the Hugging Face Hub as our original data source. To simulate a real-world scenario with imbalanced and limited data, we will load only 20 samples from this dataset.</p>
+<iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/fancyzhx/ag_news/embed/viewer/default/train" width="100%"></iframe>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">context</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="sd">The text is a chunk from technical Python SDK documentation of Argilla.</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="sd">Argilla is a collaboration tool for AI engineers and domain experts to build high-quality datasets.</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="sd">Along with prose explanations, the text chunk may include code snippets and Python references.</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">hf_dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;fancyzhx/ag_news&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train[-20:]&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -5447,112 +5286,52 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="retrieval">Retrieval<a class="headerlink" href="#retrieval" title="Permanent link">&para;</a></h3>
-<p>For retrieval, we will thus generate queries that are similar to the <code>chunks</code> column. We will use the <code>query</code> action to generate potential queries for a fine-tuning a retrieval model.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">generate_sentence_pair</span> <span class="o">=</span> <span class="n">GenerateSentencePair</span><span class="p">(</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">triplet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">hard_negative</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">action</span><span class="o">=</span><span class="s2">&quot;query&quot;</span><span class="p">,</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">input_batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">)</span>
-</span></code></pre></div>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="reranking">Reranking<a class="headerlink" href="#reranking" title="Permanent link">&para;</a></h3>
-<p>For reranking, we will generate texts that are similar to the intial anchor. We will use the <code>semantically-similar</code> action to generate texts that are similar to the intial anchor for fine-tuning a reranking model. In this case, we set <code>hard_negative=False</code> to generate more diverse and potentially wrong examples, which can be used as negative examples for similarity fine-tuning because <a href="https://github.com/UKPLab/sentence-transformers/issues/2366">rerankers cannot be fine-tuned using triplets</a>.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">generate_sentence_pair</span> <span class="o">=</span> <span class="n">GenerateSentencePair</span><span class="p">(</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">triplet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">hard_negative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">action</span><span class="o">=</span><span class="s2">&quot;semantically-similar&quot;</span><span class="p">,</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">input_batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">)</span>
-</span></code></pre></div>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="combined-pipeline">Combined pipeline<a class="headerlink" href="#combined-pipeline" title="Permanent link">&para;</a></h3>
-<p>We will now use the <code>GenerateSentencePair</code> task to generate synthetic data for both retrieval and reranking models in a single pipeline. Note that, we map the <code>chunks</code> column to the <code>anchor</code> argument.</p>
+<p>Now, we can retrieve the available labels in the dataset and examine the current data distribution.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mistral-7B-Instruct-v0.2&quot;</span><span class="p">,</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mistral-7B-Instruct-v0.2&quot;</span><span class="p">,</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="p">)</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;generate&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="n">num_examples</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;chunks&quot;</span><span class="p">:</span> <span class="s2">&quot;anchor&quot;</span><span class="p">},</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="p">)</span>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">generate_retrieval_pairs</span> <span class="o">=</span> <span class="n">GenerateSentencePair</span><span class="p">(</span>
-</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;generate_retrieval_pairs&quot;</span><span class="p">,</span>
-</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>        <span class="n">triplet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        <span class="n">hard_negative</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;query&quot;</span><span class="p">,</span>
-</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>        <span class="n">input_batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>        <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="p">)</span>
-</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>    <span class="n">generate_reranking_pairs</span> <span class="o">=</span> <span class="n">GenerateSentencePair</span><span class="p">(</span>
-</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;generate_reranking_pairs&quot;</span><span class="p">,</span>
-</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>        <span class="n">triplet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>        <span class="n">hard_negative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># to potentially generate non-relevant pairs</span>
-</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;semantically-similar&quot;</span><span class="p">,</span>
-</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>        <span class="n">input_batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>        <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>    <span class="p">)</span>
-</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>
-</span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>    <span class="n">load_dataset</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">generate_retrieval_pairs</span><span class="p">,</span> <span class="n">generate_reranking_pairs</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">labels_topic</span> <span class="o">=</span> <span class="n">hf_dataset</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">names</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">id2str</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">labels_topic</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels_topic</span><span class="p">))}</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">id2str</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">hf_dataset</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]))</span>
 </span></code></pre></div>
 
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>{0: 'World', 1: 'Sports', 2: 'Business', 3: 'Sci/Tech'}
+Counter({0: 12, 1: 6, 2: 2})
+</code>
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Next, we can execute this using <code>pipeline.run</code>. We will provide some <code>parameters</code> to specific components within our pipeline.</p>
+<p>As observed, the dataset is imbalanced, with most samples falling under the <code>World</code> category, while the <code>Sci/Tech</code> category is entirely missing. Moreover, there are insufficient samples to effectively train a topic classification model.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will also define the labels for the new classification task.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">generation_kwargs</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>            <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>            <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="p">}</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="p">}</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">}</span>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  
-</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>        <span class="n">load_dataset</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>            <span class="s2">&quot;repo_id&quot;</span><span class="p">:</span> <span class="s2">&quot;plaguss/argilla_sdk_docs_raw_unstructured&quot;</span><span class="p">,</span>
-</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>            <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span>
-</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>        <span class="p">},</span>
-</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>        <span class="n">generate_retrieval_pairs</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">generation_kwargs</span><span class="p">,</span>
-</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>        <span class="n">generate_reranking_pairs</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">generation_kwargs</span><span class="p">,</span>
-</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    <span class="p">},</span>
-</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>    <span class="n">use_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># False for demo</span>
-</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">labels_fact_opinion</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Fact-based&quot;</span><span class="p">,</span> <span class="s2">&quot;Opinion-based&quot;</span><span class="p">]</span>
 </span></code></pre></div>
 
 </div>
@@ -5560,55 +5339,81 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Data generation can be a expensive, so it is recommended to store the data somewhere. For now, we will store it on the Hugging Face Hub, using  our <code>push_to_hub</code> method.</p>
+<h2 id="define-the-text-classification-task">Define the text classification task<a class="headerlink" href="#define-the-text-classification-task" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To generate the data we will use the <code>GenerateTextClassificationData</code> task. This task will use as input classification tasks and we can define the language, difficulty and clarity required for the generated data.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;[your-owner-name]/example-retrieval-reranking-dataset&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">task</span> <span class="o">=</span> <span class="n">GenerateTextClassificationData</span><span class="p">(</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">language</span><span class="o">=</span><span class="s2">&quot;English&quot;</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">difficulty</span><span class="o">=</span><span class="s2">&quot;college&quot;</span><span class="p">,</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">clarity</span><span class="o">=</span><span class="s2">&quot;clear&quot;</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">num_generations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">},</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="p">),</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="n">input_batch_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">)</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="n">task</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="n">task</span><span class="o">.</span><span class="n">process</span><span class="p">([{</span><span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="s2">&quot;Classify the news article as fact-based or opinion-based&quot;</span><span class="p">}])</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="p">)</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;distilabel_metadata&quot;</span><span class="p">][</span><span class="s2">&quot;raw_input_generate_text_classification_data_0&quot;</span><span class="p">])</span>
 </span></code></pre></div>
 
 </div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>[{'role': 'user', 'content': 'You have been assigned a text classification task: Classify the news article as fact-based or opinion-based\n\nYour mission is to write one text classification example for this task in JSON format. The JSON object must contain the following keys:\n - "input_text": a string, the input text specified by the classification task.\n - "label": a string, the correct label of the input text.\n - "misleading_label": a string, an incorrect label that is related to the task.\n\nPlease adhere to the following guidelines:\n - The "input_text" should be diverse in expression.\n - The "misleading_label" must be a valid label for the given task, but not as appropriate as the "label" for the "input_text".\n - The values for all fields should be in English.\n - Avoid including the values of the "label" and "misleading_label" fields in the "input_text", that would make the task too easy.\n - The "input_text" is clear and requires college level education to comprehend.\n\nYour output must always be a JSON object only, do not explain yourself or output anything else. Be creative!'}]
+</code>
+</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We have got 2 different leaf/end nodes, therefore we've got a distil configurations we can access, one for the retrieval data, and one for the reranking data.</p>
-<iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/distilabel-internal-testing/example-retrieval-reranking-dataset/embed/viewer/generate_reranking_pairs/train" width="100%"></iframe>
 </div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Looking at these initial examples, we can see they nicely capture the essence of the <code>chunks</code> column but we will need to evaluate the quality of the data a bit more before we can use it for fine-tuning.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="data-quality-evaluation">Data quality evaluation<a class="headerlink" href="#data-quality-evaluation" title="Permanent link">&para;</a></h2>
-<p>Data is never as clean as it can be and this also holds for synthetically generated data too, therefore, it is always good to spent some time and look at your data.</p>
-<h3 id="feature-engineering">Feature engineering<a class="headerlink" href="#feature-engineering" title="Permanent link">&para;</a></h3>
-<p>In order to evaluate the quality of our data we will use features of the  models that we intent to fine-tune as proxy for data quality. We can then use these features to filter out the best examples.</p>
-<p>In order to choose a good default model, we will use the <a href="https://huggingface.co/spaces/mteb/leaderboard">Massive Text Embedding Benchmark (MTEB) Leaderboard</a>. We want to optimize for size and speed, so we will set model size <code>&lt;100M</code> and then filter for <code>Retrieval</code> and <code>Reranking</code> based on the highest average score, resulting in <a href="https://huggingface.co/Snowflake/snowflake-arctic-embed-s">Snowflake/snowflake-arctic-embed-s</a> and <a href="https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2">sentence-transformers/all-MiniLM-L12-v2</a> respectively.</p>
-<iframe frameborder="0" height="600" src="https://mteb-leaderboard.hf.space" width="100%"></iframe>
-<h4 id="retrieval_1">Retrieval<a class="headerlink" href="#retrieval_1" title="Permanent link">&para;</a></h4>
-<p>For retrieval, we will compute similarities for the current embeddings of <code>anchor-positive</code>, <code>positive-negative</code> and <code>anchor-negative</code> pairs. We assume that an overlap of these similarities will cause the model to have difficulties generalizing and therefore we can use these features to evaluate the quality of our data.</p>
+<p>For our use case, we only need to generate data for two tasks: a topic classification task and a fact versus opinion classification task. Therefore, we will define the tasks accordingly. As we will be using an smaller model for generation, we will select 2 random labels for each topic classification task and change the order for the fact versus opinion classification task ensuring more diversity in the generated data.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">model_id</span> <span class="o">=</span> <span class="s2">&quot;Snowflake/snowflake-arctic-embed-m&quot;</span>  <span class="c1"># Hugging Face model ID</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">model_retrieval</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">model_id</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">task_templates</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="s2">&quot;Determine the news article as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="s2">&quot;Classify news article as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="s2">&quot;Identify the news article as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="s2">&quot;Categorize the news article as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="s2">&quot;Label the news article using </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="s2">&quot;Annotate the news article based on </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="s2">&quot;Determine the theme of a news article from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="s2">&quot;Recognize the topic of the news article as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="p">]</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="n">classification_tasks</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="p">{</span><span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="n">action</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">labels_topic</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))}</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">task_templates</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    <span class="p">{</span><span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="n">action</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">labels_fact_opinion</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))}</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">task_templates</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="p">]</span>
 </span></code></pre></div>
 
 </div>
@@ -5616,37 +5421,46 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Next, we will encode the generated text pairs and compute the similarities. </p>
+<h2 id="run-the-pipeline">Run the pipeline<a class="headerlink" href="#run-the-pipeline" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, it's time to define and run the pipeline. As mentioned, we will load the written tasks and feed them into the <code>GenerateTextClassificationData</code> task. For our use case, we will be using <code>Meta-Llama-3.1-8B-Instruct</code> via the <code>InferenceEndpointsLLM</code>, with different degrees of difficulty and clarity.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">cosine_similarity</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="k">def</span> <span class="nf">get_embeddings</span><span class="p">(</span><span class="n">texts</span><span class="p">):</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">vectors</span> <span class="o">=</span> <span class="n">model_retrieval</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="k">return</span> <span class="p">[</span><span class="n">vector</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">vectors</span><span class="p">]</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="k">def</span> <span class="nf">get_similarities</span><span class="p">(</span><span class="n">vector_batch_a</span><span class="p">,</span> <span class="n">vector_batch_b</span><span class="p">):</span>
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="n">similarities</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="k">for</span> <span class="n">vector_a</span><span class="p">,</span> <span class="n">vector_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vector_batch_a</span><span class="p">,</span> <span class="n">vector_batch_b</span><span class="p">):</span>
-</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>        <span class="n">similarity</span> <span class="o">=</span> <span class="n">cosine_similarity</span><span class="p">([</span><span class="n">vector_a</span><span class="p">],</span> <span class="p">[</span><span class="n">vector_b</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>        <span class="n">similarities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">similarity</span><span class="p">)</span>
-</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>    <span class="k">return</span> <span class="n">similarities</span>
-</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>
-</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="k">def</span> <span class="nf">format_data_retriever</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span><span class="c1"># -&amp;gt; Any:</span>
-</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;anchor-vector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_embeddings</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;anchor&quot;</span><span class="p">])</span>
-</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;positive-vector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_embeddings</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;positive&quot;</span><span class="p">])</span>
-</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;negative-vector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_embeddings</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;negative&quot;</span><span class="p">])</span>    
-</span><span id="__span-13-19"><a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;similarity-positive-negative&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_similarities</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;positive-vector&quot;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;negative-vector&quot;</span><span class="p">])</span>
-</span><span id="__span-13-20"><a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;similarity-anchor-positive&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_similarities</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;anchor-vector&quot;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;positive-vector&quot;</span><span class="p">])</span>
-</span><span id="__span-13-21"><a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;similarity-anchor-negative&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_similarities</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;anchor-vector&quot;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;negative-vector&quot;</span><span class="p">])</span>
-</span><span id="__span-13-22"><a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>    <span class="k">return</span> <span class="n">batch</span>
-</span><span id="__span-13-23"><a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>
-</span><span id="__span-13-24"><a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="n">dataset_generate_retrieval_pairs</span> <span class="o">=</span> <span class="n">distiset</span><span class="p">[</span><span class="s2">&quot;generate_retrieval_pairs&quot;</span><span class="p">][</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">format_data_retriever</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">difficulties</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;college&quot;</span><span class="p">,</span> <span class="s2">&quot;high school&quot;</span><span class="p">,</span> <span class="s2">&quot;PhD&quot;</span><span class="p">]</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">clarity</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;clear&quot;</span><span class="p">,</span> <span class="s2">&quot;understandable with some effort&quot;</span><span class="p">,</span> <span class="s2">&quot;ambiguous&quot;</span><span class="p">]</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;texcat-generation-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="n">tasks_generator</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">classification_tasks</span><span class="p">)</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="n">generate_data</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="k">for</span> <span class="n">difficulty</span> <span class="ow">in</span> <span class="n">difficulties</span><span class="p">:</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>        <span class="k">for</span> <span class="n">clarity_level</span> <span class="ow">in</span> <span class="n">clarity</span><span class="p">:</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>            <span class="n">task</span> <span class="o">=</span> <span class="n">GenerateTextClassificationData</span><span class="p">(</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>                <span class="n">language</span><span class="o">=</span><span class="s2">&quot;English&quot;</span><span class="p">,</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>                <span class="n">difficulty</span><span class="o">=</span><span class="n">difficulty</span><span class="p">,</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>                <span class="n">clarity</span><span class="o">=</span><span class="n">clarity_level</span><span class="p">,</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>                <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>                <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>                    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>                    <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>                    <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>                <span class="p">),</span>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>                <span class="n">input_batch_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>            <span class="p">)</span>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>            <span class="n">generate_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">generate_data</span><span class="p">:</span>
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>        <span class="n">tasks_generator</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -5654,39 +5468,53 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="reranking_1">Reranking<a class="headerlink" href="#reranking_1" title="Permanent link">&para;</a></h4>
-<p>For reranking, we will compute the compute the relevance scores from an existing reranker model for <code>anchor-positive</code>, <code>positive-negative</code> and <code>anchor-negative</code> pais and make a similar assumption as for the retrieval model.</p>
+<p>Let's now run the pipeline and generate the synthetic data.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">model_id</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformers/all-MiniLM-L12-v2&quot;</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">model</span> <span class="o">=</span> <span class="n">CrossEncoder</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </span></code></pre></div>
 
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">distiset</span><span class="p">[</span><span class="s2">&quot;generate_text_classification_data_0&quot;</span><span class="p">][</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea">
+<pre>
+<code>{'task': 'Determine the news article as Business or World',
+ 'input_text': "The recent decision by the European Central Bank to raise interest rates will likely have a significant impact on the eurozone's economic growth, with some analysts predicting a 0.5% contraction in GDP due to the increased borrowing costs. The move is seen as a measure to combat inflation, which has been rising steadily over the past year.",
+ 'label': 'Business',
+ 'misleading_label': 'World',
+ 'distilabel_metadata': {'raw_output_generate_text_classification_data_0': '{\n  "input_text": "The recent decision by the European Central Bank to raise interest rates will likely have a significant impact on the eurozone\'s economic growth, with some analysts predicting a 0.5% contraction in GDP due to the increased borrowing costs. The move is seen as a measure to combat inflation, which has been rising steadily over the past year.",\n  "label": "Business",\n  "misleading_label": "World"\n}'},
+ 'model_name': 'meta-llama/Meta-Llama-3.1-8B-Instruct'}</code>
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Next, we will compute the similarity for the generated text pairs using the reranker. On top of that, we will compute an <code>anchor-vector</code> to allow for doing semantic search.</p>
+<p>You can push the dataset to the Hub for sharing with the community and <a href="https://huggingface.co/docs/hub/datasets-viewer-embed">embed it to explore the data</a>.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span> <span class="nf">format_data_retriever</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span><span class="c1"># -&amp;gt; Any:</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;anchor-vector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_embeddings</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;anchor&quot;</span><span class="p">])</span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;similarity-positive-negative&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;positive-vector&quot;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;negative-vector&quot;</span><span class="p">]))</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;similarity-anchor-positive&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;anchor-vector&quot;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;positive-vector&quot;</span><span class="p">]))</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;similarity-anchor-negative&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;anchor-vector&quot;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;negative-vector&quot;</span><span class="p">]))</span>
-</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="k">return</span> <span class="n">batch</span>
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>
-</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="n">dataset_generate_reranking_pairs</span> <span class="o">=</span> <span class="n">distiset</span><span class="p">[</span><span class="s2">&quot;generate_reranking_pairs&quot;</span><span class="p">][</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">format_data_retriever</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;[your-owner-name]/example-texcat-generation-dataset&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -5694,23 +5522,96 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>And voila, we have our proxies for quality evaluation which we can use to filter out the best and worst examples.</p>
+<iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/distilabel-internal-testing/example-texcat-generation-dataset/embed/viewer/generate_text_classification_data_1/train" width="100%"></iframe>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="optional-argilla">(Optional) Argilla<a class="headerlink" href="#optional-argilla" title="Permanent link">&para;</a></h3>
-<p>To get the most out of you data and actually look at our data, we will use Argilla. If you are not familiar with Argilla, we recommend taking a look at the <a href="https://docs.argilla.io/latest/getting_started/quickstart/">Argilla quickstart docs</a>. Alternatively, you can use your Hugging Face account to login to the <a href="https://argilla-argilla-template-space.hf.space">Argilla demo Space</a>.</p>
-<p>To start exploring data, we first need to define an <code>argilla.Dataset</code>. We will create a basic datset with some input <code>TextFields</code> for the <code>anchor</code> and output <code>TextQuestions</code> for the <code>positive</code> and <code>negative</code> pairs. Additionally, we will use the <code>file_name</code> as <code>MetaDataProperty</code>. Lastly, we will be re-using the vectors obtained from our previous step to allow for semantic search and we will add te similarity scores for some basic filtering and sorting.</p>
+<p>By examining the distiset distribution, we can confirm that it includes at least the 8 required samples for each label to train our classification models with SetFit.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">all_labels</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="k">for</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">distiset</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">distiset</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">][</span><span class="s2">&quot;train&quot;</span><span class="p">]</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="p">]</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="n">Counter</span><span class="p">(</span><span class="n">all_labels</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea">
+<pre>
+<code>Counter({'Sci/Tech': 275,
+         'Business': 130,
+         'World': 86,
+         'Fact-based': 86,
+         'Sports': 64,
+         'Opinion-based': 54,
+         None: 20,
+         'Opinion Based': 1,
+         'News/Opinion': 1,
+         'Science': 1,
+         'Environment': 1,
+         'Opinion': 1})</code>
+</pre>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>First, we need to define the setting for our Argilla dataset. We will create two different datasets, one for the retrieval data and one for the reranking data to ensure our annotators can focus on the task at hand.</p>
+<p>We will create two datasets with the required labels and data for our use cases.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span> <span class="nf">extract_rows</span><span class="p">(</span><span class="n">distiset</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="k">return</span> <span class="p">[</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>        <span class="p">{</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;input_text&quot;</span><span class="p">],</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">i</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>        <span class="p">}</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>        <span class="k">for</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">distiset</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">distiset</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">][</span><span class="s2">&quot;train&quot;</span><span class="p">])</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>        <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">labels</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>    <span class="p">]</span>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="n">data_topic</span> <span class="o">=</span> <span class="n">extract_rows</span><span class="p">(</span><span class="n">distiset</span><span class="p">,</span> <span class="n">labels_topic</span><span class="p">)</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="n">data_fact_opinion</span> <span class="o">=</span> <span class="n">extract_rows</span><span class="p">(</span><span class="n">distiset</span><span class="p">,</span> <span class="n">labels_fact_opinion</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="optional-evaluate-with-argilla">(Optional) Evaluate with Argilla<a class="headerlink" href="#optional-evaluate-with-argilla" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="admonition note">
+<p class="admonition-title">Get started in Argilla</p>
+<p>If you are not familiar with Argilla, we recommend taking a look at the <a href="https://docs.argilla.io/latest/getting_started/quickstart/">Argilla quickstart docs</a>. Alternatively, you can use your Hugging Face account to login to the <a href="https://argilla-argilla-template-space.hf.space">Argilla demo Space</a>.</p>
+</div>
+<p>To get the most out of our data, we will use Argilla. First, we need to connect to the Argilla instance.</p>
 </div>
 </div>
 </div>
@@ -5718,52 +5619,15 @@
 <div class="input">
 
 <div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">from</span> <span class="nn">argilla._exceptions</span> <span class="kn">import</span> <span class="n">ConflictError</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">api_key</span> <span class="o">=</span> <span class="s2">&quot;ohh so secret&quot;</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">api_url</span> <span class="o">=</span> <span class="s2">&quot;https://[your-owner-name]-[your-space-name].hf.space&quot;</span>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="n">client</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">Argilla</span><span class="p">(</span><span class="n">api_url</span><span class="o">=</span><span class="n">api_url</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="n">settings</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span>
-</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    <span class="n">fields</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;anchor&quot;</span><span class="p">)</span>
-</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>    <span class="p">],</span>
-</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>    <span class="n">questions</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">TextQuestion</span><span class="p">(</span><span class="s2">&quot;positive&quot;</span><span class="p">),</span>
-</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">TextQuestion</span><span class="p">(</span><span class="s2">&quot;negative&quot;</span><span class="p">),</span>
-</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">LabelQuestion</span><span class="p">(</span>
-</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;is_positive_relevant&quot;</span><span class="p">,</span>
-</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Is the positive query relevant?&quot;</span><span class="p">,</span>
-</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>            <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">],</span>
-</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>        <span class="p">),</span>
-</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">LabelQuestion</span><span class="p">(</span>
-</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;is_negative_irrelevant&quot;</span><span class="p">,</span>
-</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a>            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Is the negative query irrelevant?&quot;</span><span class="p">,</span>
-</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>            <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">],</span>
-</span><span id="__span-16-25"><a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a>        <span class="p">)</span>
-</span><span id="__span-16-26"><a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a>    <span class="p">],</span>
-</span><span id="__span-16-27"><a id="__codelineno-16-27" name="__codelineno-16-27" href="#__codelineno-16-27"></a>    <span class="n">metadata</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-16-28"><a id="__codelineno-16-28" name="__codelineno-16-28" href="#__codelineno-16-28"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">TermsMetadataProperty</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">),</span>
-</span><span id="__span-16-29"><a id="__codelineno-16-29" name="__codelineno-16-29" href="#__codelineno-16-29"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">FloatMetadataProperty</span><span class="p">(</span><span class="s2">&quot;similarity-positive-negative&quot;</span><span class="p">),</span>
-</span><span id="__span-16-30"><a id="__codelineno-16-30" name="__codelineno-16-30" href="#__codelineno-16-30"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">FloatMetadataProperty</span><span class="p">(</span><span class="s2">&quot;similarity-anchor-positive&quot;</span><span class="p">),</span>
-</span><span id="__span-16-31"><a id="__codelineno-16-31" name="__codelineno-16-31" href="#__codelineno-16-31"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">FloatMetadataProperty</span><span class="p">(</span><span class="s2">&quot;similarity-anchor-negative&quot;</span><span class="p">),</span>
-</span><span id="__span-16-32"><a id="__codelineno-16-32" name="__codelineno-16-32" href="#__codelineno-16-32"></a>    <span class="p">],</span>
-</span><span id="__span-16-33"><a id="__codelineno-16-33" name="__codelineno-16-33" href="#__codelineno-16-33"></a>    <span class="n">vectors</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-16-34"><a id="__codelineno-16-34" name="__codelineno-16-34" href="#__codelineno-16-34"></a>        <span class="n">rg</span><span class="o">.</span><span class="n">VectorField</span><span class="p">(</span><span class="s2">&quot;anchor-vector&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">get_sentence_embedding_dimension</span><span class="p">())</span>
-</span><span id="__span-16-35"><a id="__codelineno-16-35" name="__codelineno-16-35" href="#__codelineno-16-35"></a>    <span class="p">]</span>
-</span><span id="__span-16-36"><a id="__codelineno-16-36" name="__codelineno-16-36" href="#__codelineno-16-36"></a><span class="p">)</span>
-</span><span id="__span-16-37"><a id="__codelineno-16-37" name="__codelineno-16-37" href="#__codelineno-16-37"></a><span class="n">rg_datasets</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-16-38"><a id="__codelineno-16-38" name="__codelineno-16-38" href="#__codelineno-16-38"></a><span class="k">for</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;generate_retrieval_pairs&quot;</span><span class="p">,</span> <span class="s2">&quot;generate_reranking_pairs&quot;</span><span class="p">]:</span>
-</span><span id="__span-16-39"><a id="__codelineno-16-39" name="__codelineno-16-39" href="#__codelineno-16-39"></a>    <span class="n">ds</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
-</span><span id="__span-16-40"><a id="__codelineno-16-40" name="__codelineno-16-40" href="#__codelineno-16-40"></a>        <span class="n">name</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">,</span>
-</span><span id="__span-16-41"><a id="__codelineno-16-41" name="__codelineno-16-41" href="#__codelineno-16-41"></a>        <span class="n">settings</span><span class="o">=</span><span class="n">settings</span>
-</span><span id="__span-16-42"><a id="__codelineno-16-42" name="__codelineno-16-42" href="#__codelineno-16-42"></a>    <span class="p">)</span>
-</span><span id="__span-16-43"><a id="__codelineno-16-43" name="__codelineno-16-43" href="#__codelineno-16-43"></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-16-44"><a id="__codelineno-16-44" name="__codelineno-16-44" href="#__codelineno-16-44"></a>        <span class="n">ds</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
-</span><span id="__span-16-45"><a id="__codelineno-16-45" name="__codelineno-16-45" href="#__codelineno-16-45"></a>    <span class="k">except</span> <span class="n">ConflictError</span><span class="p">:</span>
-</span><span id="__span-16-46"><a id="__codelineno-16-46" name="__codelineno-16-46" href="#__codelineno-16-46"></a>        <span class="n">ds</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">datasets</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
-</span><span id="__span-16-47"><a id="__codelineno-16-47" name="__codelineno-16-47" href="#__codelineno-16-47"></a>    <span class="n">rg_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1"># Replace api_url with your url if using Docker</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Replace api_key with your API key under &quot;My Settings&quot; in the UI</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1"># Uncomment the last line and set your HF_TOKEN if your space is private</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">client</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">Argilla</span><span class="p">(</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://[your-owner-name]-[your_space_name].hf.space&quot;</span><span class="p">,</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;[your-api-key]&quot;</span><span class="p">,</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>    <span class="c1"># headers={&quot;Authorization&quot;: f&quot;Bearer {HF_TOKEN}&quot;}</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -5771,37 +5635,31 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now, we've got our dataset definitions setup in Argilla, we can upload our data to Argilla.</p>
+<p>We will create a <code>Dataset</code> for each task, with an input <code>TextField</code> for the text classification text and a <code>LabelQuestion</code> to ensure the generated labels are correct.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">ds_datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset_generate_retrieval_pairs</span><span class="p">,</span> <span class="n">dataset_generate_reranking_pairs</span><span class="p">]</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">for</span> <span class="n">rg_dataset</span><span class="p">,</span> <span class="n">ds_dataset</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rg_datasets</span><span class="p">,</span> <span class="n">ds_datasets</span><span class="p">):</span>
-</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ds_dataset</span><span class="p">):</span>
-</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>        <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>            <span class="n">rg</span><span class="o">.</span><span class="n">Record</span><span class="p">(</span>
-</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>                <span class="nb">id</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
-</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>                <span class="n">fields</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;anchor&quot;</span><span class="p">]},</span>
-</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>                <span class="n">suggestions</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>                    <span class="n">rg</span><span class="o">.</span><span class="n">Suggestion</span><span class="p">(</span><span class="s2">&quot;positive&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;positive&quot;</span><span class="p">],</span> <span class="n">agent</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">),</span>
-</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>                    <span class="n">rg</span><span class="o">.</span><span class="n">Suggestion</span><span class="p">(</span><span class="s2">&quot;negative&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;negative&quot;</span><span class="p">],</span> <span class="n">agent</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">),</span>
-</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>                <span class="p">],</span>
-</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>                <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>                    <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">],</span>
-</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>                    <span class="s2">&quot;similarity-positive-negative&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;similarity-positive-negative&quot;</span><span class="p">],</span>
-</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>                    <span class="s2">&quot;similarity-anchor-positive&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;similarity-anchor-positive&quot;</span><span class="p">],</span>
-</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a>                    <span class="s2">&quot;similarity-anchor-negative&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;similarity-anchor-negative&quot;</span><span class="p">]</span>
-</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a>                <span class="p">},</span>
-</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>                <span class="n">vectors</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;anchor-vector&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;anchor-vector&quot;</span><span class="p">]}</span>
-</span><span id="__span-17-22"><a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a>            <span class="p">)</span>
-</span><span id="__span-17-23"><a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a>        <span class="p">)</span>
-</span><span id="__span-17-24"><a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a>    <span class="n">rg_dataset</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span> <span class="nf">create_texcat_dataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">settings</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>        <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="n">rg</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)],</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>        <span class="n">questions</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>            <span class="n">rg</span><span class="o">.</span><span class="n">LabelQuestion</span><span class="p">(</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Classify the texts according to the following labels&quot;</span><span class="p">,</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>                <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>            <span class="p">),</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="p">],</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>    <span class="p">)</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>    <span class="k">return</span> <span class="n">rg</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="n">rg_dataset_topic</span> <span class="o">=</span> <span class="n">create_texcat_dataset</span><span class="p">(</span><span class="s2">&quot;topic-classification&quot;</span><span class="p">,</span> <span class="n">labels_topic</span><span class="p">)</span>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="n">rg_dataset_fact_opinion</span> <span class="o">=</span> <span class="n">create_texcat_dataset</span><span class="p">(</span>
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>    <span class="s2">&quot;fact-opinion-classification&quot;</span><span class="p">,</span> <span class="n">labels_fact_opinion</span>
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -5809,25 +5667,412 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now, we can explore the UI and add a final human touch to get he most out of our dataset. </p>
+<p>Now, we can upload the generated data to Argilla and evaluate it. We will use the generated labels as suggestions.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">rg_dataset_topic</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data_topic</span><span class="p">)</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="n">rg_dataset_fact_opinion</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data_fact_opinion</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, we can start the annotation process. Just open the dataset in the Argilla UI and start annotating the records. If the suggestions are correct, you can just click on <code>Submit</code>. Otherwise, you can select the correct label.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="fine-tuning">Fine-tuning<a class="headerlink" href="#fine-tuning" title="Permanent link">&para;</a></h2>
-<p>At last, we can fine-tune our models. We will use the <code>sentence-transformers</code> library to fine-tune our models.</p>
-<h3 id="retrieval_2">Retrieval<a class="headerlink" href="#retrieval_2" title="Permanent link">&para;</a></h3>
-<p>For retrieval, we have created a script that fine-tunes a model on our generated data the generated data based <a href="https://github.com/argilla-io/argilla-sdk-chatbot/blob/main/train_embedding.ipynb">https://github.com/argilla-io/argilla-sdk-chatbot/blob/main/train_embedding.ipynb</a>.You can also <a href="https://githubtocolab.com/argilla-io/argilla-sdk-chatbot/blob/main/train_embedding.ipynb">open it in Google Colab directly</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Check this <a href="https://docs.argilla.io/latest/how_to_guides/annotate/">how-to guide</a> to know more about annotating in the UI.</p>
+</div>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="reranking_2">Reranking<a class="headerlink" href="#reranking_2" title="Permanent link">&para;</a></h3>
-<p>For reranking, <code>sentence-transformers</code> provides a script that shows <a href="https://github.com/UKPLab/sentence-transformers/tree/master/examples/training/cross-encoder">how to fine-tune a CrossEncoder models</a>. Ad of now, there is <a href="https://github.com/UKPLab/sentence-transformers/issues/2366">some uncertainty over fine-tuning CrossEncoder models with triplets</a> but you can still use the <code>positive</code> and <code>anchor</code></p>
+<p>Once, you get the annotations, let's continue by retrieving the data from Argilla and format it as a dataset with the required data.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">rg_dataset_topic</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">datasets</span><span class="p">(</span><span class="s2">&quot;topic-classification&quot;</span><span class="p">)</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="n">rg_dataset_fact_opinion</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">datasets</span><span class="p">(</span><span class="s2">&quot;fact-opinion-classification&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">status_filter</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">Query</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">rg</span><span class="o">.</span><span class="n">Filter</span><span class="p">((</span><span class="s2">&quot;response.status&quot;</span><span class="p">,</span> <span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="s2">&quot;submitted&quot;</span><span class="p">)))</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">submitted_topic</span> <span class="o">=</span> <span class="n">rg_dataset_topic</span><span class="o">.</span><span class="n">records</span><span class="p">(</span><span class="n">status_filter</span><span class="p">)</span><span class="o">.</span><span class="n">to_list</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="n">submitted_fact_opinion</span> <span class="o">=</span> <span class="n">rg_dataset_fact_opinion</span><span class="o">.</span><span class="n">records</span><span class="p">(</span><span class="n">status_filter</span><span class="p">)</span><span class="o">.</span><span class="n">to_list</span><span class="p">(</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">def</span> <span class="nf">format_submitted</span><span class="p">(</span><span class="n">submitted</span><span class="p">):</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="k">return</span> <span class="p">[</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>        <span class="p">{</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;label.responses&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>        <span class="p">}</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">submitted</span><span class="p">)</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>    <span class="p">]</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="n">data_topic</span> <span class="o">=</span> <span class="n">format_submitted</span><span class="p">(</span><span class="n">submitted_topic</span><span class="p">)</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="n">data_fact_opinion</span> <span class="o">=</span> <span class="n">format_submitted</span><span class="p">(</span><span class="n">submitted_fact_opinion</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="train-your-models">Train your models<a class="headerlink" href="#train-your-models" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In our case, we will fine-tune using SetFit. However, you can select the one that best fits your requirements.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="formatting-the-data">Formatting the data<a class="headerlink" href="#formatting-the-data" title="Permanent link">&para;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The next step will be to format the data to be compatible with SetFit. In the case of the topic classification, we will need to combine the synthetic data with the original data.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">hf_topic</span> <span class="o">=</span> <span class="n">hf_dataset</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_topic</span><span class="p">)</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="n">data_topic</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>    <span class="p">[</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>        <span class="p">{</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">id2str</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]],</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">num</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>        <span class="p">}</span>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hf_topic</span><span class="p">)</span>
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>    <span class="p">]</span>
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If we check the data distribution now, we can see that we have enough samples for each label to train our models.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">record</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">data_topic</span><span class="p">]</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">Counter</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea">
+<pre>
+<code>Counter({'Sci/Tech': 275, 'Business': 132, 'World': 98, 'Sports': 70})</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">record</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">data_fact_opinion</span><span class="p">]</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">Counter</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea">
+<pre>
+<code>Counter({'Fact-based': 86, 'Opinion-based': 54})</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, let's create our training and validation datasets. The training dataset will gather 8 samples by label. In this case, the validation datasets will contain the remaining samples not included in the training datasets.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">def</span> <span class="nf">sample_and_split</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">label_column</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">):</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">sample_dataset</span><span class="p">(</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>        <span class="n">dataset</span><span class="p">,</span> <span class="n">label_column</span><span class="o">=</span><span class="n">label_column</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>    <span class="p">)</span>
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>    <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>    <span class="k">return</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">eval_dataset</span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="n">dataset_topic_full</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="n">data_topic</span><span class="p">)</span>
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="n">dataset_fact_opinion_full</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="n">data_fact_opinion</span><span class="p">)</span>
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>
+</span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="n">train_dataset_topic</span><span class="p">,</span> <span class="n">eval_dataset_topic</span> <span class="o">=</span> <span class="n">sample_and_split</span><span class="p">(</span>
+</span><span id="__span-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a>    <span class="n">dataset_topic_full</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="mi">8</span>
+</span><span id="__span-25-14"><a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a><span class="p">)</span>
+</span><span id="__span-25-15"><a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a><span class="n">train_dataset_fact_opinion</span><span class="p">,</span> <span class="n">eval_dataset_fact_opinion</span> <span class="o">=</span> <span class="n">sample_and_split</span><span class="p">(</span>
+</span><span id="__span-25-16"><a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a>    <span class="n">dataset_fact_opinion_full</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="mi">8</span>
+</span><span id="__span-25-17"><a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="the-actual-training">The actual training<a class="headerlink" href="#the-actual-training" title="Permanent link">&para;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's train our models for each task! We will use <a href="https://huggingface.co/TaylorAI/bge-micro-v2">TaylorAI/bge-micro-v2</a>, available in the Hugging Face Hub. You can check the <a href="https://huggingface.co/spaces/mteb/leaderboard">MTEB leaderboard</a> to select the best model for your use case.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">eval_dataset</span><span class="p">):</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">SetFitModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>    <span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>        <span class="n">train_dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>    <span class="p">)</span>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>    <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>    <span class="n">metrics</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">eval_dataset</span><span class="p">)</span>
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a>
+</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a>    <span class="k">return</span> <span class="n">model</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">model_topic</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;TaylorAI/bge-micro-v2&quot;</span><span class="p">,</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>    <span class="n">dataset</span><span class="o">=</span><span class="n">train_dataset_topic</span><span class="p">,</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">eval_dataset_topic</span><span class="p">,</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="p">)</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="n">model_topic</span><span class="o">.</span><span class="n">save_pretrained</span><span class="p">(</span><span class="s2">&quot;topic_classification_model&quot;</span><span class="p">)</span>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="n">model_topic</span> <span class="o">=</span> <span class="n">SetFitModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&quot;topic_classification_model&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>
+<code>***** Running training *****
+  Num unique pairs = 768
+  Batch size = 16
+  Num epochs = 1
+  Total optimization steps = 48
+</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>{'embedding_loss': 0.1873, 'learning_rate': 4.000000000000001e-06, 'epoch': 0.02}
+</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>
+<code>***** Running evaluation *****
+</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>{'train_runtime': 4.9767, 'train_samples_per_second': 154.318, 'train_steps_per_second': 9.645, 'epoch': 1.0}
+{'accuracy': 0.8333333333333334}
+</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">model_fact_opinion</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;TaylorAI/bge-micro-v2&quot;</span><span class="p">,</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>    <span class="n">dataset</span><span class="o">=</span><span class="n">train_dataset_fact_opinion</span><span class="p">,</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">eval_dataset_fact_opinion</span><span class="p">,</span>
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="p">)</span>
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="n">model_fact_opinion</span><span class="o">.</span><span class="n">save_pretrained</span><span class="p">(</span><span class="s2">&quot;fact_opinion_classification_model&quot;</span><span class="p">)</span>
+</span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="n">model_fact_opinion</span> <span class="o">=</span> <span class="n">SetFitModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&quot;fact_opinion_classification_model&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>
+<code>***** Running training *****
+  Num unique pairs = 144
+  Batch size = 16
+  Num epochs = 1
+  Total optimization steps = 9
+</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>{'embedding_loss': 0.2985, 'learning_rate': 2e-05, 'epoch': 0.11}
+</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>
+<code>***** Running evaluation *****
+</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>{'train_runtime': 0.8327, 'train_samples_per_second': 172.931, 'train_steps_per_second': 10.808, 'epoch': 1.0}
+{'accuracy': 0.9090909090909091}
+</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Voilà! The models are now trained and ready to be used. You can start making predictions to check the model's performance and add the new label. Optionally, you can continue using distilabel to generate additional data or Argilla to verify the quality of the predictions.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>    <span class="n">model</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>    <span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="nb">input</span><span class="p">])</span>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>    <span class="k">return</span> <span class="n">prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">predict</span><span class="p">(</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>    <span class="n">model_topic</span><span class="p">,</span> <span class="s2">&quot;The new iPhone is expected to be released next month.&quot;</span><span class="p">,</span> <span class="n">labels_topic</span>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>'Sci/Tech'</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">predict</span><span class="p">(</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>    <span class="n">model_fact_opinion</span><span class="p">,</span>
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>    <span class="s2">&quot;The new iPhone is expected to be released next month.&quot;</span><span class="p">,</span>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>    <span class="n">labels_fact_opinion</span><span class="p">,</span>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>'Opinion-based'</code>
+</pre>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -5835,8 +6080,14 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="conclusions">Conclusions<a class="headerlink" href="#conclusions" title="Permanent link">&para;</a></h2>
-<p>In this tutorial, we present an end-to-end example of fine-tuning retrievers and rerankers for RAG. This serves as a good starting point for optimizing and maintaining your data and model but need to be adapted to your specific use case.</p>
-<p>We started with some seed data from the Argilla docs, generated synthetic data for retrieval and reranking models, evaluated the quality of the data, and showed how to fine-tune the models. We also used Argilla to get a human touch on the data.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this tutorial, we showcased the detailed steps to build a pipeline for generating text classification data using distilabel. You can customize this pipeline for your own use cases and share your datasets with the community through the Hugging Face Hub.</p>
+<p>We defined two text classification tasks—a topic classification task and a fact versus opinion classification task—and generated new data using various models via the serverless Hugging Face Inference API. Then, we curated the generated data with Argilla. Finally, we trained the models with SetFit using both the original and synthetic data.</p>
 </div>
 </div>
 </div>
@@ -5888,7 +6139,7 @@
               
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Synthetic%20data%20generation%20for%20fine-tuning%20custom%20retrieval%20and%20reranking%20models+-+/sections/pipeline_samples/tutorials/GenerateSentencePair/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Generate%20synthetic%20text%20classification%20data+-+/sections/pipeline_samples/tutorials/generate_textcat_dataset/" target="_blank" rel="noopener">opening a GitHub issue</a>.
             </div>
           
         </div>
@@ -5922,7 +6173,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../clean_existing_dataset/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Clean an existing preference dataset">
+          <a href="../GenerateSentencePair/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Synthetic data generation for fine-tuning custom retrieval and reranking models">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -5932,20 +6183,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Clean an existing preference dataset
+                Synthetic data generation for fine-tuning custom retrieval and reranking models
               </div>
             </div>
           </a>
         
         
           
-          <a href="../generate_textcat_dataset/" class="md-footer__link md-footer__link--next" aria-label="Next: Generate synthetic text classification data">
+          <a href="../../papers/deepseek_prover/" class="md-footer__link md-footer__link--next" aria-label="Next: DeepSeek Prover">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Generate synthetic text classification data
+                DeepSeek Prover
               </div>
             </div>
             <div class="md-footer__button md-icon">
