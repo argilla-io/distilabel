@@ -15,12 +15,13 @@
 from enum import Enum
 from pathlib import Path
 
+from pydantic import BaseModel, StringConstraints, conint
+from typing_extensions import Annotated
+
 from distilabel.llms import LlamaCppLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration
-from pydantic import BaseModel, StringConstraints, conint
-from typing_extensions import Annotated
 
 
 class Weapon(str, Enum):

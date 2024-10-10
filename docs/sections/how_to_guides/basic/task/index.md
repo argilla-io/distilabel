@@ -211,30 +211,56 @@ We can define a custom step by creating a new subclass of the [`Task`][distilabe
 
 - `format_output`: is a method that receives the output from the [`LLM`][distilabel.llms.LLM] and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in `outputs`. Note that there's no need to include the `model_name` in the output.
 
-```python
-from typing import Any, Dict, List, Union, TYPE_CHECKING
+=== "Inherit from `Task`"
 
-from distilabel.steps.tasks.base import Task
-from distilabel.typing import StepColumns
+    When using the `Task` class inheritance method for creating a custom task, we can also optionally override the `Task.process` method to define a more complex processing logic involving an `LLM`, as the default one just calls the `LLM.generate` method once previously formatting the input and subsequently formatting the output. For example, [EvolInstruct][distilabel.steps.tasks.EvolInstruct] task overrides this method to call the `LLM.generate` multiple times (one for each evolution).
 
-if TYPE_CHECKING:
-    from distilabel.typing import ChatType
+    ```python
+    from distilabel.steps.tasks.base import Task
+    from distilabel.typing import StepColumns
+
+    if TYPE_CHECKING:
+        from distilabel.typing import ChatType
 
 
-class MyCustomTask(Task):
-    inputs: StepColumns = ["input_field"]
-    outputs: StepColumns = ["output_field", "model_name"]
+    class MyCustomTask(Task):
+        inputs: StepColumns = ["input_field"]
+        outputs: StepColumns = ["output_field", "model_name"]
 
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        return [
-            {
-                "role": "user",
-                "content": input["input_field"],
-            },
-        ]
+        def format_input(self, input: Dict[str, Any]) -> "ChatType":
+            return [
+                {
+                    "role": "user",
+                    "content": input["input_field"],
+                },
+            ]
 
-    def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        def format_output(
+            self, output: Union[str, None], input: Dict[str, Any]
+        ) -> Dict[str, Any]:
+            return {"output_field": output}
+    ```
+
+=== "Using the `@task` decorator"
+
+    If your task just needs a system prompt, a user message template and a way to format the output given by the `LLM`, then you can use the `@task` decorator to avoid writing too much boilerplate code.
+
+    ```python
+    from typing import Any, Dict, Union
+    from distilabel.steps.tasks import task
+
+
+    @task(inputs=["input_field"], outputs=["output_field"])
+    def MyCustomTask(output: Union[str, None], input: Union[Dict[str, Any], None] = None) -> Dict[str, Any]:
+        """
+        ---
+        system_prompt: |
+            My custom system prompt
+
+        user_message_template: |
+            My custom user message template: {input_field}
+        ---
+        """
+        # Format the `LLM` output here
         return {"output_field": output}
-```
+    ```
