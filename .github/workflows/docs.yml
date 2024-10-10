@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           # Looks like it's not working very well for other people:
@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install -e .[docs]
+        run: ./scripts/install_docs_dependencies.sh
 
       - name: Check no warnings
         run: mkdocs build --strict
