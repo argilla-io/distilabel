@@ -311,8 +311,6 @@ class ArgillaLabeller(Task):
             str: The formatted question.
         """
         output = []
-        if question_context := question.get("description"):
-            output.append(f"question context: {question_context}")
         output.append(f"question: {self._get_label_instruction(question)}")
         if "options" in question.get("settings", {}):
             output.append(
