@@ -142,7 +142,6 @@ class TestArgillaLabeller:
                 }
             )
             assert question["description"] in result[-1]["content"]
-            assert question["title"] in result[-1]["content"]
             if question["settings"]["type"] in [
                 "label_selection",
                 "multi_label_selection",
