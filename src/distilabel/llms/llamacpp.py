@@ -219,6 +219,8 @@ class LlamaCppLLM(LLM):
                 structured_output = self.structured_output
 
             outputs = []
+            input_tokens = []
+            output_tokens = []
             for _ in range(num_generations):
                 # NOTE(plaguss): There seems to be a bug in how the logits processor
                 # is used. Basically it consumes the FSM internally, and it isn't reinitialized
@@ -241,7 +243,18 @@ class LlamaCppLLM(LLM):
                     )
                 )
                 outputs.append(chat_completions["choices"][0]["message"]["content"])
-            batch_outputs.append(outputs)
+                input_tokens.append(chat_completions["usage"]["prompt_tokens"])
+                output_tokens.append(chat_completions["usage"]["completion_tokens"])
+            batch_outputs.append(
+                {
+                    "generations": outputs,
+                    "statistics": {
+                        "input_tokens": input_tokens,
+                        "output_tokens": output_tokens,
+                    },
+                }
+            )
+
         return batch_outputs
 
     def _prepare_structured_output(

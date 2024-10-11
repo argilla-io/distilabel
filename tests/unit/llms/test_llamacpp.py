@@ -54,9 +54,13 @@ class TestLlamaCppLLM:
             ],
             num_generations=3,
         )
-
+        print("RESPONSE", responses)
         assert len(responses) == 2
-        assert len(responses[0]) == 3
+        generations = responses[0]["generations"]
+        statistics = responses[0]["statistics"]
+        assert len(generations) == 3
+        assert "input_tokens" in statistics
+        assert "output_tokens" in statistics
 
     @pytest.mark.parametrize(
         "structured_output, dump",

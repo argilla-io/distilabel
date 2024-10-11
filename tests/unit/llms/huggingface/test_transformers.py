@@ -53,9 +53,12 @@ class TestTransformersLLM:
             ],
             num_generations=3,
         )
-
         assert len(responses) == 2
-        assert len(responses[0]) == 3
+        generations = responses[0]["generations"]
+        statistics = responses[0]["statistics"]
+        assert len(generations) == 3
+        assert "input_tokens" in statistics
+        assert "output_tokens" in statistics
 
     def test_get_last_hidden_states(self, transformers_llm: TransformersLLM) -> None:
         inputs = [
