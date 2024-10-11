@@ -12,9 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, List, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, TypedDict, TypeVar, Union
 
-GenerateOutput = List[Union[str, None]]
+LLMOutput = List[Union[str, None]]
+LLMStatistics = Dict[str, Any]
+
+
+class GenerateOutput(TypedDict):
+    generations: LLMOutput
+    statistics: LLMStatistics
+
 
 if TYPE_CHECKING:
     from numpy import floating
