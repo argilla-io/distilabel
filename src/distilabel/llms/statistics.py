@@ -12,8 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Callable, List
+from typing import Callable, List, Union
+
+from distilabel.steps.tasks.typing import ChatType
 
 
-def compute_tokens(text: str, tokenizer: Callable[[str], List[int]]) -> int:
-    return len(tokenizer.encode(text)) if text else 0
+def compute_tokens(
+    text_or_messages: Union[str, ChatType], tokenizer: Callable[[str], List[int]]
+) -> int:
+    """Helper function to count the number of tokens in a text or list of messages.
+
+    Args:
+        text_or_messages: Either a string response or a list of messages.
+        tokenizer: A callable function that take str and returns the tokenized version of the text.
+
+    Returns:
+        int: _description_
+    """
+    if isinstance(text_or_messages, str):
+        text = text_or_messages
+    else:
+        # If it's a list of messages, concatenate the content of each message
+        text = " ".join([message["content"] for message in text_or_messages])
+
+    return len(tokenizer(text)) if text else 0

@@ -246,11 +246,13 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                     "generations": output,
                     "statistics": {
                         "input_tokens": [
-                            compute_tokens(row["content"], self._pipeline.tokenizer)
+                            compute_tokens(
+                                row["content"], self._pipeline.tokenizer.encode
+                            )
                             for row in input
                         ],
                         "output_tokens": [
-                            compute_tokens(row, self._pipeline.tokenizer)
+                            compute_tokens(row, self._pipeline.tokenizer.encode)
                             for row in output
                         ],
                     },
