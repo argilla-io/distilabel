@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.4
+    rev: v1.5.5
     hooks:
       - id: insert-license
         name: "Insert license header in Python source files"
@@ -10,8 +10,8 @@ repos:
           - LICENSE_HEADER
           - --fuzzy-match-generates-todo
 
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.6.2
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
     hooks:
       - id: ruff
         args: [--fix]
