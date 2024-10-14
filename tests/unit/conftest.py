@@ -39,7 +39,11 @@ class DummyAsyncLLM(AsyncLLM):
     async def agenerate(  # type: ignore
         self, input: "FormattedInput", num_generations: int = 1
     ) -> "GenerateOutput":
-        return ["output" for _ in range(num_generations)]
+        # return ["output" for _ in range(num_generations)]
+        return [
+            {"generations": "output", "statistics": {"test": "test"}}
+            for _ in range(num_generations)
+        ]
 
 
 class DummyLLM(LLM):
@@ -55,7 +59,12 @@ class DummyLLM(LLM):
     def generate(  # type: ignore
         self, inputs: "FormattedInput", num_generations: int = 1
     ) -> List["GenerateOutput"]:
-        return [["output" for _ in range(num_generations)]]
+        return [
+            [
+                {"generations": "output", "statistics": {"test": "test"}}
+                for _ in range(num_generations)
+            ]
+        ]
 
 
 class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
@@ -70,7 +79,11 @@ class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
         self, inputs: List["FormattedInput"], num_generations: int = 1, **kwargs: Any
     ) -> List["GenerateOutput"]:
         return [
-            ["Hello Magpie" for _ in range(num_generations)] for _ in range(len(inputs))
+            [
+                {"generations": "output", "statistics": {"test": "test"}}
+                for _ in range(num_generations)
+            ]
+            for _ in range(len(inputs))
         ]
 
 

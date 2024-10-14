@@ -109,6 +109,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_0", "role": "user"},
                             ],
+                            "statistics": {"test": "test"},
                         },
                     },
                     {
@@ -123,6 +124,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_0", "role": "user"},
                             ],
+                            "statistics": {"test": "test"},
                         },
                     },
                     {
@@ -137,6 +139,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_0", "role": "user"},
                             ],
+                            "statistics": {"test": "test"},
                         },
                     },
                     {
@@ -151,6 +154,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_1", "role": "user"},
                             ],
+                            "statistics": {"test": "test"},
                         },
                     },
                     {
@@ -165,6 +169,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_1", "role": "user"},
                             ],
+                            "statistics": {"test": "test"},
                         },
                     },
                     {
@@ -179,6 +184,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_1", "role": "user"},
                             ],
+                            "statistics": {"test": "test"},
                         },
                     },
                     {
@@ -193,6 +199,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_2", "role": "user"},
                             ],
+                            "statistics": {"test": "test"},
                         },
                     },
                     {
@@ -207,6 +214,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_2", "role": "user"},
                             ],
+                            "statistics": {"test": "test"},
                         },
                     },
                     {
@@ -221,6 +229,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_2", "role": "user"},
                             ],
+                            "statistics": {"test": "test"},
                         },
                     },
                 ],
@@ -256,6 +265,7 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
+                                "statistics": {"test": "test"},
                             },
                             {
                                 "raw_output_task": "output",
@@ -269,6 +279,7 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
+                                "statistics": {"test": "test"},
                             },
                             {
                                 "raw_output_task": "output",
@@ -282,10 +293,8 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
+                                "statistics": {"test": "test"},
                             },
-                            # {"raw_output_task": "output"},
-                            # {"raw_output_task": "output"},
-                            # {"raw_output_task": "output"},
                         ],
                     },
                     {
@@ -311,6 +320,7 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
+                                "statistics": {"test": "test"},
                             },
                             {
                                 "raw_output_task": "output",
@@ -324,6 +334,7 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
+                                "statistics": {"test": "test"},
                             },
                             {
                                 "raw_output_task": "output",
@@ -337,6 +348,7 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
+                                "statistics": {"test": "test"},
                             },
                         ],
                     },
@@ -363,6 +375,7 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
+                                "statistics": {"test": "test"},
                             },
                             {
                                 "raw_output_task": "output",
@@ -376,6 +389,7 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
+                                "statistics": {"test": "test"},
                             },
                             {
                                 "raw_output_task": "output",
@@ -389,6 +403,7 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
+                                "statistics": {"test": "test"},
                             },
                         ],
                     },
@@ -411,6 +426,7 @@ class TestTask:
             group_generations=group_generations,
             num_generations=3,
         )
+        task.load()
         result = next(task.process(input))
         assert result == expected
 
@@ -423,6 +439,7 @@ class TestTask:
             num_generations=3,
             input_mappings={"instruction": "instruction_2"},
         )
+        task.load()
 
         result = next(
             task.process_applying_mappings(
@@ -451,6 +468,7 @@ class TestTask:
                         },
                     ],
                     "raw_output_task": "output",
+                    "statistics": {"test": "test"},
                 },
                 "info_from_input": "info",
                 "instruction": "instruction that won't be used but overriden by input mapping",
@@ -472,6 +490,7 @@ class TestTask:
                         },
                     ],
                     "raw_output_task": "output",
+                    "statistics": {"test": "test"},
                 },
                 "info_from_input": "info",
                 "instruction": "instruction that won't be used but overriden by input mapping",
@@ -493,6 +512,7 @@ class TestTask:
                         },
                     ],
                     "raw_output_task": "output",
+                    "statistics": {"test": "test"},
                 },
                 "info_from_input": "info",
                 "instruction": "instruction that won't be used but overriden by input mapping",
@@ -676,15 +696,8 @@ class TestTask:
             new_task = DummyTask.from_dict(task.dump())
             assert isinstance(new_task, DummyTask)
 
-    @pytest.mark.parametrize(
-        "add_raw_output, add_raw_input",
-        [
-            (True, False),
-            (False, True),
-            (True, True),
-            (False, False),
-        ],
-    )
+    @pytest.mark.parametrize("add_raw_output", [True, False])
+    @pytest.mark.parametrize("add_raw_input", [True, False])
     def test_add_raw_input_and_or_output(
         self, add_raw_output: bool, add_raw_input: bool
     ) -> None:
@@ -707,7 +720,6 @@ class TestTask:
         pprint.pprint(result)
 
         if add_raw_output or add_raw_input:
-            assert "distilabel_metadata" in result[0].keys()
             if add_raw_output:
                 assert (
                     "raw_output_dummy_task_0" in result[0]["distilabel_metadata"].keys()
@@ -716,5 +728,4 @@ class TestTask:
                 assert (
                     "raw_input_dummy_task_0" in result[0]["distilabel_metadata"].keys()
                 )
-        else:
-            assert "distilabel_metadata" not in result[0].keys()
+        assert "statistics" in result[0]["distilabel_metadata"].keys()
