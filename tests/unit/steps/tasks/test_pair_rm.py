@@ -111,5 +111,6 @@ class TestPairRM:
                     "optional": True,
                 },
             ],
+            "use_cache": True,
             "type_info": {"module": "distilabel.steps.tasks.pair_rm", "name": "PairRM"},
         }

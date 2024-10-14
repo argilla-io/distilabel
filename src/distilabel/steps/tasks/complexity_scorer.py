@@ -239,3 +239,17 @@ class ComplexityScorer(Task):
             return orjson.loads(output)
         except orjson.JSONDecodeError:
             return {"scores": [None] * len(input["instructions"])}
+
+    @override
+    def _sample_input(self) -> "ChatType":
+        """Returns a sample input to be used in the `print` method.
+        Tasks that don't adhere to a format input that returns a map of the type
+        str -> str should override this method to return a sample input.
+        """
+        return self.format_input(
+            {
+                "instructions": [
+                    f"<PLACEHOLDER_{f'GENERATION_{i}'.upper()}>" for i in range(2)
+                ],
+            }
+        )

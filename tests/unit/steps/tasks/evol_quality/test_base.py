@@ -205,6 +205,7 @@ class TestEvolQuality:
                     "description": "As `numpy` is being used in order to randomly pick a mutation method, then is nice to set a random seed.",
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": task.__module__,
                 "name": task.__class__.__name__,

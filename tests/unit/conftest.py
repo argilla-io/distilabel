@@ -56,9 +56,9 @@ class DummyLLM(LLM):
         return "test"
 
     def generate(  # type: ignore
-        self, input: "FormattedInput", num_generations: int = 1
-    ) -> "GenerateOutput":
-        return ["output" for _ in range(num_generations)]
+        self, inputs: "FormattedInput", num_generations: int = 1
+    ) -> List["GenerateOutput"]:
+        return [["output" for _ in range(num_generations)]]
 
 
 class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):

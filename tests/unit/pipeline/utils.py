@@ -42,6 +42,8 @@ class DummyGlobalStep(GlobalStep):
 
 
 class DummyStep1(Step):
+    attr1: int = 5
+
     @property
     def inputs(self) -> List[str]:
         return ["instruction"]

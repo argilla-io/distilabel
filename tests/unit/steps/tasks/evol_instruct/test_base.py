@@ -241,6 +241,7 @@ class TestEvolInstruct:
                     "description": "As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": "distilabel.steps.tasks.evol_instruct.base",
                 "name": "EvolInstruct",
