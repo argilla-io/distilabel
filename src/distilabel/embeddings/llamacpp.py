@@ -52,6 +52,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         - `normalize_embeddings`: whether to normalize the embeddings. Defaults to `False`.
         - `extra_kwargs`: additional dictionary of keyword arguments that will be passed to the
             `Llama` class of `llama_cpp` library. Defaults to `{}`.
+
     References:
         - [Offline inference embeddings](https://llama-cpp-python.readthedocs.io/en/stable/#embeddings)
 
