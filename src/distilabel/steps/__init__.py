@@ -53,6 +53,7 @@ from distilabel.steps.generators.huggingface import (
 )
 from distilabel.steps.generators.utils import make_generator_step
 from distilabel.steps.globals.huggingface import PushToHub
+from distilabel.steps.knowledge_bases.vector_search import VectorSearch
 from distilabel.steps.reward_model import RewardModelScore
 from distilabel.steps.truncate import TruncateTextColumn
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
@@ -96,4 +97,5 @@ __all__ = [
     "TruncateTextColumn",
     "GeneratorStepOutput",
     "StepOutput",
+    "VectorSearch",
 ]

@@ -24,26 +24,26 @@ if TYPE_CHECKING:
 
 
 class VectorSearch(Step):
-    """Execute Vector Search using a `KnowledgeBase` and a potential `Embeddings`.
-
-    `VectorSearch` is a `Step` that using an `KnowledgeBase` generates sentence
-    embeddings for the provided input texts.
+    """`VectorSearch` is a `Step` that uses a `KnowledgeBase` to perform vector search
+    for the provided input texts or embeddings.
 
     Attributes:
-        knowledge_base: the `KnowledgeBase` used to generate the sentence embeddings.
+        knowledge_base: The `KnowledgeBase` used to perform the vector search.
+        embeddings: Optional `Embeddings` model to generate embeddings if not provided in the input.
+        n_retrieved_documents: The number of documents to retrieve from the knowledge base.
 
     Input columns:
-        - text (Optional[`str`]): The text for which the sentence embedding has to be generated.
-        - embedding (`Optional[List[Union[float, int]]]`): The sentence embedding generated for the input text.
+        - text (`str`): The text for which to perform the vector search (if embeddings are not provided).
+        - embedding (`List[Union[float, int]]`): The embedding to use for vector search (if provided).
 
     Output columns:
-        - dynamic: The dynamic columns of the `KnowledgeBase`.
+        - dynamic (`Any`): The columns returned by the `KnowledgeBase` for the retrieved documents.
 
     Categories:
         - knowledge_base
 
     Examples:
-        Do vector search using a `KnowledgeBase` and a potential `Embeddings`.
+        Perform vector search using a `KnowledgeBase` and an `Embeddings` model.
 
         ```python
         from distilabel.embeddings import SentenceTransformerEmbeddings
@@ -59,10 +59,10 @@ class VectorSearch(Step):
             table_name="my_table",
         )
 
-       vector_search = VectorSearch(
-           knowledge_base=knowledge_base,
-           embeddings=embedding,
-           n_retrieved_documents=5
+        vector_search = VectorSearch(
+            knowledge_base=knowledge_base,
+            embeddings=embedding,
+            n_retrieved_documents=5
         )
 
         vector_search.load()
@@ -75,10 +75,9 @@ class VectorSearch(Step):
         # }]
         ```
 
-        Do vector search using a `KnowledgeBase`.
+        Perform vector search using only a `KnowledgeBase` with pre-computed embeddings.
 
         ```python
-        from distilabel.embeddings import SentenceTransformerEmbeddings
         from distilabel.knowledge_bases.lancedb import LanceDBKnowledgeBase
         from distilabel.steps.knowledge_bases.vector_search import VectorSearch
 
@@ -93,9 +92,10 @@ class VectorSearch(Step):
         )
 
         vector_search.load()
-        result = next(embedding_generation.process([{'embedding': [0.06209656596183777, -0.015797119587659836, ...]}]))
+        result = next(vector_search.process([{'embedding': [0.06209656596183777, -0.015797119587659836, ...]}]))
         # [{'embedding': [0.06209656596183777, -0.015797119587659836, ...], "knowledge_base_col_1": [10.0], "knowledge_base_col_2": ["foo"]}]
         ```
+
     """
 
     knowledge_base: KnowledgeBase

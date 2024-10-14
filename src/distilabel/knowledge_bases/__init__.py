@@ -12,3 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.knowledge_bases.argilla import ArgillaKnowledgeBase
+from distilabel.knowledge_bases.base import KnowledgeBase
+from distilabel.knowledge_bases.lancedb import LanceDBKnowledgeBase
+
+__all__ = [
+    "KnowledgeBase",
+    "ArgillaKnowledgeBase",
+    "LanceDBKnowledgeBase",
+]
