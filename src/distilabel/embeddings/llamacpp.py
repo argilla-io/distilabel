@@ -213,19 +213,16 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
                 kwargs=self.extra_kwargs,
             )
         elif self.model_path is not None:
-            try:
-                self._model = Llama(
-                    model_path=str(Path(self.model_path) / self.model),
-                    n_gpu_layers=self.n_gpu_layers,
-                    seed=self.seed,
-                    n_ctx=self.n_ctx,
-                    n_batch=self.n_batch,
-                    verbose=self.verbose,
-                    embedding=True,
-                    kwargs=self.extra_kwargs,
-                )
-            except Exception:
-                raise
+            self._model = Llama(
+                model_path=str(Path(self.model_path) / self.model),
+                n_gpu_layers=self.n_gpu_layers,
+                seed=self.seed,
+                n_ctx=self.n_ctx,
+                n_batch=self.n_batch,
+                verbose=self.verbose,
+                embedding=True,
+                kwargs=self.extra_kwargs,
+            )
         else:
             raise ValueError("Either 'model_path' or 'repo_id' must be provided")
 
