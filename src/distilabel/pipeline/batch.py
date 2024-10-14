@@ -37,8 +37,11 @@ class _Batch(_Serializable):
         data_hash: The hash of the data. Defaults to `None`.
         data_path: The path where the data of the batch is stored. Defaults to `None`.
         accumulated: A flag to indicate if the batch is accumulated.
-        created_from: A dictionary containing the `seq_no` of the batches of the steps that
-            were used to create this batch.
+        created_from: A dictionary containing which batches from which steps were used
+            to created this batch. The keys are the names of the steps and the values
+            are lists for each step containing the `seq_no` of each batch used, the original         containing the `seq_no` of the batches of the steps that
+            size of the batch used and the number of rows used from the batch to create
+            this batch.
         size: The size of the batch.
     """
 
@@ -49,7 +52,7 @@ class _Batch(_Serializable):
     data_hash: Optional[str] = None
     data_path: Optional[str] = None
     accumulated: bool = False
-    created_from: Dict[str, List[Tuple[int, int]]] = field(default_factory=dict)
+    created_from: Dict[str, List[Tuple[int, int, int]]] = field(default_factory=dict)
     batch_routed_to: List[str] = field(default_factory=list)
     size: int = 0
     _fs: Optional[fsspec.AbstractFileSystem] = None
@@ -99,6 +102,7 @@ class _Batch(_Serializable):
             data = self.data[0][:num_rows]
             self.data[0] = self.data[0][num_rows:]
 
+        # self.size = len(self.data[0])
         self._update_data_hash()
         return data
 

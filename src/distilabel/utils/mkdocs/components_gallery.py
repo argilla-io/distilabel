@@ -91,6 +91,7 @@ _STEPS_CATEGORY_TO_ICON = {
     "filtering": ":material-filter:",
     "format": ":material-format-list-bulleted:",
     "load": ":material-file-download:",
+    "execution": ":octicons-code-16:",
     "save": ":material-content-save:",
 }
 
@@ -110,6 +111,7 @@ _STEP_CATEGORY_TO_DESCRIPTION = {
     "filtering": "Filtering steps are used to filter the data based on some criteria.",
     "format": "Format steps are used to format the data.",
     "load": "Load steps are used to load the data.",
+    "execution": "Executes python functions.",
     "save": "Save steps are used to save the data.",
 }
 

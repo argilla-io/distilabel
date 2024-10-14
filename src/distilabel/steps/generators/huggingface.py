@@ -219,11 +219,11 @@ class LoadDataFromHub(GeneratorStep):
         Returns:
             The number of examples in the dataset.
         """
-        return (
-            self._dataset_info[self.config if self.config else "default"]
-            .splits[self.split]
-            .num_examples
-        )
+        default_config = self.config
+        if not default_config:
+            default_config = list(self._dataset_info.keys())[0]
+
+        return self._dataset_info[default_config].splits[self.split].num_examples
 
     def _get_dataset_columns(self) -> List[str]:
         """Get the columns of the dataset, based on the `config` runtime parameter provided.

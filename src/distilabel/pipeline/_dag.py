@@ -33,6 +33,7 @@ import requests
 
 from distilabel.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
+    RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
@@ -252,6 +253,21 @@ class DAG(_Serializable):
             True if the step is in the given trophic level, False otherwise.
         """
         return self.get_step_trophic_level(step_name) == trophic_level
+
+    def is_convergence_step(self, step_name: str) -> bool:
+        """Checks if a given step is a convegence step.
+
+        Args:
+            step_name: Name of the step to check if a convergence step.
+
+        Returns:
+            True if it is, False otherwise.
+        """
+        predecessors = list(self.get_step_predecessors(step_name))
+        return all(
+            self.get_step(predecessor).get(RECEIVES_ROUTED_BATCHES_ATTR_NAME, False)
+            for predecessor in predecessors
+        )
 
     def step_in_last_trophic_level(self, step_name: str) -> bool:
         """Checks if a step is in the last trophic level.

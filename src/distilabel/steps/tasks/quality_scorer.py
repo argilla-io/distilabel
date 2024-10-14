@@ -262,3 +262,14 @@ class QualityScorer(Task):
             return orjson.loads(output)
         except orjson.JSONDecodeError:
             return {"scores": [None] * len(input["responses"])}
+
+    @override
+    def _sample_input(self) -> ChatType:
+        return self.format_input(
+            {
+                "instruction": f"<PLACEHOLDER_{'instruction'.upper()}>",
+                "responses": [
+                    f"<PLACEHOLDER_{f'RESPONSE_{i}'.upper()}>" for i in range(2)
+                ],
+            }
+        )

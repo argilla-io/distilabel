@@ -45,6 +45,7 @@ from distilabel.steps.formatting.sft import (
     FormatTextGenerationSFT,
 )
 from distilabel.steps.generators.data import LoadDataFromDicts
+from distilabel.steps.generators.data_sampler import DataSampler
 from distilabel.steps.generators.huggingface import (
     LoadDataFromDisk,
     LoadDataFromFileSystem,
@@ -84,6 +85,7 @@ __all__ = [
     "FormatChatGenerationSFT",
     "FormatTextGenerationSFT",
     "LoadDataFromDicts",
+    "DataSampler",
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",

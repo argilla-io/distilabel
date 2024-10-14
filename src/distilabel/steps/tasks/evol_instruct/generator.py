@@ -347,3 +347,7 @@ class EvolInstructGenerator(GeneratorTask):
                 ],
                 True,
             )
+
+    @override
+    def _sample_input(self) -> "ChatType":
+        return self._apply_random_mutation(iter_no=0)[0]
