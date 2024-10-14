@@ -14,11 +14,12 @@
 
 from typing import List
 
+from pydantic import BaseModel, Field
+
 from distilabel.llms import MistralLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration
-from pydantic import BaseModel, Field
 
 
 class Node(BaseModel):

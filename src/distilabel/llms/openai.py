@@ -667,7 +667,7 @@ class OpenAILLM(AsyncLLM):
         """Creates a JSONL formatted row to be used by the OpenAI Batch API.
 
         Args:
-            inputs: a list of inputs in chat format to generate responses for, optionally
+            input: a list of inputs in chat format to generate responses for, optionally
                 including structured output.
             custom_id: a custom ID to use for the row.
             kwargs: the keyword arguments to use for the generation.

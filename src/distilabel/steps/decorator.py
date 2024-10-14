@@ -17,7 +17,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Literal,
     Type,
     Union,
@@ -175,10 +174,10 @@ def step(
             **runtime_parameters,  # type: ignore
         )
 
-        def inputs_property(self) -> List[str]:
+        def inputs_property(self) -> "StepColumns":
             return inputs
 
-        def outputs_property(self) -> List[str]:
+        def outputs_property(self) -> "StepColumns":
             return outputs
 
         def process(

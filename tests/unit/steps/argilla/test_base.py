@@ -188,6 +188,7 @@ class TestArgilla:
                     "description": "The API key to authenticate the requests to the Argilla API.",
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": "tests.unit.steps.argilla.test_base",
                 "name": "CustomArgilla",

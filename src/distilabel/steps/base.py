@@ -39,6 +39,7 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
 )
+from distilabel.mixins.signature import SignatureMixin
 from distilabel.utils.serialization import _Serializable, write_json
 from distilabel.utils.typing_ import is_parameter_annotated_with
 
@@ -133,7 +134,14 @@ class StepResources(RuntimeParametersMixin, BaseModel):
     )
 
 
-class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable, ABC):
+class _Step(
+    RuntimeParametersMixin,
+    RequirementsMixin,
+    SignatureMixin,
+    BaseModel,
+    _Serializable,
+    ABC,
+):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this
@@ -193,6 +201,7 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
     pipeline: Any = Field(default=None, exclude=True, repr=False)
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
+    use_cache: bool = True
 
     _pipeline_artifacts_path: Path = PrivateAttr(None)
     _built_from_decorator: bool = PrivateAttr(default=False)
@@ -582,6 +591,20 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         )
         write_json(filename=metadata_path, data=metadata or {})
 
+    def impute_step_outputs(
+        self, step_output: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Imputes the output columns of the step that are not present in the step output.
+        """
+        result = []
+        for row in step_output:
+            data = row.copy()
+            for output in self.get_outputs().keys():
+                data[output] = None
+            result.append(data)
+        return result
+
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         dump = super()._model_dump(obj, **kwargs)
         dump["runtime_parameters_info"] = self.get_runtime_parameters_info()
@@ -644,10 +667,19 @@ class Step(_Step, ABC):
         )
 
         for output_rows in generator:
-            yield [
-                self._apply_mappings_and_restore_overriden(row, overriden_inputs[i])
-                for i, row in enumerate(output_rows)
-            ]
+            restored = []
+            for i, row in enumerate(output_rows):
+                # Correct the index here because we don't know the num_generations from the llm
+                # ahead of time. For example, if we have `len(overriden_inputs)==5` and `len(row)==10`,
+                # from `num_generations==2` and `group_generations=False` in the LLM:
+                # The loop will use indices 0, 1, 2, 3, 4, 0, 1, 2, 3, 4
+                ntimes_i = i % len(overriden_inputs)
+                restored.append(
+                    self._apply_mappings_and_restore_overriden(
+                        row, overriden_inputs[ntimes_i]
+                    )
+                )
+            yield restored
 
     def _apply_input_mappings(
         self, inputs: Tuple[List[Dict[str, Any]], ...]

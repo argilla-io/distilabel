@@ -202,6 +202,7 @@ class TestMagpieGenerator:
                     "description": "The number of rows to generate.",
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": "distilabel.steps.tasks.magpie.generator",
                 "name": "MagpieGenerator",
