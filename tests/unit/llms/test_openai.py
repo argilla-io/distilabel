@@ -103,7 +103,6 @@ class TestOpenAILLM:
         import tiktoken
 
         llm._tokenizer = tiktoken.encoding_for_model(self.model_id)
-
         sample_user = DummyUserDetail(name="John Doe", age=30)
 
         llm._aclient.chat.completions.create = AsyncMock(return_value=sample_user)
@@ -133,13 +132,16 @@ class TestOpenAILLM:
         llm._aclient = async_openai_mock
 
         mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            choices=[
+                Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))
+            ],
+            usage=Mock(prompt_tokens=100, completion_tokens=100),
         )
         llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
 
-        llm.generate(
+        result = llm.generate(
             inputs=[
                 [
                     {"role": "system", "content": ""},
@@ -150,6 +152,12 @@ class TestOpenAILLM:
                 ]
             ]
         )
+        assert result == [
+            {
+                "generations": [" Aenean hendrerit aliquam velit. ..."],
+                "statistics": {"input_tokens": 100, "output_tokens": 100},
+            }
+        ]
 
         with pytest.raises(ValueError):
             llm.generate(

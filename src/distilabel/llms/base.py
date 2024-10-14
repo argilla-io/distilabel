@@ -466,9 +466,9 @@ class AsyncLLM(LLM):
             for input in inputs
             for _ in range(num_generations)
         ]
-        outputs = [outputs[0] for outputs in await asyncio.gather(*tasks)]
+        outputs = await asyncio.gather(*tasks)
         return [
-            list(group)
+            list(group)[0]
             for group in grouper(outputs, n=num_generations, incomplete="ignore")
         ]
 

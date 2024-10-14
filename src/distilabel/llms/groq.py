@@ -229,7 +229,14 @@ class GroqLLM(AsyncLLM):
         completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
         if structured_output:
             generations.append(completion.model_dump_json())
-            return generations
+            return {
+                "generations": generations,
+                "statistics": {
+                    # TODO: Need a way of knowing the tokenizer.
+                    "input_tokens": 0,
+                    "output_tokens": 0,
+                },
+            }
 
         for choice in completion.choices:
             if (content := choice.message.content) is None:
@@ -238,4 +245,15 @@ class GroqLLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
-        return generations
+
+        return {
+            "generations": generations,
+            "statistics": {
+                "input_tokens": completion.usage.prompt_tokens
+                if completion.usage
+                else 0,
+                "output_tokens": completion.usage.completion_tokens
+                if completion.usage
+                else 0,
+            },
+        }

@@ -37,12 +37,14 @@ class TestAnthropicLLM:
         llm = AnthropicLLM(model="claude-3-opus-20240229", api_key="api.key")  # type: ignore
         llm._aclient = mock_anthropic
 
-        mocked_completion = Mock()
-        mocked_completion.content = [Mock(text="Aenean hendrerit aliquam velit...")]
+        mocked_completion = Mock(
+            content=[Mock(text="Aenean hendrerit aliquam velit...")],
+            usage=Mock(input_tokens=100, output_tokens=100),
+        )
 
         llm._aclient.messages.create = AsyncMock(return_value=mocked_completion)
 
-        await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {"role": "system", "content": ""},
                 {
@@ -51,6 +53,10 @@ class TestAnthropicLLM:
                 },
             ]
         )
+        assert result == {
+            "generations": "Aenean hendrerit aliquam velit...",
+            "statistics": {"input_tokens": 100, "output_tokens": 100},
+        }
 
     @pytest.mark.asyncio
     async def test_agenerate_structured(self, mock_openai: MagicMock) -> None:
@@ -64,6 +70,9 @@ class TestAnthropicLLM:
             },
         )  # type: ignore
         llm._aclient = mock_openai
+        from anthropic._tokenizers import sync_get_tokenizer
+
+        llm._tokenizer = sync_get_tokenizer()
 
         sample_user = DummyUserDetail(name="John Doe", age=30)
 
@@ -78,7 +87,9 @@ class TestAnthropicLLM:
                 },
             ]
         )
-        assert generation[0] == sample_user.model_dump_json()
+        generations = generation["generations"]
+        assert generations == sample_user.model_dump_json()
+        assert generation["statistics"] == {"input_tokens": 20, "output_tokens": 11}
 
     @pytest.mark.skipif(
         sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
