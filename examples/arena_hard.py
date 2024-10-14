@@ -15,11 +15,12 @@
 import re
 from typing import Any, Dict, List, Optional, Union
 
+from typing_extensions import override
+
 from distilabel.steps import GlobalStep, StepInput
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
 from distilabel.steps.typing import StepOutput
-from typing_extensions import override
 
 
 class ArenaHard(Task):
