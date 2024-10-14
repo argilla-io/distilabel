@@ -77,6 +77,3 @@ venv.bak/
 # Other
 *.log
 *.swp
-.DS_Store
-#models
-tests/model

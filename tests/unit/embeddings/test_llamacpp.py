@@ -33,14 +33,30 @@ class TestLlamaCppEmbeddings:
         """
         self.model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
         self.repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
+        self.disable_cuda_device_placement = True
         n_gpu_layers = 0 if use_cpu else -1
         self.embeddings = LlamaCppEmbeddings(
             model=self.model_name,
             model_path=local_llamacpp_model_path,
             n_gpu_layers=n_gpu_layers,
+            disable_cuda_device_placement=self.disable_cuda_device_placement,
         )
 
         self.embeddings.load()
+
+    @pytest.fixture
+    def test_inputs(self):
+        """
+        Fixture that provides a list of test input strings.
+
+        Returns:
+            list: A list of strings to be used as test inputs for embeddings.
+        """
+        return [
+            "Hello, how are you?",
+            "What a nice day!",
+            "I hear that llamas are very popular now.",
+        ]
 
     def test_model_name(self) -> None:
         """
@@ -48,21 +64,16 @@ class TestLlamaCppEmbeddings:
         """
         assert self.embeddings.model_name == self.model_name
 
-    def test_encode(self) -> None:
+    def test_encode(self, test_inputs) -> None:
         """
         Test if the model can generate embeddings.
         """
-        inputs = [
-            "Hello, how are you?",
-            "What a nice day!",
-            "I hear that llamas are very popular now.",
-        ]
-        results = self.embeddings.encode(inputs=inputs)
+        results = self.embeddings.encode(inputs=test_inputs)
 
         for result in results:
             assert len(result) == 384
 
-    def test_load_model_from_local(self):
+    def test_load_model_from_local(self, test_inputs):
         """
         Test if the model can be loaded from a local file and generate embeddings.
 
@@ -70,19 +81,12 @@ class TestLlamaCppEmbeddings:
             local_llamacpp_model_path (str): Fixture providing the local model path.
         """
 
-        inputs = [
-            "Hello, how are you?",
-            "What a nice day!",
-            "I hear that llamas are very popular now.",
-        ]
-
-        # Test if the model is loaded by generating an embedding
-        results = self.embeddings.encode(inputs=inputs)
+        results = self.embeddings.encode(inputs=test_inputs)
 
         for result in results:
             assert len(result) == 384
 
-    def test_load_model_from_repo(self, use_cpu):
+    def test_load_model_from_repo(self, use_cpu, test_inputs):
         """
         Test if the model can be loaded from a Hugging Face repository.
         """
@@ -92,38 +96,29 @@ class TestLlamaCppEmbeddings:
             model=self.model_name,
             normalize_embeddings=True,
             n_gpu_layers=n_gpu_layers,
+            disable_cuda_device_placement=self.disable_cuda_device_placement,
         )
-        inputs = [
-            "Hello, how are you?",
-            "What a nice day!",
-            "I hear that llamas are very popular now.",
-        ]
-
         embeddings.load()
-        # Test if the model is loaded by generating an embedding
-        results = embeddings.encode(inputs=inputs)
+        results = embeddings.encode(inputs=test_inputs)
 
         for result in results:
             assert len(result) == 384
 
-    def test_normalize_embeddings(self, use_cpu):
+    def test_normalize_embeddings(self, use_cpu, test_inputs):
         """
         Test if embeddings are normalized when normalize_embeddings is True.
         """
-        inputs = [
-            "Hello, how are you?",
-            "What a nice day!",
-            "I hear that llamas are very popular now.",
-        ]
+
         n_gpu_layers = 0 if use_cpu else -1
         embeddings = LlamaCppEmbeddings(
             repo_id=self.repo_id,
             model=self.model_name,
             normalize_embeddings=True,
             n_gpu_layers=n_gpu_layers,
+            disable_cuda_device_placement=self.disable_cuda_device_placement,
         )
         embeddings.load()
-        results = embeddings.encode(inputs=inputs)
+        results = embeddings.encode(inputs=test_inputs)
 
         for result in results:
             # Check if the embedding is normalized (L2 norm should be close to 1)
@@ -132,18 +127,12 @@ class TestLlamaCppEmbeddings:
                 norm, 1.0, atol=1e-6
             ), f"Norm is {norm}, expected close to 1.0"
 
-    def test_normalize_embeddings_false(self):
+    def test_normalize_embeddings_false(self, test_inputs):
         """
         Test if embeddings are not normalized when normalize_embeddings is False.
         """
 
-        inputs = [
-            "Hello, how are you?",
-            "What a nice day!",
-            "I hear that llamas are very popular now.",
-        ]
-
-        results = self.embeddings.encode(inputs=inputs)
+        results = self.embeddings.encode(inputs=test_inputs)
 
         for result in results:
             # Check if the embedding is not normalized (L2 norm should not be close to 1)

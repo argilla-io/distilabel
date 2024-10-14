@@ -184,7 +184,6 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
     def load(self) -> None:
         """Loads the `gguf` model using either the path or the Hugging Face Hub repository id."""
         super().load()
-        self.disable_cuda_device_placement = True
         CudaDevicePlacementMixin.load(self)
 
         try:
