@@ -43,8 +43,6 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         n_batch: Prompt processing maximum batch size
         extra_kwargs: additional dictionary of keyword arguments that will be passed to the
             `Llama` class of `llama_cpp` library. Defaults to `{}`.
-        _model: the `Llama` model instance. This attribute is meant to be used internally
-            and should not be accessed directly. It will be set in the `load` method.
 
     Runtime parameters:
         - `n_gpu_layers`: the number of layers to use for the GPU. Defaults to `-1`.
