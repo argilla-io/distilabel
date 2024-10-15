@@ -103,7 +103,13 @@ class TestOpenAILLM:
         import tiktoken
 
         llm._tokenizer = tiktoken.encoding_for_model(self.model_id)
-        sample_user = DummyUserDetail(name="John Doe", age=30)
+
+        mocked_usage = MagicMock(
+            usage=MagicMock(prompt_tokens=100, completion_tokens=100),
+        )
+        sample_user = DummyUserDetail(
+            name="John Doe", age=30, _raw_response=mocked_usage
+        )
 
         llm._aclient.chat.completions.create = AsyncMock(return_value=sample_user)
 
@@ -116,10 +122,10 @@ class TestOpenAILLM:
                 },
             ]
         )
-        assert isinstance(generation, dict)
-        generations = generation["generations"]
-        assert generations[0] == sample_user.model_dump_json()
-        assert generation["statistics"] == {"input_tokens": 10, "output_tokens": 12}
+        assert generation == {
+            "generations": [sample_user.model_dump_json()],
+            "statistics": {"input_tokens": 100, "output_tokens": 100},
+        }
 
     @pytest.mark.skipif(
         sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"

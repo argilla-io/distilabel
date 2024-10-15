@@ -37,7 +37,7 @@ from distilabel.steps.tasks.typing import (
 )
 
 if TYPE_CHECKING:
-    from cohere import AsyncClient, ChatMessage, NonStreamedChatResponse
+    from cohere import AsyncClient, ChatMessage, Message
     from pydantic import BaseModel
 
 
@@ -287,15 +287,13 @@ class CohereLLM(AsyncLLM):
         if structured_output:
             kwargs = self._prepare_kwargs(kwargs, structured_output)  # type: ignore
 
-        response: Union[
-            "NonStreamedChatResponse", "BaseModel"
-        ] = await self._aclient.chat(**kwargs)  # type: ignore
+        response: Union["Message", "BaseModel"] = await self._aclient.chat(**kwargs)  # type: ignore
 
         if structured_output:
             # TODO: Refactor the dict response, it's quite similar in many LLMs
             str_response = response.model_dump_json()
             return {
-                "generations": str_response,
+                "generations": [str_response],
                 "statistics": {
                     "input_tokens": compute_tokens(input, self._tokenizer.encode),
                     "output_tokens": compute_tokens(
@@ -311,7 +309,7 @@ class CohereLLM(AsyncLLM):
                 f" Finish reason was: {response.finish_reason}"
             )
             return {
-                "generations": None,
+                "generations": [None],
                 "statistics": {
                     "input_tokens": compute_tokens(input, self._tokenizer.encode),
                     "output_tokens": 0,
@@ -319,7 +317,7 @@ class CohereLLM(AsyncLLM):
             }
 
         return {
-            "generations": text,
+            "generations": [text],
             "statistics": {
                 "input_tokens": compute_tokens(input, self._tokenizer.encode),
                 "output_tokens": compute_tokens(text, self._tokenizer.encode),

@@ -225,19 +225,21 @@ class GroqLLM(AsyncLLM):
         if structured_output:
             kwargs = self._prepare_kwargs(kwargs, structured_output)
 
-        generations = []
         completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
         if structured_output:
-            generations.append(completion.model_dump_json())
+            raw_response = completion._raw_response
             return {
-                "generations": generations,
+                "generations": [completion.model_dump_json()],
                 "statistics": {
-                    # TODO: Need a way of knowing the tokenizer.
-                    "input_tokens": 0,
-                    "output_tokens": 0,
+                    "input_tokens": raw_response.usage.prompt_tokens
+                    if raw_response.usage
+                    else 0,
+                    "output_tokens": raw_response.usage.completion_tokens
+                    if raw_response.usage
+                    else 0,
                 },
             }
-
+        generations = []
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(  # type: ignore

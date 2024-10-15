@@ -27,12 +27,12 @@ def compute_tokens(
         tokenizer: A callable function that take str and returns the tokenized version of the text.
 
     Returns:
-        int: _description_
+        The number of tokens.
     """
-    if isinstance(text_or_messages, str):
-        text = text_or_messages
-    else:
+    if isinstance(text_or_messages, list):
         # If it's a list of messages, concatenate the content of each message
         text = " ".join([message["content"] for message in text_or_messages])
+    else:
+        text = text_or_messages
 
-    return len(tokenizer(text)) if text else 0
+    return len(tokenizer(text))

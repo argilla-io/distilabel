@@ -22,7 +22,6 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from distilabel import envs
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
 from distilabel.llms.base import AsyncLLM
-from distilabel.llms.statistics import compute_tokens
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
@@ -32,8 +31,6 @@ if TYPE_CHECKING:
     from openai.types import Batch as OpenAIBatch
     from openai.types import FileObject as OpenAIFileObject
     from openai.types.chat import ChatCompletion as OpenAIChatCompletion
-    from pydantic import BaseModel
-    from tiktoken.core import Encoding
 
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
@@ -170,7 +167,6 @@ class OpenAILLM(AsyncLLM):
     _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
     _client: "OpenAI" = PrivateAttr(None)
     _aclient: "AsyncOpenAI" = PrivateAttr(None)
-    _tokenizer: "Encoding" = PrivateAttr(None)
 
     def load(self) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
@@ -213,10 +209,6 @@ class OpenAILLM(AsyncLLM):
             self._aclient = result.get("client")  # type: ignore
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
-            # It must be version 0.8.0 at least.
-            import tiktoken
-
-            self._tokenizer = tiktoken.encoding_for_model(self.model)
 
     def unload(self) -> None:
         """Set clients to `None` as they both contain `thread._RLock` which cannot be pickled
@@ -315,35 +307,19 @@ class OpenAILLM(AsyncLLM):
 
         completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
         if structured_output:
-            # Note: Instructor extracts the content from the structured output, so we need to
-            # add the token count
-            generation = self._generations_from_structured_output(completion)
-
             return {
-                "generations": generation,
+                "generations": [completion.model_dump_json()],
                 "statistics": {
-                    "input_tokens": compute_tokens(input, self._tokenizer.encode),
-                    "output_tokens": compute_tokens(
-                        orjson.dumps(generation).decode("utf-8"), self._tokenizer.encode
-                    ),
+                    "input_tokens": completion._raw_response.usage.prompt_tokens
+                    if completion._raw_response
+                    else 0,
+                    "output_tokens": completion._raw_response.usage.completion_tokens
+                    if completion._raw_response
+                    else 0,
                 },
             }
 
         return self._generations_from_openai_completion(completion)
-
-    def _generations_from_structured_output(
-        self, completion: "BaseModel"
-    ) -> "GenerateOutput":
-        """Get the generations from the structured output object.
-
-        Args:
-            completion: an instance of `pydantic.BaseModel` with the content of the structuted
-                output.
-
-        Returns:
-            A list with the content of the structured output.
-        """
-        return [completion.model_dump_json()]
 
     def _generations_from_openai_completion(
         self, completion: "OpenAIChatCompletion"

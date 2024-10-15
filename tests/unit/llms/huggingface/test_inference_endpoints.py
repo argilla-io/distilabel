@@ -235,7 +235,6 @@ class TestInferenceEndpointsLLM:
         )
 
         nest_asyncio.apply()
-
         assert llm.generate(
             inputs=[
                 [

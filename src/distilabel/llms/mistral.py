@@ -221,8 +221,14 @@ class MistralLLM(AsyncLLM):
             completion = await self._aclient.chat.complete_async(**kwargs)  # type: ignore
 
         if structured_output:
-            generations.append(completion.model_dump_json())
-            return generations
+            raw_response = completion._raw_response
+            return {
+                "generations": [completion.model_dump_json()],
+                "statistics": {
+                    "input_tokens": raw_response.usage.prompt_tokens,
+                    "output_tokens": raw_response.usage.completion_tokens,
+                },
+            }
 
         for choice in completion.choices:
             if (content := choice.message.content) is None:
@@ -231,4 +237,10 @@ class MistralLLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
-        return generations
+        return {
+            "generations": generations,
+            "statistics": {
+                "input_tokens": completion.usage.prompt_tokens,
+                "output_tokens": completion.usage.completion_tokens,
+            },
+        }

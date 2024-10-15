@@ -128,10 +128,12 @@ class TestCohereLLM:
                 ]
             ]
         )
-        assert result == {
-            "generations": ["Aenean hendrerit aliquam velit..."],
-            "statistics": {"input_tokens": 23, "output_tokens": 16},
-        }
+        assert result == [
+            {
+                "generations": ["Aenean hendrerit aliquam velit..."],
+                "statistics": {"input_tokens": 23, "output_tokens": 16},
+            }
+        ]
 
     @pytest.mark.parametrize(
         "structured_output, dump",

@@ -24,12 +24,10 @@ from typing import (
     get_type_hints,
 )
 
-import orjson
 from httpx import AsyncClient
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
-from distilabel.llms.statistics import compute_tokens
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import (
@@ -42,7 +40,6 @@ if TYPE_CHECKING:
 
     from anthropic import AsyncAnthropic
     from anthropic.types import Message
-    from tokenizers import Tokenizer
 
 
 _ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
@@ -148,7 +145,6 @@ class AnthropicLLM(AsyncLLM):
 
     _api_key_env_var: str = PrivateAttr(default=_ANTHROPIC_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)
-    _tokenizer: "Tokenizer" = PrivateAttr(...)
 
     def _check_model_exists(self) -> None:
         """Checks if the specified model exists in the available models."""
@@ -204,10 +200,6 @@ class AnthropicLLM(AsyncLLM):
             self._aclient = result.get("client")
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
-
-            from anthropic._tokenizers import sync_get_tokenizer
-
-            self._tokenizer = sync_get_tokenizer()
 
     @property
     def model_name(self) -> str:
@@ -275,15 +267,12 @@ class AnthropicLLM(AsyncLLM):
             **kwargs
         )  # type: ignore
         if structured_output:
-            str_response = completion.model_dump_json()
+            raw_response = completion._raw_response
             return {
-                "generations": str_response,
+                "generations": [completion.model_dump_json()],
                 "statistics": {
-                    "input_tokens": compute_tokens(input, self._tokenizer.encode),
-                    "output_tokens": compute_tokens(
-                        orjson.dumps(str_response).decode("utf-8"),
-                        self._tokenizer.encode,
-                    ),
+                    "input_tokens": raw_response.usage.input_tokens,
+                    "output_tokens": raw_response.usage.output_tokens,
                 },
             }
 
@@ -293,7 +282,7 @@ class AnthropicLLM(AsyncLLM):
                 f" Finish reason was: {completion.stop_reason}"
             )
         return {
-            "generations": content,
+            "generations": [content],
             "statistics": {
                 "input_tokens": completion.usage.input_tokens,
                 "output_tokens": completion.usage.output_tokens,

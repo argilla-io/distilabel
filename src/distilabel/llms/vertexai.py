@@ -160,15 +160,25 @@ class VertexAILLM(AsyncLLM):
         )
 
         text = None
+        input_tokens = 0
+        output_tokens = 0
         try:
             text = content.candidates[0].text
+            input_tokens = content.usage_metadata.prompt_token_count
+            output_tokens = content.usage_metadata.candidates_token_count
         except ValueError:
             self._logger.warning(  # type: ignore
                 f"Received no response using VertexAI client (model: '{self.model}')."
                 f" Finish reason was: '{content.candidates[0].finish_reason}'."
             )
 
-        return [text]
+        return {
+            "generations": [text],
+            "statistics": {
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+            },
+        }
 
 
 def _is_gemini_model(model: str) -> bool:

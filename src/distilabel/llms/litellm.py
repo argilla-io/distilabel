@@ -15,6 +15,7 @@
 import logging
 from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
+import orjson
 from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import AsyncLLM
@@ -194,6 +195,7 @@ class LiteLLM(AsyncLLM):
             A list of lists of strings containing the generated responses for each input.
         """
         import litellm
+        from litellm import token_counter
 
         structured_output = None
         if isinstance(input, tuple):
@@ -256,10 +258,24 @@ class LiteLLM(AsyncLLM):
                 raise e
 
         generations = []
+        input_tokens = token_counter(model=self.model, messages=input)
+        output_tokens = 0
 
         if self.structured_output:
-            generations.append([choice.model_dump_json() for choice in choices])
-            return generations
+            for choice in choices:
+                generations.append(choice.model_dump_json())
+                output_tokens += token_counter(
+                    model=self.model,
+                    text=orjson.dumps(choice.model_dump_json()).decode("utf-8"),
+                )
+
+            return {
+                "generations": generations,
+                "statistics": {
+                    "input_tokens": input_tokens,
+                    "output_tokens": output_tokens,
+                },
+            }
 
         for choice in choices:
             if (content := choice.message.content) is None:
@@ -268,4 +284,12 @@ class LiteLLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
-        return generations
+            output_tokens += token_counter(model=self.model, text=content)
+
+        return {
+            "generations": generations,
+            "statistics": {
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+            },
+        }

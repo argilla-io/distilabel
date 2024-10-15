@@ -74,8 +74,12 @@ class TestGroqLLM:
         )  # type: ignore
         llm._aclient = mock_openai
 
-        sample_user = DummyUserDetail(name="John Doe", age=30)
-
+        mocked_usage = MagicMock(
+            usage=MagicMock(prompt_tokens=100, completion_tokens=100),
+        )
+        sample_user = DummyUserDetail(
+            name="John Doe", age=30, _raw_response=mocked_usage
+        )
         llm._aclient.chat.completions.create = AsyncMock(return_value=sample_user)
 
         generation = await llm.agenerate(
@@ -88,8 +92,8 @@ class TestGroqLLM:
             ]
         )
         assert generation == {
-            "generations": sample_user.model_dump_json(),
-            "statistics": {"input_tokens": 0, "output_tokens": 0},
+            "generations": [sample_user.model_dump_json()],
+            "statistics": {"input_tokens": 100, "output_tokens": 100},
         }
 
     @pytest.mark.asyncio
