@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -3407,6 +3407,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sections/pipeline_samples/tutorials/generate_textcat_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generate synthetic text classification data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -6136,6 +6157,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -6158,7 +6184,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.GlobalStep" href="../../step/global_step/#distilabel.steps.base.GlobalStep">GlobalStep</a></code></p>
+              Bases: <code>GlobalStep</code></p>
 
 
         <p>DBSCAN (Density-Based Spatial Clustering of Applications with Noise) finds core
@@ -6215,7 +6241,7 @@ and pushing it to the Hugging Face Hub.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.DBSCAN.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.dbscan.DBSCAN.eps">eps</span></code>
+                  <code>eps</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6229,7 +6255,7 @@ choose appropriately for your data set and distance function.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.DBSCAN.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.dbscan.DBSCAN.min_samples">min_samples</span></code>
+                  <code>min_samples</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6243,7 +6269,7 @@ to a lower value, the found clusters will be more sparse.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.DBSCAN.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.dbscan.DBSCAN.metric">metric</span></code>
+                  <code>metric</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6256,7 +6282,7 @@ by <code>sklearn.metrics.pairwise_distances</code> for its metric parameter.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.DBSCAN.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.dbscan.DBSCAN.n_jobs">n_jobs</span></code>
+                  <code>n_jobs</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6285,6 +6311,11 @@ by <code>sklearn.metrics.pairwise_distances</code> for its metric parameter.</p>
 <li><code>n_jobs</code>: The number of parallel jobs to run.</li>
 </ul>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/clustering/dbscan.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33"> 33</a></span>
@@ -6612,7 +6643,7 @@ by <code>sklearn.metrics.pairwise_distances</code> for its metric parameter.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.TextClassification" href="../../task/task_gallery/#distilabel.steps.tasks.TextClassification">TextClassification</a></code>, <code><span title="distilabel.steps.tasks.base.GlobalTask">GlobalTask</span></code></p>
+              Bases: <code>TextClassification</code>, <code>GlobalTask</code></p>
 
 
         <p>Task that clusters a set of texts and generates summary labels for each cluster.</p>
@@ -6678,7 +6709,7 @@ https://github.com/huggingface/text-clustering</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.TextClustering.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.text_clustering.TextClustering.savefig">savefig</span></code>
+                  <code>savefig</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6689,7 +6720,7 @@ https://github.com/huggingface/text-clustering</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.TextClustering.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.text_clustering.TextClustering.samples_per_cluster">samples_per_cluster</span></code>
+                  <code>samples_per_cluster</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6740,6 +6771,11 @@ https://github.com/huggingface/text-clustering</p>
 </span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
 </span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="n">loader</span> <span class="o">&gt;&gt;</span> <span class="n">umap</span> <span class="o">&gt;&gt;</span> <span class="n">dbscan</span> <span class="o">&gt;&gt;</span> <span class="n">text_clustering</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/clustering/text_clustering.py</code></summary>
@@ -7413,9 +7449,11 @@ UMAP + DBSCAN steps).</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>data</code></td>
             <td>
-                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+                <code>data</code>
+            </td>
+            <td>
+                  <code>DataFrame</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7428,9 +7466,11 @@ the projections and the label of each text respectively.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>cluster_centers</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Tuple">Tuple</span>[float, float]]</code>
+                <code>cluster_centers</code>
+            </td>
+            <td>
+                  <code>Dict[str, Tuple[float, float]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7443,9 +7483,11 @@ to help with the placement of the annotations.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>cluster_summaries</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[int, str]</code>
+                <code>cluster_summaries</code>
+            </td>
+            <td>
+                  <code>Dict[int, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7628,9 +7670,11 @@ to help with the placement of the annotations.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7642,9 +7686,11 @@ to help with the placement of the annotations.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>label2docs</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[int, <span title="typing.List">List</span>[str]]</code>
+                <code>label2docs</code>
+            </td>
+            <td>
+                  <code>Dict[int, List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7656,9 +7702,11 @@ to help with the placement of the annotations.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>cluster_summaries</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[int, str]</code>
+                <code>cluster_summaries</code>
+            </td>
+            <td>
+                  <code>Dict[int, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7793,9 +7841,11 @@ to help with the placement of the annotations.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7807,9 +7857,11 @@ to help with the placement of the annotations.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>label2docs</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[int, <span title="typing.List">List</span>[int]]</code>
+                <code>label2docs</code>
+            </td>
+            <td>
+                  <code>Dict[int, List[int]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7822,9 +7874,11 @@ belong to that cluster.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>unique_labels</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[int]</code>
+                <code>unique_labels</code>
+            </td>
+            <td>
+                  <code>List[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7850,7 +7904,7 @@ belong to that cluster.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Union">Union</span>[str, int]]]</code>
+                  <code>List[Dict[str, Union[str, int]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7860,7 +7914,7 @@ belong to that cluster.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Union">Union</span>[str, int]]]</code>
+                  <code>List[Dict[str, Union[str, int]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7870,7 +7924,7 @@ belong to that cluster.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Union">Union</span>[str, int]]]</code>
+                  <code>List[Dict[str, Union[str, int]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7880,7 +7934,7 @@ belong to that cluster.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Union">Union</span>[str, int]]]</code>
+                  <code>List[Dict[str, Union[str, int]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7991,7 +8045,7 @@ belong to that cluster.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.GlobalStep" href="../../step/global_step/#distilabel.steps.base.GlobalStep">GlobalStep</a></code></p>
+              Bases: <code>GlobalStep</code></p>
 
 
         <p>UMAP is a general purpose manifold learning and dimension reduction algorithm.</p>
@@ -8044,7 +8098,7 @@ when creating a distiset and pushing it to the Hugging Face Hub.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.UMAP.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.umap.UMAP.n_components">n_components</span></code>
+                  <code>n_components</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8057,7 +8111,7 @@ reasonably be set to any integer value in the range 2 to 100.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.UMAP.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.umap.UMAP.metric">metric</span></code>
+                  <code>metric</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8069,7 +8123,7 @@ Visit UMAP's documentation for more information. Defaults to <code>euclidean</co
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.UMAP.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.umap.UMAP.n_jobs">n_jobs</span></code>
+                  <code>n_jobs</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8080,7 +8134,7 @@ Visit UMAP's documentation for more information. Defaults to <code>euclidean</co
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.UMAP.-">-</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.clustering.umap.UMAP.random_state">random_state</span></code>
+                  <code>random_state</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8118,6 +8172,11 @@ Visit UMAP's documentation for more information. Defaults to <code>euclidean</co
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/clustering/umap.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33"> 33</a></span>
@@ -8419,7 +8478,7 @@ Visit UMAP's documentation for more information. Defaults to <code>euclidean</co
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Combine the outputs of several upstream steps.</p>
@@ -8482,6 +8541,11 @@ with Pipeline() as pipeline:
     [step_1, step_2, step_3] &gt;&gt; combine
 ```
 </code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/combine.py</code></summary>
@@ -8670,7 +8734,7 @@ with Pipeline() as pipeline:
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.GlobalStep" href="../../step/global_step/#distilabel.steps.base.GlobalStep">GlobalStep</a></code></p>
+              Bases: <code>GlobalStep</code></p>
 
 
         <p>Filter dataset rows using DEITA filtering strategy.</p>
@@ -8692,7 +8756,7 @@ for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction 
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.DeitaFiltering.data_budget">data_budget</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
+                  <code>RuntimeParameter[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8703,7 +8767,7 @@ for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction 
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.DeitaFiltering.diversity_threshold">diversity_threshold</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[float]</code>
+                  <code>RuntimeParameter[float]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8716,7 +8780,7 @@ Defaults to <code>0.9</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.DeitaFiltering.normalize_embeddings">normalize_embeddings</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[bool]</code>
+                  <code>RuntimeParameter[bool]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8822,6 +8886,11 @@ distance. Defaults to <code>True</code>.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/deita.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27"> 27</a></span>
@@ -9367,9 +9436,11 @@ embeddings.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9395,7 +9466,7 @@ embeddings.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9482,9 +9553,11 @@ the product of the instruction score and the response score.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9510,7 +9583,7 @@ the product of the instruction score and the response score.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9647,9 +9720,11 @@ pairs and the nearest neighbor.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9675,7 +9750,7 @@ pairs and the nearest neighbor.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9769,9 +9844,11 @@ pairs and the nearest neighbor.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>embeddings</code></td>
             <td>
-                  <code><span title="numpy.ndarray">ndarray</span></code>
+                <code>embeddings</code>
+            </td>
+            <td>
+                  <code>ndarray</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9797,7 +9874,7 @@ pairs and the nearest neighbor.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="numpy.ndarray">ndarray</span></code>
+                  <code>ndarray</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9865,9 +9942,11 @@ pairs and the nearest neighbor.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>embeddings</code></td>
             <td>
-                  <code><span title="numpy.array">array</span></code>
+                <code>embeddings</code>
+            </td>
+            <td>
+                  <code>array</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9893,7 +9972,7 @@ pairs and the nearest neighbor.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="numpy.array">array</span></code>
+                  <code>array</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9965,9 +10044,11 @@ pairs and the nearest neighbor.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>embeddings</code></td>
             <td>
-                  <code><span title="numpy.array">array</span></code>
+                <code>embeddings</code>
+            </td>
+            <td>
+                  <code>array</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9993,7 +10074,7 @@ pairs and the nearest neighbor.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="numpy.array">array</span></code>
+                  <code>array</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10058,7 +10139,7 @@ pairs and the nearest neighbor.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Generate embeddings using an <code>Embeddings</code> model.</p>
@@ -10079,7 +10160,7 @@ embeddings for the provided input texts.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.EmbeddingGeneration.embeddings">embeddings</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.embeddings.base.Embeddings" href="../../embedding/#distilabel.embeddings.base.Embeddings">Embeddings</a></code>
+                  <code>Embeddings</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10128,6 +10209,11 @@ embeddings for the provided input texts.</p>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">embedding_generation</span><span class="o">.</span><span class="n">process</span><span class="p">([{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, how are you?&quot;</span><span class="p">}]))</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># [{&#39;text&#39;: &#39;Hello, how are you?&#39;, &#39;embedding&#39;: [0.06209656596183777, -0.015797119587659836, ...]}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/embeddings/embedding_generation.py</code></summary>
@@ -10326,7 +10412,7 @@ embeddings for the provided input texts.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.GlobalStep" href="../../step/global_step/#distilabel.steps.base.GlobalStep">GlobalStep</a></code></p>
+              Bases: <code>GlobalStep</code></p>
 
 
         <p>Create a <code>faiss</code> index to get the nearest neighbours.</p>
@@ -10348,7 +10434,7 @@ or distance of the nearest neighbours for each input row.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.FaissNearestNeighbour.device">device</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[<span title="typing.Union">Union</span>[int, <span title="typing.List">List</span>[int]]]]</code>
+                  <code>Optional[RuntimeParameter[Union[int, List[int]]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10360,7 +10446,7 @@ will use all the available GPUs. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.FaissNearestNeighbour.string_factory">string_factory</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[str]]</code>
+                  <code>Optional[RuntimeParameter[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10373,7 +10459,7 @@ Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.FaissNearestNeighbour.metric_type">metric_type</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]]</code>
+                  <code>Optional[RuntimeParameter[int]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10386,7 +10472,7 @@ one of <code>faiss.METRIC_x</code> variables. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.FaissNearestNeighbour.k">k</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]]</code>
+                  <code>Optional[RuntimeParameter[int]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10397,7 +10483,7 @@ one of <code>faiss.METRIC_x</code> variables. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.FaissNearestNeighbour.search_batch_size">search_batch_size</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]]</code>
+                  <code>Optional[RuntimeParameter[int]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10410,7 +10496,7 @@ to <code>50</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.FaissNearestNeighbour.train_size">train_size</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]]</code>
+                  <code>Optional[RuntimeParameter[int]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10519,6 +10605,11 @@ used to train the index.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/embeddings/nearest_neighbour.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-29"> 29</a></span>
@@ -10995,9 +11086,11 @@ used to train the index.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>List[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11023,7 +11116,7 @@ used to train the index.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="datasets.Dataset">Dataset</span></code>
+                  <code>Dataset</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11107,9 +11200,11 @@ used to train the index.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>dataset</code></td>
             <td>
-                  <code><span title="datasets.Dataset">Dataset</span></code>
+                <code>dataset</code>
+            </td>
+            <td>
+                  <code>Dataset</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11188,9 +11283,11 @@ used to train the index.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>dataset</code></td>
             <td>
-                  <code><span title="datasets.Dataset">Dataset</span></code>
+                <code>dataset</code>
+            </td>
+            <td>
+                  <code>Dataset</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11216,7 +11313,7 @@ used to train the index.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="datasets.Dataset">Dataset</span></code>
+                  <code>Dataset</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11226,7 +11323,7 @@ used to train the index.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="datasets.Dataset">Dataset</span></code>
+                  <code>Dataset</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11315,7 +11412,7 @@ used to train the index.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.GlobalStep" href="../../step/global_step/#distilabel.steps.base.GlobalStep">GlobalStep</a></code></p>
+              Bases: <code>GlobalStep</code></p>
 
 
         <p>Deduplicates text using embeddings.</p>
@@ -11339,7 +11436,7 @@ are duplicate.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.EmbeddingDedup.threshold">threshold</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[float]]</code>
+                  <code>Optional[RuntimeParameter[float]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11481,6 +11578,11 @@ if __name__ == &quot;__main__&quot;:
     ds_dedup = ds.filter(lambda x: x[&quot;keep_row_after_embedding_filtering&quot;])
 ```
 </code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/filtering/embedding.py</code></summary>
@@ -11847,7 +11949,7 @@ if __name__ == &quot;__main__&quot;:
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Deduplicates text using <code>MinHash</code> and <code>MinHashLSH</code>.</p>
@@ -11895,7 +11997,7 @@ used for <code>MinHash</code>, keep in mind when both steps are created. Default
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.MinHashDedup.tokenizer">tokenizer</span></code></td>
             <td>
-                  <code><span title="typing.Literal">Literal</span>[&#39;words&#39;, &#39;ngrams&#39;]</code>
+                  <code>Literal[&#39;words&#39;, &#39;ngrams&#39;]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11909,7 +12011,7 @@ word tokenizer. <code>ngram</code> estimates the ngrams (together with the size
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.MinHashDedup.n">n</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[int]</code>
+                  <code>Optional[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11932,7 +12034,7 @@ Values closer to 0 detect more duplicates. Defaults to <code>0.9</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.MinHashDedup.storage">storage</span></code></td>
             <td>
-                  <code><span title="typing.Literal">Literal</span>[&#39;dict&#39;, &#39;disk&#39;]</code>
+                  <code>Literal[&#39;dict&#39;, &#39;disk&#39;]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -12016,6 +12118,11 @@ if __name__ == &quot;__main__&quot;:
     ds_dedup = ds.filter(lambda x: x[&quot;keep_row_after_minhash_filtering&quot;])
 ```
 </code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/filtering/minhash.py</code></summary>
@@ -12362,7 +12469,7 @@ if __name__ == &quot;__main__&quot;:
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Generate a conversation template from an instruction and a response.</p>
@@ -12412,6 +12519,11 @@ if __name__ == &quot;__main__&quot;:
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1"># &gt;&gt;&gt; result</span>
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1"># [{&#39;instruction&#39;: &#39;Hello&#39;, &#39;response&#39;: &#39;Hi&#39;, &#39;conversation&#39;: [{&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: &#39;Hello&#39;}, {&#39;role&#39;: &#39;assistant&#39;, &#39;content&#39;: &#39;Hi&#39;}]}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/conversation.py</code></summary>
@@ -12625,9 +12737,11 @@ if __name__ == &quot;__main__&quot;:
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -12653,7 +12767,7 @@ if __name__ == &quot;__main__&quot;:
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -12722,7 +12836,7 @@ if __name__ == &quot;__main__&quot;:
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Format the output of a combination of a <code>ChatGeneration</code> + a preference task for Direct Preference Optimization (DPO).</p>
@@ -12813,6 +12927,11 @@ number of ratings as generations.</p>
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="c1">#     }</span>
 </span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/dpo.py</code></summary>
@@ -13250,9 +13369,11 @@ according to the DPO formatting standard.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>*inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13278,7 +13399,7 @@ according to the DPO formatting standard.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13411,7 +13532,7 @@ according to the DPO formatting standard.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Format the output of your LLMs for Direct Preference Optimization (DPO).</p>
@@ -13503,6 +13624,11 @@ contain the same number of ratings as generations.</p>
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1">#    }</span>
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/dpo.py</code></summary>
@@ -13966,9 +14092,11 @@ according to the DPO formatting standard.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>*inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13994,7 +14122,7 @@ according to the DPO formatting standard.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -14139,7 +14267,7 @@ according to the DPO formatting standard.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Format the output of a <code>ChatGeneration</code> task for Supervised Fine-Tuning (SFT).</p>
@@ -14209,6 +14337,11 @@ in the conversation.</p>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="c1">#     }</span>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/sft.py</code></summary>
@@ -14508,9 +14641,11 @@ according to the SFT formatting standard.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>*inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -14536,7 +14671,7 @@ according to the SFT formatting standard.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -14633,7 +14768,7 @@ according to the SFT formatting standard.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Format the output of a <code>TextGeneration</code> task for Supervised Fine-Tuning (SFT).</p>
@@ -14704,6 +14839,11 @@ in the conversation.</p>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1">#     }</span>
 </span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/sft.py</code></summary>
@@ -15055,9 +15195,11 @@ according to the SFT formatting standard.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>*inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15083,7 +15225,7 @@ according to the SFT formatting standard.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15188,7 +15330,7 @@ according to the SFT formatting standard.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.GeneratorStep" href="../../step/generator_step/#distilabel.steps.base.GeneratorStep">GeneratorStep</a></code></p>
+              Bases: <code>GeneratorStep</code></p>
 
 
         <p>Loads a dataset from a list of dictionaries.</p>
@@ -15209,7 +15351,7 @@ batches.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.LoadDataFromDicts.data">data</span></code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                  <code>List[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15257,6 +15399,11 @@ batches.</p>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># &gt;&gt;&gt; result</span>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># ([{&#39;instruction&#39;: &#39;What are 2+2?&#39;}, {&#39;instruction&#39;: &#39;What are 2+2?&#39;}], False)</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/generators/data.py</code></summary>
@@ -15451,7 +15598,9 @@ batches.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>offset</code></td>
+            <td>
+                <code>offset</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -15479,7 +15628,7 @@ batches.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../../step/typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
+                  <code>GeneratorStepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15489,7 +15638,7 @@ batches.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../../step/typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
+                  <code>GeneratorStepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15570,7 +15719,7 @@ batches.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.GeneratorStep" href="../../step/generator_step/#distilabel.steps.base.GeneratorStep">GeneratorStep</a></code></p>
+              Bases: <code>GeneratorStep</code></p>
 
 
         <p>Step to sample from a dataset.</p>
@@ -15596,7 +15745,7 @@ row generated, so each example would contain S examples to be used as examples.<
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.DataSampler.data">data</span></code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                  <code>List[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15708,6 +15857,11 @@ of samples in the loader step. Defaults to 100.</p>
 </span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>    <span class="p">)</span>
 </span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="c1"># Now we have a single stream of data with the loader and the sampler data</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/generators/data_sampler.py</code></summary>
@@ -16055,7 +16209,9 @@ of samples in the loader step. Defaults to 100.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>offset</code></td>
+            <td>
+                <code>offset</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -16083,7 +16239,7 @@ of samples in the loader step. Defaults to 100.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.GeneratorStepOutput" href="../../step/typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
+                  <code>GeneratorStepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16093,7 +16249,7 @@ of samples in the loader step. Defaults to 100.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.GeneratorStepOutput" href="../../step/typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
+                  <code>GeneratorStepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16182,7 +16338,7 @@ of samples in the loader step. Defaults to 100.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.llms.mixins.cuda_device_placement.CudaDevicePlacementMixin" href="../../llm/llm_gallery/#distilabel.llms.CudaDevicePlacementMixin">CudaDevicePlacementMixin</a></code></p>
+              Bases: <code>Step</code>, <code>CudaDevicePlacementMixin</code></p>
 
 
         <p>Assign a score to a response using a Reward Model.</p>
@@ -16252,7 +16408,7 @@ from the repository in the Hub. Defaults to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.RewardModelScore.device_map">device_map</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, <span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>], None]</code>
+                  <code>Union[str, Dict[str, Any], None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16263,7 +16419,7 @@ from the repository in the Hub. Defaults to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.RewardModelScore.token">token</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="pydantic.SecretStr">SecretStr</span>, None]</code>
+                  <code>Union[SecretStr, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16287,7 +16443,7 @@ local configuration will be used. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.RewardModelScore.max_length">max_length</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[int, None]</code>
+                  <code>Union[int, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16384,6 +16540,11 @@ local configuration will be used. Defaults to <code>None</code>.</p>
 </span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="c1">#   {&#39;conversation&#39;: [{&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: &#39;How much is 2+2?&#39;}, {&#39;role&#39;: &#39;assistant&#39;, &#39;content&#39;: &#39;4&#39;}], &#39;score&#39;: 0.10300665348768234}</span>
 </span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/reward_model.py</code></summary>
@@ -16866,7 +17027,7 @@ local configuration will be used. Defaults to <code>None</code>.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Truncate a row using a tokenizer or the number of characters.</p>
@@ -16915,7 +17076,7 @@ otherwise corresponds to the number of characters. Defaults to <code>8192</code>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.TruncateTextColumn.tokenizer">tokenizer</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16988,6 +17149,11 @@ truncated using the tokenizer. Defaults to <code>None</code>.</p>
 </span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="c1"># result</span>
 </span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="c1"># [{&#39;text&#39;: &#39;This is a &#39;}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/truncate.py</code></summary>
@@ -17523,7 +17689,7 @@ truncated using the tokenizer. Defaults to <code>None</code>.</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       

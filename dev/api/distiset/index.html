@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -3407,6 +3407,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sections/pipeline_samples/tutorials/generate_textcat_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generate synthetic text classification data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -5115,7 +5136,7 @@
           <tr class="doc-section-item">
             <td><code><span title="distilabel.distiset.Distiset._pipeline_path">_pipeline_path</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+                  <code>Optional[Path]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5127,7 +5148,7 @@ Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.distiset.Distiset._artifacts_path">_artifacts_path</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+                  <code>Optional[Path]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5139,7 +5160,7 @@ by the pipeline steps. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.distiset.Distiset._log_filename_path">_log_filename_path</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+                  <code>Optional[Path]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5151,7 +5172,7 @@ by the pipeline. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.distiset.Distiset._citations">_citations</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
+                  <code>Optional[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5162,6 +5183,11 @@ card. Defaults to <code>None</code>.</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/distiset.py</code></summary>
@@ -6337,7 +6363,9 @@ corresponding to the leaf step that generated it.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>repo_id</code></td>
+            <td>
+                <code>repo_id</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -6353,7 +6381,9 @@ of the logged-in user.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>private</code></td>
+            <td>
+                <code>private</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -6368,9 +6398,11 @@ a repository that already exists will not be affected by that parameter.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>token</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                <code>token</code>
+            </td>
+            <td>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6384,7 +6416,9 @@ if no token is passed and the user is not logged-in.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>generate_card</code></td>
+            <td>
+                <code>generate_card</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -6398,7 +6432,9 @@ if no token is passed and the user is not logged-in.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>include_script</code></td>
+            <td>
+                <code>include_script</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -6416,9 +6452,11 @@ from calling <code>Pipeline.run()</code> method. Defaults to False.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>**kwargs</code></td>
             <td>
-                  <code><span title="typing.Any">Any</span></code>
+                <code>**kwargs</code>
+            </td>
+            <td>
+                  <code>Any</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6653,7 +6691,9 @@ Splits are created from the dataset according to <code>train_size</code> and <co
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>train_size</code></td>
+            <td>
+                <code>train_size</code>
+            </td>
             <td>
                   <code>float</code>
             </td>
@@ -6668,7 +6708,9 @@ It will be applied to all the datasets in the <code>Distiset</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>shuffle</code></td>
+            <td>
+                <code>shuffle</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -6682,9 +6724,11 @@ It will be applied to all the datasets in the <code>Distiset</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>seed</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[int]</code>
+                <code>seed</code>
+            </td>
+            <td>
+                  <code>Optional[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6710,7 +6754,7 @@ It will be applied to all the datasets in the <code>Distiset</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing_extensions.Self">Self</span></code>
+                  <code>Self</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6812,9 +6856,11 @@ as you would do with <code>datasets</code>'s <code>Dataset.save_to_disk</code> m
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>distiset_path</code></td>
             <td>
-                  <code><span title="os.PathLike">PathLike</span></code>
+                <code>distiset_path</code>
+            </td>
+            <td>
+                  <code>PathLike</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6827,9 +6873,11 @@ as you would do with <code>datasets</code>'s <code>Dataset.save_to_disk</code> m
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>max_shard_size</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[str, int]]</code>
+                <code>max_shard_size</code>
+            </td>
+            <td>
+                  <code>Optional[Union[str, int]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6843,9 +6891,11 @@ Defaults to <code>None</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>num_shards</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[int]</code>
+                <code>num_shards</code>
+            </td>
+            <td>
+                  <code>Optional[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6858,9 +6908,11 @@ Defaults to <code>None</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>num_proc</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[int]</code>
+                <code>num_proc</code>
+            </td>
+            <td>
+                  <code>Optional[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6873,9 +6925,11 @@ Multiprocessing is disabled by default. Defaults to <code>None</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>storage_options</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[dict]</code>
+                <code>storage_options</code>
+            </td>
+            <td>
+                  <code>Optional[dict]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6888,7 +6942,9 @@ Defaults to <code>None</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>save_card</code></td>
+            <td>
+                <code>save_card</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -6902,7 +6958,9 @@ Defaults to <code>None</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>save_pipeline_config</code></td>
+            <td>
+                <code>save_pipeline_config</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -6917,7 +6975,9 @@ Defaults to <code>True</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>save_pipeline_log</code></td>
+            <td>
+                <code>save_pipeline_log</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -7194,9 +7254,11 @@ directory, or from a filesystem using any implementation of <code>fsspec.spec.Ab
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>distiset_path</code></td>
             <td>
-                  <code><span title="os.PathLike">PathLike</span></code>
+                <code>distiset_path</code>
+            </td>
+            <td>
+                  <code>PathLike</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7208,9 +7270,11 @@ directory, or from a filesystem using any implementation of <code>fsspec.spec.Ab
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>keep_in_memory</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[bool]</code>
+                <code>keep_in_memory</code>
+            </td>
+            <td>
+                  <code>Optional[bool]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7223,9 +7287,11 @@ for more information. Defaults to</code>None`.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>storage_options</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                <code>storage_options</code>
+            </td>
+            <td>
+                  <code>Optional[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7238,9 +7304,11 @@ Defaults to <code>None</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>download_dir</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="os.PathLike">PathLike</span>]</code>
+                <code>download_dir</code>
+            </td>
+            <td>
+                  <code>Optional[PathLike]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7267,7 +7335,7 @@ in which case it will create a temporary directory.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing_extensions.Self">Self</span></code>
+                  <code>Self</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7491,9 +7559,11 @@ where the cached data was written by the <code>_WriteBuffer</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>data_dir</code></td>
             <td>
-                  <code><span title="pathlib.Path">Path</span></code>
+                <code>data_dir</code>
+            </td>
+            <td>
+                  <code>Path</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7506,9 +7576,11 @@ It should correspond to <code>CacheLocation.data</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>pipeline_path</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+                <code>pipeline_path</code>
+            </td>
+            <td>
+                  <code>Optional[Path]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7522,9 +7594,11 @@ uploading the <code>pipeline.yaml</code> file to the repo upon <code>Distiset.pu
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>log_filename_path</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+                <code>log_filename_path</code>
+            </td>
+            <td>
+                  <code>Optional[Path]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7538,7 +7612,9 @@ uploading the <code>pipeline.log</code> file to the repo upon <code>Distiset.pus
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>enable_metadata</code></td>
+            <td>
+                <code>enable_metadata</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -7553,9 +7629,11 @@ Defaults to <code>False</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>dag</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.pipeline._dag.DAG">DAG</span>]</code>
+                <code>dag</code>
+            </td>
+            <td>
+                  <code>Optional[DAG]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7582,7 +7660,7 @@ citations from it.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.distiset.Distiset" href="#distilabel.distiset.Distiset">Distiset</a></code>
+                  <code>Distiset</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7592,7 +7670,7 @@ citations from it.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.distiset.Distiset" href="#distilabel.distiset.Distiset">Distiset</a></code>
+                  <code>Distiset</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7997,7 +8075,7 @@ citations from it.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

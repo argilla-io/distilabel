@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -3407,6 +3407,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sections/pipeline_samples/tutorials/generate_textcat_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generate synthetic text classification data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -4992,6 +5013,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -5014,7 +5040,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="../step/#distilabel.steps.base._Step">_Step</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
+              Bases: <code>_Step</code>, <code>ABC</code></p>
 
 
         <p>_Task is an abstract class that implements the <code>_Step</code> interface and adds the
@@ -5035,7 +5061,7 @@ task. It also adds a <code>llm</code> attribute to be used as the LLM to generat
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.base._Task.llm">llm</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.llms.base.LLM" href="../llm/#distilabel.llms.base.LLM">LLM</a></code>
+                  <code>LLM</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5058,7 +5084,7 @@ a list or create a row per generation. Defaults to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.base._Task.add_raw_output">add_raw_output</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[bool]</code>
+                  <code>RuntimeParameter[bool]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5071,7 +5097,7 @@ with <code>Tasks</code> that need to format the output of the <code>LLM</code>. 
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.base._Task.num_generations">num_generations</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
+                  <code>RuntimeParameter[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5081,6 +5107,11 @@ with <code>Tasks</code> that need to format the output of the <code>LLM</code>. 
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/base.py</code></summary>
@@ -6027,9 +6058,11 @@ Helper method to visualize the prompt of the task.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>sample_input</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
+                <code>sample_input</code>
+            </td>
+            <td>
+                  <code>Optional[ChatType]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6268,7 +6301,7 @@ The variables be named <PLACEHOLDER_VARIABLE_NAME> by default.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base._Task" href="#distilabel.steps.tasks.base._Task">_Task</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>_Task</code>, <code>Step</code></p>
 
 
         <p>Task is a class that implements the <code>_Task</code> abstract class and adds the <code>Step</code>
@@ -6318,6 +6351,11 @@ a list or create a row per generation. Defaults to <code>False</code>.</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/base.py</code></summary>
@@ -6528,9 +6566,11 @@ as a Python dictionary, and generates an OpenAI chat-like list of dicts.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6556,7 +6596,7 @@ as a Python dictionary, and generates an OpenAI chat-like list of dicts.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6854,7 +6894,7 @@ as a Python dictionary, and generates an OpenAI chat-like list of dicts.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -3407,6 +3407,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sections/pipeline_samples/tutorials/generate_textcat_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generate synthetic text classification data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -5064,6 +5085,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -5086,7 +5112,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParametersMixin" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParametersMixin">RuntimeParametersMixin</a></code>, <code><span title="pydantic.BaseModel">BaseModel</span></code>, <code><span title="distilabel.utils.serialization._Serializable">_Serializable</span></code>, <code><span title="abc.ABC">ABC</span></code></p>
+              Bases: <code>RuntimeParametersMixin</code>, <code>BaseModel</code>, <code>_Serializable</code>, <code>ABC</code></p>
 
 
         <p>Base class for <code>LLM</code>s to be used in <code>distilabel</code> framework.</p>
@@ -5110,7 +5136,7 @@
           <tr class="doc-section-item">
             <td><code><span title="distilabel.llms.base.LLM.generation_kwargs">generation_kwargs</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
+                  <code>Optional[RuntimeParameter[Dict[str, Any]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5122,7 +5148,7 @@ methods within each <code>LLM</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.llms.base.LLM.use_offline_batch_generation">use_offline_batch_generation</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[bool]]</code>
+                  <code>Optional[RuntimeParameter[bool]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5134,7 +5160,7 @@ generate the responses.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.llms.base.LLM.offline_batch_generation_block_until_done">offline_batch_generation_block_until_done</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]]</code>
+                  <code>Optional[RuntimeParameter[int]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5147,7 +5173,7 @@ the time to wait between each polling.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.llms.base.LLM.jobs_ids">jobs_ids</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="typing.Tuple">Tuple</span>[str, ...], None]</code>
+                  <code>Union[Tuple[str, ...], None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5161,7 +5187,7 @@ the user.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.llms.base.LLM._logger">_logger</span></code></td>
             <td>
-                  <code><span title="logging.Logger">Logger</span></code>
+                  <code>Logger</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5172,6 +5198,11 @@ method is called.</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/llms/base.py</code></summary>
@@ -5881,7 +5912,7 @@ method is called.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="inspect.Parameter">Parameter</span>]</code>
+                  <code>List[Parameter]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5927,7 +5958,7 @@ of the <code>generate</code> method that are not <code>input</code> and <code>nu
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParametersNames">RuntimeParametersNames</span></code>
+                  <code>RuntimeParametersNames</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5937,7 +5968,7 @@ of the <code>generate</code> method that are not <code>input</code> and <code>nu
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParametersNames">RuntimeParametersNames</span></code>
+                  <code>RuntimeParametersNames</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5982,7 +6013,7 @@ of the <code>generate</code> method that are not <code>input</code> and <code>nu
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="distilabel.utils.docstring.Docstring">Docstring</span></code>
+                  <code>Docstring</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6079,7 +6110,7 @@ be overridden to provide a more complex logic for the generation kwargs.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6144,9 +6175,11 @@ per input in <code>inputs</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.FormattedInput" href="../task/typing/#distilabel.steps.tasks.typing.FormattedInput">FormattedInput</a>]</code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>List[FormattedInput]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6166,7 +6199,9 @@ API format:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>num_generations</code></td>
+            <td>
+                <code>num_generations</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -6180,9 +6215,11 @@ API format:</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>**kwargs</code></td>
             <td>
-                  <code><span title="typing.Any">Any</span></code>
+                <code>**kwargs</code>
+            </td>
+            <td>
+                  <code>Any</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6355,7 +6392,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameterInfo">RuntimeParameterInfo</span>]</code>
+                  <code>List[RuntimeParameterInfo]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6467,9 +6504,11 @@ parameters in the serialized data of the <code>LLM</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.StandardInput" href="../task/typing/#distilabel.steps.tasks.typing.StandardInput">StandardInput</a>]</code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>List[StandardInput]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6495,7 +6534,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.HiddenState">HiddenState</span>]</code>
+                  <code>List[HiddenState]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6579,9 +6618,11 @@ information for recovering the pipeline execution when the batch generation is f
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.FormattedInput" href="../task/typing/#distilabel.steps.tasks.typing.FormattedInput">FormattedInput</a>], None]</code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>Union[List[FormattedInput], None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6593,7 +6634,9 @@ information for recovering the pipeline execution when the batch generation is f
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>num_generations</code></td>
+            <td>
+                <code>num_generations</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -6607,9 +6650,11 @@ information for recovering the pipeline execution when the batch generation is f
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>**kwargs</code></td>
             <td>
-                  <code><span title="typing.Any">Any</span></code>
+                <code>**kwargs</code>
+            </td>
+            <td>
+                  <code>Any</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6635,7 +6680,7 @@ information for recovering the pipeline execution when the batch generation is f
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span>]</code>
+                  <code>List[GenerateOutput]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6730,7 +6775,7 @@ information for recovering the pipeline execution when the batch generation is f
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.llms.base.LLM" href="#distilabel.llms.base.LLM">LLM</a></code></p>
+              Bases: <code>LLM</code></p>
 
 
         <p>Abstract class for asynchronous LLMs, so as to benefit from the async capabilities
@@ -6752,7 +6797,7 @@ responses.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.llms.base.AsyncLLM._event_loop">_event_loop</span></code></td>
             <td>
-                  <code><span title="asyncio.AbstractEventLoop">AbstractEventLoop</span></code>
+                  <code>AbstractEventLoop</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6762,6 +6807,11 @@ responses.</p>
           </tr>
       </tbody>
     </table>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/llms/base.py</code></summary>
@@ -7223,7 +7273,7 @@ responses.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="inspect.Parameter">Parameter</span>]</code>
+                  <code>List[Parameter]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7268,7 +7318,7 @@ responses.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="distilabel.utils.docstring.Docstring">Docstring</span></code>
+                  <code>Docstring</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7353,9 +7403,11 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.FormattedInput" href="../task/typing/#distilabel.steps.tasks.typing.FormattedInput">FormattedInput</a>]</code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>List[FormattedInput]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7367,7 +7419,9 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>num_generations</code></td>
+            <td>
+                <code>num_generations</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -7381,9 +7435,11 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>**kwargs</code></td>
             <td>
-                  <code><span title="typing.Any">Any</span></code>
+                <code>**kwargs</code>
+            </td>
+            <td>
+                  <code>Any</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7409,7 +7465,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span>]</code>
+                  <code>List[GenerateOutput]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7711,7 +7767,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

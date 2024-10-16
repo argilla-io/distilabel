@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -3407,6 +3407,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sections/pipeline_samples/tutorials/generate_textcat_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generate synthetic text classification data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -6239,6 +6260,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#distilabel.steps.tasks.task" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;task
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -8915,6 +8945,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#distilabel.steps.tasks.task" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;task
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -8961,6 +9000,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -8983,7 +9027,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Executes the generated function calls.</p>
@@ -9098,6 +9142,11 @@ the OS, or have other potentially dangerous operations. Defaults to True.</p>
 </span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="n">res</span>
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1">#[{&#39;answers&#39;: [{&#39;arguments&#39;: {&#39;initial_velocity&#39;: 0.2, &#39;acceleration&#39;: 0.1, &#39;time&#39;: 0.5}, &#39;name&#39;: &#39;final_velocity&#39;}], &#39;keep_row_after_execution_check&#39;: True, &#39;execution_result&#39;: [&#39;0.25&#39;]}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/apigen/execution_checker.py</code></summary>
@@ -9673,7 +9722,9 @@ the OS, or have other potentially dangerous operations. Defaults to True.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>function_name</code></td>
+            <td>
+                <code>function_name</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -9701,7 +9752,7 @@ the OS, or have other potentially dangerous operations. Defaults to True.</p>
       <tbody>
           <tr class="doc-section-item">
 <td><code>Callable</code></td>            <td>
-                  <code><span title="typing.Callable">Callable</span></code>
+                  <code>Callable</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9864,9 +9915,11 @@ Captures the possible errors and returns them.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9892,7 +9945,7 @@ Captures the possible errors and returns them.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10079,7 +10132,7 @@ Captures the possible errors and returns them.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Generate queries and answers for the given functions in JSON format.</p>
@@ -10282,6 +10335,11 @@ Returns a list of random movies from a database by calling an external API.</p>
 <p>Now please generate 2 diverse query and answer pairs following the above format.'}]},
         # 'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]
         ```</p>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/apigen/generator.py</code></summary>
@@ -11231,7 +11289,7 @@ Returns a list of random movies from a database by calling an external API.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Callable">Callable</span>[[int], str]</code>
+                  <code>Callable[[int], str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11529,9 +11587,11 @@ prompt for extra information. Otherwise will use jut the function description.</
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11543,9 +11603,11 @@ prompt for extra information. Otherwise will use jut the function description.</
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11571,7 +11633,7 @@ prompt for extra information. Otherwise will use jut the function description.</
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11581,7 +11643,7 @@ prompt for extra information. Otherwise will use jut the function description.</
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11591,7 +11653,7 @@ prompt for extra information. Otherwise will use jut the function description.</
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11603,7 +11665,7 @@ prompt for extra information. Otherwise will use jut the function description.</
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11613,7 +11675,7 @@ prompt for extra information. Otherwise will use jut the function description.</
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11721,9 +11783,11 @@ prompt for extra information. Otherwise will use jut the function description.</
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>pairs</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>pairs</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11735,9 +11799,11 @@ prompt for extra information. Otherwise will use jut the function description.</
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11763,7 +11829,7 @@ prompt for extra information. Otherwise will use jut the function description.</
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11773,7 +11839,7 @@ prompt for extra information. Otherwise will use jut the function description.</
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11921,7 +11987,7 @@ a dictionary with the output which can be directly parsed as a python dictionary
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -12098,7 +12164,7 @@ a dictionary with the output which can be directly parsed as a python dictionary
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Generate queries and answers for the given functions in JSON format.</p>
@@ -12270,6 +12336,11 @@ res
 # &#39;model_name&#39;: &#39;meta-llama/Meta-Llama-3.1-70B-Instruct&#39;}]
 ```
 </code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/apigen/semantic_checker.py</code></summary>
@@ -13038,9 +13109,11 @@ to generate a formatted JSON.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13052,9 +13125,11 @@ to generate a formatted JSON.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13080,7 +13155,7 @@ to generate a formatted JSON.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13090,7 +13165,7 @@ to generate a formatted JSON.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13100,7 +13175,7 @@ to generate a formatted JSON.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13112,7 +13187,7 @@ to generate a formatted JSON.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13122,7 +13197,7 @@ to generate a formatted JSON.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13271,7 +13346,7 @@ a dictionary with the output which can be directly parsed as a python dictionary
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13372,7 +13447,7 @@ a dictionary with the output which can be directly parsed as a python dictionary
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Annotate Argilla records based on input fields, example records and question settings.</p>
@@ -13395,7 +13470,7 @@ The response is validated against the question's value model, and the final sugg
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.ArgillaLabeller._template">_template</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="jinja2.Template">Template</span>, None]</code>
+                  <code>Union[Template, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13562,6 +13637,11 @@ The response is validated against the question's value model, and the final sugg
 </span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="p">)</span>
 </span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="n">labeller</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/argilla_labeller.py</code></summary>
@@ -14787,9 +14867,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>record</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>record</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -14801,9 +14883,11 @@ The response is validated against the question's value model, and the final sugg
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>fields</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                <code>fields</code>
+            </td>
+            <td>
+                  <code>List[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -14913,9 +14997,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>question</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>question</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15007,9 +15093,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>question</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>question</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15119,9 +15207,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>records</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                <code>records</code>
+            </td>
+            <td>
+                  <code>List[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15133,9 +15223,11 @@ The response is validated against the question's value model, and the final sugg
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>fields</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                <code>fields</code>
+            </td>
+            <td>
+                  <code>List[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15147,9 +15239,11 @@ The response is validated against the question's value model, and the final sugg
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>question</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>question</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15285,9 +15379,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Union">Union</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>], <span title="argilla.Record">Record</span>, <span title="argilla.TextField">TextField</span>, <span title="argilla.MultiLabelQuestion">MultiLabelQuestion</span>, <span title="argilla.LabelQuestion">LabelQuestion</span>, <span title="argilla.RatingQuestion">RatingQuestion</span>, <span title="argilla.TextQuestion">TextQuestion</span>]]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Union[Dict[str, Any], Record, TextField, MultiLabelQuestion, LabelQuestion, RatingQuestion, TextQuestion]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15313,7 +15409,7 @@ The response is validated against the question's value model, and the final sugg
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code>ChatType</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15526,9 +15622,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15540,9 +15638,11 @@ The response is validated against the question's value model, and the final sugg
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15568,7 +15668,7 @@ The response is validated against the question's value model, and the final sugg
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15692,9 +15792,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15720,7 +15822,7 @@ The response is validated against the question's value model, and the final sugg
       <tbody>
           <tr class="doc-section-item">
 <td><code>StepOutput</code></td>            <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15844,9 +15946,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>question_value_model</code></td>
             <td>
-                  <code><span title="pydantic.BaseModel">BaseModel</span></code>
+                <code>question_value_model</code>
+            </td>
+            <td>
+                  <code>BaseModel</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15872,7 +15976,7 @@ The response is validated against the question's value model, and the final sugg
       <tbody>
           <tr class="doc-section-item">
 <td><code>Any</code></td>            <td>
-                  <code><span title="typing.Any">Any</span></code>
+                  <code>Any</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15946,9 +16050,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>value</code></td>
             <td>
-                  <code><span title="typing.Any">Any</span></code>
+                <code>value</code>
+            </td>
+            <td>
+                  <code>Any</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15960,9 +16066,11 @@ The response is validated against the question's value model, and the final sugg
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>question</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>question</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -15988,7 +16096,7 @@ The response is validated against the question's value model, and the final sugg
       <tbody>
           <tr class="doc-section-item">
 <td><code>BaseModel</code></td>            <td>
-                  <code><span title="pydantic.BaseModel">BaseModel</span></code>
+                  <code>BaseModel</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16074,9 +16182,11 @@ The response is validated against the question's value model, and the final sugg
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>question</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>question</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16102,7 +16212,7 @@ The response is validated against the question's value model, and the final sugg
       <tbody>
           <tr class="doc-section-item">
 <td><code>BaseModel</code></td>            <td>
-                  <code><span title="pydantic.BaseModel">BaseModel</span></code>
+                  <code>BaseModel</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16217,7 +16327,7 @@ The response is validated against the question's value model, and the final sugg
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Contrastive Learning from AI Revisions (CLAIR).</p>
@@ -16310,6 +16420,11 @@ preference A <code>preferred</code> A’ is much more contrastive and precise.</
 }
 ```
 </code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/clair.py</code></summary>
@@ -16732,9 +16847,11 @@ is the first interaction from the user within a conversation.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16746,9 +16863,11 @@ is the first interaction from the user within a conversation.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16774,7 +16893,7 @@ is the first interaction from the user within a conversation.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16845,7 +16964,7 @@ is the first interaction from the user within a conversation.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Score instructions based on their complexity using an <code>LLM</code>.</p>
@@ -16868,7 +16987,7 @@ in Instruction Tuning'.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.ComplexityScorer._template">_template</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="jinja2.Template">Template</span>, None]</code>
+                  <code>Union[Template, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16970,6 +17089,11 @@ in Instruction Tuning'.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/complexity_scorer.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-39"> 39</a></span>
@@ -17574,9 +17698,11 @@ is the first interaction from the user within a conversation.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -17588,9 +17714,11 @@ is the first interaction from the user within a conversation.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -17616,7 +17744,7 @@ is the first interaction from the user within a conversation.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -17721,7 +17849,7 @@ a dictionary with the output which can be directly parsed as a python dictionary
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -17826,7 +17954,9 @@ with either <code>positive</code>, or <code>positive</code> and <code>negative</
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
+            <td>
+                <code>output</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -17854,7 +17984,7 @@ with either <code>positive</code>, or <code>positive</code> and <code>negative</
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -17973,7 +18103,7 @@ str -&gt; str should override this method to return a sample input.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Evolve instructions using an <code>LLM</code>.</p>
@@ -18040,7 +18170,7 @@ to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstruct.mutation_templates">mutation_templates</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -18052,7 +18182,7 @@ Defaults to the ones provided in the <code>utils.py</code> file.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstruct.seed">seed</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
+                  <code>RuntimeParameter[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -18193,6 +18323,11 @@ Defaults to <code>42</code>.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/evol_instruct/base.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32"> 32</a></span>
@@ -19063,9 +19198,11 @@ depending whether the value is either <code>False</code> or <code>True</code> fo
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>instructions</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, <span title="typing.List">List</span>[str]]</code>
+                <code>instructions</code>
+            </td>
+            <td>
+                  <code>Union[str, List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19077,9 +19214,11 @@ depending whether the value is either <code>False</code> or <code>True</code> fo
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>answers</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
+                <code>answers</code>
+            </td>
+            <td>
+                  <code>Optional[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19105,7 +19244,7 @@ depending whether the value is either <code>False</code> or <code>True</code> fo
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19115,7 +19254,7 @@ depending whether the value is either <code>False</code> or <code>True</code> fo
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19125,7 +19264,7 @@ depending whether the value is either <code>False</code> or <code>True</code> fo
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19135,7 +19274,7 @@ depending whether the value is either <code>False</code> or <code>True</code> fo
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19244,7 +19383,9 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>instruction</code></td>
+            <td>
+                <code>instruction</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -19340,9 +19481,11 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19368,7 +19511,7 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[str]]</code>
+                  <code>List[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19378,7 +19521,7 @@ enum, and returns the provided instruction within the mutation prompt.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[str]]</code>
+                  <code>List[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19524,9 +19667,11 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>evolved_instructions</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[str]]</code>
+                <code>evolved_instructions</code>
+            </td>
+            <td>
+                  <code>List[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19554,7 +19699,7 @@ if <code>store_evolutions=True</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[str]]</code>
+                  <code>List[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19666,9 +19811,11 @@ if <code>store_evolutions=True</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19694,7 +19841,7 @@ if <code>store_evolutions=True</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19825,7 +19972,7 @@ if <code>store_evolutions=True</code>.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.evol_instruct.base.EvolInstruct" href="#distilabel.steps.tasks.EvolInstruct">EvolInstruct</a></code></p>
+              Bases: <code>EvolInstruct</code></p>
 
 
         <p>Evolve instructions to make them more complex using an <code>LLM</code>.</p>
@@ -19868,7 +20015,7 @@ to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolComplexity.mutation_templates">mutation_templates</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19880,7 +20027,7 @@ instructions.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolComplexity.min_length">min_length</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19892,7 +20039,7 @@ be higher than, to be considered valid. Defaults to <code>512</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolComplexity.max_length">max_length</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19904,7 +20051,7 @@ be lower than, to be considered valid. Defaults to <code>1024</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolComplexity.seed">seed</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -20003,6 +20150,11 @@ Defaults to <code>42</code>.</p>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/evol_instruct/evol_complexity/base.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-23"> 23</a></span>
@@ -20222,7 +20374,7 @@ Defaults to <code>42</code>.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.evol_instruct.generator.EvolInstructGenerator" href="#distilabel.steps.tasks.EvolInstructGenerator">EvolInstructGenerator</a></code></p>
+              Bases: <code>EvolInstructGenerator</code></p>
 
 
         <p>Generate evolved instructions with increased complexity using an <code>LLM</code>.</p>
@@ -20265,7 +20417,7 @@ to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolComplexityGenerator.mutation_templates">mutation_templates</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -20277,7 +20429,7 @@ instructions.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolComplexityGenerator.min_length">min_length</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -20289,7 +20441,7 @@ be higher than, to be considered valid. Defaults to <code>512</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolComplexityGenerator.max_length">max_length</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -20301,7 +20453,7 @@ be lower than, to be considered valid. Defaults to <code>1024</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolComplexityGenerator.seed">seed</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -20394,6 +20546,11 @@ Defaults to <code>42</code>.</p>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/evol_instruct/evol_complexity/generator.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-23"> 23</a></span>
@@ -20609,7 +20766,7 @@ Defaults to <code>42</code>.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.GeneratorTask" href="../generator_task/#distilabel.steps.tasks.base.GeneratorTask">GeneratorTask</a></code></p>
+              Bases: <code>GeneratorTask</code></p>
 
 
         <p>Generate evolved instructions using an <code>LLM</code>.</p>
@@ -20652,7 +20809,7 @@ to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstructGenerator.mutation_templates">mutation_templates</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -20664,7 +20821,7 @@ instructions.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstructGenerator.min_length">min_length</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
+                  <code>RuntimeParameter[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -20676,7 +20833,7 @@ be higher than, to be considered valid. Defaults to <code>512</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstructGenerator.max_length">max_length</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
+                  <code>RuntimeParameter[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -20688,7 +20845,7 @@ be lower than, to be considered valid. Defaults to <code>1024</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstructGenerator.seed">seed</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
+                  <code>RuntimeParameter[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -20773,6 +20930,11 @@ Defaults to <code>42</code>.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/evol_instruct/generator.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-39"> 39</a></span>
@@ -21519,7 +21681,7 @@ mutation method and included within the prompt.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                  <code>List[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -21661,7 +21823,9 @@ and, finally, the <code>model_name</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>instruction</code></td>
+            <td>
+                <code>instruction</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -21675,9 +21839,11 @@ and, finally, the <code>model_name</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>answer</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                <code>answer</code>
+            </td>
+            <td>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -21703,7 +21869,7 @@ and, finally, the <code>model_name</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -21713,7 +21879,7 @@ and, finally, the <code>model_name</code>.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -21800,7 +21966,9 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>iter_no</code></td>
+            <td>
+                <code>iter_no</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -21829,7 +21997,7 @@ first one i.e. FRESH_START, or not.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
+                  <code>List[ChatType]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -21939,9 +22107,11 @@ first one i.e. FRESH_START, or not.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>instructions</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[str]]</code>
+                <code>instructions</code>
+            </td>
+            <td>
+                  <code>List[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -21969,7 +22139,7 @@ if <code>store_evolutions=True</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                  <code>List[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -22055,7 +22225,9 @@ if <code>store_evolutions=True</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>offset</code></td>
+            <td>
+                <code>offset</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -22083,7 +22255,7 @@ if <code>store_evolutions=True</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../../step/typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
+                  <code>GeneratorStepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -22093,7 +22265,7 @@ if <code>store_evolutions=True</code>.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../../step/typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
+                  <code>GeneratorStepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -22270,7 +22442,7 @@ if <code>store_evolutions=True</code>.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Evolve the quality of the responses using an <code>LLM</code>.</p>
@@ -22328,7 +22500,7 @@ responses. Defaults to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolQuality.mutation_templates">mutation_templates</span></code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -22339,7 +22511,7 @@ responses. Defaults to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolQuality.seed">seed</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
+                  <code>RuntimeParameter[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -22439,6 +22611,11 @@ Defaults to <code>42</code>.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/evol_quality/base.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-31"> 31</a></span>
@@ -23105,9 +23282,11 @@ and, finally, the <code>model_name</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>responses</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, <span title="typing.List">List</span>[str]]</code>
+                <code>responses</code>
+            </td>
+            <td>
+                  <code>Union[str, List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -23133,7 +23312,7 @@ and, finally, the <code>model_name</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -23143,7 +23322,7 @@ and, finally, the <code>model_name</code>.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -23230,7 +23409,9 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>instruction</code></td>
+            <td>
+                <code>instruction</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -23334,9 +23515,11 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -23362,7 +23545,7 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[str]]</code>
+                  <code>List[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -23372,7 +23555,7 @@ enum, and returns the provided instruction within the mutation prompt.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[str]]</code>
+                  <code>List[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -23510,9 +23693,11 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -23538,7 +23723,7 @@ enum, and returns the provided instruction within the mutation prompt.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -23623,7 +23808,7 @@ enum, and returns the provided instruction within the mutation prompt.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Generate embeddings using the last hidden state of an <code>LLM</code>.</p>
@@ -23645,7 +23830,7 @@ Automatic Data Selection in Instruction Tuning'.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateEmbeddings.llm">llm</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.llms.base.LLM" href="../../llm/#distilabel.llms.base.LLM">LLM</a></code>
+                  <code>LLM</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -23726,6 +23911,11 @@ Automatic Data Selection in Instruction Tuning'.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/generate_embeddings.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27"> 27</a></span>
@@ -24096,9 +24286,11 @@ list of dictionaries in OpenAI chat-like format.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -24124,7 +24316,7 @@ list of dictionaries in OpenAI chat-like format.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code>ChatType</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -24218,9 +24410,11 @@ list of dictionaries in OpenAI chat-like format.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -24246,7 +24440,7 @@ list of dictionaries in OpenAI chat-like format.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -24315,7 +24509,7 @@ list of dictionaries in OpenAI chat-like format.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Generate a pair of instruction-response from a document using an <code>LLM</code>.</p>
@@ -24345,7 +24539,7 @@ for this specific task.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.Genstruct._template">_template</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="jinja2.Template">Template</span>, None]</code>
+                  <code>Union[Template, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -24438,6 +24632,11 @@ for this specific task.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/genstruct.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-37"> 37</a></span>
@@ -24905,9 +25104,11 @@ captured.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -24919,9 +25120,11 @@ captured.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -24947,7 +25150,7 @@ captured.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -25034,7 +25237,7 @@ captured.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="distilabel.steps.tasks.improving_text_embeddings._EmbeddingDataGenerator">_EmbeddingDataGenerator</span></code></p>
+              Bases: <code>_EmbeddingDataGenerator</code></p>
 
 
         <p>Generate bitext retrieval data with an <code>LLM</code> to later on train an embedding model.</p>
@@ -25081,7 +25284,7 @@ retrieved from the list of XLM-R in the Appendix A of https://aclanthology.org/2
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.BitextRetrievalGenerator.unit">unit</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;sentence&#39;, &#39;phrase&#39;, &#39;passage&#39;]]</code>
+                  <code>Optional[Literal[&#39;sentence&#39;, &#39;phrase&#39;, &#39;passage&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -25093,7 +25296,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.BitextRetrievalGenerator.difficulty">difficulty</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;elementary school&#39;, &#39;high school&#39;, &#39;college&#39;]]</code>
+                  <code>Optional[Literal[&#39;elementary school&#39;, &#39;high school&#39;, &#39;college&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -25105,7 +25308,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.BitextRetrievalGenerator.high_score">high_score</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;4&#39;, &#39;4.5&#39;, &#39;5&#39;]]</code>
+                  <code>Optional[Literal[&#39;4&#39;, &#39;4.5&#39;, &#39;5&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -25117,7 +25320,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.BitextRetrievalGenerator.low_score">low_score</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;2.5&#39;, &#39;3&#39;, &#39;3.5&#39;]]</code>
+                  <code>Optional[Literal[&#39;2.5&#39;, &#39;3&#39;, &#39;3.5&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -25129,7 +25332,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.BitextRetrievalGenerator.seed">seed</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;2.5&#39;, &#39;3&#39;, &#39;3.5&#39;]]</code>
+                  <code>Optional[Literal[&#39;2.5&#39;, &#39;3&#39;, &#39;3.5&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -25172,6 +25375,11 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">task</span> <span class="o">&gt;&gt;</span> <span class="o">...</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/improving_text_embeddings.py</code></summary>
@@ -25446,7 +25654,7 @@ being from the user with the content being the rendered <code>_template</code>.<
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="distilabel.steps.tasks.improving_text_embeddings._EmbeddingDataGeneration">_EmbeddingDataGeneration</span></code></p>
+              Bases: <code>_EmbeddingDataGeneration</code></p>
 
 
         <p>Generate long text matching data with an <code>LLM</code> to later on train an embedding model.</p>
@@ -25544,6 +25752,11 @@ Note that in this task the <code>seed</code> has no effect since there are no sa
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">task</span> <span class="o">&gt;&gt;</span> <span class="n">generate</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/improving_text_embeddings.py</code></summary>
@@ -25787,9 +26000,11 @@ there's only one turn, being from the user with the content being the rendered <
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -25815,7 +26030,7 @@ there's only one turn, being from the user with the content being the rendered <
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code>ChatType</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -25896,7 +26111,7 @@ there's only one turn, being from the user with the content being the rendered <
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="distilabel.steps.tasks.improving_text_embeddings._EmbeddingDataGeneration">_EmbeddingDataGeneration</span></code></p>
+              Bases: <code>_EmbeddingDataGeneration</code></p>
 
 
         <p>Generate short text matching data with an <code>LLM</code> to later on train an embedding model.</p>
@@ -25994,6 +26209,11 @@ Note that in this task the <code>seed</code> has no effect since there are no sa
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">task</span> <span class="o">&gt;&gt;</span> <span class="n">generate</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/improving_text_embeddings.py</code></summary>
@@ -26300,7 +26520,7 @@ randomly sampling those if not provided. This method will render the <code>_temp
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="distilabel.steps.tasks.improving_text_embeddings._EmbeddingDataGeneration">_EmbeddingDataGeneration</span></code></p>
+              Bases: <code>_EmbeddingDataGeneration</code></p>
 
 
         <p>Generate text classification data with an <code>LLM</code> to later on train an embedding model.</p>
@@ -26342,7 +26562,7 @@ retrieved from the list of XLM-R in the Appendix A of https://aclanthology.org/2
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateTextClassificationData.difficulty">difficulty</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;high school&#39;, &#39;college&#39;, &#39;PhD&#39;]]</code>
+                  <code>Optional[Literal[&#39;high school&#39;, &#39;college&#39;, &#39;PhD&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26354,7 +26574,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateTextClassificationData.clarity">clarity</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;clear&#39;, &#39;understandable with some effort&#39;, &#39;ambiguous&#39;]]</code>
+                  <code>Optional[Literal[&#39;clear&#39;, &#39;understandable with some effort&#39;, &#39;ambiguous&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26366,7 +26586,7 @@ or <code>ambiguous</code>. Defaults to <code>None</code>, meaning that it will b
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateTextClassificationData.seed">seed</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;clear&#39;, &#39;understandable with some effort&#39;, &#39;ambiguous&#39;]]</code>
+                  <code>Optional[Literal[&#39;clear&#39;, &#39;understandable with some effort&#39;, &#39;ambiguous&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26424,6 +26644,11 @@ or <code>ambiguous</code>. Defaults to <code>None</code>, meaning that it will b
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">task</span> <span class="o">&gt;&gt;</span> <span class="n">generate</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/improving_text_embeddings.py</code></summary>
@@ -26701,9 +26926,11 @@ there's only one turn, being from the user with the content being the rendered <
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26729,7 +26956,7 @@ there's only one turn, being from the user with the content being the rendered <
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code>ChatType</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26822,7 +27049,7 @@ there's only one turn, being from the user with the content being the rendered <
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="distilabel.steps.tasks.improving_text_embeddings._EmbeddingDataGeneration">_EmbeddingDataGeneration</span></code></p>
+              Bases: <code>_EmbeddingDataGeneration</code></p>
 
 
         <p>Generate text retrieval data with an <code>LLM</code> to later on train an embedding model.</p>
@@ -26864,7 +27091,7 @@ retrieved from the list of XLM-R in the Appendix A of https://aclanthology.org/2
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateTextRetrievalData.query_type">query_type</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;extremely long-tail&#39;, &#39;long-tail&#39;, &#39;common&#39;]]</code>
+                  <code>Optional[Literal[&#39;extremely long-tail&#39;, &#39;long-tail&#39;, &#39;common&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26876,7 +27103,7 @@ or <code>common</code>. Defaults to <code>None</code>, meaning that it will be r
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateTextRetrievalData.query_length">query_length</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;less than 5 words&#39;, &#39;5 to 15 words&#39;, &#39;at least 10 words&#39;]]</code>
+                  <code>Optional[Literal[&#39;less than 5 words&#39;, &#39;5 to 15 words&#39;, &#39;at least 10 words&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26888,7 +27115,7 @@ or <code>at least 10 words</code>. Defaults to <code>None</code>, meaning that i
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateTextRetrievalData.difficulty">difficulty</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;high school&#39;, &#39;college&#39;, &#39;PhD&#39;]]</code>
+                  <code>Optional[Literal[&#39;high school&#39;, &#39;college&#39;, &#39;PhD&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26900,7 +27127,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateTextRetrievalData.clarity">clarity</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;clear&#39;, &#39;understandable with some effort&#39;, &#39;ambiguous&#39;]]</code>
+                  <code>Optional[Literal[&#39;clear&#39;, &#39;understandable with some effort&#39;, &#39;ambiguous&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26912,7 +27139,7 @@ or <code>ambiguous</code>. Defaults to <code>None</code>, meaning that it will b
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateTextRetrievalData.num_words">num_words</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[50, 100, 200, 300, 400, 500]]</code>
+                  <code>Optional[Literal[50, 100, 200, 300, 400, 500]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26924,7 +27151,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateTextRetrievalData.seed">seed</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[50, 100, 200, 300, 400, 500]]</code>
+                  <code>Optional[Literal[50, 100, 200, 300, 400, 500]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -26984,6 +27211,11 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">task</span> <span class="o">&gt;&gt;</span> <span class="n">generate</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/improving_text_embeddings.py</code></summary>
@@ -27311,9 +27543,11 @@ there's only one turn, being from the user with the content being the rendered <
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -27339,7 +27573,7 @@ there's only one turn, being from the user with the content being the rendered <
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code>ChatType</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -27448,7 +27682,7 @@ there's only one turn, being from the user with the content being the rendered <
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="distilabel.steps.tasks.improving_text_embeddings._EmbeddingDataGenerator">_EmbeddingDataGenerator</span></code></p>
+              Bases: <code>_EmbeddingDataGenerator</code></p>
 
 
         <p>Generate monolingual triplets with an <code>LLM</code> to later on train an embedding model.</p>
@@ -27483,7 +27717,7 @@ retrieved from the list of XLM-R in the Appendix A of https://aclanthology.org/2
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.MonolingualTripletGenerator.unit">unit</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;sentence&#39;, &#39;phrase&#39;, &#39;passage&#39;]]</code>
+                  <code>Optional[Literal[&#39;sentence&#39;, &#39;phrase&#39;, &#39;passage&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -27495,7 +27729,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.MonolingualTripletGenerator.difficulty">difficulty</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;elementary school&#39;, &#39;high school&#39;, &#39;college&#39;]]</code>
+                  <code>Optional[Literal[&#39;elementary school&#39;, &#39;high school&#39;, &#39;college&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -27507,7 +27741,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.MonolingualTripletGenerator.high_score">high_score</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;4&#39;, &#39;4.5&#39;, &#39;5&#39;]]</code>
+                  <code>Optional[Literal[&#39;4&#39;, &#39;4.5&#39;, &#39;5&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -27519,7 +27753,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.MonolingualTripletGenerator.low_score">low_score</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;2.5&#39;, &#39;3&#39;, &#39;3.5&#39;]]</code>
+                  <code>Optional[Literal[&#39;2.5&#39;, &#39;3&#39;, &#39;3.5&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -27531,7 +27765,7 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.MonolingualTripletGenerator.seed">seed</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;2.5&#39;, &#39;3&#39;, &#39;3.5&#39;]]</code>
+                  <code>Optional[Literal[&#39;2.5&#39;, &#39;3&#39;, &#39;3.5&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -27572,6 +27806,11 @@ Defaults to <code>None</code>, meaning that it will be randomly sampled.</p>
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">task</span> <span class="o">&gt;&gt;</span> <span class="o">...</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/improving_text_embeddings.py</code></summary>
@@ -27828,7 +28067,7 @@ being from the user with the content being the rendered <code>_template</code>.<
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Self-Alignment with Instruction Backtranslation.</p>
@@ -27847,7 +28086,7 @@ being from the user with the content being the rendered <code>_template</code>.<
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.InstructionBacktranslation._template">_template</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="jinja2.Template">Template</span>]</code>
+                  <code>Optional[Template]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -27938,6 +28177,11 @@ being from the user with the content being the rendered <code>_template</code>.<
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/instruction_backtranslation.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32"> 32</a></span>
@@ -28382,9 +28626,11 @@ is the first interaction from the user within a conversation.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -28396,9 +28642,11 @@ is the first interaction from the user within a conversation.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -28424,7 +28672,7 @@ is the first interaction from the user within a conversation.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -28513,7 +28761,7 @@ is the first interaction from the user within a conversation.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code>, <code><span title="distilabel.steps.tasks.magpie.base.MagpieBase">MagpieBase</span></code></p>
+              Bases: <code>Task</code>, <code>MagpieBase</code></p>
 
 
         <p>Generates conversations using an instruct fine-tuned LLM.</p>
@@ -28767,6 +29015,11 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
 </span><span id="__span-1-61"><a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a><span class="c1">#     }</span>
 </span><span id="__span-1-62"><a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/magpie/base.py</code></summary>
@@ -29415,9 +29668,11 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -29443,7 +29698,7 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -29502,7 +29757,7 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.GeneratorTask" href="../generator_task/#distilabel.steps.tasks.base.GeneratorTask">GeneratorTask</a></code>, <code><span title="distilabel.steps.tasks.magpie.base.MagpieBase">MagpieBase</span></code></p>
+              Bases: <code>GeneratorTask</code>, <code>MagpieBase</code></p>
 
 
         <p>Generator task the generates instructions or conversations using Magpie.</p>
@@ -29591,7 +29846,7 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.MagpieGenerator.num_rows">num_rows</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
+                  <code>RuntimeParameter[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -29800,6 +30055,11 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/magpie/generator.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-31"> 31</a></span>
@@ -30521,7 +30781,9 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>offset</code></td>
+            <td>
+                <code>offset</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -30549,7 +30811,7 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../../step/typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
+                  <code>GeneratorStepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -30628,7 +30890,7 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Rank the candidates based on the input using the <code>LLM</code> model.</p>
@@ -30658,7 +30920,7 @@ steer it to generate instructions of a certain topic. Defaults to <code>None</co
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.PairRM.instructions">instructions</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -30750,6 +31012,11 @@ currently, and we will use a specific <code>LLM</code>.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/pair_rm.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-26"> 26</a></span>
@@ -31215,9 +31482,11 @@ ranks obtained.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -31243,7 +31512,7 @@ ranks obtained.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -31366,7 +31635,7 @@ ranks obtained.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Critique and rank the quality of generations from an <code>LLM</code> using Prometheus 2.0.</p>
@@ -31403,7 +31672,7 @@ correctly follow the formatting and generate insightful critiques too.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.PrometheusEval.mode">mode</span></code></td>
             <td>
-                  <code><span title="typing.Literal">Literal</span>[&#39;absolute&#39;, &#39;relative&#39;]</code>
+                  <code>Literal[&#39;absolute&#39;, &#39;relative&#39;]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -31429,7 +31698,7 @@ work if using the default <code>rubrics</code>, otherwise, the provided <code>ru
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.PrometheusEval.rubrics">rubrics</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, str]]</code>
+                  <code>Optional[Dict[str, str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -31455,7 +31724,7 @@ needs to be provided within the input data in addition to the rest of the inputs
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.PrometheusEval._template">_template</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="jinja2.Template">Template</span>, None]</code>
+                  <code>Union[Template, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -31670,6 +31939,11 @@ needs to be provided within the input data in addition to the rest of the inputs
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/prometheus_eval.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-75"> 75</a></span>
@@ -32752,9 +33026,11 @@ using a regex from the Prometheus output.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -32766,9 +33042,11 @@ using a regex from the Prometheus output.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -32794,7 +33072,7 @@ using a regex from the Prometheus output.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -32895,7 +33173,7 @@ using a regex from the Prometheus output.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Score responses based on their quality using an <code>LLM</code>.</p>
@@ -32920,7 +33198,7 @@ are scored in terms of quality, obtaining a quality score for each instruction.<
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.QualityScorer._template">_template</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="jinja2.Template">Template</span>, None]</code>
+                  <code>Union[Template, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -33043,6 +33321,11 @@ are scored in terms of quality, obtaining a quality score for each instruction.<
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/quality_scorer.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-36"> 36</a></span>
@@ -33697,9 +33980,11 @@ is the first interaction from the user within a conversation.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -33711,9 +33996,11 @@ is the first interaction from the user within a conversation.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -33739,7 +34026,7 @@ is the first interaction from the user within a conversation.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -33846,7 +34133,7 @@ a dictionary with the output which can be directly parsed as a python dictionary
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -33951,7 +34238,9 @@ with the scores, and a list with them.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
+            <td>
+                <code>output</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -33979,7 +34268,7 @@ with the scores, and a list with them.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -34050,7 +34339,7 @@ with the scores, and a list with them.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Generate instructions based on a given input using an <code>LLM</code>.</p>
@@ -34180,6 +34469,11 @@ to build with these instructions. Defaults to <code>AI assistant</code>.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/self_instruct.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33"> 33</a></span>
@@ -34639,9 +34933,11 @@ is the first interaction from the user within a conversation.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -34653,9 +34949,11 @@ is the first interaction from the user within a conversation.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Optional[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -34681,7 +34979,7 @@ is the first interaction from the user within a conversation.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -34754,7 +35052,7 @@ is the first interaction from the user within a conversation.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Generate a positive and negative (optionally) sentences given an anchor sentence.</p>
@@ -34790,7 +35088,7 @@ training embeddings models.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateSentencePair.action">action</span></code></td>
             <td>
-                  <code><span title="distilabel.steps.tasks.sentence_transformers.GenerationAction">GenerationAction</span></code>
+                  <code>GenerationAction</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -34984,6 +35282,11 @@ with a higher degree of semantic similarity.</p>
 </span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
 </span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="n">result</span> <span class="o">=</span> <span class="n">generate_sentence_pair</span><span class="o">.</span><span class="n">process</span><span class="p">([{</span><span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="s2">&quot;I want to generate queries for my LLM.&quot;</span><span class="p">}])</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/sentence_transformers.py</code></summary>
@@ -35790,9 +36093,11 @@ anchor is provided as the first user interaction in the conversation.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -35818,7 +36123,7 @@ anchor is provided as the first user interaction in the conversation.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code>ChatType</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -35936,9 +36241,11 @@ will be set to <code>None</code> as well.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -35950,9 +36257,11 @@ will be set to <code>None</code> as well.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Optional[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -35978,7 +36287,7 @@ will be set to <code>None</code> as well.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -36100,7 +36409,7 @@ a dictionary with the output which can be directly parsed as a python dictionary
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -36193,7 +36502,9 @@ with either <code>positive</code>, or <code>positive</code> and <code>negative</
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
+            <td>
+                <code>output</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -36221,7 +36532,7 @@ with either <code>positive</code>, or <code>positive</code> and <code>negative</
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -36292,7 +36603,7 @@ with either <code>positive</code>, or <code>positive</code> and <code>negative</
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Generate structured content for a given <code>instruction</code> using an <code>LLM</code>.</p>
@@ -36438,6 +36749,11 @@ the <code>system_prompt</code> will be used, otherwise, it will be ignored.</p>
 </span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>    <span class="p">)</span>
 </span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="p">)</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/structured_generation.py</code></summary>
@@ -36958,7 +37274,7 @@ output i.e. a string without any parsing.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Classifies text into one or more categories or labels.</p>
@@ -37010,7 +37326,7 @@ it can help to generate more concise labels. See section 4.1 in the reference.</
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.TextClassification.system_prompt">system_prompt</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -37022,7 +37338,7 @@ message to make the model behave like a classifier specialist.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.TextClassification.n">n</span></code></td>
             <td>
-                  <code><span title="pydantic.PositiveInt">PositiveInt</span></code>
+                  <code>PositiveInt</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -37035,7 +37351,7 @@ for the text. Defaults to 1.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.TextClassification.context">context</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -37047,7 +37363,7 @@ but can be used to customize the context for the task.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.TextClassification.examples">examples</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
+                  <code>Optional[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -37058,7 +37374,7 @@ but can be used to customize the context for the task.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.TextClassification.available_labels">available_labels</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[str], <span title="typing.Dict">Dict</span>[str, str]]]</code>
+                  <code>Optional[Union[List[str], Dict[str, str]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -37070,7 +37386,7 @@ a dictionary with the labels and their descriptions.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.TextClassification.default_label">default_label</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[str, <span title="typing.List">List</span>[str]]]</code>
+                  <code>Optional[Union[str, List[str]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -37181,6 +37497,11 @@ classification. Can be a list in case of multiple labels (n&gt;1).</p>
 </span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="c1">#     &#39;content&#39;: &#39;# Instruction\nPlease classify the example of persona by assigning the most appropriate labels.\nDo not explain your reasoning or provide any additional commentary.\nIf the text is ambiguous or lacks sufficient information for classification, respond with &quot;Unclassified&quot;.\nProvide a list of 3 labels that best describe the text.\nDescribe the main themes, topics, or categories that could describe the following type of persona.\nUse clear, widely understood terms for labels.Avoid overly specific or obscure labels unless the text demands it.\n\n\n## Example of Persona\n```\nA historian or curator of Mexican-American history and culture focused on the cultural, social, and historical impact of the Mexican presence in the United States.\n```\n\n## Output Format\nNow, please give me the labels in JSON format, do not include any other text in your response:\n```\n{\n    &quot;labels&quot;: [&quot;label_0&quot;, &quot;label_1&quot;, &quot;label_2&quot;]\n}\n```&#39;}]},</span>
 </span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="c1"># &#39;model_name&#39;: &#39;meta-llama/Meta-Llama-3.1-70B-Instruct&#39;}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/text_classification.py</code></summary>
@@ -38155,7 +38476,7 @@ a dictionary with the output which can be directly parsed as a python dictionary
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -38238,7 +38559,9 @@ with the <code>labels</code>, and either a string or a list of strings with the 
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
+            <td>
+                <code>output</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -38266,7 +38589,7 @@ with the <code>labels</code>, and either a string or a list of strings with the 
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Union">Union</span>[str, <span title="typing.List">List</span>[str]]]</code>
+                  <code>Dict[str, Union[str, List[str]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -38341,7 +38664,7 @@ with the <code>labels</code>, and either a string or a list of strings with the 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Generates text based on a conversation.</p>
@@ -38412,6 +38735,11 @@ The <code>model_name</code> is also returned as part of the output in order to e
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="c1">#     }</span>
 </span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/text_generation.py</code></summary>
@@ -38774,7 +39102,7 @@ will be automatically included within the <code>process</code> method of <code>T
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Text generation with an <code>LLM</code> given a prompt.</p>
@@ -38798,7 +39126,7 @@ of the responses generated by the LLM.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.TextGeneration.system_prompt">system_prompt</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -38824,7 +39152,7 @@ construct the appropriate template.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.TextGeneration.columns">columns</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, <span title="typing.List">List</span>[str]]</code>
+                  <code>Union[str, List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -38996,6 +39324,11 @@ will be used, otherwise, it will be ignored.</p>
 </span><span id="__span-2-41"><a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a><span class="c1">#     }</span>
 </span><span id="__span-2-42"><a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/text_generation.py</code></summary>
@@ -39756,7 +40089,7 @@ will be automatically included within the <code>process</code> method of <code>T
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Rank generations focusing on different aspects using an <code>LLM</code>.</p>
@@ -39776,7 +40109,7 @@ will be automatically included within the <code>process</code> method of <code>T
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.UltraFeedback.aspect">aspect</span></code></td>
             <td>
-                  <code><span title="typing.Literal">Literal</span>[&#39;helpfulness&#39;, &#39;honesty&#39;, &#39;instruction-following&#39;, &#39;truthfulness&#39;, &#39;overall-rating&#39;]</code>
+                  <code>Literal[&#39;helpfulness&#39;, &#39;honesty&#39;, &#39;instruction-following&#39;, &#39;truthfulness&#39;, &#39;overall-rating&#39;]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -39949,6 +40282,11 @@ Defaults to <code>"overall-rating"</code>.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/ultrafeedback.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-29"> 29</a></span>
@@ -41068,9 +41406,11 @@ will be automatically included within the <code>process</code> method of <code>T
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[str, None]</code>
+                <code>output</code>
+            </td>
+            <td>
+                  <code>Union[str, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -41082,9 +41422,11 @@ will be automatically included within the <code>process</code> method of <code>T
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>], None]</code>
+                <code>input</code>
+            </td>
+            <td>
+                  <code>Union[Dict[str, Any], None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -41110,7 +41452,7 @@ will be automatically included within the <code>process</code> method of <code>T
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -41120,7 +41462,7 @@ will be automatically included within the <code>process</code> method of <code>T
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -41130,7 +41472,7 @@ will be automatically included within the <code>process</code> method of <code>T
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -41140,7 +41482,7 @@ will be automatically included within the <code>process</code> method of <code>T
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -41150,7 +41492,7 @@ will be automatically included within the <code>process</code> method of <code>T
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -41480,7 +41822,7 @@ a dictionary with the output which can be directly parsed as a python dictionary
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -41673,7 +42015,9 @@ with either <code>positive</code>, or <code>positive</code> and <code>negative</
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>output</code></td>
+            <td>
+                <code>output</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -41701,7 +42045,7 @@ with either <code>positive</code>, or <code>positive</code> and <code>negative</
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -41800,7 +42144,7 @@ with either <code>positive</code>, or <code>positive</code> and <code>negative</
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.Task" href="../#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code>Task</code></p>
 
 
         <p>Generates a response using a non-instruct fine-tuned model.</p>
@@ -41866,6 +42210,11 @@ input.</p>
 </span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1">#     }</span>
 </span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/tasks/urial.py</code></summary>
@@ -42134,6 +42483,211 @@ input.</p>
 </div>
 
 
+<div class="doc doc-object doc-function">
+
+
+<h4 id="distilabel.steps.tasks.task" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">task</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#distilabel.steps.tasks.task" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a <code>Task</code> from a formatting output function.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>Union[StepColumns, None]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>a list containing the name of the inputs columns/keys or a dictionary
+where the keys are the columns and the values are booleans indicating whether
+the column is required or not, that are required by the step. If not provided
+the default will be an empty list <code>[]</code> and it will be assumed that the step
+doesn't need any specific columns. Defaults to <code>None</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>outputs</code>
+            </td>
+            <td>
+                  <code>Union[StepColumns, None]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>a list containing the name of the outputs columns/keys or a dictionary
+where the keys are the columns and the values are booleans indicating whether
+the column will be generated or not. If not provided the default will be an
+empty list <code>[]</code> and it will be assumed that the step doesn't need any specific
+columns. Defaults to <code>None</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/distilabel/steps/tasks/decorator.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
+<span class="normal"><a href="#__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span>
+<span class="normal"><a href="#__codelineno-0-52">52</a></span>
+<span class="normal"><a href="#__codelineno-0-53">53</a></span>
+<span class="normal"><a href="#__codelineno-0-54">54</a></span>
+<span class="normal"><a href="#__codelineno-0-55">55</a></span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span>
+<span class="normal"><a href="#__codelineno-0-57">57</a></span>
+<span class="normal"><a href="#__codelineno-0-58">58</a></span>
+<span class="normal"><a href="#__codelineno-0-59">59</a></span>
+<span class="normal"><a href="#__codelineno-0-60">60</a></span>
+<span class="normal"><a href="#__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#__codelineno-0-63">63</a></span>
+<span class="normal"><a href="#__codelineno-0-64">64</a></span>
+<span class="normal"><a href="#__codelineno-0-65">65</a></span>
+<span class="normal"><a href="#__codelineno-0-66">66</a></span>
+<span class="normal"><a href="#__codelineno-0-67">67</a></span>
+<span class="normal"><a href="#__codelineno-0-68">68</a></span>
+<span class="normal"><a href="#__codelineno-0-69">69</a></span>
+<span class="normal"><a href="#__codelineno-0-70">70</a></span>
+<span class="normal"><a href="#__codelineno-0-71">71</a></span>
+<span class="normal"><a href="#__codelineno-0-72">72</a></span>
+<span class="normal"><a href="#__codelineno-0-73">73</a></span>
+<span class="normal"><a href="#__codelineno-0-74">74</a></span>
+<span class="normal"><a href="#__codelineno-0-75">75</a></span>
+<span class="normal"><a href="#__codelineno-0-76">76</a></span>
+<span class="normal"><a href="#__codelineno-0-77">77</a></span>
+<span class="normal"><a href="#__codelineno-0-78">78</a></span>
+<span class="normal"><a href="#__codelineno-0-79">79</a></span>
+<span class="normal"><a href="#__codelineno-0-80">80</a></span>
+<span class="normal"><a href="#__codelineno-0-81">81</a></span>
+<span class="normal"><a href="#__codelineno-0-82">82</a></span>
+<span class="normal"><a href="#__codelineno-0-83">83</a></span>
+<span class="normal"><a href="#__codelineno-0-84">84</a></span>
+<span class="normal"><a href="#__codelineno-0-85">85</a></span>
+<span class="normal"><a href="#__codelineno-0-86">86</a></span>
+<span class="normal"><a href="#__codelineno-0-87">87</a></span>
+<span class="normal"><a href="#__codelineno-0-88">88</a></span>
+<span class="normal"><a href="#__codelineno-0-89">89</a></span>
+<span class="normal"><a href="#__codelineno-0-90">90</a></span>
+<span class="normal"><a href="#__codelineno-0-91">91</a></span>
+<span class="normal"><a href="#__codelineno-0-92">92</a></span>
+<span class="normal"><a href="#__codelineno-0-93">93</a></span>
+<span class="normal"><a href="#__codelineno-0-94">94</a></span>
+<span class="normal"><a href="#__codelineno-0-95">95</a></span>
+<span class="normal"><a href="#__codelineno-0-96">96</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="k">def</span> <span class="nf">task</span><span class="p">(</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="n">inputs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;StepColumns&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="n">outputs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;StepColumns&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Task&quot;</span><span class="p">]]:</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a `Task` from a formatting output function.</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">        inputs: a list containing the name of the inputs columns/keys or a dictionary</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">            where the keys are the columns and the values are booleans indicating whether</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="sd">            the column is required or not, that are required by the step. If not provided</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">            the default will be an empty list `[]` and it will be assumed that the step</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">            doesn&#39;t need any specific columns. Defaults to `None`.</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">        outputs: a list containing the name of the outputs columns/keys or a dictionary</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="sd">            where the keys are the columns and the values are booleans indicating whether</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">            the column will be generated or not. If not provided the default will be an</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">            empty list `[]` and it will be assumed that the step doesn&#39;t need any specific</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="sd">            columns. Defaults to `None`.</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span> <span class="ow">or</span> <span class="p">[]</span>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a>    <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span> <span class="ow">or</span> <span class="p">[]</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">TaskFormattingOutputFunc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Task&quot;</span><span class="p">]:</span>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a>        <span class="n">doc</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a>        <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a>            <span class="k">raise</span> <span class="n">DistilabelUserError</span><span class="p">(</span>
+</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>                <span class="s2">&quot;When using the `task` decorator, including a docstring in the formatting&quot;</span>
+</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a>                <span class="s2">&quot; function is mandatory. The docstring must follow the format described&quot;</span>
+</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a>                <span class="s2">&quot; in the documentation.&quot;</span><span class="p">,</span>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a>                <span class="n">page</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a>            <span class="p">)</span>
+</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a>
+</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a>        <span class="n">system_prompt</span><span class="p">,</span> <span class="n">user_message_template</span> <span class="o">=</span> <span class="n">_parse_docstring</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a>        <span class="n">_validate_templates</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">system_prompt</span><span class="p">,</span> <span class="n">user_message_template</span><span class="p">)</span>
+</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a>
+</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a>        <span class="k">def</span> <span class="nf">inputs_property</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
+</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a>            <span class="k">return</span> <span class="n">inputs</span>
+</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a>
+</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a>        <span class="k">def</span> <span class="nf">outputs_property</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepColumns&quot;</span><span class="p">:</span>
+</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a>            <span class="k">return</span> <span class="n">outputs</span>
+</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a>
+</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a>        <span class="k">def</span> <span class="nf">format_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;FormattedInput&quot;</span><span class="p">:</span>
+</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a>            <span class="k">return</span> <span class="p">[</span>
+</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a>                <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">system_prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">input</span><span class="p">)},</span>
+</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a>                <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">user_message_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">input</span><span class="p">)},</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a>            <span class="p">]</span>
+</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a>
+</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a>        <span class="k">def</span> <span class="nf">format_output</span><span class="p">(</span>
+</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a>            <span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a>        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a>            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">input</span><span class="p">)</span>
+</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a>
+</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a>        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span>
+</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>            <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a>            <span class="p">(</span><span class="n">Task</span><span class="p">,),</span>
+</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>            <span class="p">{</span>
+</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>                <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="nb">property</span><span class="p">(</span><span class="n">inputs_property</span><span class="p">),</span>
+</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>                <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="nb">property</span><span class="p">(</span><span class="n">outputs_property</span><span class="p">),</span>
+</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>                <span class="s2">&quot;__module__&quot;</span><span class="p">:</span> <span class="n">func</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+</span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a>                <span class="s2">&quot;format_input&quot;</span><span class="p">:</span> <span class="n">format_input</span><span class="p">,</span>
+</span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>                <span class="s2">&quot;format_output&quot;</span><span class="p">:</span> <span class="n">format_output</span><span class="p">,</span>
+</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>            <span class="p">},</span>
+</span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>        <span class="p">)</span>
+</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>
+</span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="k">return</span> <span class="n">decorator</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
 
 
   </div>
@@ -42331,7 +42885,7 @@ input.</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       

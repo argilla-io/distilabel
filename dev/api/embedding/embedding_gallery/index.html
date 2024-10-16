@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -3407,6 +3407,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sections/pipeline_samples/tutorials/generate_textcat_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generate synthetic text classification data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -5121,6 +5142,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -5143,7 +5169,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.embeddings.base.Embeddings" href="../#distilabel.embeddings.base.Embeddings">Embeddings</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.llms.mixins.cuda_device_placement.CudaDevicePlacementMixin" href="../../llm/llm_gallery/#distilabel.llms.CudaDevicePlacementMixin">CudaDevicePlacementMixin</a></code></p>
+              Bases: <code>Embeddings</code>, <code>CudaDevicePlacementMixin</code></p>
 
 
         <p><code>sentence-transformers</code> library implementation for embedding generation.</p>
@@ -5174,7 +5200,7 @@ model weights and configuration files.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.device">device</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[str]]</code>
+                  <code>Optional[RuntimeParameter[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5186,7 +5212,7 @@ Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.prompts">prompts</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, str]]</code>
+                  <code>Optional[Dict[str, str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5198,7 +5224,7 @@ Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.default_prompt_name">default_prompt_name</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5222,7 +5248,7 @@ from the repository in the Hub. Defaults to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.revision">revision</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5234,7 +5260,7 @@ from the repository in the Hub. Defaults to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.token">token</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5247,7 +5273,7 @@ local configuration will be used. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.truncate_dim">truncate_dim</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[int]</code>
+                  <code>Optional[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5258,7 +5284,7 @@ local configuration will be used. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.model_kwargs">model_kwargs</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                  <code>Optional[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5270,7 +5296,7 @@ model class. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.tokenizer_kwargs">tokenizer_kwargs</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                  <code>Optional[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5282,7 +5308,7 @@ tokenizer class. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.config_kwargs">config_kwargs</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                  <code>Optional[Dict[str, Any]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5294,7 +5320,7 @@ configuration class. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.precision">precision</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Literal">Literal</span>[&#39;float32&#39;, &#39;int8&#39;, &#39;uint8&#39;, &#39;binary&#39;, &#39;ubinary&#39;]]</code>
+                  <code>Optional[Literal[&#39;float32&#39;, &#39;int8&#39;, &#39;uint8&#39;, &#39;binary&#39;, &#39;ubinary&#39;]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5305,7 +5331,7 @@ configuration class. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.SentenceTransformerEmbeddings.normalize_embeddings">normalize_embeddings</span></code></td>
             <td>
-                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[bool]</code>
+                  <code>RuntimeParameter[bool]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5332,6 +5358,11 @@ of 1. Defaults to <code>None</code>.</p>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">#   [4.4889533455716446e-05, 0.044016145169734955, ...],</span>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/embeddings/sentence_transformers.py</code></summary>
@@ -5732,9 +5763,11 @@ of 1. Defaults to <code>None</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>List[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5760,7 +5793,7 @@ of 1. Defaults to <code>None</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[<span title="typing.Union">Union</span>[int, float]]]</code>
+                  <code>List[List[Union[int, float]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5831,7 +5864,7 @@ of 1. Defaults to <code>None</code>.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.embeddings.base.Embeddings" href="../#distilabel.embeddings.base.Embeddings">Embeddings</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.llms.mixins.cuda_device_placement.CudaDevicePlacementMixin" href="../../llm/llm_gallery/#distilabel.llms.CudaDevicePlacementMixin">CudaDevicePlacementMixin</a></code></p>
+              Bases: <code>Embeddings</code>, <code>CudaDevicePlacementMixin</code></p>
 
 
         <p><code>vllm</code> library implementation for embedding generation.</p>
@@ -5885,7 +5918,7 @@ to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.vLLMEmbeddings.quantization">quantization</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5896,7 +5929,7 @@ to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.vLLMEmbeddings.revision">revision</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5929,7 +5962,7 @@ to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.vLLMEmbeddings.extra_kwargs">extra_kwargs</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
+                  <code>Optional[RuntimeParameter[Dict[str, Any]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5941,7 +5974,7 @@ to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.embeddings.vLLMEmbeddings._model">_model</span></code></td>
             <td>
-                  <code><span title="vllm.LLM">LLM</span></code>
+                  <code>LLM</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5975,6 +6008,11 @@ and should not be accessed directly. It will be set in the <code>load</code> met
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">#   [4.4889533455716446e-05, 0.044016145169734955, ...],</span>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/embeddings/vllm.py</code></summary>
@@ -6341,9 +6379,11 @@ and should not be accessed directly. It will be set in the <code>load</code> met
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>List[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6369,7 +6409,7 @@ and should not be accessed directly. It will be set in the <code>load</code> met
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[<span title="typing.Union">Union</span>[int, float]]]</code>
+                  <code>List[List[Union[int, float]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6613,7 +6653,7 @@ and should not be accessed directly. It will be set in the <code>load</code> met
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       

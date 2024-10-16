@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -3407,6 +3407,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sections/pipeline_samples/tutorials/generate_textcat_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generate synthetic text classification data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -5417,6 +5438,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -5439,7 +5465,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Expand columns that contain lists into multiple rows.</p>
@@ -5461,7 +5487,7 @@ column, which will contain a single item from the original list.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.columns.expand.ExpandColumns.columns">columns</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="typing.Dict">Dict</span>[str, str], <span title="typing.List">List</span>[str]]</code>
+                  <code>Union[Dict[str, str], List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5518,6 +5544,11 @@ will be the same as the column name.</p>
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1"># &gt;&gt;&gt; result</span>
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1"># [{&#39;instruction&#39;: &#39;instruction 1&#39;, &#39;generation&#39;: &#39;generation 1&#39;}, {&#39;instruction&#39;: &#39;instruction 1&#39;, &#39;generation&#39;: &#39;generation 2&#39;}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/expand.py</code></summary>
@@ -5819,9 +5850,11 @@ will be the same as the column name.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>value</code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="typing.Dict">Dict</span>[str, str], <span title="typing.List">List</span>[str]]</code>
+                <code>value</code>
+            </td>
+            <td>
+                  <code>Union[Dict[str, str], List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5847,7 +5880,7 @@ will be the same as the column name.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5921,9 +5954,11 @@ will be the same as the column name.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5949,7 +5984,7 @@ will be the same as the column name.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6018,6 +6053,11 @@ will be the same as the column name.</p>
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -6040,7 +6080,7 @@ will be the same as the column name.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Keeps selected columns in the dataset.</p>
@@ -6070,7 +6110,7 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.columns.keep.KeepColumns.columns">columns</span></code></td>
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                  <code>List[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6120,6 +6160,11 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># &gt;&gt;&gt; result</span>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># [{&#39;instruction&#39;: &quot;What&#39;s the brightest color?&quot;, &#39;generation&#39;: &#39;white&#39;}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/keep.py</code></summary>
@@ -6351,9 +6396,11 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>*inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6379,7 +6426,7 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6458,6 +6505,11 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -6480,7 +6532,7 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Merge columns from a row.</p>
@@ -6507,7 +6559,7 @@ further processing.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.columns.merge.MergeColumns.columns">columns</span></code></td>
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                  <code>List[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6518,7 +6570,7 @@ further processing.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.columns.merge.MergeColumns.output_column">output_column</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
+                  <code>Optional[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6575,6 +6627,11 @@ further processing.</p>
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># &gt;&gt;&gt; result</span>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1"># [{&#39;queries&#39;: [&#39;How are you?&#39;, &quot;What&#39;s up?&quot;, &#39;Everything ok?&#39;]}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/merge.py</code></summary>
@@ -6777,6 +6834,11 @@ further processing.</p>
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -6799,7 +6861,7 @@ further processing.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code>Step</code></p>
 
 
         <p>Combines columns from a list of <code>StepInput</code>.</p>
@@ -6822,7 +6884,7 @@ which will override the default value for the properties <code>inputs</code> and
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.columns.group.GroupColumns.columns">columns</span></code></td>
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                  <code>List[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6833,7 +6895,7 @@ which will override the default value for the properties <code>inputs</code> and
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.columns.group.GroupColumns.output_columns">output_columns</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
+                  <code>Optional[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6909,6 +6971,11 @@ result = next(
 #[{&#39;generations&#39;: [&#39;AI generated text&#39;, &#39;Other generated text&#39;], &#39;generation_models&#39;: [&#39;my_model&#39;]}]
 ```
 </code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/group.py</code></summary>
@@ -7197,9 +7264,11 @@ result = next(
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>*inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7225,7 +7294,7 @@ result = next(
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code>StepOutput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7294,10 +7363,15 @@ result = next(
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.columns.group.GroupColumns" href="#distilabel.steps.columns.group.GroupColumns">GroupColumns</a></code></p>
+              Bases: <code>GroupColumns</code></p>
 
 
         <p><code>CombineColumns</code> is deprecated and will be removed in version 1.5.0, use <code>GroupColumns</code> instead.</p>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/group.py</code></summary>
@@ -7366,6 +7440,11 @@ result = next(
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -7402,9 +7481,11 @@ result = next(
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*output_dicts</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>*output_dicts</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7430,7 +7511,7 @@ result = next(
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7526,9 +7607,11 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                <code>inputs</code>
+            </td>
+            <td>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7540,9 +7623,11 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>group_columns</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                <code>group_columns</code>
+            </td>
+            <td>
+                  <code>List[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7554,9 +7639,11 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>output_group_columns</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
+                <code>output_group_columns</code>
+            </td>
+            <td>
+                  <code>Optional[List[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7582,7 +7669,7 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7592,7 +7679,7 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code>StepInput</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7752,9 +7839,11 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>row</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                <code>row</code>
+            </td>
+            <td>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7766,9 +7855,11 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>columns</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                <code>columns</code>
+            </td>
+            <td>
+                  <code>List[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7780,7 +7871,9 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>new_column</code></td>
+            <td>
+                <code>new_column</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -7808,7 +7901,7 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
+                  <code>Dict[str, Any]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8067,7 +8160,7 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       
