@@ -459,16 +459,20 @@ class AsyncLLM(LLM):
                 )
                 for input in inputs
             ]
-            return await asyncio.gather(*tasks)
+            result = await asyncio.gather(*tasks)
+            # TODO: Update the object returned to be the same as in synchronous LLMs with batches.
 
+            return result
+
+        # TODO: Update the object returned to be the same as in synchronous LLMs with batches.
         tasks = [
             asyncio.create_task(self.agenerate(input=input, **kwargs))
             for input in inputs
             for _ in range(num_generations)
         ]
-        outputs = [outputs[0] for outputs in await asyncio.gather(*tasks)]
+        outputs = await asyncio.gather(*tasks)
         return [
-            list(group)
+            list(group)[0]
             for group in grouper(outputs, n=num_generations, incomplete="ignore")
         ]
 
