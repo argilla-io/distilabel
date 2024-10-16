@@ -18,27 +18,21 @@ import pytest
 
 from distilabel.embeddings import LlamaCppEmbeddings
 
-"""
-To test with CPU only, run the following command:
-pytest tests/unit/embeddings/test_llamacpp.py --cpu-only
-
-"""
-
 
 class TestLlamaCppEmbeddings:
     @pytest.fixture(autouse=True)
-    def setup_embeddings(self, local_llamacpp_model_path, use_cpu):
+    def setup_embeddings(self, local_llamacpp_model_path):
         """
         Fixture to set up embeddings for each test, considering CPU usage.
         """
         self.model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
         self.repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
         self.disable_cuda_device_placement = True
-        n_gpu_layers = 0 if use_cpu else -1
+        self.n_gpu_layers = 0
         self.embeddings = LlamaCppEmbeddings(
             model=self.model_name,
             model_path=local_llamacpp_model_path,
-            n_gpu_layers=n_gpu_layers,
+            n_gpu_layers=self.n_gpu_layers,
             disable_cuda_device_placement=self.disable_cuda_device_placement,
         )
 
@@ -86,16 +80,15 @@ class TestLlamaCppEmbeddings:
         for result in results:
             assert len(result) == 384
 
-    def test_load_model_from_repo(self, use_cpu, test_inputs):
+    def test_load_model_from_repo(self, test_inputs):
         """
         Test if the model can be loaded from a Hugging Face repository.
         """
-        n_gpu_layers = 0 if use_cpu else -1
         embeddings = LlamaCppEmbeddings(
             repo_id=self.repo_id,
             model=self.model_name,
             normalize_embeddings=True,
-            n_gpu_layers=n_gpu_layers,
+            n_gpu_layers=self.n_gpu_layers,
             disable_cuda_device_placement=self.disable_cuda_device_placement,
         )
         embeddings.load()
@@ -104,17 +97,16 @@ class TestLlamaCppEmbeddings:
         for result in results:
             assert len(result) == 384
 
-    def test_normalize_embeddings(self, use_cpu, test_inputs):
+    def test_normalize_embeddings(self, test_inputs):
         """
         Test if embeddings are normalized when normalize_embeddings is True.
         """
 
-        n_gpu_layers = 0 if use_cpu else -1
         embeddings = LlamaCppEmbeddings(
             repo_id=self.repo_id,
             model=self.model_name,
             normalize_embeddings=True,
-            n_gpu_layers=n_gpu_layers,
+            n_gpu_layers=self.n_gpu_layers,
             disable_cuda_device_placement=self.disable_cuda_device_placement,
         )
         embeddings.load()

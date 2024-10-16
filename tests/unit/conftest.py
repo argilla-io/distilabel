@@ -112,16 +112,8 @@ def local_llamacpp_model_path(tmp_path_factory):
     """
     Session-scoped fixture that provides the local model path for LlamaCpp testing.
 
-    The model path can be set using the LLAMACPP_TEST_MODEL_PATH environment variable.
-    If not set, it downloads a small test model to a temporary directory.
+    Download a small test model to a temporary directory.
     The model is downloaded once per test session and cleaned up after all tests.
-
-    To use a custom model:
-    1. Set the LLAMACPP_TEST_MODEL_PATH environment variable to the path of your model file.
-    2. Ensure the model file exists at the specified path.
-
-    Example:
-        export LLAMACPP_TEST_MODEL_PATH="/path/to/your/model.gguf"
 
     Args:
         tmp_path_factory: Pytest fixture providing a temporary directory factory.
@@ -129,24 +121,6 @@ def local_llamacpp_model_path(tmp_path_factory):
     Returns:
         str: The path to the local LlamaCpp model file.
     """
-    print("\nLlamaCpp model path information:")
-
-    # Check for environment variable first
-    env_path = os.environ.get("LLAMACPP_TEST_MODEL_PATH")
-    if env_path:
-        print(f"Using custom model path from LLAMACPP_TEST_MODEL_PATH: {env_path}")
-        if not os.path.exists(env_path):
-            raise FileNotFoundError(
-                f"Custom model file not found at {env_path}. Please ensure the file exists."
-            )
-        return env_path
-
-    print("LLAMACPP_TEST_MODEL_PATH not set. Using default test model.")
-    print(
-        "To use a custom model, set the LLAMACPP_TEST_MODEL_PATH environment variable to the path of your model file."
-    )
-
-    # If env var not set, use a small test model
     model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
     model_url = f"https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/{model_name}"
     tmp_path = tmp_path_factory.getbasetemp()
@@ -163,20 +137,3 @@ def local_llamacpp_model_path(tmp_path_factory):
     atexit.register(cleanup)
 
     return str(tmp_path)
-
-
-def pytest_addoption(parser):
-    """
-    Add a command-line option to pytest for CPU-only testing.
-    """
-    parser.addoption(
-        "--cpu-only", action="store", default=False, help="Run tests on CPU only"
-    )
-
-
-@pytest.fixture
-def use_cpu(request):
-    """
-    Fixture to determine whether to use CPU based on command-line option.
-    """
-    return request.config.getoption("--cpu-only")
