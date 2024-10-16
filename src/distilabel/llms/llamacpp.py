@@ -219,7 +219,6 @@ class LlamaCppLLM(LLM):
                 structured_output = self.structured_output
 
             outputs = []
-            input_tokens = []
             output_tokens = []
             for _ in range(num_generations):
                 # NOTE(plaguss): There seems to be a bug in how the logits processor
@@ -243,13 +242,14 @@ class LlamaCppLLM(LLM):
                     )
                 )
                 outputs.append(chat_completions["choices"][0]["message"]["content"])
-                input_tokens.append(chat_completions["usage"]["prompt_tokens"])
                 output_tokens.append(chat_completions["usage"]["completion_tokens"])
             batch_outputs.append(
                 {
                     "generations": outputs,
                     "statistics": {
-                        "input_tokens": input_tokens,
+                        "input_tokens": [
+                            chat_completions["usage"]["prompt_tokens"]
+                        ],  # Should be the same for the n_generations
                         "output_tokens": output_tokens,
                     },
                 }

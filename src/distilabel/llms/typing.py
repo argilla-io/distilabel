@@ -15,7 +15,17 @@
 from typing import TYPE_CHECKING, Any, Dict, List, TypedDict, TypeVar, Union
 
 LLMOutput = List[Union[str, None]]
-LLMStatistics = Dict[str, Any]
+
+
+class TokenCount(TypedDict):
+    input_tokens: List[int]
+    output_tokens: List[int]
+
+
+LLMStatistics = Union[TokenCount, Dict[str, Any]]
+"""Initially the LLMStatistics will contain the token count, but can have more variables.
+They can be added once we have them defined for every LLM.
+"""
 
 
 class GenerateOutput(TypedDict):
