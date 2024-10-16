@@ -53,7 +53,7 @@ class TestLiteLLM:
         )
         assert result == {
             "generations": [" Aenean hendrerit aliquam velit. ..."],
-            "statistics": {"input_tokens": 21, "output_tokens": 11},
+            "statistics": {"input_tokens": [21], "output_tokens": [11]},
         }
 
     @pytest.mark.asyncio
@@ -82,7 +82,7 @@ class TestLiteLLM:
         assert result == [
             {
                 "generations": [" Aenean hendrerit aliquam velit. ..."],
-                "statistics": {"input_tokens": 21, "output_tokens": 11},
+                "statistics": {"input_tokens": [21], "output_tokens": [11]},
             }
         ]
 

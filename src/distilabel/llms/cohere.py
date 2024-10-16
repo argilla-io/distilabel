@@ -29,7 +29,7 @@ from tokenizers import Tokenizer
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
-from distilabel.llms.utils import compute_tokens
+from distilabel.llms.utils import compute_tokens, prepare_output
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import (
     FormattedInput,
@@ -39,6 +39,8 @@ from distilabel.steps.tasks.typing import (
 if TYPE_CHECKING:
     from cohere import AsyncClient, ChatMessage, Message
     from pydantic import BaseModel
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 _COHERE_API_KEY_ENV_VAR_NAME = "COHERE_API_KEY"
@@ -290,36 +292,32 @@ class CohereLLM(AsyncLLM):
         response: Union["Message", "BaseModel"] = await self._aclient.chat(**kwargs)  # type: ignore
 
         if structured_output:
-            # TODO: Refactor the dict response, it's quite similar in many LLMs
-            str_response = response.model_dump_json()
-            return {
-                "generations": [str_response],
-                "statistics": {
-                    "input_tokens": compute_tokens(input, self._tokenizer.encode),
-                    "output_tokens": compute_tokens(
-                        orjson.dumps(str_response).decode("utf-8"),
-                        self._tokenizer.encode,
-                    ),
-                },
-            }
+            return prepare_output(
+                [response.model_dump_json()],
+                **self._get_llm_statistics(
+                    input, orjson.dumps(response.model_dump_json()).decode("utf-8")
+                ),  # type: ignore
+            )
 
         if (text := response.text) == "":
             self._logger.warning(  # type: ignore
                 f"Received no response using Cohere client (model: '{self.model}')."
                 f" Finish reason was: {response.finish_reason}"
             )
-            return {
-                "generations": [None],
-                "statistics": {
-                    "input_tokens": compute_tokens(input, self._tokenizer.encode),
-                    "output_tokens": 0,
-                },
-            }
+            return prepare_output(
+                [None],
+                **self._get_llm_statistics(input, ""),
+            )
 
+        return prepare_output(
+            [text],
+            **self._get_llm_statistics(input, text),
+        )
+
+    def _get_llm_statistics(
+        self, input: FormattedInput, output: str
+    ) -> "LLMStatistics":
         return {
-            "generations": [text],
-            "statistics": {
-                "input_tokens": compute_tokens(input, self._tokenizer.encode),
-                "output_tokens": compute_tokens(text, self._tokenizer.encode),
-            },
+            "input_tokens": [compute_tokens(input, self._tokenizer.encode)],
+            "output_tokens": [compute_tokens(output, self._tokenizer.encode)],
         }

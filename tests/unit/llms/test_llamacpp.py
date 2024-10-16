@@ -54,7 +54,6 @@ class TestLlamaCppLLM:
             ],
             num_generations=3,
         )
-        print("RESPONSE", responses)
         assert len(responses) == 2
         generations = responses[0]["generations"]
         statistics = responses[0]["statistics"]

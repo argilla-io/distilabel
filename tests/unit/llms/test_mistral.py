@@ -62,7 +62,7 @@ class TestMistralLLM:
         )
         assert result == {
             "generations": [" Aenean hendrerit aliquam velit. ..."],
-            "statistics": {"input_tokens": 10, "output_tokens": 10},
+            "statistics": {"input_tokens": [10], "output_tokens": [10]},
         }
 
     @pytest.mark.asyncio
@@ -101,8 +101,8 @@ class TestMistralLLM:
         assert generation == {
             "generations": [sample_user.model_dump_json()],
             "statistics": {
-                "input_tokens": 100,
-                "output_tokens": 100,
+                "input_tokens": [100],
+                "output_tokens": [100],
             },
         }
 
@@ -137,7 +137,7 @@ class TestMistralLLM:
         assert result == [
             {
                 "generations": [" Aenean hendrerit aliquam velit. ..."],
-                "statistics": {"input_tokens": 10, "output_tokens": 10},
+                "statistics": {"input_tokens": [10], "output_tokens": [10]},
             }
         ]
 

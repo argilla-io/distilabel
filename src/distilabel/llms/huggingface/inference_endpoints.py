@@ -32,6 +32,7 @@ from typing_extensions import Annotated, override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import prepare_output
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import (
     FormattedInput,
@@ -423,16 +424,14 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 f" Finish reason was: {e}"
             )
         # NOTE: I cannot see the input tokens returned, and given that the model can be private, I cannot
-        # count the input tokens
-        return {
-            "generations": [completion.generated_text],
-            "statistics": {
-                "input_tokens": 0,
-                "output_tokens": completion.details.generated_tokens
-                if completion.details
-                else 0,
-            },
-        }
+        # count them...
+        return prepare_output(
+            [completion.generated_text],
+            input_tokens=[0],
+            output_tokens=[
+                completion.details.generated_tokens if completion.details else 0
+            ],
+        )
 
     async def _generate_with_chat_completion(
         self,
@@ -478,13 +477,11 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
-        return {
-            "generations": [message],
-            "statistics": {
-                "input_tokens": completion.usage.prompt_tokens,
-                "output_tokens": completion.usage.completion_tokens,
-            },
-        }
+        return prepare_output(
+            [message],
+            input_tokens=[completion.usage.prompt_tokens],
+            output_tokens=[completion.usage.completion_tokens],
+        )
 
     def _check_stop_sequences(
         self,

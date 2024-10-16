@@ -55,7 +55,7 @@ class TestAnthropicLLM:
         )
         assert result == {
             "generations": ["Aenean hendrerit aliquam velit..."],
-            "statistics": {"input_tokens": 100, "output_tokens": 100},
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
         }
 
     @pytest.mark.asyncio
@@ -91,8 +91,8 @@ class TestAnthropicLLM:
         assert generation == {
             "generations": [sample_user.model_dump_json()],
             "statistics": {
-                "input_tokens": 100,
-                "output_tokens": 100,
+                "input_tokens": [100],
+                "output_tokens": [100],
             },
         }
 
@@ -127,7 +127,7 @@ class TestAnthropicLLM:
         assert result == [
             {
                 "generations": ["Aenean hendrerit aliquam velit..."],
-                "statistics": {"input_tokens": 100, "output_tokens": 100},
+                "statistics": {"input_tokens": [100], "output_tokens": [100]},
             }
         ]
 

@@ -688,6 +688,6 @@ class OpenAILLM(AsyncLLM):
     @staticmethod
     def _get_llm_statistics(completion: "OpenAIChatCompletion") -> "LLMStatistics":
         return {
-            "input_tokens": completion.usage.prompt_tokens if completion else 0,
-            "output_tokens": completion.usage.completion_tokens if completion else 0,
+            "input_tokens": [completion.usage.prompt_tokens if completion else 0],
+            "output_tokens": [completion.usage.completion_tokens if completion else 0],
         }

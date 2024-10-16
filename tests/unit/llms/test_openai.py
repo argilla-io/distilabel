@@ -83,7 +83,7 @@ class TestOpenAILLM:
         )
         assert result == {
             "generations": [" Aenean hendrerit aliquam velit. ..."],
-            "statistics": {"input_tokens": 100, "output_tokens": 100},
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
         }
 
     @pytest.mark.asyncio
@@ -124,7 +124,7 @@ class TestOpenAILLM:
         )
         assert generation == {
             "generations": [sample_user.model_dump_json()],
-            "statistics": {"input_tokens": 100, "output_tokens": 100},
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
         }
 
     @pytest.mark.skipif(
@@ -161,7 +161,7 @@ class TestOpenAILLM:
         assert result == [
             {
                 "generations": [" Aenean hendrerit aliquam velit. ..."],
-                "statistics": {"input_tokens": 100, "output_tokens": 100},
+                "statistics": {"input_tokens": [100], "output_tokens": [100]},
             }
         ]
 
@@ -278,15 +278,15 @@ class TestOpenAILLM:
             {
                 "generations": ["output 1"],
                 "statistics": {
-                    "input_tokens": 100,
-                    "output_tokens": 100,
+                    "input_tokens": [100],
+                    "output_tokens": [100],
                 },
             },
             {
                 "generations": ["output 2"],
                 "statistics": {
-                    "input_tokens": 100,
-                    "output_tokens": 100,
+                    "input_tokens": [100],
+                    "output_tokens": [100],
                 },
             },
         ]
@@ -388,8 +388,8 @@ class TestOpenAILLM:
         assert result == {
             "generations": [" Aenean hendrerit aliquam velit. ..."],
             "statistics": {
-                "input_tokens": 100,
-                "output_tokens": 100,
+                "input_tokens": [100],
+                "output_tokens": [100],
             },
         }
 

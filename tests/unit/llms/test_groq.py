@@ -55,11 +55,11 @@ class TestGroqLLM:
             ]
         ) == {
             "generations": [" Aenean hendrerit aliquam velit. ..."],
-            "statistics": {"input_tokens": 100, "output_tokens": 100},
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
         }
 
     @pytest.mark.skipif(
-        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+        sys.version_info < (3, 9), reason="`groq` requires Python 3.9 or higher"
     )
     @pytest.mark.asyncio
     async def test_agenerate_structured(self, mock_openai: MagicMock) -> None:
@@ -93,7 +93,7 @@ class TestGroqLLM:
         )
         assert generation == {
             "generations": [sample_user.model_dump_json()],
-            "statistics": {"input_tokens": 100, "output_tokens": 100},
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
         }
 
     @pytest.mark.asyncio
@@ -122,7 +122,7 @@ class TestGroqLLM:
         ) == [
             {
                 "generations": ["Aenean hendrerit aliquam velit..."],
-                "statistics": {"input_tokens": 100, "output_tokens": 100},
+                "statistics": {"input_tokens": [100], "output_tokens": [100]},
             }
         ]
 

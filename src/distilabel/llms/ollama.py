@@ -19,11 +19,14 @@ from typing_extensions import TypedDict
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import prepare_output
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
 
 if TYPE_CHECKING:
     from ollama import AsyncClient
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 # Copied from `ollama._types.Options`
@@ -159,8 +162,6 @@ class OllamaLLM(AsyncLLM):
             A list of strings as completion for the given input.
         """
         text = None
-        input_tokens = 0
-        output_tokens = 0
         try:
             completion: Dict[str, Any] = await self._aclient.chat(  # type: ignore
                 model=self.model,
@@ -171,18 +172,17 @@ class OllamaLLM(AsyncLLM):
                 keep_alive=keep_alive,
             )
             text = completion["message"]["content"]
-            input_tokens = completion["prompt_eval_count"]
-            output_tokens = completion["eval_count"]
         except Exception as e:
             self._logger.warning(  # type: ignore
                 f"⚠️ Received no response using Ollama client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
 
+        return prepare_output([text], **self._get_llm_statistics(completion))
+
+    @staticmethod
+    def _get_llm_statistics(completion: Dict[str, Any]) -> "LLMStatistics":
         return {
-            "generations": [text],
-            "statistics": {
-                "input_tokens": input_tokens,
-                "output_tokens": output_tokens,
-            },
+            "input_tokens": [completion["prompt_eval_count"]],
+            "output_tokens": [completion["eval_count"]],
         }

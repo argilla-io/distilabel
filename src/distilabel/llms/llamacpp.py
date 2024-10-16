@@ -18,6 +18,7 @@ from pydantic import Field, FilePath, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import prepare_output
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
@@ -244,15 +245,11 @@ class LlamaCppLLM(LLM):
                 outputs.append(chat_completions["choices"][0]["message"]["content"])
                 output_tokens.append(chat_completions["usage"]["completion_tokens"])
             batch_outputs.append(
-                {
-                    "generations": outputs,
-                    "statistics": {
-                        "input_tokens": [
-                            chat_completions["usage"]["prompt_tokens"]
-                        ],  # Should be the same for the n_generations
-                        "output_tokens": output_tokens,
-                    },
-                }
+                prepare_output(
+                    outputs,
+                    input_tokens=[chat_completions["usage"]["prompt_tokens"]],
+                    output_tokens=output_tokens,
+                )
             )
 
         return batch_outputs

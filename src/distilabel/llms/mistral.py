@@ -19,6 +19,7 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import prepare_output
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import (
     FormattedInput,
@@ -27,6 +28,9 @@ from distilabel.steps.tasks.typing import (
 
 if TYPE_CHECKING:
     from mistralai import Mistral
+    from mistralai.models.chatcompletionresponse import ChatCompletionResponse
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
@@ -221,14 +225,10 @@ class MistralLLM(AsyncLLM):
             completion = await self._aclient.chat.complete_async(**kwargs)  # type: ignore
 
         if structured_output:
-            raw_response = completion._raw_response
-            return {
-                "generations": [completion.model_dump_json()],
-                "statistics": {
-                    "input_tokens": raw_response.usage.prompt_tokens,
-                    "output_tokens": raw_response.usage.completion_tokens,
-                },
-            }
+            return prepare_output(
+                [completion.model_dump_json()],
+                **self._get_llm_statistics(completion._raw_response),
+            )
 
         for choice in completion.choices:
             if (content := choice.message.content) is None:
@@ -237,10 +237,12 @@ class MistralLLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
+
+        return prepare_output(generations, **self._get_llm_statistics(completion))
+
+    @staticmethod
+    def _get_llm_statistics(completion: "ChatCompletionResponse") -> "LLMStatistics":
         return {
-            "generations": generations,
-            "statistics": {
-                "input_tokens": completion.usage.prompt_tokens,
-                "output_tokens": completion.usage.completion_tokens,
-            },
+            "input_tokens": [completion.usage.prompt_tokens],
+            "output_tokens": [completion.usage.completion_tokens],
         }

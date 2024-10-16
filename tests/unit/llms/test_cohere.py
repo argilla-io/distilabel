@@ -67,11 +67,11 @@ class TestCohereLLM:
         )
         assert result == {
             "generations": ["Aenean hendrerit aliquam velit..."],
-            "statistics": {"input_tokens": 23, "output_tokens": 16},
+            "statistics": {"input_tokens": [23], "output_tokens": [16]},
         }
 
     @pytest.mark.skipif(
-        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+        sys.version_info < (3, 9), reason="`cohere` requires Python 3.9 or higher"
     )
     @pytest.mark.asyncio
     async def test_agenerate_structured(
@@ -103,7 +103,7 @@ class TestCohereLLM:
         )
         assert generation == {
             "generations": [sample_user.model_dump_json()],
-            "statistics": {"input_tokens": 23, "output_tokens": 26},
+            "statistics": {"input_tokens": [23], "output_tokens": [26]},
         }
 
     @pytest.mark.asyncio
@@ -131,7 +131,7 @@ class TestCohereLLM:
         assert result == [
             {
                 "generations": ["Aenean hendrerit aliquam velit..."],
-                "statistics": {"input_tokens": 23, "output_tokens": 16},
+                "statistics": {"input_tokens": [23], "output_tokens": [16]},
             }
         ]
 

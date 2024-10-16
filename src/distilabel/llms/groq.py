@@ -19,6 +19,7 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import prepare_output
 from distilabel.steps.base import RuntimeParameter
 from distilabel.steps.tasks.typing import (
     FormattedInput,
@@ -27,6 +28,9 @@ from distilabel.steps.tasks.typing import (
 
 if TYPE_CHECKING:
     from groq import AsyncGroq
+    from groq.types.chat.chat_completion import ChatCompletion
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 _GROQ_API_BASE_URL_ENV_VAR_NAME = "GROQ_BASE_URL"
@@ -227,18 +231,11 @@ class GroqLLM(AsyncLLM):
 
         completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
         if structured_output:
-            raw_response = completion._raw_response
-            return {
-                "generations": [completion.model_dump_json()],
-                "statistics": {
-                    "input_tokens": raw_response.usage.prompt_tokens
-                    if raw_response.usage
-                    else 0,
-                    "output_tokens": raw_response.usage.completion_tokens
-                    if raw_response.usage
-                    else 0,
-                },
-            }
+            return prepare_output(
+                [completion.model_dump_json()],
+                **self._get_llm_statistics(completion._raw_response),
+            )
+
         generations = []
         for choice in completion.choices:
             if (content := choice.message.content) is None:
@@ -247,15 +244,11 @@ class GroqLLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
+        return prepare_output(generations, **self._get_llm_statistics(completion))
 
+    @staticmethod
+    def _get_llm_statistics(completion: "ChatCompletion") -> "LLMStatistics":
         return {
-            "generations": generations,
-            "statistics": {
-                "input_tokens": completion.usage.prompt_tokens
-                if completion.usage
-                else 0,
-                "output_tokens": completion.usage.completion_tokens
-                if completion.usage
-                else 0,
-            },
+            "input_tokens": [completion.usage.prompt_tokens if completion else 0],
+            "output_tokens": [completion.usage.completion_tokens if completion else 0],
         }

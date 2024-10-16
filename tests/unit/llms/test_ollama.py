@@ -50,7 +50,7 @@ class TestOllamaLLM:
         )
         assert result == {
             "generations": ["Aenean hendrerit aliquam velit..."],
-            "statistics": {"input_tokens": 10, "output_tokens": 10},
+            "statistics": {"input_tokens": [10], "output_tokens": [10]},
         }
 
     @pytest.mark.asyncio
@@ -82,7 +82,7 @@ class TestOllamaLLM:
         assert result == [
             {
                 "generations": ["Aenean hendrerit aliquam velit..."],
-                "statistics": {"input_tokens": 10, "output_tokens": 10},
+                "statistics": {"input_tokens": [10], "output_tokens": [10]},
             }
         ]
 

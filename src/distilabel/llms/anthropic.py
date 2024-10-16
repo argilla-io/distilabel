@@ -29,6 +29,7 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import prepare_output
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import (
     FormattedInput,
@@ -40,6 +41,8 @@ if TYPE_CHECKING:
 
     from anthropic import AsyncAnthropic
     from anthropic.types import Message
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 _ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
@@ -267,24 +270,22 @@ class AnthropicLLM(AsyncLLM):
             **kwargs
         )  # type: ignore
         if structured_output:
-            raw_response = completion._raw_response
-            return {
-                "generations": [completion.model_dump_json()],
-                "statistics": {
-                    "input_tokens": raw_response.usage.input_tokens,
-                    "output_tokens": raw_response.usage.output_tokens,
-                },
-            }
+            # raw_response = completion._raw_response
+            return prepare_output(
+                [completion.model_dump_json()],
+                **self._get_llm_statistics(completion._raw_response),
+            )
 
         if (content := completion.content[0].text) is None:
             self._logger.warning(
                 f"Received no response using Anthropic client (model: '{self.model}')."
                 f" Finish reason was: {completion.stop_reason}"
             )
+        return prepare_output([content], **self._get_llm_statistics(completion))
+
+    @staticmethod
+    def _get_llm_statistics(completion: "Message") -> "LLMStatistics":
         return {
-            "generations": [content],
-            "statistics": {
-                "input_tokens": completion.usage.input_tokens,
-                "output_tokens": completion.usage.output_tokens,
-            },
+            "input_tokens": [completion.usage.input_tokens],
+            "output_tokens": [completion.usage.output_tokens],
         }

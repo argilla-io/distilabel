@@ -20,6 +20,7 @@ from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import prepare_output
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
 
@@ -258,24 +259,23 @@ class LiteLLM(AsyncLLM):
                 raise e
 
         generations = []
-        input_tokens = token_counter(model=self.model, messages=input)
-        output_tokens = 0
+        input_tokens = [token_counter(model=self.model, messages=input)]
+        output_tokens = []
 
         if self.structured_output:
             for choice in choices:
                 generations.append(choice.model_dump_json())
-                output_tokens += token_counter(
-                    model=self.model,
-                    text=orjson.dumps(choice.model_dump_json()).decode("utf-8"),
+                output_tokens.append(
+                    token_counter(
+                        model=self.model,
+                        text=orjson.dumps(choice.model_dump_json()).decode("utf-8"),
+                    )
                 )
-
-            return {
-                "generations": generations,
-                "statistics": {
-                    "input_tokens": input_tokens,
-                    "output_tokens": output_tokens,
-                },
-            }
+            return prepare_output(
+                generations,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+            )
 
         for choice in choices:
             if (content := choice.message.content) is None:
@@ -284,12 +284,8 @@ class LiteLLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
-            output_tokens += token_counter(model=self.model, text=content)
+            output_tokens.append(token_counter(model=self.model, text=content))
 
-        return {
-            "generations": generations,
-            "statistics": {
-                "input_tokens": input_tokens,
-                "output_tokens": output_tokens,
-            },
-        }
+        return prepare_output(
+            generations, input_tokens=input_tokens, output_tokens=output_tokens
+        )

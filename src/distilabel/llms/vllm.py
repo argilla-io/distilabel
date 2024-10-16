@@ -34,7 +34,7 @@ from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixi
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.openai import OpenAILLM
 from distilabel.llms.typing import GenerateOutput
-from distilabel.llms.utils import compute_tokens
+from distilabel.llms.utils import compute_tokens, prepare_output
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
@@ -42,9 +42,11 @@ if TYPE_CHECKING:
     from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
-    from vllm.outputs import RequestOutputs
+    from vllm.outputs import RequestOutputs, CompletionOutput
 
     from distilabel.steps.tasks.typing import StandardInput
+    from distilabel.llms.typing import LLMStatistics
+
 
 LogitsProcessorFn = Union[
     Callable[[List[int], Any], Any],
@@ -397,19 +399,13 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             ]
             for input, outputs in zip(prepared_inputs, batch_outputs):
                 generations.append(
-                    {
-                        "generations": [output.text for output in outputs.outputs],
-                        "statistics": {
-                            "input_tokens": [
-                                compute_tokens(input, self._tokenizer.encode)
-                            ],
-                            "output_tokens": [
-                                len(output.token_ids) for output in outputs.outputs
-                            ],
-                        },
-                    }
+                    prepare_output(
+                        [output.text for output in outputs.outputs],
+                        **self._get_llm_statistics(input, outputs),
+                    )
                 )
 
+        # TODO: This must be updated for with the statistics
         # If logits_processor is set, we need to sort the outputs back to the original order
         # (would be needed only if we have multiple structured outputs in the dataset)
         if sorted_indices is not None:
@@ -438,6 +434,14 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if (schema := result.get("schema")) and self.structured_output:
             self.structured_output["schema"] = schema
         return result["processor"]
+
+    def _get_llm_statistics(
+        self, input: "FormattedInput", outputs: "CompletionOutput"
+    ) -> "LLMStatistics":
+        return {
+            "input_tokens": [compute_tokens(input, self._tokenizer.encode)],
+            "output_tokens": [len(output.token_ids) for output in outputs.outputs],
+        }
 
 
 class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
@@ -622,17 +626,8 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(text)
-        return {
-            "generations": generations,
-            "statistics": {
-                "input_tokens": completion.usage.prompt_tokens
-                if completion.usage
-                else 0,
-                "output_tokens": completion.usage.completion_tokens
-                if completion.usage
-                else 0,
-            },
-        }
+
+        return prepare_output(generations, **self._get_llm_statistics(completion))
 
 
 def _sort_batches(

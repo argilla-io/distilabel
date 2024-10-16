@@ -149,8 +149,8 @@ class TestInferenceEndpointsLLM:
         assert result == {
             "generations": ["Aenean hendrerit aliquam velit..."],
             "statistics": {
-                "input_tokens": 0,
-                "output_tokens": 66,
+                "input_tokens": [0],
+                "output_tokens": [66],
             },
         }
 
@@ -196,8 +196,8 @@ class TestInferenceEndpointsLLM:
         assert result == {
             "generations": [" Aenean hendrerit aliquam velit. ..."],
             "statistics": {
-                "input_tokens": 18,
-                "output_tokens": 66,
+                "input_tokens": [18],
+                "output_tokens": [66],
             },
         }
 
@@ -243,8 +243,8 @@ class TestInferenceEndpointsLLM:
         assert result == {
             "generations": [None],
             "statistics": {
-                "input_tokens": 18,
-                "output_tokens": 66,
+                "input_tokens": [18],
+                "output_tokens": [66],
             },
         }
 
@@ -294,8 +294,8 @@ class TestInferenceEndpointsLLM:
             {
                 "generations": [None],
                 "statistics": {
-                    "input_tokens": 18,
-                    "output_tokens": 66,
+                    "input_tokens": [18],
+                    "output_tokens": [66],
                 },
             }
         ]
@@ -334,8 +334,8 @@ class TestInferenceEndpointsLLM:
         assert result == {
             "generations": ["Aenean hendrerit aliquam velit..."],
             "statistics": {
-                "input_tokens": 0,
-                "output_tokens": 66,
+                "input_tokens": [0],
+                "output_tokens": [66],
             },
         }
 

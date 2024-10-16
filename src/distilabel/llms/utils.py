@@ -60,6 +60,6 @@ def prepare_output(
         "generations": generations,
         "statistics": {
             "input_tokens": input_tokens or 0,
-            "output_tokens": input_tokens or 0,
+            "output_tokens": output_tokens or 0,
         },
     }
