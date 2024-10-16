@@ -28,8 +28,8 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from tokenizers import Tokenizer
 
 from distilabel.llms.base import AsyncLLM
-from distilabel.llms.statistics import compute_tokens
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import compute_tokens
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import (
     FormattedInput,

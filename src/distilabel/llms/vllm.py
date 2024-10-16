@@ -33,8 +33,8 @@ from distilabel.llms.base import LLM
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.openai import OpenAILLM
-from distilabel.llms.statistics import compute_tokens
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import compute_tokens
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
