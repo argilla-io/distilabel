@@ -37,6 +37,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Tutorial](tutorials/GenerateSentencePair.ipynb)
 
+-   __Generate text classification data__
+
+    ---
+
+    Learn about how synthetic data generation for text classification can help address data imbalance or scarcity.
+
+    [:octicons-arrow-right-24: Tutorial](tutorials/generate_textcat_dataset.ipynb)
+
 </div>
 
 ## Paper Implementations
@@ -83,6 +91,22 @@ hide: toc
 
     [:octicons-arrow-right-24: Paper](papers/ultrafeedback.md)
 
+-   __APIGen__
+
+    ---
+
+    Learn how to create verifiable high-quality datases for function-calling applications.
+
+    [:octicons-arrow-right-24: Paper](papers/apigen.md)
+
+-   __CLAIR__
+
+    ---
+
+    Learn Contrastive Learning from AI Revisions (CLAIR), a data-creation method which leads to more contrastive preference pairs.
+
+    [:octicons-arrow-right-24: Paper](papers/clair.md)
+
 </div>
 
 ## Examples
@@ -112,6 +136,14 @@ hide: toc
     Learn about answering instructions with knowledge graphs defined as pydantic.BaseModel objects using instructor in distilabel.
 
     [:octicons-arrow-right-24: Example](examples/mistralai_with_instructor.md)
+
+-   __Create a social network with FinePersonas__
+
+    ---
+
+    Learn how to leverage FinePersonas to create a synthetic social network and fine-tune adapters for Multi-LoRA.
+
+    [:octicons-arrow-right-24: Example](examples/fine_personas_social_network.md)
 
 
 </div>

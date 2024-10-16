@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.steps.tasks.apigen.execution_checker import APIGenExecutionChecker
+from distilabel.steps.tasks.apigen.generator import APIGenGenerator
+from distilabel.steps.tasks.apigen.semantic_checker import APIGenSemanticChecker
+from distilabel.steps.tasks.argilla_labeller import ArgillaLabeller
 from distilabel.steps.tasks.base import GeneratorTask, Task
+from distilabel.steps.tasks.clair import CLAIR
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
+from distilabel.steps.tasks.decorator import task
 from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
 from distilabel.steps.tasks.evol_instruct.evol_complexity.base import EvolComplexity
 from distilabel.steps.tasks.evol_instruct.evol_complexity.generator import (
@@ -52,7 +58,12 @@ from distilabel.steps.tasks.urial import URIAL
 __all__ = [
     "GeneratorTask",
     "Task",
+    "ArgillaLabeller",
+    "APIGenExecutionChecker",
+    "APIGenGenerator",
+    "APIGenSemanticChecker",
     "ComplexityScorer",
+    "task",
     "EvolInstruct",
     "EvolComplexity",
     "EvolComplexityGenerator",
@@ -81,6 +92,7 @@ __all__ = [
     "TextGeneration",
     "ChatItem",
     "ChatType",
+    "CLAIR",
     "UltraFeedback",
     "URIAL",
 ]
