@@ -67,8 +67,8 @@ class SignatureMixin(BaseModel):
                 elif isinstance(v, list):
                     if len(v) == 0:
                         items.append((new_key, ""))
-                    elif isinstance(v[0], str):
-                        items.append((new_key, "-".join(v)))
+                    elif isinstance(v[0], (str, float, int, bool)):
+                        items.append((new_key, "-".join(map(str, v))))
                     else:
                         for i, x in enumerate(v):
                             items.extend(flatten_dump(x, f"{new_key}-{i}", sep=sep))
