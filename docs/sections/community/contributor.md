@@ -7,12 +7,12 @@ hide:
 Thank you for investing your time in contributing to the project! Any contribution you make will be reflected in the most recent version of distilabel 🤩.
 
 ??? Question "New to contributing in general?"
- If you're a new contributor, read the [README](https://github.com/argilla-io/distilabel/blob/develop/README.md) to get an overview of the project. In addition, here are some resources to help you get started with open-source contributions:
+    If you're a new contributor, read the [README](https://github.com/argilla-io/distilabel/blob/develop/README.md) to get an overview of the project. In addition, here are some resources to help you get started with open-source contributions:
 
- * **Discord**: You are welcome to join the [distilabel Discord community](http://hf.co/join/discord), where you can keep in touch with other users, contributors and the distilabel team. In the following [section](#first-contact-in-discord), you can find more information on how to get started in Discord.
- * **Git**: This is a very useful tool to keep track of the changes in your files. Using the command-line interface (CLI), you can make your contributions easily. For that, you need to have it [installed and updated](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) on your computer.
- * **GitHub**: It is a platform and cloud-based service that uses git and allows developers to collaborate on projects. To contribute to distilabel, you'll need to create an account. Check the [Contributor Workflow with Git and Github](#contributor-workflow-with-git-and-github) for more info.
- * **Developer Documentation**: To collaborate, you'll need to set up an efficient environment. Check the [Installation](../getting_started/installation.md) guide to know how to do it.
+    * **Discord**: You are welcome to join the [distilabel Discord community](http://hf.co/join/discord), where you can keep in touch with other users, contributors and the distilabel team. In the following [section](#first-contact-in-discord), you can find more information on how to get started in Discord.
+    * **Git**: This is a very useful tool to keep track of the changes in your files. Using the command-line interface (CLI), you can make your contributions easily. For that, you need to have it [installed and updated](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) on your computer.
+    * **GitHub**: It is a platform and cloud-based service that uses git and allows developers to collaborate on projects. To contribute to distilabel, you'll need to create an account. Check the [Contributor Workflow with Git and Github](#contributor-workflow-with-git-and-github) for more info.
+    * **Developer Documentation**: To collaborate, you'll need to set up an efficient environment. Check the [Installation](../getting_started/installation.md) guide to know how to do it.
 
 ## First Contact in Discord
 
@@ -128,6 +128,8 @@ Then, fill in the pull request template. You should add a prefix to the PR name,
 In addition, on the right side, you can select a reviewer (for instance, if you discussed the issue with a member of the team) and assign the pull request to yourself. It is highly advisable to add labels to PR as well. You can do this again by the labels section right on the screen. For instance, if you are addressing a bug, add the `bug` label, or if the PR is related to the documentation, add the `documentation` label. This way, PRs can be easily filtered.
 
 Finally, fill in the template carefully and follow the guidelines. Remember to link the original issue and enable the checkbox to allow maintainer edits so the branch can be updated for a merge. Then, click on `Create pull request`.
+
+For the PR body, ensure you give a description of what the PR contains, and add examples if possible (and if they apply to the contribution) to help with the review process. You can take a look at [#PR 974](https://github.com/argilla-io/distilabel/pull/974) or [#PR 983](https://github.com/argilla-io/distilabel/pull/983) for examples of typical PRs.
 
 
 ### Review your pull request

@@ -480,3 +480,14 @@ class UltraFeedback(Task):
                 "types": [None] * len(input["generations"]),
                 "rationales-for-ratings": [None] * len(input["generations"]),
             }
+
+    @override
+    def _sample_input(self) -> ChatType:
+        return self.format_input(
+            {
+                "instruction": f"<PLACEHOLDER_{'instruction'.upper()}>",
+                "generations": [
+                    f"<PLACEHOLDER_{f'GENERATION_{i}'.upper()}>" for i in range(2)
+                ],
+            }
+        )

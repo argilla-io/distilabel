@@ -216,7 +216,7 @@ class Pipeline(BasePipeline):
                 initargs=(
                     self._log_queue,
                     self.name,
-                    self._create_signature(),
+                    self.signature,
                 ),
             ) as pool,
         ):

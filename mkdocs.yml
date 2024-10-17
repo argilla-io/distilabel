@@ -162,6 +162,7 @@ plugins:
   - social
   - mknotebooks
   - material-plausible
+  - glightbox
   - distilabel/components-gallery:
       add_after_page: How-to guides
 
@@ -185,7 +186,7 @@ nav:
           - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
       - Advanced:
           - The Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
-          - Cachinc and recovering pipelines: "sections/how_to_guides/advanced/caching.md"
+          - Pipeline cache: "sections/how_to_guides/advanced/caching.md"
           - Exporting data to Argilla: "sections/how_to_guides/advanced/argilla.md"
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
           - Offline Batch Generation: "sections/how_to_guides/advanced/offline_batch_generation.md"
@@ -202,12 +203,15 @@ nav:
           - Generate a preference dataset: "sections/pipeline_samples/tutorials/generate_preference_dataset.ipynb"
           - Clean an existing preference dataset: "sections/pipeline_samples/tutorials/clean_existing_dataset.ipynb"
           - Synthetic data generation for fine-tuning custom retrieval and reranking models: "sections/pipeline_samples/tutorials/GenerateSentencePair.ipynb"
+          - Generate synthetic text classification data: "sections/pipeline_samples/tutorials/generate_textcat_dataset.ipynb"
       - Papers:
           - DeepSeek Prover: "sections/pipeline_samples/papers/deepseek_prover.md"
           - DEITA: "sections/pipeline_samples/papers/deita.md"
           - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
           - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
+          - APIGen: "sections/pipeline_samples/papers/apigen.md"
+          - CLAIR: "sections/pipeline_samples/papers/clair.md"
       - Examples:
           - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
           - Structured generation with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"
@@ -252,4 +256,5 @@ nav:
   - Community:
       - sections/community/index.md
       - How to contribute?: sections/community/contributor.md
+      - Developer Documentation: sections/community/developer_documentation.md
       - Issue dashboard: sections/community/popular_issues.md

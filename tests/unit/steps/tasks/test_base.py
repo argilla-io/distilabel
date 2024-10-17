@@ -414,6 +414,94 @@ class TestTask:
         result = next(task.process(input))
         assert result == expected
 
+    def test_process_overriding_inputs(self) -> None:
+        llm = DummyAsyncLLM()
+        task = DummyTask(
+            name="task",
+            llm=llm,
+            group_generations=False,
+            num_generations=3,
+            input_mappings={"instruction": "instruction_2"},
+        )
+
+        result = next(
+            task.process_applying_mappings(
+                [
+                    {
+                        "instruction": "instruction that won't be used but overriden by input mapping",
+                        "instruction_2": "instruction that will be used as input",
+                        "additional_info": "info",
+                    }
+                ]
+            )
+        )
+
+        assert result == [
+            {
+                "additional_info": "info",
+                "distilabel_metadata": {
+                    "raw_input_task": [
+                        {
+                            "content": "",
+                            "role": "system",
+                        },
+                        {
+                            "content": "instruction that will be used as input",
+                            "role": "user",
+                        },
+                    ],
+                    "raw_output_task": "output",
+                },
+                "info_from_input": "info",
+                "instruction": "instruction that won't be used but overriden by input mapping",
+                "instruction_2": "instruction that will be used as input",
+                "model_name": "test",
+                "output": "output",
+            },
+            {
+                "additional_info": "info",
+                "distilabel_metadata": {
+                    "raw_input_task": [
+                        {
+                            "content": "",
+                            "role": "system",
+                        },
+                        {
+                            "content": "instruction that will be used as input",
+                            "role": "user",
+                        },
+                    ],
+                    "raw_output_task": "output",
+                },
+                "info_from_input": "info",
+                "instruction": "instruction that won't be used but overriden by input mapping",
+                "instruction_2": "instruction that will be used as input",
+                "model_name": "test",
+                "output": "output",
+            },
+            {
+                "additional_info": "info",
+                "distilabel_metadata": {
+                    "raw_input_task": [
+                        {
+                            "content": "",
+                            "role": "system",
+                        },
+                        {
+                            "content": "instruction that will be used as input",
+                            "role": "user",
+                        },
+                    ],
+                    "raw_output_task": "output",
+                },
+                "info_from_input": "info",
+                "instruction": "instruction that won't be used but overriden by input mapping",
+                "instruction_2": "instruction that will be used as input",
+                "model_name": "test",
+                "output": "output",
+            },
+        ]
+
     def test_process_with_runtime_parameters(self) -> None:
         # 1. Runtime parameters provided
         llm = DummyRuntimeLLM()  # type: ignore
@@ -576,6 +664,7 @@ class TestTask:
                     "optional": True,
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": "tests.unit.conftest",
                 "name": "DummyTask",

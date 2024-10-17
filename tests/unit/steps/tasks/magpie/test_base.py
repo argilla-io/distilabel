@@ -762,6 +762,7 @@ class TestMagpie:
                     "description": "The number of generations to be produced per input.",
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": "distilabel.steps.tasks.magpie.base",
                 "name": "Magpie",
