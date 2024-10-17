@@ -33,7 +33,6 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParametersMixin,
 )
 from distilabel.utils.docstring import parse_google_docstring
-from distilabel.utils.itertools import grouper
 from distilabel.utils.notebook import in_notebook
 from distilabel.utils.serialization import _Serializable
 
@@ -460,21 +459,15 @@ class AsyncLLM(LLM):
                 for input in inputs
             ]
             result = await asyncio.gather(*tasks)
-            # TODO: Update the object returned to be the same as in synchronous LLMs with batches.
+            return merge_responses(result)
 
-            return result
-
-        # TODO: Update the object returned to be the same as in synchronous LLMs with batches.
         tasks = [
             asyncio.create_task(self.agenerate(input=input, **kwargs))
             for input in inputs
             for _ in range(num_generations)
         ]
         outputs = await asyncio.gather(*tasks)
-        return [
-            list(group)[0]
-            for group in grouper(outputs, n=num_generations, incomplete="ignore")
-        ]
+        return merge_responses(outputs)
 
     def generate(
         self,
@@ -594,3 +587,28 @@ class AsyncLLM(LLM):
             },
         )
         return arguments
+
+
+def merge_responses(responses: List[Dict[str, Any]]) -> List["GenerateOutput"]:
+    """Helper function to group the responses from `LLM.agenerate` method according
+    to the number of generations requested.
+
+    Args:
+        responses: the responses from the `LLM.agenerate` method.
+
+    Returns:
+        Merges the texts and statistics of the responses into a single response.
+    """
+    if not responses:
+        return []
+
+    first = responses[0]
+    return [
+        {
+            "generations": sum((r["generations"] for r in responses), []),
+            "statistics": {
+                key: sum((r["statistics"][key] for r in responses), [])
+                for key in first["statistics"]
+            },
+        }
+    ]
