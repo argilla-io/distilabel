@@ -247,7 +247,8 @@ class LlamaCppLLM(LLM):
             batch_outputs.append(
                 prepare_output(
                     outputs,
-                    input_tokens=[chat_completions["usage"]["prompt_tokens"]],
+                    input_tokens=[chat_completions["usage"]["prompt_tokens"]]
+                    * num_generations,
                     output_tokens=output_tokens,
                 )
             )

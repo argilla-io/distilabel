@@ -15,7 +15,7 @@
 import os
 import sys
 from textwrap import dedent
-from typing import Any, Dict
+from typing import Any, Dict, List
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
@@ -130,17 +130,43 @@ class TestOpenAILLM:
     @pytest.mark.skipif(
         sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
     )
+    @pytest.mark.parametrize(
+        "num_generations, expected_result",
+        [
+            (
+                1,
+                [
+                    {
+                        "generations": [" Aenean hendrerit aliquam velit. ..."],
+                        "statistics": {"input_tokens": [100], "output_tokens": [100]},
+                    }
+                ],
+            ),
+            (
+                2,
+                [
+                    {
+                        "generations": [" Aenean hendrerit aliquam velit. ..."] * 2,
+                        "statistics": {"input_tokens": [100], "output_tokens": [100]},
+                    }
+                ],
+            ),
+        ],
+    )
     @pytest.mark.asyncio
     async def test_generate(
-        self, async_openai_mock: MagicMock, _openai_mock: MagicMock
+        self,
+        async_openai_mock: MagicMock,
+        _openai_mock: MagicMock,
+        num_generations: int,
+        expected_result: List[Dict[str, Any]],
     ) -> None:
         llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
         llm._aclient = async_openai_mock
 
         mocked_completion = Mock(
-            choices=[
-                Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))
-            ],
+            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            * num_generations,
             usage=Mock(prompt_tokens=100, completion_tokens=100),
         )
         llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
@@ -158,12 +184,7 @@ class TestOpenAILLM:
                 ]
             ]
         )
-        assert result == [
-            {
-                "generations": [" Aenean hendrerit aliquam velit. ..."],
-                "statistics": {"input_tokens": [100], "output_tokens": [100]},
-            }
-        ]
+        assert result == expected_result
 
         with pytest.raises(ValueError):
             llm.generate(

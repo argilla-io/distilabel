@@ -405,7 +405,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                     )
                 )
 
-        # TODO: This must be updated for with the statistics
+        # TODO: This must be updated with the statistics
         # If logits_processor is set, we need to sort the outputs back to the original order
         # (would be needed only if we have multiple structured outputs in the dataset)
         if sorted_indices is not None:
@@ -438,9 +438,11 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     def _get_llm_statistics(
         self, input: "FormattedInput", outputs: "CompletionOutput"
     ) -> "LLMStatistics":
+        output_tokens = [len(output.token_ids) for output in outputs.outputs]
         return {
-            "input_tokens": [compute_tokens(input, self._tokenizer.encode)],
-            "output_tokens": [len(output.token_ids) for output in outputs.outputs],
+            "input_tokens": [compute_tokens(input, self._tokenizer.encode)]
+            * len(output_tokens),
+            "output_tokens": output_tokens,
         }
 
 

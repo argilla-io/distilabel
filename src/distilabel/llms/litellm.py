@@ -259,7 +259,9 @@ class LiteLLM(AsyncLLM):
                 raise e
 
         generations = []
-        input_tokens = [token_counter(model=self.model, messages=input)]
+        input_tokens = [
+            token_counter(model=self.model, messages=input)
+        ] * num_generations
         output_tokens = []
 
         if self.structured_output:

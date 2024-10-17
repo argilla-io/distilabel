@@ -14,7 +14,7 @@
 
 import os
 import random
-from typing import Generator
+from typing import Any, Dict, Generator, List
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -248,11 +248,41 @@ class TestInferenceEndpointsLLM:
             },
         }
 
+    @pytest.mark.parametrize(
+        "num_generations, expected_result",
+        [
+            (
+                1,
+                [
+                    {
+                        "generations": ["text"],
+                        "statistics": {"input_tokens": [18], "output_tokens": [66]},
+                    }
+                ],
+            ),
+            (
+                2,
+                [
+                    {
+                        "generations": ["text"] * 2,
+                        "statistics": {
+                            "input_tokens": [18, 18],
+                            "output_tokens": [66, 66],
+                        },
+                    }
+                ],
+            ),
+        ],
+    )
     @pytest.mark.asyncio
-    async def test_generate(self, mock_inference_client: MagicMock) -> None:
+    async def test_generate(
+        self,
+        mock_inference_client: MagicMock,
+        num_generations: int,
+        expected_result: List[Dict[str, Any]],
+    ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
-            # tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
         )
         llm.load()
 
@@ -264,10 +294,11 @@ class TestInferenceEndpointsLLM:
                         index=0,
                         message=ChatCompletionOutputMessage(
                             role="assistant",
-                            content=None,
+                            content="text",
                         ),
                     )
-                ],
+                ]
+                * num_generations,
                 created=1721045246,
                 id="",
                 model="meta-llama/Meta-Llama-3-70B-Instruct",
@@ -288,17 +319,10 @@ class TestInferenceEndpointsLLM:
                         "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                     },
                 ]
-            ]
+            ],
+            num_generations=num_generations,
         )
-        assert result == [
-            {
-                "generations": [None],
-                "statistics": {
-                    "input_tokens": [18],
-                    "output_tokens": [66],
-                },
-            }
-        ]
+        assert result == expected_result
 
     @pytest.mark.asyncio
     async def test_agenerate_with_structured_output(
