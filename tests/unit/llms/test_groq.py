@@ -38,7 +38,10 @@ class TestGroqLLM:
         llm._aclient = mock_groq
 
         mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            choices=[
+                Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))
+            ],
+            usage=Mock(prompt_tokens=100, completion_tokens=100),
         )
         llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
@@ -50,10 +53,13 @@ class TestGroqLLM:
                     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 },
             ]
-        ) == [" Aenean hendrerit aliquam velit. ..."]
+        ) == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
+        }
 
     @pytest.mark.skipif(
-        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+        sys.version_info < (3, 9), reason="`groq` requires Python 3.9 or higher"
     )
     @pytest.mark.asyncio
     async def test_agenerate_structured(self, mock_openai: MagicMock) -> None:
@@ -68,8 +74,12 @@ class TestGroqLLM:
         )  # type: ignore
         llm._aclient = mock_openai
 
-        sample_user = DummyUserDetail(name="John Doe", age=30)
-
+        mocked_usage = MagicMock(
+            usage=MagicMock(prompt_tokens=100, completion_tokens=100),
+        )
+        sample_user = DummyUserDetail(
+            name="John Doe", age=30, _raw_response=mocked_usage
+        )
         llm._aclient.chat.completions.create = AsyncMock(return_value=sample_user)
 
         generation = await llm.agenerate(
@@ -81,7 +91,10 @@ class TestGroqLLM:
                 },
             ]
         )
-        assert generation[0] == sample_user.model_dump_json()
+        assert generation == {
+            "generations": [sample_user.model_dump_json()],
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
+        }
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_groq: MagicMock) -> None:
@@ -89,7 +102,8 @@ class TestGroqLLM:
         llm._aclient = mock_groq
 
         mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            choices=[Mock(message=Mock(content="Aenean hendrerit aliquam velit..."))],
+            usage=Mock(prompt_tokens=100, completion_tokens=100),
         )
         llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
@@ -105,7 +119,12 @@ class TestGroqLLM:
                     },
                 ]
             ]
-        ) == [[" Aenean hendrerit aliquam velit. ..."]]
+        ) == [
+            {
+                "generations": ["Aenean hendrerit aliquam velit..."],
+                "statistics": {"input_tokens": [100], "output_tokens": [100]},
+            }
+        ]
 
     @pytest.mark.parametrize(
         "structured_output, dump",

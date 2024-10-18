@@ -21,6 +21,7 @@ from openai.pagination import SyncPage
 from openai.types import Model
 from openai.types.completion import Completion
 from openai.types.completion_choice import CompletionChoice
+from openai.types.completion_usage import CompletionUsage
 from pydantic import BaseModel
 
 from distilabel.llms import vLLM
@@ -240,6 +241,11 @@ class TestClientvLLM:
                         text="I'm fine thank you sir",
                     ),
                 ],
+                usage=CompletionUsage(
+                    completion_tokens=10,
+                    prompt_tokens=10,
+                    total_tokens=20,
+                ),
             )
         )
 
@@ -247,4 +253,10 @@ class TestClientvLLM:
             input=[{"role": "user", "content": "Hi, how are you?"}]
         )
 
-        assert generations == ["I'm fine thank you", "I'm fine thank you sir"]
+        assert generations == {
+            "generations": ["I'm fine thank you", "I'm fine thank you sir"],
+            "statistics": {
+                "input_tokens": 10,
+                "output_tokens": 10,
+            },
+        }

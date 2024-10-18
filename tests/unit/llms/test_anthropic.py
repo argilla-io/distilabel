@@ -37,12 +37,14 @@ class TestAnthropicLLM:
         llm = AnthropicLLM(model="claude-3-opus-20240229", api_key="api.key")  # type: ignore
         llm._aclient = mock_anthropic
 
-        mocked_completion = Mock()
-        mocked_completion.content = [Mock(text="Aenean hendrerit aliquam velit...")]
+        mocked_completion = Mock(
+            content=[Mock(text="Aenean hendrerit aliquam velit...")],
+            usage=Mock(input_tokens=100, output_tokens=100),
+        )
 
         llm._aclient.messages.create = AsyncMock(return_value=mocked_completion)
 
-        await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {"role": "system", "content": ""},
                 {
@@ -51,6 +53,10 @@ class TestAnthropicLLM:
                 },
             ]
         )
+        assert result == {
+            "generations": ["Aenean hendrerit aliquam velit..."],
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
+        }
 
     @pytest.mark.asyncio
     async def test_agenerate_structured(self, mock_openai: MagicMock) -> None:
@@ -65,8 +71,12 @@ class TestAnthropicLLM:
         )  # type: ignore
         llm._aclient = mock_openai
 
-        sample_user = DummyUserDetail(name="John Doe", age=30)
-
+        mocked_usage = MagicMock(
+            usage=MagicMock(input_tokens=100, output_tokens=100),
+        )
+        sample_user = DummyUserDetail(
+            name="John Doe", age=30, _raw_response=mocked_usage
+        )
         llm._aclient.messages.create = AsyncMock(return_value=sample_user)
 
         generation = await llm.agenerate(
@@ -78,7 +88,13 @@ class TestAnthropicLLM:
                 },
             ]
         )
-        assert generation[0] == sample_user.model_dump_json()
+        assert generation == {
+            "generations": [sample_user.model_dump_json()],
+            "statistics": {
+                "input_tokens": [100],
+                "output_tokens": [100],
+            },
+        }
 
     @pytest.mark.skipif(
         sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
@@ -88,14 +104,16 @@ class TestAnthropicLLM:
         llm = AnthropicLLM(model="claude-3-opus-20240229")  # type: ignore
         llm._aclient = mock_anthropic
 
-        mocked_completion = Mock()
-        mocked_completion.content = [Mock(text="Aenean hendrerit aliquam velit...")]
+        mocked_completion = Mock(
+            content=[Mock(text="Aenean hendrerit aliquam velit...")],
+            usage=Mock(input_tokens=100, output_tokens=100),
+        )
 
         llm._aclient.messages.create = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
 
-        llm.generate(
+        result = llm.generate(
             inputs=[
                 [
                     {"role": "system", "content": ""},
@@ -106,6 +124,12 @@ class TestAnthropicLLM:
                 ]
             ]
         )
+        assert result == [
+            {
+                "generations": ["Aenean hendrerit aliquam velit..."],
+                "statistics": {"input_tokens": [100], "output_tokens": [100]},
+            }
+        ]
 
     @pytest.mark.parametrize(
         "structured_output, dump",
