@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
+from typing import Any, Dict, List
 from unittest import mock
 
-import numpy as np
 import pytest
 from openai.pagination import SyncPage
 from openai.types import Model
@@ -25,7 +24,7 @@ from openai.types.completion_usage import CompletionUsage
 from pydantic import BaseModel
 
 from distilabel.llms import vLLM
-from distilabel.llms.vllm import ClientvLLM, _sort_batches
+from distilabel.llms.vllm import ClientvLLM
 
 
 class Character(BaseModel):
@@ -104,7 +103,8 @@ SAMPLE_DATA = [
 
 # Just a mock to avoid loading the model
 class DummyTokenizer:
-    chat_template = None
+    # chat_template = None
+    chat_template = "template"
 
     def __init__(self) -> None:
         pass
@@ -112,83 +112,93 @@ class DummyTokenizer:
     def apply_chat_template(self, input, **kwargs):
         return input
 
+    def encode(self, text: str):
+        return [1, 2, 3, 4, 5]
+
 
 class TestvLLM:
+    @pytest.mark.parametrize("multi_structured_output", (False, True))
     @pytest.mark.parametrize(
-        "num_generations, expected_sorted_batches",
+        "num_generations, expected_result",
         [
             (
                 1,
                 [
-                    "Generate a character from a RPG game.",
-                    "Generate an animal from a zoo.",
-                    "Repeated character",
-                    "What's the weather like today in Seattle in Celsius degrees?",
-                    "Other character",
-                    "repeated regex",
+                    {
+                        "generations": ["I'm fine thank you"],
+                        "statistics": {"input_tokens": [5], "output_tokens": [6]},
+                    }
                 ],
             ),
             (
-                3,
-                np.repeat(
-                    [
-                        "Generate a character from a RPG game.",
-                        "Generate an animal from a zoo.",
-                        "Repeated character",
-                        "What's the weather like today in Seattle in Celsius degrees?",
-                        "Other character",
-                        "repeated regex",
-                    ],
-                    3,
-                ).tolist(),
+                2,
+                [
+                    {
+                        "generations": ["I'm fine thank you"] * 2,
+                        "statistics": {"input_tokens": [5, 5], "output_tokens": [6, 6]},
+                    }
+                ],
             ),
         ],
     )
-    def test_prepare_batches_and_sort_back(
-        self, num_generations: int, expected_sorted_batches: List[str]
-    ):
-        formatted_inputs = [
-            (item["instruction"], item["structured_output"])
-            for row in SAMPLE_DATA
-            for item in row
-        ]
+    def test_generate(
+        self,
+        multi_structured_output: bool,
+        num_generations: int,
+        expected_result: List[Dict[str, Any]],
+    ) -> None:
         llm = vLLM(model="dummy")
         llm._tokenizer = DummyTokenizer()
-        batches, indices = llm._prepare_batches(formatted_inputs)
-        # NOTE: We have to simulate calling self._model.generate(n=num_generations) and then sorting the results
-        num_generations_batches = []
-        for batch in batches:
-            num_generations_batches.append(
-                (np.repeat(batch[0], num_generations).tolist(), batch[1])
-            )
-        batches = num_generations_batches
-        # Recreate as the output from batched_outputs += [[output.text for output in outputs.outputs] for outputs in batch_outputs]
-        batches = [batch for batch, _ in batches]
-        sorted_batches = _sort_batches(
-            batches, indices, num_generations=num_generations
-        )
+        vllm_mock = mock.MagicMock()
+        # mock the import by hacking sys.modules
+        # https://stackoverflow.com/questions/60919705/how-to-mock-in-a-python-unittest-a-library-not-installed-locally
+        import sys
 
-        assert sorted_batches == [
-            np.repeat(
-                [
-                    "Generate a character from a RPG game.",
-                    "Generate an animal from a zoo.",
-                    "Repeated character",
-                ],
-                num_generations,
-            ).tolist(),
-            np.repeat(
-                ["What's the weather like today in Seattle in Celsius degrees?"],
-                num_generations,
-            ).tolist(),
-            np.repeat(
-                [
-                    "Other character",
-                    "repeated regex",
-                ],
-                num_generations,
-            ).tolist(),
+        if "vllm" not in sys.modules:
+            sys.modules["vllm"] = vllm_mock
+        llm._model = vllm_mock
+
+        mocked_requests_output = [
+            mock.Mock(  # RequestOutput
+                outputs=[
+                    mock.Mock(  # CompletionOutput
+                        text="I'm fine thank you",
+                        token_ids=[1, 2, 3, 4, 5, 7],
+                    )
+                ]
+                * num_generations,
+            )
         ]
+
+        llm._model.generate = mock.MagicMock(return_value=mocked_requests_output)
+        if not multi_structured_output:
+            formatted_inputs = [
+                [
+                    {"role": "system", "content": "sysprompt"},
+                    {
+                        "role": "user",
+                        "content": "I'm fine thank you",
+                    },
+                ]
+            ]
+        else:
+            formatted_inputs = [
+                (
+                    [
+                        {"role": "system", "content": "sysprompt"},
+                        {
+                            "role": "user",
+                            "content": "I'm fine thank you",
+                        },
+                    ],
+                    {
+                        "format": "json",
+                        "schema": Character.model_json_schema(),
+                    },
+                )
+            ]
+        result = llm.generate(inputs=formatted_inputs, num_generations=num_generations)
+        assert result == expected_result
 
 
 @mock.patch("openai.OpenAI")
@@ -256,7 +266,7 @@ class TestClientvLLM:
         assert generations == {
             "generations": ["I'm fine thank you", "I'm fine thank you sir"],
             "statistics": {
-                "input_tokens": 10,
-                "output_tokens": 10,
+                "input_tokens": [10],
+                "output_tokens": [10],
             },
         }
