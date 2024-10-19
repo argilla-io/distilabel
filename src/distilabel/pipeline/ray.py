@@ -83,6 +83,7 @@ class RayPipeline(BasePipeline):
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
         dataset: Optional["InputDataset"] = None,
+        dataset_batch_size: int = 50,
         logging_handlers: Optional[List["logging.Handler"]] = None,
     ) -> "Distiset":
         """Runs the pipeline in the Ray cluster.
@@ -106,6 +107,8 @@ class RayPipeline(BasePipeline):
             dataset: If given, it will be used to create a `GeneratorStep` and put it as the
                 root step. Convenient method when you have already processed the dataset in
                 your script and just want to pass it already processed. Defaults to `None`.
+            dataset_batch_size: if `dataset` is given, this will be the size of the batches
+                yield by the `GeneratorStep` created using the `dataset`. Defaults to `50`.
             logging_handlers: A list of logging handlers that will be used to log the
                 output of the pipeline. This argument can be useful so the logging messages
                 can be extracted and used in a different context. Defaults to `None`.
@@ -130,6 +133,7 @@ class RayPipeline(BasePipeline):
             storage_parameters=storage_parameters,
             use_fs_to_pass_data=use_fs_to_pass_data,
             dataset=dataset,
+            dataset_batch_size=dataset_batch_size,
             logging_handlers=logging_handlers,
         ):
             return distiset
