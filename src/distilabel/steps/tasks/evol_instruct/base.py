@@ -23,6 +23,7 @@ from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.evol_instruct.utils import MUTATION_TEMPLATES
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.typing import StepColumns
 from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
@@ -173,25 +174,14 @@ class EvolInstruct(Task):
         default=42,
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
     )
+    inputs: StepColumns = ["instruction"]
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`."""
-        return ["instruction"]
-
-    def format_input(self, input: str) -> ChatType:  # type: ignore
-        """The input is formatted as a `ChatType` assuming that the instruction
-        is the first interaction from the user within a conversation. And the
-        `system_prompt` is added as the first message if it exists."""
-        return [{"role": "user", "content": input}]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `evolved_instruction/s`, the `answer` if `generate_answers=True`
-        and the `model_name`."""
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
         # TODO: having to define a `model_name` column every time as the `Task.outputs` is not ideal,
         # this could be handled always and the value could be included within the DAG validation when
         # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
+
         _outputs = [
             (
                 "evolved_instruction"
@@ -202,7 +192,13 @@ class EvolInstruct(Task):
         ]
         if self.generate_answers:
             _outputs.append("answer" if not self.store_evolutions else "answers")
-        return _outputs
+        self.outputs = _outputs
+
+    def format_input(self, input: str) -> ChatType:  # type: ignore
+        """The input is formatted as a `ChatType` assuming that the instruction
+        is the first interaction from the user within a conversation. And the
+        `system_prompt` is added as the first message if it exists."""
+        return [{"role": "user", "content": input}]
 
     @override
     def format_output(  # type: ignore

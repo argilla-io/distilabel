@@ -6,21 +6,19 @@ For this reason, `Step`s have a method called `save_artifact` that allows saving
 
 ```python
 from typing import List, TYPE_CHECKING
-from distilabel.steps import GlobalStep, StepInput, StepOutput
+
 import matplotlib.pyplot as plt
+
+from distilabel.steps import GlobalStep, StepInput, StepOutput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps import StepOutput
 
 
 class CountTextCharacters(GlobalStep):
-    @property
-    def inputs(self) -> List[str]:
-        return ["text"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["text_character_count"]
+    inputs: StepColumns = ["text"]
+    outputs: StepColumns = ["text_character_count"]
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         character_counts = []
@@ -66,19 +64,15 @@ Let's execute the step with a simple pipeline and push the resulting `Distiset` 
     from datasets import load_dataset
     from distilabel.pipeline import Pipeline
     from distilabel.steps import GlobalStep, StepInput, StepOutput
+    from distilabel.steps.typing import StepColumns
 
     if TYPE_CHECKING:
         from distilabel.steps import StepOutput
 
 
     class CountTextCharacters(GlobalStep):
-        @property
-        def inputs(self) -> List[str]:
-            return ["text"]
-
-        @property
-        def outputs(self) -> List[str]:
-            return ["text_character_count"]
+        inputs: StepColumns = ["text"]
+        outputs: StepColumns = ["text_character_count"]
 
         def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
             character_counts = []

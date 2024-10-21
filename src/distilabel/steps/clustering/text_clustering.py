@@ -15,7 +15,7 @@
 import importlib.util
 import json
 from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -25,6 +25,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps import StepInput
 from distilabel.steps.tasks import TextClassification
 from distilabel.steps.tasks.base import GlobalTask
+from distilabel.steps.typing import StepColumns
 from distilabel.utils.itertools import batched
 
 if TYPE_CHECKING:
@@ -121,19 +122,11 @@ class TextClustering(TextClassification, GlobalTask):
         default=10,
         description="The number of examples to use in the LLM as a sample of the cluster.",
     )
+    outputs: StepColumns = ["summary_label", "model_name"]
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task are the same as those for `TextClassification` plus
-        the `projection` and `cluster_label` columns (which can be obtained from
-        UMAP + DBSCAN steps).
-        """
-        return super().inputs + ["projection", "cluster_label"]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `summary_label` and the `model_name`."""
-        return ["summary_label", "model_name"]
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.inputs = self.inputs + ["projection", "cluster_label"]
 
     def load(self) -> None:
         super().load()

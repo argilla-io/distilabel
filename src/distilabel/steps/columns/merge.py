@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from typing_extensions import override
 
@@ -20,7 +20,7 @@ from distilabel.steps.base import Step, StepInput
 from distilabel.steps.columns.utils import merge_columns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class MergeColumns(Step):
@@ -80,13 +80,10 @@ class MergeColumns(Step):
     columns: List[str]
     output_column: Optional[str] = None
 
-    @property
-    def inputs(self) -> "StepColumns":
-        return self.columns
-
-    @property
-    def outputs(self) -> "StepColumns":
-        return [self.output_column] if self.output_column else ["merged_column"]
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.inputs = self.columns
+        self.outputs = [self.output_column] if self.output_column else ["merged_column"]
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":

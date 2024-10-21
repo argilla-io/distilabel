@@ -25,7 +25,7 @@ from distilabel.steps.tasks.magpie.base import MagpieBase
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import GeneratorStepOutput, StepColumns
+    from distilabel.steps.typing import GeneratorStepOutput
 
 
 class MagpieGenerator(GeneratorTask, MagpieBase):
@@ -267,9 +267,6 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
 
         self.llm.use_magpie_template = True
 
-    @property
-    def outputs(self) -> "StepColumns":
-        """Either a multi-turn conversation or the instruction generated."""
         outputs = []
 
         if self.only_instruction:
@@ -284,7 +281,7 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
 
         outputs.append("model_name")
 
-        return outputs
+        self.outputs = outputs
 
     def format_output(
         self,

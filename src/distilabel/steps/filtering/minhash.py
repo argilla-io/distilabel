@@ -32,6 +32,7 @@ from typing import (
 from pydantic import PrivateAttr
 
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from datasketch import MinHash, MinHashLSH
@@ -169,6 +170,8 @@ class MinHashDedup(Step):
     n: Optional[int] = 5
     threshold: float = 0.9
     storage: Literal["dict", "disk"] = "dict"
+    inputs: StepColumns = ["text"]
+    outputs: StepColumns = ["keep_row_after_minhash_filtering"]
 
     _hasher: Union["MinHash", None] = PrivateAttr(None)
     _tokenizer: Union[Callable, None] = PrivateAttr(None)
@@ -207,14 +210,6 @@ class MinHashDedup(Step):
         # In case of LSH being stored in disk, we need to close the file.
         if self.storage == "disk":
             self._lsh.close()
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["text"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["keep_row_after_minhash_filtering"]
 
     def process(self, inputs: StepInput) -> "StepOutput":
         tokenized_texts = []

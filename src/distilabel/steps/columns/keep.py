@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, List
 
 from typing_extensions import override
 
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class KeepColumns(Step):
@@ -70,15 +70,10 @@ class KeepColumns(Step):
 
     columns: List[str]
 
-    @property
-    def inputs(self) -> "StepColumns":
-        """The inputs for the task are the column names in `columns`."""
-        return self.columns
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The outputs for the task are the column names in `columns`."""
-        return self.columns
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.inputs = self.columns
+        self.outputs = self.columns
 
     @override
     def process(self, *inputs: StepInput) -> "StepOutput":

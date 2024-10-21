@@ -15,9 +15,10 @@
 from typing import TYPE_CHECKING
 
 from distilabel.steps.base import Step, StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class ConversationTemplate(Step):
@@ -59,15 +60,8 @@ class ConversationTemplate(Step):
         ```
     """
 
-    @property
-    def inputs(self) -> "StepColumns":
-        """The instruction and response."""
-        return ["instruction", "response"]
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The conversation template."""
-        return ["conversation"]
+    inputs: StepColumns = ["instruction", "response"]
+    outputs: StepColumns = ["conversation"]
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Generate a conversation template from an instruction and a response.

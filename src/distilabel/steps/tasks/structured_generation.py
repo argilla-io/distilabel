@@ -13,11 +13,12 @@
 # limitations under the License.
 
 import warnings
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Union
 
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import StructuredInput
+from distilabel.steps.typing import StepColumns
 
 
 class StructuredGeneration(Task):
@@ -138,16 +139,14 @@ class StructuredGeneration(Task):
     """
 
     use_system_prompt: bool = False
+    outputs: StepColumns = ["generation", "model_name"]
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task are the `instruction` and the `structured_output`.
-        Optionally, if the `use_system_prompt` flag is set to True, then the
-        `system_prompt` will be used too."""
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
         columns = ["instruction", "structured_output"]
         if self.use_system_prompt:
             columns = ["system_prompt"] + columns
-        return columns
+        self.inputs = columns
 
     def format_input(self, input: Dict[str, Any]) -> StructuredInput:
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -172,11 +171,6 @@ class StructuredGeneration(Task):
                 )
 
         return (messages, input.get("structured_output", None))  # type: ignore
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
-        return ["generation", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

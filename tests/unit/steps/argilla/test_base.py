@@ -14,25 +14,24 @@
 
 import os
 import sys
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 import pytest
 
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
 class CustomArgilla(ArgillaBase):
+    inputs: StepColumns = ["instruction"]
+
     def load(self) -> None:
         pass
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
 
     def process(self, *inputs: StepInput) -> "StepOutput":
         yield [{}]
@@ -85,9 +84,9 @@ class TestArgilla:
 
         with pytest.raises(
             TypeError,
-            match="Can't instantiate abstract class ArgillaBase with abstract methods inputs, process"
+            match="Can't instantiate abstract class ArgillaBase with abstract method process"
             if sys.version_info < (3, 12)
-            else "Can't instantiate abstract class ArgillaBase without an implementation for abstract methods 'inputs', 'process'",
+            else "Can't instantiate abstract class ArgillaBase without an implementation for abstract method 'process'",
         ):
             ArgillaBase(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
@@ -118,6 +117,7 @@ class TestArgilla:
             "name": "step",
             "input_mappings": {},
             "output_mappings": {},
+            "inputs": ["instruction"],
             "resources": {
                 "cpus": None,
                 "gpus": None,

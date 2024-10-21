@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import importlib.util
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import numpy as np
 from pydantic import Field, PrivateAttr
@@ -23,6 +23,7 @@ from distilabel.steps import (
     GlobalStep,
     StepInput,
 )
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from umap import UMAP as _UMAP
@@ -105,6 +106,8 @@ class UMAP(GlobalStep):
     random_state: Optional[RuntimeParameter[int]] = Field(
         default=None, description="The random state to use for the UMAP algorithm."
     )
+    inputs: StepColumns = ["embedding"]
+    outputs: StepColumns = ["projection"]
 
     _umap: Optional["_UMAP"] = PrivateAttr(None)
 
@@ -125,14 +128,6 @@ class UMAP(GlobalStep):
 
     def unload(self) -> None:
         self._umap = None
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["embedding"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["projection"]
 
     def _save_model(self, model: Any) -> None:
         import joblib

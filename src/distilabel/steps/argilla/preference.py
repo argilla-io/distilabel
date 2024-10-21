@@ -26,6 +26,7 @@ except ImportError:
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
+from distilabel.steps.typing import StepColumns
 
 if TYPE_CHECKING:
     from argilla import RatingQuestion, Suggestion, TextField, TextQuestion
@@ -127,6 +128,12 @@ class PreferenceToArgilla(ArgillaBase):
     """
 
     num_generations: int
+    inputs: StepColumns = {
+        "instruction": True,
+        "generations": True,
+        "ratings": False,
+        "rationales": False,
+    }
 
     _id: str = PrivateAttr(default="id")
     _instruction: str = PrivateAttr(...)
@@ -240,17 +247,6 @@ class PreferenceToArgilla(ArgillaBase):
                 ]
             )
         return questions
-
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the step are the `instruction` and the `generations`. Optionally, one could also
-        provide the `ratings` and the `rationales` for the generations."""
-        return ["instruction", "generations"]
-
-    @property
-    def optional_inputs(self) -> List[str]:
-        """The optional inputs for the step are the `ratings` and the `rationales` for the generations."""
-        return ["ratings", "rationales"]
 
     def _add_suggestions_if_any(self, input: Dict[str, Any]) -> List["Suggestion"]:
         """Method to generate the suggestions for the `rg.Record` based on the input.

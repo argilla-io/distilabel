@@ -20,7 +20,7 @@ from pydantic import field_validator
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class ExpandColumns(Step):
@@ -72,6 +72,14 @@ class ExpandColumns(Step):
 
     columns: Union[Dict[str, str], List[str]]
 
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+        self.inputs = list(self.columns.keys())
+        self.outputs = [
+            new_column if new_column else expand_column
+            for expand_column, new_column in self.columns.items()
+        ]
+
     @field_validator("columns")
     @classmethod
     def always_dict(cls, value: Union[Dict[str, str], List[str]]) -> Dict[str, str]:
@@ -87,19 +95,6 @@ class ExpandColumns(Step):
             return {col: col for col in value}
 
         return value
-
-    @property
-    def inputs(self) -> "StepColumns":
-        """The columns to be expanded."""
-        return list(self.columns.keys())
-
-    @property
-    def outputs(self) -> "StepColumns":
-        """The expanded columns."""
-        return [
-            new_column if new_column else expand_column
-            for expand_column, new_column in self.columns.items()
-        ]
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Expand the columns in the input data.

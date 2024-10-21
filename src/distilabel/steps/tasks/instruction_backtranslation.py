@@ -20,13 +20,14 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from jinja2 import Template
 from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.typing import StepColumns
 
 
 class InstructionBacktranslation(Task):
@@ -100,6 +101,9 @@ class InstructionBacktranslation(Task):
         ```
     """
 
+    inputs: StepColumns = ["instruction", "generation"]
+    outputs: StepColumns = ["score", "reason", "model_name"]
+
     _template: Optional["Template"] = PrivateAttr(default=...)
     _can_be_used_with_offline_batch_generation = True
 
@@ -117,11 +121,6 @@ class InstructionBacktranslation(Task):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`, and the `generation` for it."""
-        return ["instruction", "generation"]
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
@@ -133,11 +132,6 @@ class InstructionBacktranslation(Task):
                 ),
             },
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `score`, `reason` and the `model_name`."""
-        return ["score", "reason", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
