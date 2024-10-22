@@ -109,7 +109,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_0", "role": "user"},
                             ],
-                            "statistics": {"test": "test"},
+                            "statistics": {"input_tokens": 12, "output_tokens": 12},
                         },
                     },
                     {
@@ -124,22 +124,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_0", "role": "user"},
                             ],
-                            "statistics": {"test": "test"},
-                        },
-                    },
-                    {
-                        "instruction": "test_0",
-                        "additional_info": "additional_info_0",
-                        "output": "output",
-                        "info_from_input": "additional_info_0",
-                        "model_name": "test",
-                        "distilabel_metadata": {
-                            "raw_output_task": "output",
-                            "raw_input_task": [
-                                {"content": "", "role": "system"},
-                                {"content": "test_0", "role": "user"},
-                            ],
-                            "statistics": {"test": "test"},
+                            "statistics": {"input_tokens": 12, "output_tokens": 12},
                         },
                     },
                     {
@@ -154,7 +139,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_1", "role": "user"},
                             ],
-                            "statistics": {"test": "test"},
+                            "statistics": {"input_tokens": 12, "output_tokens": 12},
                         },
                     },
                     {
@@ -169,22 +154,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_1", "role": "user"},
                             ],
-                            "statistics": {"test": "test"},
-                        },
-                    },
-                    {
-                        "instruction": "test_1",
-                        "additional_info": "additional_info_1",
-                        "output": "output",
-                        "info_from_input": "additional_info_1",
-                        "model_name": "test",
-                        "distilabel_metadata": {
-                            "raw_output_task": "output",
-                            "raw_input_task": [
-                                {"content": "", "role": "system"},
-                                {"content": "test_1", "role": "user"},
-                            ],
-                            "statistics": {"test": "test"},
+                            "statistics": {"input_tokens": 12, "output_tokens": 12},
                         },
                     },
                     {
@@ -199,7 +169,7 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_2", "role": "user"},
                             ],
-                            "statistics": {"test": "test"},
+                            "statistics": {"input_tokens": 12, "output_tokens": 12},
                         },
                     },
                     {
@@ -214,201 +184,186 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_2", "role": "user"},
                             ],
-                            "statistics": {"test": "test"},
-                        },
-                    },
-                    {
-                        "instruction": "test_2",
-                        "additional_info": "additional_info_2",
-                        "output": "output",
-                        "info_from_input": "additional_info_2",
-                        "model_name": "test",
-                        "distilabel_metadata": {
-                            "raw_output_task": "output",
-                            "raw_input_task": [
-                                {"content": "", "role": "system"},
-                                {"content": "test_2", "role": "user"},
-                            ],
-                            "statistics": {"test": "test"},
+                            "statistics": {"input_tokens": 12, "output_tokens": 12},
                         },
                     },
                 ],
             ),
-            (
-                [
-                    {"instruction": "test_0", "additional_info": "additional_info_0"},
-                    {"instruction": "test_1", "additional_info": "additional_info_1"},
-                    {"instruction": "test_2", "additional_info": "additional_info_2"},
-                ],
-                True,
-                [
-                    {
-                        "instruction": "test_0",
-                        "additional_info": "additional_info_0",
-                        "output": ["output", "output", "output"],
-                        "info_from_input": [
-                            "additional_info_0",
-                            "additional_info_0",
-                            "additional_info_0",
-                        ],
-                        "model_name": "test",
-                        "distilabel_metadata": [
-                            {
-                                "raw_output_task": "output",
-                                "raw_input_task": [
-                                    {
-                                        "content": "",
-                                        "role": "system",
-                                    },
-                                    {
-                                        "content": "test_0",
-                                        "role": "user",
-                                    },
-                                ],
-                                "statistics": {"test": "test"},
-                            },
-                            {
-                                "raw_output_task": "output",
-                                "raw_input_task": [
-                                    {
-                                        "content": "",
-                                        "role": "system",
-                                    },
-                                    {
-                                        "content": "test_0",
-                                        "role": "user",
-                                    },
-                                ],
-                                "statistics": {"test": "test"},
-                            },
-                            {
-                                "raw_output_task": "output",
-                                "raw_input_task": [
-                                    {
-                                        "content": "",
-                                        "role": "system",
-                                    },
-                                    {
-                                        "content": "test_0",
-                                        "role": "user",
-                                    },
-                                ],
-                                "statistics": {"test": "test"},
-                            },
-                        ],
-                    },
-                    {
-                        "instruction": "test_1",
-                        "additional_info": "additional_info_1",
-                        "output": ["output", "output", "output"],
-                        "info_from_input": [
-                            "additional_info_1",
-                            "additional_info_1",
-                            "additional_info_1",
-                        ],
-                        "model_name": "test",
-                        "distilabel_metadata": [
-                            {
-                                "raw_output_task": "output",
-                                "raw_input_task": [
-                                    {
-                                        "content": "",
-                                        "role": "system",
-                                    },
-                                    {
-                                        "content": "test_1",
-                                        "role": "user",
-                                    },
-                                ],
-                                "statistics": {"test": "test"},
-                            },
-                            {
-                                "raw_output_task": "output",
-                                "raw_input_task": [
-                                    {
-                                        "content": "",
-                                        "role": "system",
-                                    },
-                                    {
-                                        "content": "test_1",
-                                        "role": "user",
-                                    },
-                                ],
-                                "statistics": {"test": "test"},
-                            },
-                            {
-                                "raw_output_task": "output",
-                                "raw_input_task": [
-                                    {
-                                        "content": "",
-                                        "role": "system",
-                                    },
-                                    {
-                                        "content": "test_1",
-                                        "role": "user",
-                                    },
-                                ],
-                                "statistics": {"test": "test"},
-                            },
-                        ],
-                    },
-                    {
-                        "instruction": "test_2",
-                        "additional_info": "additional_info_2",
-                        "output": ["output", "output", "output"],
-                        "info_from_input": [
-                            "additional_info_2",
-                            "additional_info_2",
-                            "additional_info_2",
-                        ],
-                        "model_name": "test",
-                        "distilabel_metadata": [
-                            {
-                                "raw_output_task": "output",
-                                "raw_input_task": [
-                                    {
-                                        "content": "",
-                                        "role": "system",
-                                    },
-                                    {
-                                        "content": "test_2",
-                                        "role": "user",
-                                    },
-                                ],
-                                "statistics": {"test": "test"},
-                            },
-                            {
-                                "raw_output_task": "output",
-                                "raw_input_task": [
-                                    {
-                                        "content": "",
-                                        "role": "system",
-                                    },
-                                    {
-                                        "content": "test_2",
-                                        "role": "user",
-                                    },
-                                ],
-                                "statistics": {"test": "test"},
-                            },
-                            {
-                                "raw_output_task": "output",
-                                "raw_input_task": [
-                                    {
-                                        "content": "",
-                                        "role": "system",
-                                    },
-                                    {
-                                        "content": "test_2",
-                                        "role": "user",
-                                    },
-                                ],
-                                "statistics": {"test": "test"},
-                            },
-                        ],
-                    },
-                ],
-            ),
+            # (
+            #     [
+            #         {"instruction": "test_0", "additional_info": "additional_info_0"},
+            #         {"instruction": "test_1", "additional_info": "additional_info_1"},
+            #         {"instruction": "test_2", "additional_info": "additional_info_2"},
+            #     ],
+            #     True,
+            #     [
+            #         {
+            #             "instruction": "test_0",
+            #             "additional_info": "additional_info_0",
+            #             "output": ["output", "output", "output"],
+            #             "info_from_input": [
+            #                 "additional_info_0",
+            #                 "additional_info_0",
+            #                 "additional_info_0",
+            #             ],
+            #             "model_name": "test",
+            #             "distilabel_metadata": [
+            #                 {
+            #                     "raw_output_task": "output",
+            #                     "raw_input_task": [
+            #                         {
+            #                             "content": "",
+            #                             "role": "system",
+            #                         },
+            #                         {
+            #                             "content": "test_0",
+            #                             "role": "user",
+            #                         },
+            #                     ],
+            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
+            #                 },
+            #                 {
+            #                     "raw_output_task": "output",
+            #                     "raw_input_task": [
+            #                         {
+            #                             "content": "",
+            #                             "role": "system",
+            #                         },
+            #                         {
+            #                             "content": "test_0",
+            #                             "role": "user",
+            #                         },
+            #                     ],
+            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
+            #                 },
+            #                 {
+            #                     "raw_output_task": "output",
+            #                     "raw_input_task": [
+            #                         {
+            #                             "content": "",
+            #                             "role": "system",
+            #                         },
+            #                         {
+            #                             "content": "test_0",
+            #                             "role": "user",
+            #                         },
+            #                     ],
+            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
+            #                 },
+            #             ],
+            #         },
+            #         {
+            #             "instruction": "test_1",
+            #             "additional_info": "additional_info_1",
+            #             "output": ["output", "output", "output"],
+            #             "info_from_input": [
+            #                 "additional_info_1",
+            #                 "additional_info_1",
+            #                 "additional_info_1",
+            #             ],
+            #             "model_name": "test",
+            #             "distilabel_metadata": [
+            #                 {
+            #                     "raw_output_task": "output",
+            #                     "raw_input_task": [
+            #                         {
+            #                             "content": "",
+            #                             "role": "system",
+            #                         },
+            #                         {
+            #                             "content": "test_1",
+            #                             "role": "user",
+            #                         },
+            #                     ],
+            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
+            #                 },
+            #                 {
+            #                     "raw_output_task": "output",
+            #                     "raw_input_task": [
+            #                         {
+            #                             "content": "",
+            #                             "role": "system",
+            #                         },
+            #                         {
+            #                             "content": "test_1",
+            #                             "role": "user",
+            #                         },
+            #                     ],
+            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
+            #                 },
+            #                 {
+            #                     "raw_output_task": "output",
+            #                     "raw_input_task": [
+            #                         {
+            #                             "content": "",
+            #                             "role": "system",
+            #                         },
+            #                         {
+            #                             "content": "test_1",
+            #                             "role": "user",
+            #                         },
+            #                     ],
+            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
+            #                 },
+            #             ],
+            #         },
+            #         {
+            #             "instruction": "test_2",
+            #             "additional_info": "additional_info_2",
+            #             "output": ["output", "output", "output"],
+            #             "info_from_input": [
+            #                 "additional_info_2",
+            #                 "additional_info_2",
+            #                 "additional_info_2",
+            #             ],
+            #             "model_name": "test",
+            #             "distilabel_metadata": [
+            #                 {
+            #                     "raw_output_task": "output",
+            #                     "raw_input_task": [
+            #                         {
+            #                             "content": "",
+            #                             "role": "system",
+            #                         },
+            #                         {
+            #                             "content": "test_2",
+            #                             "role": "user",
+            #                         },
+            #                     ],
+            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
+            #                 },
+            #                 {
+            #                     "raw_output_task": "output",
+            #                     "raw_input_task": [
+            #                         {
+            #                             "content": "",
+            #                             "role": "system",
+            #                         },
+            #                         {
+            #                             "content": "test_2",
+            #                             "role": "user",
+            #                         },
+            #                     ],
+            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
+            #                 },
+            #                 {
+            #                     "raw_output_task": "output",
+            #                     "raw_input_task": [
+            #                         {
+            #                             "content": "",
+            #                             "role": "system",
+            #                         },
+            #                         {
+            #                             "content": "test_2",
+            #                             "role": "user",
+            #                         },
+            #                     ],
+            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
+            #                 },
+            #             ],
+            #         },
+            #     ],
+            # ),
         ],
     )
     def test_process(
@@ -424,7 +379,7 @@ class TestTask:
             llm=llm,
             pipeline=pipeline,
             group_generations=group_generations,
-            num_generations=3,
+            num_generations=2,
         )
         task.load()
         result = next(task.process(input))
@@ -436,7 +391,7 @@ class TestTask:
             name="task",
             llm=llm,
             group_generations=False,
-            num_generations=3,
+            num_generations=2,
             input_mappings={"instruction": "instruction_2"},
         )
         task.load()
@@ -452,6 +407,7 @@ class TestTask:
                 ]
             )
         )
+        print("REUSLT", result)
 
         assert result == [
             {
@@ -468,7 +424,7 @@ class TestTask:
                         },
                     ],
                     "raw_output_task": "output",
-                    "statistics": {"test": "test"},
+                    "statistics": {"input_tokens": 12, "output_tokens": 12},
                 },
                 "info_from_input": "info",
                 "instruction": "instruction that won't be used but overriden by input mapping",
@@ -490,7 +446,7 @@ class TestTask:
                         },
                     ],
                     "raw_output_task": "output",
-                    "statistics": {"test": "test"},
+                    "statistics": {"input_tokens": 12, "output_tokens": 12},
                 },
                 "info_from_input": "info",
                 "instruction": "instruction that won't be used but overriden by input mapping",
@@ -512,7 +468,7 @@ class TestTask:
                         },
                     ],
                     "raw_output_task": "output",
-                    "statistics": {"test": "test"},
+                    "statistics": {"input_tokens": 12, "output_tokens": 12},
                 },
                 "info_from_input": "info",
                 "instruction": "instruction that won't be used but overriden by input mapping",

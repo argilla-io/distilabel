@@ -39,11 +39,20 @@ class DummyAsyncLLM(AsyncLLM):
     async def agenerate(  # type: ignore
         self, input: "FormattedInput", num_generations: int = 1
     ) -> "GenerateOutput":
-        # return ["output" for _ in range(num_generations)]
-        return [
-            {"generations": "output", "statistics": {"test": "test"}}
-            for _ in range(num_generations)
-        ]
+        # return {
+        #     "generations": ["output"],
+        #     "statistics": {
+        #         "input_tokens": [12],
+        #         "output_tokens": [12],
+        #     },
+        # }
+        return {
+            "generations": ["output" for i in range(num_generations)],
+            "statistics": {
+                "input_tokens": [12] * num_generations,
+                "output_tokens": [12] * num_generations,
+            },
+        }
 
 
 class DummyLLM(LLM):
@@ -60,11 +69,14 @@ class DummyLLM(LLM):
         self, inputs: "FormattedInput", num_generations: int = 1
     ) -> List["GenerateOutput"]:
         return [
-            [
-                {"generations": "output", "statistics": {"test": "test"}}
-                for _ in range(num_generations)
-            ]
-        ]
+            {
+                "generations": [f"output {i}" for i in range(num_generations)],
+                "statistics": {
+                    "input_tokens": [12] * num_generations,
+                    "output_tokens": [12] * num_generations,
+                },
+            }
+        ] * len(inputs)
 
 
 class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
@@ -80,7 +92,13 @@ class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
     ) -> List["GenerateOutput"]:
         return [
             [
-                {"generations": "output", "statistics": {"test": "test"}}
+                {
+                    "generations": ["output"] * num_generations,
+                    "statistics": {
+                        "input_tokens": [12] * num_generations,
+                        "output_tokens": [12] * num_generations,
+                    },
+                }
                 for _ in range(num_generations)
             ]
             for _ in range(len(inputs))

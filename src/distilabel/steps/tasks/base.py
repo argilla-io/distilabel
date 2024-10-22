@@ -34,7 +34,7 @@ from distilabel.steps.base import (
 from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import GenerateOutput, LLMOutput, LLMStatistics
+    from distilabel.llms.typing import GenerateOutput, LLMStatistics
     from distilabel.steps.tasks.typing import ChatType, FormattedInput
     from distilabel.steps.typing import StepOutput
 
@@ -170,30 +170,40 @@ class _Task(_Step, ABC):
             A list containing a dictionary with the outputs of the task for each input.
         """
         inputs = [None] if input is None else [input]
-
+        print("INPUTS", inputs)
         formatted_outputs = []
-        for output, input in zip(outputs, inputs * len(outputs)):  # type: ignore
+        repeate_inputs = len(outputs.get("generations"))
+        outputs = normalize_statistics(outputs)
+
+        for (output, stats), input in zip(
+            iterate_generations_with_stats(outputs), inputs * repeate_inputs
+        ):  # type: ignore
+            # for output, input in zip(outputs, inputs * len(outputs)):  # type: ignore
             try:
                 # Extract the generations, and move the statistics to the distilabel_metadata,
                 # to keep everything clean
-                output_generations: "LLMOutput" = output.get("generations", [])
-                formatted_output = self.format_output(output_generations, input)
+                # TODO: THIS WOULD FAIL IF THE LLM DOESN'T RETURN generations,
+                # WE HAVE TO REMOVE THE STATISTICS AND PASS EVERYTHING ELSE
+                print("OUTPUT", output)
+                print("STATS", stats)
+                print("INPUT", input)
+                # output_generations: "LLMOutput" = output.get("generations", [])
+                formatted_output = self.format_output(output, input)
                 formatted_output = self._create_metadata(
                     formatted_output,
-                    output_generations,
+                    output,
                     input,
                     add_raw_output=self.add_raw_output,  # type: ignore
                     add_raw_input=self.add_raw_input,  # type: ignore
-                    statistics=output.get("statistics"),
+                    # statistics=output.get("statistics"),
+                    statistics=stats,
                 )
                 formatted_outputs.append(formatted_output)
             except Exception as e:
                 self._logger.warning(  # type: ignore
                     f"Task '{self.name}' failed to format output: {e}. Saving raw response."  # type: ignore
                 )
-                formatted_outputs.append(
-                    self._output_on_failure(output.get("generations", []), input)
-                )
+                formatted_outputs.append(self._output_on_failure(output, input))
         return formatted_outputs
 
     def _output_on_failure(
@@ -437,6 +447,8 @@ class Task(_Task, Step):
         )
 
         task_outputs = []
+        print("INPUTS", inputs)
+        print("OUTPUTS", outputs)
         for input, input_outputs in zip(inputs, outputs):
             formatted_outputs = self._format_outputs(input_outputs, input)
 
@@ -449,6 +461,7 @@ class Task(_Task, Step):
 
             # Create a row per generation
             for formatted_output in formatted_outputs:
+                print("FORMATED", formatted_output)
                 task_outputs.append(
                     {**input, **formatted_output, "model_name": self.llm.model_name}
                 )
@@ -477,3 +490,64 @@ class GlobalTask(_Task, GlobalStep):
     """
 
     pass
+
+
+def normalize_statistics(output: "GenerateOutput") -> "GenerateOutput":
+    """Transforms the GenerateOutput statistics to have the same length as the generations.
+
+    Args:
+        data: A generate output that possibly has different lengths of statistics
+            vs generations (due to num_generations=3 returning 3 generations, but
+            for example the tokens are only counted once).
+
+    Returns:
+        Normalized statistics according to the generations length.
+
+    Examples:
+        ```python
+        data = {
+            "generations": ["text1", "text2", "text3", "text4"],
+            "statistics": {"input_tokens": [1], "output_tokens": [1, 2, 3]}
+        }
+        normalize_statistics(data)
+        data = {
+            "generations": ["text1", "text2", "text3"],
+            "statistics": {"input_tokens": [1, 1, 1], "output_tokens": [1, 2, 3]}
+        }
+        ```
+    """
+    if not (statistics := output.get("statistics")):
+        print(statistics)
+        return output
+    gen_length = len(output["generations"])
+
+    for stat_key, stat_values in output["statistics"].items():
+        current_length = len(stat_values)
+
+        if current_length < gen_length:
+            # Calculate how many times to repeat the tokens
+            repeats = gen_length // current_length
+            remainder = gen_length % current_length
+
+            # Create new list with repeated values
+            new_values = stat_values * repeats + stat_values[:remainder]
+            output["statistics"][stat_key] = new_values
+
+    return output
+
+
+def iterate_generations_with_stats(output: "GenerateOutput") -> "GenerateOutput":
+    """Helper function to iterate together generations and statistics while
+    processing them inside _format_outputs.
+
+    Args:
+        output: Output from the LLM.generate_outputs method.
+
+    Yields:
+        Iterator of generation and statistics paired.
+    """
+    for i, generation in enumerate(output["generations"]):
+        # Create a new dictionary with the statistics for this index
+        stats = {key: values[i] for key, values in output["statistics"].items()}
+
+        yield generation, stats

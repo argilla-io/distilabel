@@ -459,6 +459,12 @@ class AsyncLLM(LLM):
                 for input in inputs
             ]
             result = await asyncio.gather(*tasks)
+            print("\n_agenerate\n\n", result)
+            print("\n_agenerate MERGED\n\n", merge_responses(result))
+            print(
+                "CORRECT merge_response, ITS GROUPING num_generations MIXED WITH THE INPUTS PASSED"
+            )
+            # TODO: Update this,
             return merge_responses(result)
 
         tasks = [
