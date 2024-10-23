@@ -15,6 +15,7 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import pytest
+from pydantic import PrivateAttr
 
 from distilabel.llms.base import LLM, AsyncLLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
@@ -28,9 +29,11 @@ if TYPE_CHECKING:
 # Defined here too, so that the serde still works
 class DummyAsyncLLM(AsyncLLM):
     structured_output: Any = None
+    n_generations_supported: bool = True  # To work as OpenAI or an LLM that doesn't allow num_generations out of the box
+    _num_generations_param_supported: bool = PrivateAttr(default=True)
 
     def load(self) -> None:
-        pass
+        self._num_generations_param_supported = self.n_generations_supported
 
     @property
     def model_name(self) -> str:
@@ -39,13 +42,6 @@ class DummyAsyncLLM(AsyncLLM):
     async def agenerate(  # type: ignore
         self, input: "FormattedInput", num_generations: int = 1
     ) -> "GenerateOutput":
-        # return {
-        #     "generations": ["output"],
-        #     "statistics": {
-        #         "input_tokens": [12],
-        #         "output_tokens": [12],
-        #     },
-        # }
         return {
             "generations": ["output" for i in range(num_generations)],
             "statistics": {

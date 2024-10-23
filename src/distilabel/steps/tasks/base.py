@@ -170,7 +170,6 @@ class _Task(_Step, ABC):
             A list containing a dictionary with the outputs of the task for each input.
         """
         inputs = [None] if input is None else [input]
-        print("INPUTS", inputs)
         formatted_outputs = []
         repeate_inputs = len(outputs.get("generations"))
         outputs = normalize_statistics(outputs)
@@ -178,16 +177,9 @@ class _Task(_Step, ABC):
         for (output, stats), input in zip(
             iterate_generations_with_stats(outputs), inputs * repeate_inputs
         ):  # type: ignore
-            # for output, input in zip(outputs, inputs * len(outputs)):  # type: ignore
             try:
                 # Extract the generations, and move the statistics to the distilabel_metadata,
                 # to keep everything clean
-                # TODO: THIS WOULD FAIL IF THE LLM DOESN'T RETURN generations,
-                # WE HAVE TO REMOVE THE STATISTICS AND PASS EVERYTHING ELSE
-                print("OUTPUT", output)
-                print("STATS", stats)
-                print("INPUT", input)
-                # output_generations: "LLMOutput" = output.get("generations", [])
                 formatted_output = self.format_output(output, input)
                 formatted_output = self._create_metadata(
                     formatted_output,
@@ -195,7 +187,6 @@ class _Task(_Step, ABC):
                     input,
                     add_raw_output=self.add_raw_output,  # type: ignore
                     add_raw_input=self.add_raw_input,  # type: ignore
-                    # statistics=output.get("statistics"),
                     statistics=stats,
                 )
                 formatted_outputs.append(formatted_output)
@@ -224,7 +215,6 @@ class _Task(_Step, ABC):
         )
         return outputs
 
-    # TODO: Rename to _create_metadata
     def _create_metadata(
         self,
         output: Dict[str, Any],
@@ -447,8 +437,6 @@ class Task(_Task, Step):
         )
 
         task_outputs = []
-        print("INPUTS", inputs)
-        print("OUTPUTS", outputs)
         for input, input_outputs in zip(inputs, outputs):
             formatted_outputs = self._format_outputs(input_outputs, input)
 
@@ -461,7 +449,6 @@ class Task(_Task, Step):
 
             # Create a row per generation
             for formatted_output in formatted_outputs:
-                print("FORMATED", formatted_output)
                 task_outputs.append(
                     {**input, **formatted_output, "model_name": self.llm.model_name}
                 )
@@ -516,8 +503,8 @@ def normalize_statistics(output: "GenerateOutput") -> "GenerateOutput":
         }
         ```
     """
-    if not (statistics := output.get("statistics")):
-        print(statistics)
+    statistics = output.get("statistics")
+    if not statistics:
         return output
     gen_length = len(output["generations"])
 

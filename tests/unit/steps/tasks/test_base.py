@@ -87,6 +87,10 @@ class TestTask:
             Task(name="task", llm=DummyAsyncLLM())  # type: ignore
 
     @pytest.mark.parametrize(
+        "n_generations_supported",
+        [True, False],
+    )
+    @pytest.mark.parametrize(
         "input, group_generations, expected",
         [
             (
@@ -189,181 +193,136 @@ class TestTask:
                     },
                 ],
             ),
-            # (
-            #     [
-            #         {"instruction": "test_0", "additional_info": "additional_info_0"},
-            #         {"instruction": "test_1", "additional_info": "additional_info_1"},
-            #         {"instruction": "test_2", "additional_info": "additional_info_2"},
-            #     ],
-            #     True,
-            #     [
-            #         {
-            #             "instruction": "test_0",
-            #             "additional_info": "additional_info_0",
-            #             "output": ["output", "output", "output"],
-            #             "info_from_input": [
-            #                 "additional_info_0",
-            #                 "additional_info_0",
-            #                 "additional_info_0",
-            #             ],
-            #             "model_name": "test",
-            #             "distilabel_metadata": [
-            #                 {
-            #                     "raw_output_task": "output",
-            #                     "raw_input_task": [
-            #                         {
-            #                             "content": "",
-            #                             "role": "system",
-            #                         },
-            #                         {
-            #                             "content": "test_0",
-            #                             "role": "user",
-            #                         },
-            #                     ],
-            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
-            #                 },
-            #                 {
-            #                     "raw_output_task": "output",
-            #                     "raw_input_task": [
-            #                         {
-            #                             "content": "",
-            #                             "role": "system",
-            #                         },
-            #                         {
-            #                             "content": "test_0",
-            #                             "role": "user",
-            #                         },
-            #                     ],
-            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
-            #                 },
-            #                 {
-            #                     "raw_output_task": "output",
-            #                     "raw_input_task": [
-            #                         {
-            #                             "content": "",
-            #                             "role": "system",
-            #                         },
-            #                         {
-            #                             "content": "test_0",
-            #                             "role": "user",
-            #                         },
-            #                     ],
-            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
-            #                 },
-            #             ],
-            #         },
-            #         {
-            #             "instruction": "test_1",
-            #             "additional_info": "additional_info_1",
-            #             "output": ["output", "output", "output"],
-            #             "info_from_input": [
-            #                 "additional_info_1",
-            #                 "additional_info_1",
-            #                 "additional_info_1",
-            #             ],
-            #             "model_name": "test",
-            #             "distilabel_metadata": [
-            #                 {
-            #                     "raw_output_task": "output",
-            #                     "raw_input_task": [
-            #                         {
-            #                             "content": "",
-            #                             "role": "system",
-            #                         },
-            #                         {
-            #                             "content": "test_1",
-            #                             "role": "user",
-            #                         },
-            #                     ],
-            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
-            #                 },
-            #                 {
-            #                     "raw_output_task": "output",
-            #                     "raw_input_task": [
-            #                         {
-            #                             "content": "",
-            #                             "role": "system",
-            #                         },
-            #                         {
-            #                             "content": "test_1",
-            #                             "role": "user",
-            #                         },
-            #                     ],
-            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
-            #                 },
-            #                 {
-            #                     "raw_output_task": "output",
-            #                     "raw_input_task": [
-            #                         {
-            #                             "content": "",
-            #                             "role": "system",
-            #                         },
-            #                         {
-            #                             "content": "test_1",
-            #                             "role": "user",
-            #                         },
-            #                     ],
-            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
-            #                 },
-            #             ],
-            #         },
-            #         {
-            #             "instruction": "test_2",
-            #             "additional_info": "additional_info_2",
-            #             "output": ["output", "output", "output"],
-            #             "info_from_input": [
-            #                 "additional_info_2",
-            #                 "additional_info_2",
-            #                 "additional_info_2",
-            #             ],
-            #             "model_name": "test",
-            #             "distilabel_metadata": [
-            #                 {
-            #                     "raw_output_task": "output",
-            #                     "raw_input_task": [
-            #                         {
-            #                             "content": "",
-            #                             "role": "system",
-            #                         },
-            #                         {
-            #                             "content": "test_2",
-            #                             "role": "user",
-            #                         },
-            #                     ],
-            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
-            #                 },
-            #                 {
-            #                     "raw_output_task": "output",
-            #                     "raw_input_task": [
-            #                         {
-            #                             "content": "",
-            #                             "role": "system",
-            #                         },
-            #                         {
-            #                             "content": "test_2",
-            #                             "role": "user",
-            #                         },
-            #                     ],
-            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
-            #                 },
-            #                 {
-            #                     "raw_output_task": "output",
-            #                     "raw_input_task": [
-            #                         {
-            #                             "content": "",
-            #                             "role": "system",
-            #                         },
-            #                         {
-            #                             "content": "test_2",
-            #                             "role": "user",
-            #                         },
-            #                     ],
-            #                     "statistics": {"input_tokens": 12, "output_tokens": 12},
-            #                 },
-            #             ],
-            #         },
-            #     ],
-            # ),
+            (
+                [
+                    {"instruction": "test_0", "additional_info": "additional_info_0"},
+                    {"instruction": "test_1", "additional_info": "additional_info_1"},
+                    {"instruction": "test_2", "additional_info": "additional_info_2"},
+                ],
+                True,
+                [
+                    {
+                        "instruction": "test_0",
+                        "additional_info": "additional_info_0",
+                        "output": ["output", "output"],
+                        "info_from_input": [
+                            "additional_info_0",
+                            "additional_info_0",
+                        ],
+                        "model_name": "test",
+                        "distilabel_metadata": [
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_0",
+                                        "role": "user",
+                                    },
+                                ],
+                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_0",
+                                        "role": "user",
+                                    },
+                                ],
+                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            },
+                        ],
+                    },
+                    {
+                        "instruction": "test_1",
+                        "additional_info": "additional_info_1",
+                        "output": ["output", "output"],
+                        "info_from_input": [
+                            "additional_info_1",
+                            "additional_info_1",
+                        ],
+                        "model_name": "test",
+                        "distilabel_metadata": [
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_1",
+                                        "role": "user",
+                                    },
+                                ],
+                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_1",
+                                        "role": "user",
+                                    },
+                                ],
+                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            },
+                        ],
+                    },
+                    {
+                        "instruction": "test_2",
+                        "additional_info": "additional_info_2",
+                        "output": ["output", "output"],
+                        "info_from_input": [
+                            "additional_info_2",
+                            "additional_info_2",
+                        ],
+                        "model_name": "test",
+                        "distilabel_metadata": [
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_2",
+                                        "role": "user",
+                                    },
+                                ],
+                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            },
+                            {
+                                "raw_output_task": "output",
+                                "raw_input_task": [
+                                    {
+                                        "content": "",
+                                        "role": "system",
+                                    },
+                                    {
+                                        "content": "test_2",
+                                        "role": "user",
+                                    },
+                                ],
+                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            },
+                        ],
+                    },
+                ],
+            ),
         ],
     )
     def test_process(
@@ -371,9 +330,11 @@ class TestTask:
         input: List[Dict[str, str]],
         group_generations: bool,
         expected: List[Dict[str, Any]],
+        n_generations_supported: bool,
     ) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyAsyncLLM()
+        llm = DummyAsyncLLM(n_generations_supported=n_generations_supported)
+        llm.load()
         task = DummyTask(
             name="task",
             llm=llm,
@@ -391,7 +352,7 @@ class TestTask:
             name="task",
             llm=llm,
             group_generations=False,
-            num_generations=2,
+            num_generations=3,
             input_mappings={"instruction": "instruction_2"},
         )
         task.load()
@@ -407,8 +368,6 @@ class TestTask:
                 ]
             )
         )
-        print("REUSLT", result)
-
         assert result == [
             {
                 "additional_info": "info",
@@ -536,117 +495,121 @@ class TestTask:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyAsyncLLM()
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
-        assert task.dump() == {
-            "name": "task",
-            "add_raw_output": True,
-            "add_raw_input": True,
-            "input_mappings": {},
-            "output_mappings": {},
-            "resources": {
-                "cpus": None,
-                "gpus": None,
-                "memory": None,
-                "replicas": 1,
-                "resources": None,
-            },
-            "input_batch_size": 50,
-            "llm": {
-                "generation_kwargs": {},
-                "structured_output": None,
-                "jobs_ids": None,
-                "offline_batch_generation_block_until_done": None,
-                "use_offline_batch_generation": False,
+        assert (
+            task.dump()
+            == {
+                "name": "task",
+                "add_raw_output": True,
+                "add_raw_input": True,
+                "input_mappings": {},
+                "output_mappings": {},
+                "resources": {
+                    "cpus": None,
+                    "gpus": None,
+                    "memory": None,
+                    "replicas": 1,
+                    "resources": None,
+                },
+                "input_batch_size": 50,
+                "llm": {
+                    "generation_kwargs": {},
+                    "structured_output": None,
+                    "n_generations_supported": True,  # Just a trick during testing, it won't appear otherwise
+                    "jobs_ids": None,
+                    "offline_batch_generation_block_until_done": None,
+                    "use_offline_batch_generation": False,
+                    "type_info": {
+                        "module": "tests.unit.conftest",
+                        "name": "DummyAsyncLLM",
+                    },
+                },
+                "group_generations": False,
+                "num_generations": 1,
+                "runtime_parameters_info": [
+                    {
+                        "name": "resources",
+                        "runtime_parameters_info": [
+                            {
+                                "description": "The number of replicas for the step.",
+                                "name": "replicas",
+                                "optional": True,
+                            },
+                            {
+                                "description": "The number of CPUs assigned to each step replica.",
+                                "name": "cpus",
+                                "optional": True,
+                            },
+                            {
+                                "description": "The number of GPUs assigned to each step replica.",
+                                "name": "gpus",
+                                "optional": True,
+                            },
+                            {
+                                "description": "The memory in bytes required for each step replica.",
+                                "name": "memory",
+                                "optional": True,
+                            },
+                            {
+                                "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                                "name": "resources",
+                                "optional": True,
+                            },
+                        ],
+                    },
+                    {
+                        "description": "The number of rows that will contain the batches processed by the step.",
+                        "name": "input_batch_size",
+                        "optional": True,
+                    },
+                    {
+                        "name": "llm",
+                        "runtime_parameters_info": [
+                            {
+                                "description": "The kwargs to be propagated to either `generate` or "
+                                "`agenerate` methods within each `LLM`.",
+                                "keys": [],
+                                "name": "generation_kwargs",
+                            },
+                            {
+                                "description": "Whether to use the `offline_batch_generate` method to "
+                                "generate the responses.",
+                                "name": "use_offline_batch_generation",
+                                "optional": True,
+                            },
+                            {
+                                "description": "If provided, then polling will be done until the "
+                                "`ofline_batch_generate` method is able to retrieve the "
+                                "results. The value indicate the time to wait between each "
+                                "polling.",
+                                "name": "offline_batch_generation_block_until_done",
+                                "optional": True,
+                            },
+                        ],
+                    },
+                    {
+                        "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
+                        "name": "add_raw_output",
+                        "optional": True,
+                    },
+                    {
+                        "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                        "name": "add_raw_input",
+                        "optional": True,
+                    },
+                    {
+                        "name": "num_generations",
+                        "description": "The number of generations to be produced per input.",
+                        "optional": True,
+                    },
+                ],
+                "use_cache": True,
                 "type_info": {
                     "module": "tests.unit.conftest",
-                    "name": "DummyAsyncLLM",
+                    "name": "DummyTask",
                 },
-            },
-            "group_generations": False,
-            "num_generations": 1,
-            "runtime_parameters_info": [
-                {
-                    "name": "resources",
-                    "runtime_parameters_info": [
-                        {
-                            "description": "The number of replicas for the step.",
-                            "name": "replicas",
-                            "optional": True,
-                        },
-                        {
-                            "description": "The number of CPUs assigned to each step replica.",
-                            "name": "cpus",
-                            "optional": True,
-                        },
-                        {
-                            "description": "The number of GPUs assigned to each step replica.",
-                            "name": "gpus",
-                            "optional": True,
-                        },
-                        {
-                            "description": "The memory in bytes required for each step replica.",
-                            "name": "memory",
-                            "optional": True,
-                        },
-                        {
-                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
-                            "name": "resources",
-                            "optional": True,
-                        },
-                    ],
-                },
-                {
-                    "description": "The number of rows that will contain the batches processed by the step.",
-                    "name": "input_batch_size",
-                    "optional": True,
-                },
-                {
-                    "name": "llm",
-                    "runtime_parameters_info": [
-                        {
-                            "description": "The kwargs to be propagated to either `generate` or "
-                            "`agenerate` methods within each `LLM`.",
-                            "keys": [],
-                            "name": "generation_kwargs",
-                        },
-                        {
-                            "description": "Whether to use the `offline_batch_generate` method to "
-                            "generate the responses.",
-                            "name": "use_offline_batch_generation",
-                            "optional": True,
-                        },
-                        {
-                            "description": "If provided, then polling will be done until the "
-                            "`ofline_batch_generate` method is able to retrieve the "
-                            "results. The value indicate the time to wait between each "
-                            "polling.",
-                            "name": "offline_batch_generation_block_until_done",
-                            "optional": True,
-                        },
-                    ],
-                },
-                {
-                    "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
-                    "name": "add_raw_output",
-                    "optional": True,
-                },
-                {
-                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
-                    "name": "add_raw_input",
-                    "optional": True,
-                },
-                {
-                    "name": "num_generations",
-                    "description": "The number of generations to be produced per input.",
-                    "optional": True,
-                },
-            ],
-            "use_cache": True,
-            "type_info": {
-                "module": "tests.unit.conftest",
-                "name": "DummyTask",
-            },
-            "use_default_structured_output": False,
-        }
+                "use_default_structured_output": False,
+            }
+        )
 
         with Pipeline(name="unit-test-pipeline") as pipeline:
             new_task = DummyTask.from_dict(task.dump())
