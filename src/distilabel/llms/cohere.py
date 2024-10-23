@@ -25,7 +25,6 @@ from typing import (
 
 import orjson
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
-from tokenizers import Tokenizer
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
@@ -39,6 +38,7 @@ from distilabel.steps.tasks.typing import (
 if TYPE_CHECKING:
     from cohere import AsyncClient, ChatMessage, Message
     from pydantic import BaseModel
+    from tokenizers import Tokenizer
 
     from distilabel.llms.typing import LLMStatistics
 
