@@ -181,7 +181,7 @@ class TestTaskDecorator:
             {
                 "task": "summarize",
                 "instruction": "The cell...",
-                "response": "output",
+                "response": "output 0",
                 "model_name": "test",
                 "distilabel_metadata": {
                     "raw_input_my_task_0": [
@@ -194,7 +194,11 @@ class TestTaskDecorator:
                             "role": "user",
                         },
                     ],
-                    "raw_output_my_task_0": "output",
+                    "raw_output_my_task_0": "output 0",
+                    "statistics": {
+                        "input_tokens": 12,
+                        "output_tokens": 12,
+                    },
                 },
             }
         ]

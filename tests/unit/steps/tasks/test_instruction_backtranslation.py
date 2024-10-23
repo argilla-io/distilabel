@@ -35,7 +35,15 @@ class InstructionBacktranslationLLM(LLM):
         self, inputs: List[ChatType], num_generations: int = 1, **kwargs: Any
     ) -> List[GenerateOutput]:
         return [
-            ["This is the reason. Score: 1" for _ in range(num_generations)]
+            {
+                "generations": [
+                    "This is the reason. Score: 1" for _ in range(num_generations)
+                ],
+                "statistics": {
+                    "input_tokens": [12] * num_generations,
+                    "output_tokens": [12] * num_generations,
+                },
+            }
             for _ in inputs
         ]
 
@@ -88,7 +96,11 @@ class TestInstructionBacktranslation:
                 "reason": "This is the reason.",
                 "model_name": "instruction-backtranslation-model",
                 "distilabel_metadata": {
-                    "raw_output_instruction-backtranslation": "This is the reason. Score: 1"
+                    "raw_output_instruction-backtranslation": "This is the reason. Score: 1",
+                    "statistics": {
+                        "input_tokens": 12,
+                        "output_tokens": 12,
+                    },
                 },
             }
         ]

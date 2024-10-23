@@ -245,6 +245,8 @@ class _Task(_Step, ABC):
         if add_raw_input:
             meta[f"raw_input_{self.name}"] = self.format_input(input) if input else None
         if statistics:
+            # TODO: STATISTICS SHOULD BE GENERATED USING THE STEP NAME TO AVOID OVERWRITING THEM
+            # meta[f"statistics_{self.name}"] = statistics
             meta["statistics"] = statistics
         if meta:
             output[DISTILABEL_METADATA_KEY] = meta
@@ -427,7 +429,6 @@ class Task(_Task, Step):
 
         formatted_inputs = self._format_inputs(inputs)
 
-        # `outputs` is a list containing a list of generations per input
         # `outputs` is a dict containing the LLM outputs in the `generations`
         # key and the statistics in the `statistics` key
         outputs = self.llm.generate_outputs(

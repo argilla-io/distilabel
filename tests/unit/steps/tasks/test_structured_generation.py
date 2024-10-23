@@ -37,7 +37,15 @@ class DummyStructuredLLM(LLM):
         self, inputs: List["StructuredInput"], num_generations: int = 1, **kwargs: Any
     ) -> List["GenerateOutput"]:
         return [
-            [json.dumps({"test": "output"}) for _ in range(num_generations)]
+            {
+                "generations": [
+                    json.dumps({"test": "output"}) for _ in range(num_generations)
+                ],
+                "statistics": {
+                    "input_tokens": [12] * num_generations,
+                    "output_tokens": [12] * num_generations,
+                },
+            }
             for _ in inputs
         ]
 
@@ -123,6 +131,9 @@ class TestStructuredGeneration:
                 },
                 "generation": '{"test": "output"}',
                 "model_name": "test",
-                "distilabel_metadata": {"raw_output_task": '{"test": "output"}'},
+                "distilabel_metadata": {
+                    "raw_output_task": '{"test": "output"}',
+                    "statistics": {"input_tokens": 12, "output_tokens": 12},
+                },
             }
         ]
