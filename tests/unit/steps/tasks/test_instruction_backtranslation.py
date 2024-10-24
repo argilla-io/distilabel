@@ -97,7 +97,7 @@ class TestInstructionBacktranslation:
                 "model_name": "instruction-backtranslation-model",
                 "distilabel_metadata": {
                     "raw_output_instruction-backtranslation": "This is the reason. Score: 1",
-                    "statistics": {
+                    "statistics_instruction-backtranslation": {
                         "input_tokens": 12,
                         "output_tokens": 12,
                     },

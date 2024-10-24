@@ -99,7 +99,7 @@ class TestUltraFeedback:
                 "model_name": "ultrafeedback-model",
                 "distilabel_metadata": {
                     "raw_output_ultrafeedback": "Type: 1\nRationale: text\nRating: 1\nRationale: text\n\nType: 2\nRationale: text\nRating: 2\nRationale: text",
-                    "statistics": {"input_tokens": 12, "output_tokens": 12},
+                    "statistics_task": {"input_tokens": 12, "output_tokens": 12},
                 },
             }
         ]

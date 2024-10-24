@@ -88,7 +88,7 @@ class TestEmbeddingTaskGenerator:
                         "tasks": ["A", "B", "C"],
                         "model_name": "test",
                         "distilabel_metadata": {
-                            "statistics": {
+                            "statistics_embedding_task_generator": {
                                 "input_tokens": 12,
                                 "output_tokens": 12,
                             }
@@ -104,7 +104,7 @@ class TestEmbeddingTaskGenerator:
                         "task": "A",
                         "model_name": "test",
                         "distilabel_metadata": {
-                            "statistics": {
+                            "statistics_embedding_task_generator": {
                                 "input_tokens": 12,
                                 "output_tokens": 12,
                             }
@@ -114,7 +114,7 @@ class TestEmbeddingTaskGenerator:
                         "task": "B",
                         "model_name": "test",
                         "distilabel_metadata": {
-                            "statistics": {
+                            "statistics_embedding_task_generator": {
                                 "input_tokens": 12,
                                 "output_tokens": 12,
                             }
@@ -124,7 +124,7 @@ class TestEmbeddingTaskGenerator:
                         "task": "C",
                         "model_name": "test",
                         "distilabel_metadata": {
-                            "statistics": {
+                            "statistics_embedding_task_generator": {
                                 "input_tokens": 12,
                                 "output_tokens": 12,
                             }
@@ -187,7 +187,7 @@ class TestBitextRetrievalGenerator:
                     "S3": "C",
                     "model_name": "test",
                     "distilabel_metadata": {
-                        "statistics": {
+                        "statistics_bitext_retrieval_generator": {
                             "input_tokens": 12,
                             "output_tokens": 12,
                         }
@@ -261,7 +261,7 @@ class TestMonolingualTripletGenerator:
                     "S3": "C",
                     "model_name": "test",
                     "distilabel_metadata": {
-                        "statistics": {
+                        "statistics_monolingual_triplet_generator": {
                             "input_tokens": 12,
                             "output_tokens": 12,
                         }
@@ -322,7 +322,7 @@ class TestGenerateLongTextMatchingData:
                 "positive_document": "B",
                 "model_name": "test",
                 "distilabel_metadata": {
-                    "statistics": {
+                    "statistics_generate_long_text_matching_data": {
                         "input_tokens": 12,
                         "output_tokens": 12,
                     }
@@ -363,7 +363,7 @@ class TestGenerateShortTextMatchingData:
                 "positive_document": "B",
                 "model_name": "test",
                 "distilabel_metadata": {
-                    "statistics": {
+                    "statistics_generate_short_text_matching_data": {
                         "input_tokens": 12,
                         "output_tokens": 12,
                     }
@@ -431,7 +431,7 @@ class TestGenerateTextClassificationData:
                 "misleading_label": "C",
                 "model_name": "test",
                 "distilabel_metadata": {
-                    "statistics": {
+                    "statistics_generate_text_classification_data": {
                         "input_tokens": 12,
                         "output_tokens": 12,
                     }
@@ -514,7 +514,7 @@ class TestGenerateTextRetrievalData:
                 "hard_negative_document": "C",
                 "model_name": "test",
                 "distilabel_metadata": {
-                    "statistics": {
+                    "statistics_generate_text_retrieval_data": {
                         "input_tokens": 12,
                         "output_tokens": 12,
                     }

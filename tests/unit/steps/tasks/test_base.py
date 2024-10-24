@@ -113,7 +113,10 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_0", "role": "user"},
                             ],
-                            "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            "statistics_task": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            },
                         },
                     },
                     {
@@ -128,7 +131,10 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_0", "role": "user"},
                             ],
-                            "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            "statistics_task": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            },
                         },
                     },
                     {
@@ -143,7 +149,10 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_1", "role": "user"},
                             ],
-                            "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            "statistics_task": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            },
                         },
                     },
                     {
@@ -158,7 +167,10 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_1", "role": "user"},
                             ],
-                            "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            "statistics_task": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            },
                         },
                     },
                     {
@@ -173,7 +185,10 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_2", "role": "user"},
                             ],
-                            "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            "statistics_task": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            },
                         },
                     },
                     {
@@ -188,7 +203,10 @@ class TestTask:
                                 {"content": "", "role": "system"},
                                 {"content": "test_2", "role": "user"},
                             ],
-                            "statistics": {"input_tokens": 12, "output_tokens": 12},
+                            "statistics_task": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            },
                         },
                     },
                 ],
@@ -223,7 +241,10 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
-                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                                "statistics_task": {
+                                    "input_tokens": 12,
+                                    "output_tokens": 12,
+                                },
                             },
                             {
                                 "raw_output_task": "output",
@@ -237,7 +258,10 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
-                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                                "statistics_task": {
+                                    "input_tokens": 12,
+                                    "output_tokens": 12,
+                                },
                             },
                         ],
                     },
@@ -263,7 +287,10 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
-                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                                "statistics_task": {
+                                    "input_tokens": 12,
+                                    "output_tokens": 12,
+                                },
                             },
                             {
                                 "raw_output_task": "output",
@@ -277,7 +304,10 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
-                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                                "statistics_task": {
+                                    "input_tokens": 12,
+                                    "output_tokens": 12,
+                                },
                             },
                         ],
                     },
@@ -303,7 +333,10 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
-                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                                "statistics_task": {
+                                    "input_tokens": 12,
+                                    "output_tokens": 12,
+                                },
                             },
                             {
                                 "raw_output_task": "output",
@@ -317,7 +350,10 @@ class TestTask:
                                         "role": "user",
                                     },
                                 ],
-                                "statistics": {"input_tokens": 12, "output_tokens": 12},
+                                "statistics_task": {
+                                    "input_tokens": 12,
+                                    "output_tokens": 12,
+                                },
                             },
                         ],
                     },
@@ -383,7 +419,7 @@ class TestTask:
                         },
                     ],
                     "raw_output_task": "output",
-                    "statistics": {"input_tokens": 12, "output_tokens": 12},
+                    "statistics_task": {"input_tokens": 12, "output_tokens": 12},
                 },
                 "info_from_input": "info",
                 "instruction": "instruction that won't be used but overriden by input mapping",
@@ -405,7 +441,7 @@ class TestTask:
                         },
                     ],
                     "raw_output_task": "output",
-                    "statistics": {"input_tokens": 12, "output_tokens": 12},
+                    "statistics_task": {"input_tokens": 12, "output_tokens": 12},
                 },
                 "info_from_input": "info",
                 "instruction": "instruction that won't be used but overriden by input mapping",
@@ -427,7 +463,7 @@ class TestTask:
                         },
                     ],
                     "raw_output_task": "output",
-                    "statistics": {"input_tokens": 12, "output_tokens": 12},
+                    "statistics_task": {"input_tokens": 12, "output_tokens": 12},
                 },
                 "info_from_input": "info",
                 "instruction": "instruction that won't be used but overriden by input mapping",
@@ -647,4 +683,4 @@ class TestTask:
                 assert (
                     "raw_input_dummy_task_0" in result[0]["distilabel_metadata"].keys()
                 )
-        assert "statistics" in result[0]["distilabel_metadata"].keys()
+        assert "statistics_dummy_task_0" in result[0]["distilabel_metadata"].keys()

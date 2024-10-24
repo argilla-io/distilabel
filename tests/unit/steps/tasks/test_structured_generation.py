@@ -133,7 +133,7 @@ class TestStructuredGeneration:
                 "model_name": "test",
                 "distilabel_metadata": {
                     "raw_output_task": '{"test": "output"}',
-                    "statistics": {"input_tokens": 12, "output_tokens": 12},
+                    "statistics_task": {"input_tokens": 12, "output_tokens": 12},
                 },
             }
         ]

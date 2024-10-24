@@ -61,7 +61,7 @@ class TestEvolQuality:
                     "evolved_response": "output",
                     "model_name": "test",
                     "distilabel_metadata": {
-                        "statistics": {
+                        "statistics_task": {
                             "input_tokens": [12, 12],
                             "output_tokens": [12, 12],
                         }
@@ -88,7 +88,7 @@ class TestEvolQuality:
                     "evolved_responses": ["output", "output"],
                     "model_name": "test",
                     "distilabel_metadata": {
-                        "statistics": {
+                        "statistics_task": {
                             "input_tokens": [12, 12],
                             "output_tokens": [12, 12],
                         }

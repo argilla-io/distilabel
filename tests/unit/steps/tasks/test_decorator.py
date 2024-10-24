@@ -195,7 +195,7 @@ class TestTaskDecorator:
                         },
                     ],
                     "raw_output_my_task_0": "output 0",
-                    "statistics": {
+                    "statistics_my_task_0": {
                         "input_tokens": 12,
                         "output_tokens": 12,
                     },
