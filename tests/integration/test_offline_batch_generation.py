@@ -16,13 +16,13 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, List, Union
 
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
-from distilabel.llms import LLM
+from distilabel.models.llms import LLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import GenerateOutput
+    from distilabel.models.llms.typing import GenerateOutput
     from distilabel.steps.tasks.typing import FormattedInput
 
 

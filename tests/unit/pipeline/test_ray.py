@@ -17,7 +17,7 @@ from typing import Generator
 import pytest
 
 from distilabel.errors import DistilabelUserError
-from distilabel.llms.vllm import vLLM
+from distilabel.models.llms.vllm import vLLM
 from distilabel.pipeline.ray import RayPipeline
 from distilabel.steps.base import StepResources
 from distilabel.steps.tasks.text_generation import TextGeneration

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.llms._dummy import DummyAsyncLLM
+from distilabel.models.llms._dummy import DummyAsyncLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import CombineOutputs, LoadDataFromDicts
 from distilabel.steps.generators.data_sampler import DataSampler

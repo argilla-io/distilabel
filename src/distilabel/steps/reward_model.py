@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field, PrivateAttr, SecretStr
 
-from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.steps.base import Step, StepInput
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 

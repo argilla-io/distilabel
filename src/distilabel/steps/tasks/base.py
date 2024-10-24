@@ -21,8 +21,8 @@ from typing_extensions import override
 
 from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.errors import DistilabelUserError
-from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.models.llms.base import LLM
 from distilabel.steps.base import (
     GeneratorStep,
     GlobalStep,
@@ -33,7 +33,7 @@ from distilabel.steps.base import (
 from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import GenerateOutput
+    from distilabel.models.llms.typing import GenerateOutput
     from distilabel.steps.tasks.typing import ChatType, FormattedInput
     from distilabel.steps.typing import StepOutput
 
@@ -245,8 +245,8 @@ class _Task(_Step, ABC):
         if self.use_default_structured_output and not self.llm.structured_output:
             # In case the default structured output is required, we have to set it before
             # the LLM is loaded
-            from distilabel.llms import InferenceEndpointsLLM
-            from distilabel.llms.base import AsyncLLM
+            from distilabel.models.llms import InferenceEndpointsLLM
+            from distilabel.models.llms.base import AsyncLLM
 
             def check_dependency(module_name: str) -> None:
                 if not importlib.util.find_spec(module_name):
@@ -301,7 +301,7 @@ class _Task(_Step, ABC):
 
             ```python
             from distilabel.steps.tasks import URIAL
-            from distilabel.llms.huggingface import InferenceEndpointsLLM
+            from distilabel.models.llms.huggingface import InferenceEndpointsLLM
 
             # Consider this as a placeholder for your actual LLM.
             urial = URIAL(

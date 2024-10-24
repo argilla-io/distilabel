@@ -252,7 +252,7 @@ def routing_batch_function(
     Example:
 
     ```python
-    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+    from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline, routing_batch_function
     from distilabel.steps import LoadDataFromHub, GroupColumns
 
@@ -337,7 +337,7 @@ def sample_n_steps(n: int) -> RoutingBatchFunction:
     Example:
 
     ```python
-    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+    from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline, sample_n_steps
     from distilabel.steps import LoadDataFromHub, GroupColumns
 

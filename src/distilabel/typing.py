@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.llms.typing import GenerateOutput
+from distilabel.models.llms.typing import GenerateOutput
 from distilabel.pipeline.typing import (
     DownstreamConnectable,
     DownstreamConnectableSteps,

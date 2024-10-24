@@ -15,7 +15,7 @@
 
 def test_imports() -> None:
     # ruff: noqa
-    from distilabel.llms import (
+    from distilabel.models.llms import (
         AnthropicLLM,
         AnyscaleLLM,
         AsyncLLM,

@@ -14,7 +14,7 @@
 
 import pytest
 
-from distilabel.llms.openai import OpenAILLM
+from distilabel.models.llms.openai import OpenAILLM
 from distilabel.steps.tasks.magpie.generator import MagpieGenerator
 from tests.unit.conftest import DummyMagpieLLM
 

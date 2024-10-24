@@ -58,7 +58,7 @@ class CLAIR(Task):
 
         ```python
         from distilabel.steps.tasks import CLAIR
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         llm=InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",

@@ -21,7 +21,7 @@ from distilabel.steps.tasks.text_classification import TextClassification
 from tests.unit.conftest import DummyAsyncLLM
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import GenerateOutput
+    from distilabel.models.llms.typing import GenerateOutput
     from distilabel.steps.tasks.typing import FormattedInput
 
 

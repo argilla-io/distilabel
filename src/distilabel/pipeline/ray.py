@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 from distilabel.constants import INPUT_QUEUE_ATTR_NAME, STEP_ATTR_NAME
 from distilabel.distiset import create_distiset
 from distilabel.errors import DistilabelUserError
-from distilabel.llms.vllm import vLLM
+from distilabel.models.llms.vllm import vLLM
 from distilabel.pipeline.base import BasePipeline, set_pipeline_running_env_variables
 from distilabel.pipeline.step_wrapper import _StepWrapper
 from distilabel.utils.logging import setup_logging, stop_logging

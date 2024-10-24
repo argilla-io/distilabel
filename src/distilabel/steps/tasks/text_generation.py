@@ -69,7 +69,7 @@ class TextGeneration(Task):
 
         ```python
         from distilabel.steps.tasks import TextGeneration
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         text_gen = TextGeneration(
@@ -99,7 +99,7 @@ class TextGeneration(Task):
 
         ```python
         from distilabel.steps.tasks import TextGeneration
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         CUSTOM_TEMPLATE = '''Document:
         {{ document }}
@@ -145,7 +145,7 @@ class TextGeneration(Task):
 
         ```python
         from distilabel.steps.tasks import TextGeneration
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         CUSTOM_TEMPLATE = '''Generate a clear, single-sentence instruction based on the following examples:
 
@@ -325,7 +325,7 @@ class ChatGeneration(Task):
 
         ```python
         from distilabel.steps.tasks import ChatGeneration
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         chat = ChatGeneration(

@@ -14,7 +14,7 @@
 
 from typing import TYPE_CHECKING
 
-from distilabel.embeddings.base import Embeddings
+from distilabel.models.embeddings.base import Embeddings
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
@@ -43,7 +43,7 @@ class EmbeddingGeneration(Step):
         Generate sentence embeddings with Sentence Transformers:
 
         ```python
-        from distilabel.embeddings import SentenceTransformerEmbeddings
+        from distilabel.models import SentenceTransformerEmbeddings
         from distilabel.steps import EmbeddingGeneration
 
         embedding_generation = EmbeddingGeneration(

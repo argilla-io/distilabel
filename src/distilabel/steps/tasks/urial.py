@@ -50,7 +50,7 @@ class URIAL(Task):
         Generate text from an instruction:
 
         ```python
-        from distilabel.llms import vLLM
+        from distilabel.models import vLLM
         from distilabel.steps.tasks import URIAL
 
         step = URIAL(

@@ -15,7 +15,7 @@
 import pytest
 from pydantic import ValidationError
 
-from distilabel.llms.base import LLM
+from distilabel.models.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.evol_instruct.base import (
     EvolInstruct,

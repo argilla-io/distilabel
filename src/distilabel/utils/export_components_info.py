@@ -15,8 +15,8 @@
 import inspect
 from typing import Generator, List, Type, TypedDict, TypeVar
 
-from distilabel.embeddings.base import Embeddings
-from distilabel.llms.base import LLM
+from distilabel.models.embeddings.base import Embeddings
+from distilabel.models.llms.base import LLM
 from distilabel.steps.base import _Step
 from distilabel.steps.tasks.base import _Task
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings

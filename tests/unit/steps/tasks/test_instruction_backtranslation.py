@@ -14,8 +14,8 @@
 
 from typing import Any, List
 
-from distilabel.llms.base import LLM
-from distilabel.llms.typing import GenerateOutput
+from distilabel.models.llms.base import LLM
+from distilabel.models.llms.typing import GenerateOutput
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
