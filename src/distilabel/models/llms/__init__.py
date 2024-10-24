@@ -12,12 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from distilabel.models.embeddings.base import Embeddings
-from distilabel.models.embeddings.sentence_transformers import (
-    SentenceTransformerEmbeddings,
-)
-from distilabel.models.embeddings.vllm import vLLMEmbeddings
 from distilabel.models.llms.anthropic import AnthropicLLM
 from distilabel.models.llms.anyscale import AnyscaleLLM
 from distilabel.models.llms.azure import AzureOpenAILLM
@@ -60,7 +54,4 @@ __all__ = [
     "VertexAILLM",
     "ClientvLLM",
     "vLLM",
-    "Embeddings",
-    "SentenceTransformerEmbeddings",
-    "vLLMEmbeddings",
 ]
