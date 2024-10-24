@@ -59,7 +59,7 @@ def prepare_output(
     return {
         "generations": generations,
         "statistics": {
-            "input_tokens": input_tokens or 0,
-            "output_tokens": output_tokens or 0,
+            "input_tokens": input_tokens or [],
+            "output_tokens": output_tokens or [],
         },
     }
