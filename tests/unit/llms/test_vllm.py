@@ -158,6 +158,7 @@ class TestvLLM:
         tokenizer = AutoTokenizer.from_pretrained(
             "distilabel-internal-testing/tiny-random-mistral"
         )
+        llm._tokenizer = DummyTokenizer()
         vllm_mock = mock.MagicMock()
         vllm_mock.get_tokenizer = mock.MagicMock(return_value=tokenizer)
         # mock the import by hacking sys.modules
