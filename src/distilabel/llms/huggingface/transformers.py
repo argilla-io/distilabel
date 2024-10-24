@@ -21,6 +21,7 @@ from distilabel.llms.base import LLM
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.utils import compute_tokens, prepare_output
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
@@ -233,10 +234,27 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
             pad_token_id=self._pipeline.tokenizer.eos_token_id,  # type: ignore
         )
-        return [
+        llm_output = [
             [generation["generated_text"] for generation in output]
             for output in outputs
         ]
+
+        result = []
+        for input, output in zip(inputs, llm_output):
+            result.append(
+                prepare_output(
+                    output,
+                    input_tokens=[
+                        compute_tokens(input, self._pipeline.tokenizer.encode)
+                    ],
+                    output_tokens=[
+                        compute_tokens(row, self._pipeline.tokenizer.encode)
+                        for row in output
+                    ],
+                )
+            )
+
+        return result
 
     def get_last_hidden_states(
         self, inputs: List["StandardInput"]

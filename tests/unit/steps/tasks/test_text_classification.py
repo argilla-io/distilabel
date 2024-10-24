@@ -32,11 +32,18 @@ class TextClassificationLLM(DummyAsyncLLM):
         self, input: "FormattedInput", num_generations: int = 1
     ) -> "GenerateOutput":
         if self.n == 1:
-            return [json.dumps({"labels": "label"}) for _ in range(num_generations)]
-        return [
-            json.dumps({"labels": [f"label_{i}" for i in range(self.n)]})
-            for _ in range(num_generations)
-        ]
+            labels = "label"
+        else:
+            labels = ["label_0", "label_1", "label_2"]
+        return {
+            "generations": [
+                json.dumps({"labels": labels}) for _ in range(num_generations)
+            ],
+            "statistics": {
+                "input_tokens": [12] * num_generations,
+                "output_tokens": [12] * num_generations,
+            },
+        }
 
 
 class TestTextClassification:

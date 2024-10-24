@@ -21,6 +21,7 @@ import sys
 import time
 from abc import ABC, abstractmethod
 from functools import cached_property
+from itertools import islice
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
@@ -33,7 +34,6 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParametersMixin,
 )
 from distilabel.utils.docstring import parse_google_docstring
-from distilabel.utils.itertools import grouper
 from distilabel.utils.notebook import in_notebook
 from distilabel.utils.serialization import _Serializable
 
@@ -459,18 +459,16 @@ class AsyncLLM(LLM):
                 )
                 for input in inputs
             ]
-            return await asyncio.gather(*tasks)
+            result = await asyncio.gather(*tasks)
+            return result
 
         tasks = [
             asyncio.create_task(self.agenerate(input=input, **kwargs))
             for input in inputs
             for _ in range(num_generations)
         ]
-        outputs = [outputs[0] for outputs in await asyncio.gather(*tasks)]
-        return [
-            list(group)
-            for group in grouper(outputs, n=num_generations, incomplete="ignore")
-        ]
+        outputs = await asyncio.gather(*tasks)
+        return merge_responses(outputs, n=num_generations)
 
     def generate(
         self,
@@ -590,3 +588,43 @@ class AsyncLLM(LLM):
             },
         )
         return arguments
+
+
+def merge_responses(
+    responses: List[Dict[str, Any]], n: int = 1
+) -> List[Dict[str, Any]]:
+    """Helper function to group the responses from `LLM.agenerate` method according
+    to the number of generations requested.
+
+    Args:
+        responses: the responses from the `LLM.agenerate` method.
+        n: number of responses to group together. Defaults to 1.
+
+    Returns:
+        List of merged responses, where each merged response contains n generations
+        and their corresponding statistics.
+    """
+    if not responses:
+        return []
+
+    def chunks(lst, n):
+        """Yield successive n-sized chunks from lst."""
+        for i in range(0, len(lst), n):
+            yield list(islice(lst, i, i + n))
+
+    # Split responses into groups of size n
+    grouped_responses = list(chunks(responses, n))
+
+    result = []
+    for group in grouped_responses:
+        first = group[0]
+        merged = {
+            "generations": sum((r["generations"] for r in group), []),
+            "statistics": {
+                key: sum((r["statistics"][key] for r in group), [])
+                for key in first["statistics"]
+            },
+        }
+        result.append(merged)
+
+    return result

@@ -60,6 +60,12 @@ class TestEvolQuality:
                     "response": "mock",
                     "evolved_response": "output",
                     "model_name": "test",
+                    "distilabel_metadata": {
+                        "statistics_task": {
+                            "input_tokens": [12, 12],
+                            "output_tokens": [12, 12],
+                        }
+                    },
                 }
             ]
         ]
@@ -81,6 +87,12 @@ class TestEvolQuality:
                     "response": "mock",
                     "evolved_responses": ["output", "output"],
                     "model_name": "test",
+                    "distilabel_metadata": {
+                        "statistics_task": {
+                            "input_tokens": [12, 12],
+                            "output_tokens": [12, 12],
+                        }
+                    },
                 }
             ]
         ]
@@ -111,6 +123,7 @@ class TestEvolQuality:
                 "jobs_ids": None,
                 "offline_batch_generation_block_until_done": None,
                 "use_offline_batch_generation": False,
+                "n_generations_supported": True,
                 "type_info": {
                     "module": task.llm.__module__,
                     "name": task.llm.__class__.__name__,

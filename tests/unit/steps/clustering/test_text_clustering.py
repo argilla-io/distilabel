@@ -32,11 +32,16 @@ class ClusteringLLM(DummyAsyncLLM):
         self, input: "FormattedInput", num_generations: int = 1
     ) -> "GenerateOutput":
         if self.n == 1:
-            return [json.dumps({"labels": "label"}) for _ in range(num_generations)]
-        return [
-            json.dumps({"labels": ["label" for _ in range(self.n)]})
-            for _ in range(self.n)
-        ]
+            text = json.dumps({"labels": "label"})
+        else:
+            text = json.dumps({"labels": ["label" for _ in range(self.n)]})
+        return {
+            "generations": [text] * num_generations,
+            "statistics": {
+                "input_tokens": [12] * num_generations,
+                "output_tokens": [12] * num_generations,
+            },
+        }
 
 
 class TestTextClustering:
