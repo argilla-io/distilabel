@@ -87,16 +87,13 @@ class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
         self, inputs: List["FormattedInput"], num_generations: int = 1, **kwargs: Any
     ) -> List["GenerateOutput"]:
         return [
-            [
-                {
-                    "generations": ["output"] * num_generations,
-                    "statistics": {
-                        "input_tokens": [12] * num_generations,
-                        "output_tokens": [12] * num_generations,
-                    },
-                }
-                for _ in range(num_generations)
-            ]
+            {
+                "generations": ["Hello Magpie"] * num_generations,
+                "statistics": {
+                    "input_tokens": [12] * num_generations,
+                    "output_tokens": [12] * num_generations,
+                },
+            }
             for _ in range(len(inputs))
         ]
 
