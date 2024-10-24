@@ -434,7 +434,6 @@ class Task(_Task, Step):
             num_generations=self.num_generations,  # type: ignore
             **self.llm.get_generation_kwargs(),  # type: ignore
         )
-
         task_outputs = []
         for input, input_outputs in zip(inputs, outputs):
             formatted_outputs = self._format_outputs(input_outputs, input)

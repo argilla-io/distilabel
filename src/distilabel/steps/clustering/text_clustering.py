@@ -312,6 +312,7 @@ class TextClustering(TextClassification, GlobalTask):
             self._logger.info(f"📦 Processing internal batch of inputs {i}...")
             results = super().process(batched_inputs)
             for result in next(results):  # Extract the elements from the generator
+                print("INTERMEDIATE RESULTS", result)
                 cluster_summaries[result["__LABEL"]] = result["labels"]
 
         # Assign the labels to each text

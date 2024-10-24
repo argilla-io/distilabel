@@ -19,7 +19,6 @@ from pydantic import BaseModel
 
 from distilabel.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
-    # StructuredOutputType,
     model_to_schema,
 )
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
@@ -138,8 +137,8 @@ class TestOutlinesIntegration:
         ]
         result = llm.generate(prompt, max_new_tokens=30)
         assert isinstance(result, list)
-        assert isinstance(result[0], list)
-        assert isinstance(result[0][0], str)
+        assert isinstance(result[0], dict)
+        assert "generations" in result[0] and "statistics" in result[0]
 
     @pytest.mark.parametrize(
         "format, schema, dump",
