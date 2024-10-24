@@ -14,7 +14,7 @@
 
 import pytest
 
-from distilabel.models.llms.mixins.magpie import MAGPIE_PRE_QUERY_TEMPLATES
+from distilabel.models.mixins.magpie import MAGPIE_PRE_QUERY_TEMPLATES
 from tests.unit.conftest import DummyMagpieLLM
 
 

@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 import pytest
 
 from distilabel.models.llms.base import LLM, AsyncLLM
-from distilabel.models.llms.mixins.magpie import MagpieChatTemplateMixin
+from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:

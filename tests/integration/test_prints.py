@@ -17,7 +17,7 @@ from typing import Union
 
 import pytest
 
-from distilabel.models.llms.mixins.magpie import MagpieChatTemplateMixin
+from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps import tasks as tasks_
 from tests.unit.conftest import DummyLLM
 
