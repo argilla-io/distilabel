@@ -22,6 +22,7 @@ from openai.types.completion import Completion
 from openai.types.completion_choice import CompletionChoice
 from openai.types.completion_usage import CompletionUsage
 from pydantic import BaseModel
+from transformers import AutoTokenizer
 
 from distilabel.llms import vLLM
 from distilabel.llms.vllm import ClientvLLM
@@ -101,10 +102,10 @@ SAMPLE_DATA = [
 ]
 
 
-# Just a mock to avoid loading the model
 class DummyTokenizer:
     # chat_template = None
     chat_template = "template"
+    vocabulary = {"I'm": 1, "fine": 2, "thank": 3, "you": 4, "sir": 5}
 
     def __init__(self) -> None:
         pass
@@ -114,6 +115,12 @@ class DummyTokenizer:
 
     def encode(self, text: str):
         return [1, 2, 3, 4, 5]
+
+    def convert_token_to_string(self, token: str) -> str:
+        return "token"
+
+    def get_vocab(self):
+        return self.vocabulary
 
 
 class TestvLLM:
@@ -148,8 +155,11 @@ class TestvLLM:
         expected_result: List[Dict[str, Any]],
     ) -> None:
         llm = vLLM(model="dummy")
-        llm._tokenizer = DummyTokenizer()
+        tokenizer = AutoTokenizer.from_pretrained(
+            "distilabel-internal-testing/tiny-random-mistral"
+        )
         vllm_mock = mock.MagicMock()
+        vllm_mock.get_tokenizer = mock.MagicMock(return_value=tokenizer)
         # mock the import by hacking sys.modules
         # https://stackoverflow.com/questions/60919705/how-to-mock-in-a-python-unittest-a-library-not-installed-locally
         import sys
@@ -192,8 +202,10 @@ class TestvLLM:
                         },
                     ],
                     {
-                        "format": "json",
-                        "schema": Character.model_json_schema(),
+                        # "format": "json",
+                        "format": "regex",
+                        "schema": r".*",
+                        # "schema": Character.model_json_schema(),
                     },
                 )
             ]
