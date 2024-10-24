@@ -245,9 +245,7 @@ class _Task(_Step, ABC):
         if add_raw_input:
             meta[f"raw_input_{self.name}"] = self.format_input(input) if input else None
         if statistics:
-            # TODO: STATISTICS SHOULD BE GENERATED USING THE STEP NAME TO AVOID OVERWRITING THEM
-            # meta[f"statistics_{self.name}"] = statistics
-            meta["statistics"] = statistics
+            meta[f"statistics_{self.name}"] = statistics
         if meta:
             output[DISTILABEL_METADATA_KEY] = meta
 
