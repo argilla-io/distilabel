@@ -76,7 +76,7 @@ class TestLlamaCppLLM:
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
                     "type_info": {
-                        "module": "distilabel.llms.llamacpp",
+                        "module": "distilabel.models.llms.llamacpp",
                         "name": "LlamaCppLLM",
                     },
                     "verbose": False,
@@ -103,7 +103,7 @@ class TestLlamaCppLLM:
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
                     "type_info": {
-                        "module": "distilabel.llms.llamacpp",
+                        "module": "distilabel.models.llms.llamacpp",
                         "name": "LlamaCppLLM",
                     },
                     "verbose": False,

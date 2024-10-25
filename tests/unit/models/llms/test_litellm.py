@@ -87,7 +87,7 @@ class TestLiteLLM:
             "offline_batch_generation_block_until_done": None,
             "use_offline_batch_generation": False,
             "type_info": {
-                "module": "distilabel.llms.litellm",
+                "module": "distilabel.models.llms.litellm",
                 "name": "LiteLLM",
             },
             "generation_kwargs": {},

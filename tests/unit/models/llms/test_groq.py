@@ -123,7 +123,7 @@ class TestGroqLLM:
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
                     "type_info": {
-                        "module": "distilabel.llms.groq",
+                        "module": "distilabel.models.llms.groq",
                         "name": "GroqLLM",
                     },
                 },
@@ -149,7 +149,7 @@ class TestGroqLLM:
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
                     "type_info": {
-                        "module": "distilabel.llms.groq",
+                        "module": "distilabel.models.llms.groq",
                         "name": "GroqLLM",
                     },
                 },

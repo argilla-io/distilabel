@@ -78,7 +78,7 @@ class TestAzureOpenAILLM:
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
                     "type_info": {
-                        "module": "distilabel.llms.azure",
+                        "module": "distilabel.models.llms.azure",
                         "name": "AzureOpenAILLM",
                     },
                 },
@@ -105,7 +105,7 @@ class TestAzureOpenAILLM:
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
                     "type_info": {
-                        "module": "distilabel.llms.azure",
+                        "module": "distilabel.models.llms.azure",
                         "name": "AzureOpenAILLM",
                     },
                 },
@@ -122,15 +122,5 @@ class TestAzureOpenAILLM:
             structured_output=structured_output,
         )
 
-        # _dump = {
-        #     "generation_kwargs": {},
-        #     "model": "gpt-4",
-        #     "base_url": "https://example-resource.azure.openai.com/",
-        #     "max_retries": 6,
-        #     "timeout": 120,
-        #     "api_version": "preview",
-        #     "structured_output": None,
-        #     "type_info": {"module": "distilabel.llms.azure", "name": "AzureOpenAILLM"},
-        # }
         assert llm.dump() == dump
         assert isinstance(AzureOpenAILLM.from_dict(dump), AzureOpenAILLM)

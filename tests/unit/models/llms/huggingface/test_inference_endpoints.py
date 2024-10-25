@@ -315,7 +315,7 @@ class TestInferenceEndpointsLLM:
             "offline_batch_generation_block_until_done": None,
             "use_offline_batch_generation": False,
             "type_info": {
-                "module": "distilabel.llms.huggingface.inference_endpoints",
+                "module": "distilabel.models.llms.huggingface.inference_endpoints",
                 "name": "InferenceEndpointsLLM",
             },
         }

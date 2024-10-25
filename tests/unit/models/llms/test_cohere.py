@@ -145,7 +145,7 @@ class TestCohereLLM:
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
                     "type_info": {
-                        "module": "distilabel.llms.cohere",
+                        "module": "distilabel.models.llms.cohere",
                         "name": "CohereLLM",
                     },
                 },
@@ -171,7 +171,7 @@ class TestCohereLLM:
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
                     "type_info": {
-                        "module": "distilabel.llms.cohere",
+                        "module": "distilabel.models.llms.cohere",
                         "name": "CohereLLM",
                     },
                 },

@@ -65,7 +65,7 @@ DUMP_JSON = {
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {
-        "module": "distilabel.llms.huggingface.transformers",
+        "module": "distilabel.models.llms.huggingface.transformers",
         "name": "TransformersLLM",
     },
 }
@@ -95,7 +95,7 @@ DUMP_REGEX = {
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {
-        "module": "distilabel.llms.huggingface.transformers",
+        "module": "distilabel.models.llms.huggingface.transformers",
         "name": "TransformersLLM",
     },
 }

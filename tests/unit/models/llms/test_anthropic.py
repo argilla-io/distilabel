@@ -120,7 +120,7 @@ class TestAnthropicLLM:
                     "timeout": 600.0,
                     "structured_output": None,
                     "type_info": {
-                        "module": "distilabel.llms.anthropic",
+                        "module": "distilabel.models.llms.anthropic",
                         "name": "AnthropicLLM",
                     },
                 },
@@ -143,7 +143,7 @@ class TestAnthropicLLM:
                         "max_retries": 1,
                     },
                     "type_info": {
-                        "module": "distilabel.llms.anthropic",
+                        "module": "distilabel.models.llms.anthropic",
                         "name": "AnthropicLLM",
                     },
                 },
@@ -167,7 +167,7 @@ class TestAnthropicLLM:
             "offline_batch_generation_block_until_done": None,
             "use_offline_batch_generation": False,
             "type_info": {
-                "module": "distilabel.llms.anthropic",
+                "module": "distilabel.models.llms.anthropic",
                 "name": "AnthropicLLM",
             },
         }

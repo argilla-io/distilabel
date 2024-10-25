@@ -53,7 +53,7 @@ class TestAnyscaleLLM:
             "offline_batch_generation_block_until_done": None,
             "use_offline_batch_generation": False,
             "type_info": {
-                "module": "distilabel.llms.anyscale",
+                "module": "distilabel.models.llms.anyscale",
                 "name": "AnyscaleLLM",
             },
         }
