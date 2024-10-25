@@ -51,8 +51,15 @@ class DummyOfflineBatchGenerateLLM(LLM):
             raise DistilabelOfflineBatchGenerationNotFinishedException(
                 jobs_ids=self.jobs_ids  # type: ignore
             )
-
-        return [["output" for _ in range(num_generations)]]
+        return [
+            {
+                "generations": [f"output {i}" for i in range(num_generations)],
+                "statistics": {
+                    "input_tokens": [12] * num_generations,
+                    "output_tokens": [12] * num_generations,
+                },
+            }
+        ] * len(inputs)
 
 
 def test_offline_batch_generation() -> None:
