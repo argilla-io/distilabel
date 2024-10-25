@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4311,7 +4311,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/llm/" class="md-nav__link ">
+            <a href="../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4342,7 +4342,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4388,7 +4388,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4419,7 +4419,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4945,11 +4945,11 @@
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>distilabel<span class="o">[</span>hf-inference-endpoints<span class="o">]</span><span class="w"> </span>--upgrade
 </span></code></pre></div>
 <h2 id="define-a-pipeline">Define a pipeline<a class="headerlink" href="#define-a-pipeline" title="Permanent link">&para;</a></h2>
-<p>In this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text based on the dataset using the <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> task.</p>
+<p>In this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class to generate text based on the dataset using the <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> task.</p>
 <blockquote>
 <p>You can check the available models in the <a href="https://huggingface.co/models?pipeline_tag=text-generation&amp;sort=trending">Hugging Face Model Hub</a> and filter by <code>Inference status</code>.</p>
 </blockquote>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
@@ -5003,10 +5003,10 @@
 <p>We define a <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> step named <code>load_dataset</code> that will load a dataset from the Hugging Face Hub, as provided via runtime parameters in the <code>pipeline.run</code> method below, but it can also be defined within the class instance via the arg <code>repo_id=...</code>. This step will produce output batches with the rows from the dataset, and the column <code>prompt</code> will be mapped to the <code>instruction</code> field.</p>
 </li>
 <li>
-<p>We define a <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> task named <code>text_generation</code> that will generate text based on the <code>instruction</code> field from the dataset. This task will use the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class with the model <code>Meta-Llama-3.1-8B-Instruct</code>.</p>
+<p>We define a <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> task named <code>text_generation</code> that will generate text based on the <code>instruction</code> field from the dataset. This task will use the <a class="autorefs autorefs-internal" href="../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class with the model <code>Meta-Llama-3.1-8B-Instruct</code>.</p>
 </li>
 <li>
-<p>We define the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class with the model <code>Meta-Llama-3.1-8B-Instruct</code> that will be used by the <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> task. In this case, since the <a class="autorefs autorefs-internal" href="../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> is used, we assume that the <code>HF_TOKEN</code> environment variable is set.</p>
+<p>We define the <a class="autorefs autorefs-internal" href="../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> class with the model <code>Meta-Llama-3.1-8B-Instruct</code> that will be used by the <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> task. In this case, since the <a class="autorefs autorefs-internal" href="../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> is used, we assume that the <code>HF_TOKEN</code> environment variable is set.</p>
 </li>
 <li>
 <p>Both <code>system_prompt</code> and <code>template</code> are optional fields. The <code>template</code> must be informed as a string following the <a href="https://jinja.palletsprojects.com/en/3.1.x/templates/#synopsis">Jinja2</a> template format, and the fields that appear there ("instruction" in this case, which corresponds to the default) must be informed in the <code>columns</code> attribute. The component gallery for <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/"><code>TextGeneration</code></a> has examples to get you started. </p>

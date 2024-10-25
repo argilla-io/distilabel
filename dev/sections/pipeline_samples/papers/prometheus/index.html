@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4344,7 +4344,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4375,7 +4375,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4421,7 +4421,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4452,7 +4452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5024,7 +5024,7 @@
 <li>
 <p><a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> that assesses the quality of a response for a given instruction using any of the Prometheus 2 models.</p>
 <ul>
-<li><a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.vLLM"><code>vLLM</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.LLM"><code>LLM</code></a> that loads a model from the Hugging Face Hub via <a href="https://github.com/vllm-project/vllm">vllm-project/vllm</a>.</li>
+<li><a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.vLLM"><code>vLLM</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> that loads a model from the Hugging Face Hub via <a href="https://github.com/vllm-project/vllm">vllm-project/vllm</a>.</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -5037,7 +5037,7 @@
 </ul>
 <h4 id="code">Code<a class="headerlink" href="#code" title="Permanent link">&para;</a></h4>
 <p>As mentioned before, we will put the previously mentioned building blocks together to see how Prometheus 2 can be used via <code>distilabel</code>.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">vLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">vLLM</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">KeepColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">PrometheusEval</span>

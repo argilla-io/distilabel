@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4260,7 +4260,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../llm/" class="md-nav__link ">
+            <a href="../../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4291,7 +4291,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llm/llm_gallery/" class="md-nav__link">
+      <a href="../../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4340,7 +4340,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../embedding/" class="md-nav__link ">
+            <a href="../../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4371,7 +4371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5196,7 +5196,7 @@ returns a list with the names of the steps that should receive the batch.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code>BaseModel</code>, <code>_Serializable</code></p>
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code>, <code><span title="distilabel.utils.serialization._Serializable">_Serializable</span></code></p>
 
 
         <p>A thin wrapper around a routing batch function that can be used to route batches
@@ -5216,7 +5216,7 @@ from one upstream step to specific downstream steps.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction.routing_function">routing_function</span></code></td>
             <td>
-                  <code>RoutingBatchFunc</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunc" href="#distilabel.pipeline.routing_batch_function.RoutingBatchFunc">RoutingBatchFunc</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5228,7 +5228,7 @@ and returns a list with the names of the steps that should receive the batch.</p
           <tr class="doc-section-item">
             <td><code><span title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction._step">_step</span></code></td>
             <td>
-                  <code>Union[_Step, None]</code>
+                  <code><span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="../../step/#distilabel.steps.base._Step">_Step</a>, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5239,7 +5239,7 @@ and returns a list with the names of the steps that should receive the batch.</p
           <tr class="doc-section-item">
             <td><code><span title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction._routed_batch_registry">_routed_batch_registry</span></code></td>
             <td>
-                  <code>Dict[str, Dict[int, List[str]]]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Dict">Dict</span>[int, <span title="typing.List">List</span>[str]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5699,7 +5699,7 @@ should be routed.</p>
                 <code>batch</code>
             </td>
             <td>
-                  <code>_Batch</code>
+                  <code><span title="distilabel.pipeline.batch._Batch">_Batch</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5715,7 +5715,7 @@ should be routed.</p>
                 <code>steps</code>
             </td>
             <td>
-                  <code>List[str]</code>
+                  <code><span title="typing.List">List</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5741,7 +5741,7 @@ should be routed.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>List[str]</code>
+                  <code><span title="typing.List">List</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5850,7 +5850,7 @@ the <code>routing_batch_function</code>.</p>
                 <code>factory_function_kwargs</code>
             </td>
             <td>
-                  <code>Dict[str, Any]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5939,7 +5939,7 @@ should be routed.</p>
                 <code>batch</code>
             </td>
             <td>
-                  <code>_Batch</code>
+                  <code><span title="distilabel.pipeline.batch._Batch">_Batch</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5955,7 +5955,7 @@ should be routed.</p>
                 <code>steps</code>
             </td>
             <td>
-                  <code>List[str]</code>
+                  <code><span title="typing.List">List</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5981,7 +5981,7 @@ should be routed.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>List[str]</code>
+                  <code><span title="typing.List">List</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6054,7 +6054,7 @@ function.</p>
                 <code>other</code>
             </td>
             <td>
-                  <code>List[DownstreamConnectableSteps]</code>
+                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.DownstreamConnectableSteps" href="../typing/#distilabel.pipeline.typing.DownstreamConnectableSteps">DownstreamConnectableSteps</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6081,7 +6081,7 @@ of the routing batch function.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>List[DownstreamConnectableSteps]</code>
+                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.DownstreamConnectableSteps" href="../typing/#distilabel.pipeline.typing.DownstreamConnectableSteps">DownstreamConnectableSteps</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6091,7 +6091,7 @@ of the routing batch function.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>List[DownstreamConnectableSteps]</code>
+                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.DownstreamConnectableSteps" href="../typing/#distilabel.pipeline.typing.DownstreamConnectableSteps">DownstreamConnectableSteps</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6210,7 +6210,7 @@ factory function used to create this routing batch function.</p>
                 <code>**kwargs</code>
             </td>
             <td>
-                  <code>Any</code>
+                  <code><span title="typing.Any">Any</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6236,7 +6236,7 @@ factory function used to create this routing batch function.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Dict[str, Any]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6246,7 +6246,7 @@ factory function used to create this routing batch function.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>Dict[str, Any]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6339,7 +6339,7 @@ of the factory function used to create the routing batch function.</p>
                 <code>data</code>
             </td>
             <td>
-                  <code>Dict[str, Any]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6473,7 +6473,7 @@ step to specific downstream steps.</p>
                 <code>description</code>
             </td>
             <td>
-                  <code>Optional[str]</code>
+                  <code><span title="typing.Optional">Optional</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6499,7 +6499,7 @@ step to specific downstream steps.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Callable[[RoutingBatchFunc], RoutingBatchFunction]</code>
+                  <code><span title="typing.Callable">Callable</span>[[<a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunc" href="#distilabel.pipeline.routing_batch_function.RoutingBatchFunc">RoutingBatchFunc</a>], <a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction" href="#distilabel.pipeline.routing_batch_function.RoutingBatchFunction">RoutingBatchFunction</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6509,7 +6509,7 @@ step to specific downstream steps.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>Callable[[RoutingBatchFunc], RoutingBatchFunction]</code>
+                  <code><span title="typing.Callable">Callable</span>[[<a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunc" href="#distilabel.pipeline.routing_batch_function.RoutingBatchFunc">RoutingBatchFunc</a>], <a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction" href="#distilabel.pipeline.routing_batch_function.RoutingBatchFunction">RoutingBatchFunction</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6520,7 +6520,7 @@ step to specific downstream steps.</p>
       </tbody>
     </table>
         <p>Example:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">routing_batch_function</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span><span class="p">,</span> <span class="n">GroupColumns</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
@@ -6649,7 +6649,7 @@ step to specific downstream steps.</p>
 </span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="sd">    Example:</span>
 </span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a>
 </span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a><span class="sd">    ```python</span>
-</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM</span>
+</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">    from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM</span>
 </span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="sd">    from distilabel.pipeline import Pipeline, routing_batch_function</span>
 </span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="sd">    from distilabel.steps import LoadDataFromHub, GroupColumns</span>
 </span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a>
@@ -6781,7 +6781,7 @@ the list of all the downstream steps.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>RoutingBatchFunction</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction" href="#distilabel.pipeline.routing_batch_function.RoutingBatchFunction">RoutingBatchFunction</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6791,7 +6791,7 @@ the list of all the downstream steps.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>RoutingBatchFunction</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction" href="#distilabel.pipeline.routing_batch_function.RoutingBatchFunction">RoutingBatchFunction</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6802,7 +6802,7 @@ the list of all the downstream steps.</p>
       </tbody>
     </table>
         <p>Example:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">sample_n_steps</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span><span class="p">,</span> <span class="n">GroupColumns</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
@@ -6887,7 +6887,7 @@ the list of all the downstream steps.</p>
 </span><span id="__span-0-337"><a id="__codelineno-0-337" name="__codelineno-0-337"></a><span class="sd">    Example:</span>
 </span><span id="__span-0-338"><a id="__codelineno-0-338" name="__codelineno-0-338"></a>
 </span><span id="__span-0-339"><a id="__codelineno-0-339" name="__codelineno-0-339"></a><span class="sd">    ```python</span>
-</span><span id="__span-0-340"><a id="__codelineno-0-340" name="__codelineno-0-340"></a><span class="sd">    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM</span>
+</span><span id="__span-0-340"><a id="__codelineno-0-340" name="__codelineno-0-340"></a><span class="sd">    from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM</span>
 </span><span id="__span-0-341"><a id="__codelineno-0-341" name="__codelineno-0-341"></a><span class="sd">    from distilabel.pipeline import Pipeline, sample_n_steps</span>
 </span><span id="__span-0-342"><a id="__codelineno-0-342" name="__codelineno-0-342"></a><span class="sd">    from distilabel.steps import LoadDataFromHub, GroupColumns</span>
 </span><span id="__span-0-343"><a id="__codelineno-0-343" name="__codelineno-0-343"></a>

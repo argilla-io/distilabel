@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4274,7 +4274,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4305,7 +4305,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4351,7 +4351,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4382,7 +4382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4867,7 +4867,7 @@
 
 <h1 id="structured-generation-with-instructor">Structured generation with <code>instructor</code><a class="headerlink" href="#structured-generation-with-instructor" title="Permanent link">&para;</a></h1>
 <p>Answer instructions with knowledge graphs defined as <code>pydantic.BaseModel</code> objects using <code>instructor</code> in <code>distilabel</code>.</p>
-<p>This script makes use of <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.MistralLLM"><code>MistralLLM</code></a> and the structured output capabilities thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> to generate knowledge graphs from complex topics.</p>
+<p>This script makes use of <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.MistralLLM"><code>MistralLLM</code></a> and the structured output capabilities thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> to generate knowledge graphs from complex topics.</p>
 <p><a class="glightbox" href="../../../../assets/pipelines/knowledge_graphs.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Knowledge graph figure" src="../../../../assets/pipelines/knowledge_graphs.png" /></a></p>
 <p>This example is translated from this <a href="https://python.useinstructor.com/examples/knowledge_graph/">awesome example</a> from <code>instructor</code> cookbook.</p>
 <details class="run">
@@ -4893,7 +4893,7 @@
 </span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
 </span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
 </span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">MistralLLM</span>
 </span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromDicts</span>
 </span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>

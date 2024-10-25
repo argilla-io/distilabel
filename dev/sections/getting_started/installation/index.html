@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4344,7 +4344,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/llm/" class="md-nav__link ">
+            <a href="../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4375,7 +4375,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4421,7 +4421,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4452,7 +4452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5078,7 +5078,7 @@
 </li>
 </ul>
 <h2 id="recommendations-notes">Recommendations / Notes<a class="headerlink" href="#recommendations-notes" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/mistralai/client-python"><code>mistralai</code></a> dependency requires Python 3.9 or higher, so if you're willing to use the <code>distilabel.llms.MistralLLM</code> implementation, you will need to have Python 3.9 or higher.</p>
+<p>The <a href="https://github.com/mistralai/client-python"><code>mistralai</code></a> dependency requires Python 3.9 or higher, so if you're willing to use the <code>distilabel.models.llms.MistralLLM</code> implementation, you will need to have Python 3.9 or higher.</p>
 <p>In some cases like <a href="https://github.com/huggingface/transformers"><code>transformers</code></a> and <a href="https://github.com/vllm-project/vllm"><code>vllm</code></a>, the installation of <a href="https://github.com/Dao-AILab/flash-attention"><code>flash-attn</code></a> is recommended if you are using a GPU accelerator since it will speed up the inference process, but the installation needs to be done separately, as it's not included in the <code>distilabel</code> dependencies.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span>flash-attn<span class="w"> </span>--no-build-isolation
 </span></code></pre></div>

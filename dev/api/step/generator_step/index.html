@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4344,7 +4344,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../llm/" class="md-nav__link ">
+            <a href="../../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4375,7 +4375,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llm/llm_gallery/" class="md-nav__link">
+      <a href="../../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4424,7 +4424,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../embedding/" class="md-nav__link ">
+            <a href="../../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4455,7 +4455,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5010,7 +5010,7 @@
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code>_Step</code>, <code>ABC</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="../#distilabel.steps.base._Step">_Step</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
         <p>A special kind of <code>Step</code> that is able to generate data i.e. it doesn't receive
@@ -5030,7 +5030,7 @@ any input from the previous steps.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.base.GeneratorStep.batch_size">batch_size</span></code></td>
             <td>
-                  <code>RuntimeParameter[int]</code>
+                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5254,7 +5254,7 @@ output rows and a boolean indicating if it's the last batch or not.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>GeneratorStepOutput</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5354,7 +5354,7 @@ of the step.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>GeneratorStepOutput</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5468,7 +5468,7 @@ of the step.</p>
                 <code>dataset</code>
             </td>
             <td>
-                  <code>Union[Dataset, DataFrame, List[Dict[str, str]]]</code>
+                  <code><span title="typing.Union">Union</span>[<span title="datasets.Dataset">Dataset</span>, <span title="pandas.DataFrame">DataFrame</span>, <span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, str]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5501,7 +5501,7 @@ Defaults to <code>50</code>.</p>
                 <code>input_mappings</code>
             </td>
             <td>
-                  <code>Optional[Dict[str, str]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5517,7 +5517,7 @@ Defaults to <code>50</code>.</p>
                 <code>output_mappings</code>
             </td>
             <td>
-                  <code>Optional[Dict[str, str]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5533,7 +5533,7 @@ Defaults to <code>50</code>.</p>
                 <code>resources</code>
             </td>
             <td>
-                  <code>StepResources</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepResources" href="../resources/#distilabel.steps.base.StepResources">StepResources</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5541,7 +5541,7 @@ Defaults to <code>50</code>.</p>
               </div>
             </td>
             <td>
-                  <code>StepResources()</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepResources" href="../resources/#distilabel.steps.base.StepResources">StepResources</a>()</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -5549,7 +5549,7 @@ Defaults to <code>50</code>.</p>
                 <code>repo_id</code>
             </td>
             <td>
-                  <code>Optional[str]</code>
+                  <code><span title="typing.Optional">Optional</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5600,7 +5600,7 @@ using <code>load_dataset</code> internally. If that case happens, the <code>repo
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>GeneratorStep</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.GeneratorStep" href="#distilabel.steps.base.GeneratorStep">GeneratorStep</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5610,7 +5610,7 @@ using <code>load_dataset</code> internally. If that case happens, the <code>repo
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>GeneratorStep</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.GeneratorStep" href="#distilabel.steps.base.GeneratorStep">GeneratorStep</a></code>
             </td>
             <td>
               <div class="doc-md-description">

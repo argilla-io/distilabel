@@ -116,7 +116,7 @@ graph TD
 
 #### Generating instructions with Llama 3 8B Instruct and TransformersLLM
 ```python
-from distilabel.llms import TransformersLLM
+from distilabel.models import TransformersLLM
 from distilabel.steps.tasks import Magpie
 
 magpie = Magpie(
@@ -154,7 +154,7 @@ result = next(
 
 #### Generating conversations with Llama 3 8B Instruct and TransformersLLM
 ```python
-from distilabel.llms import TransformersLLM
+from distilabel.models import TransformersLLM
 from distilabel.steps.tasks import Magpie
 
 magpie = Magpie(

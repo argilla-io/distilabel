@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4262,7 +4262,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../llm/" class="md-nav__link ">
+            <a href="../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4293,7 +4293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../llm/llm_gallery/" class="md-nav__link">
+      <a href="../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4342,7 +4342,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../embedding/" class="md-nav__link ">
+            <a href="../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4373,7 +4373,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5198,7 +5198,7 @@ method defined in each <code>Step</code></p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code>RuntimeParametersMixin</code>, <code>RequirementsMixin</code>, <code>SignatureMixin</code>, <code>BaseModel</code>, <code>_Serializable</code>, <code>ABC</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParametersMixin" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParametersMixin">RuntimeParametersMixin</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.mixins.requirements.RequirementsMixin" href="../mixins/requirements/#distilabel.mixins.requirements.RequirementsMixin">RequirementsMixin</a></code>, <code><span title="distilabel.mixins.signature.SignatureMixin">SignatureMixin</span></code>, <code><span title="pydantic.BaseModel">BaseModel</span></code>, <code><span title="distilabel.utils.serialization._Serializable">_Serializable</span></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
         <p>Base class for the steps that can be included in a <code>Pipeline</code>.</p>
@@ -6376,7 +6376,7 @@ values are booleans indicating whether the column is optional or not.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>StepColumns</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepColumns" href="typing/#distilabel.steps.typing.StepColumns">StepColumns</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6422,7 +6422,7 @@ values are booleans indicating whether the column is optional or not.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>StepColumns</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepColumns" href="typing/#distilabel.steps.typing.StepColumns">StepColumns</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6432,7 +6432,7 @@ values are booleans indicating whether the column is optional or not.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>StepColumns</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepColumns" href="typing/#distilabel.steps.typing.StepColumns">StepColumns</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6477,7 +6477,7 @@ values are booleans indicating whether the column is optional or not.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>List[Parameter]</code>
+                  <code><span title="typing.List">List</span>[<span title="inspect.Parameter">Parameter</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6521,7 +6521,7 @@ values are booleans indicating whether the column is optional or not.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Union[Path, None]</code>
+                  <code><span title="typing.Union">Union</span>[<span title="pathlib.Path">Path</span>, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6569,7 +6569,7 @@ the output of this step will be the input of the other step.</p>
                 <code>steps</code>
             </td>
             <td>
-                  <code>_Step</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="#distilabel.steps.base._Step">_Step</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6585,7 +6585,7 @@ the output of this step will be the input of the other step.</p>
                 <code>routing_batch_function</code>
             </td>
             <td>
-                  <code>Optional[RoutingBatchFunction]</code>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction" href="../pipeline/routing_batch_function/#distilabel.pipeline.routing_batch_function.RoutingBatchFunction">RoutingBatchFunction</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6691,7 +6691,7 @@ Defaults to <code>None</code>.</p>
                 <code>other</code>
             </td>
             <td>
-                  <code>Union[DownstreamConnectable, RoutingBatchFunction, List[DownstreamConnectableSteps]]</code>
+                  <code><span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.DownstreamConnectable" href="../pipeline/typing/#distilabel.pipeline.typing.DownstreamConnectable">DownstreamConnectable</a>, <a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction" href="../pipeline/routing_batch_function/#distilabel.pipeline.routing_batch_function.RoutingBatchFunction">RoutingBatchFunction</a>, <span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.DownstreamConnectableSteps" href="../pipeline/typing/#distilabel.pipeline.typing.DownstreamConnectableSteps">DownstreamConnectableSteps</a>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6718,7 +6718,7 @@ function to be set for the step.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Union[DownstreamConnectable, RoutingBatchFunction, List[DownstreamConnectableSteps]]</code>
+                  <code><span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.DownstreamConnectable" href="../pipeline/typing/#distilabel.pipeline.typing.DownstreamConnectable">DownstreamConnectable</a>, <a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction" href="../pipeline/routing_batch_function/#distilabel.pipeline.routing_batch_function.RoutingBatchFunction">RoutingBatchFunction</a>, <span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.DownstreamConnectableSteps" href="../pipeline/typing/#distilabel.pipeline.typing.DownstreamConnectableSteps">DownstreamConnectableSteps</a>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6866,7 +6866,7 @@ to a single step, as the list doesn't have the <strong>rshift</strong> operator.
                 <code>other</code>
             </td>
             <td>
-                  <code>List[UpstreamConnectableSteps]</code>
+                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.UpstreamConnectableSteps" href="../pipeline/typing/#distilabel.pipeline.typing.UpstreamConnectableSteps">UpstreamConnectableSteps</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6892,7 +6892,7 @@ to a single step, as the list doesn't have the <strong>rshift</strong> operator.
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7125,7 +7125,7 @@ i.e. has a <code>*</code> argument annotated with <code>StepInput</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Union[Parameter, None]</code>
+                  <code><span title="typing.Union">Union</span>[<span title="inspect.Parameter">Parameter</span>, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7135,7 +7135,7 @@ i.e. has a <code>*</code> argument annotated with <code>StepInput</code>.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>Union[Parameter, None]</code>
+                  <code><span title="typing.Union">Union</span>[<span title="inspect.Parameter">Parameter</span>, None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7406,7 +7406,7 @@ to be used to run validations on the inputs of the step.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Dict[str, bool]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, bool]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7416,7 +7416,7 @@ to be used to run validations on the inputs of the step.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>Dict[str, bool]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, bool]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7494,7 +7494,7 @@ meant to be used to run validations on the outputs of the step.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Dict[str, bool]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, bool]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7504,7 +7504,7 @@ meant to be used to run validations on the outputs of the step.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>Dict[str, bool]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, bool]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7589,7 +7589,7 @@ by the <code>Pipeline</code> once the cache location is known.</p>
                 <code>path</code>
             </td>
             <td>
-                  <code>Path</code>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7675,7 +7675,7 @@ saved.</p>
                 <code>write_function</code>
             </td>
             <td>
-                  <code>Callable[[Path], None]</code>
+                  <code><span title="typing.Callable">Callable</span>[[<span title="pathlib.Path">Path</span>], None]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7692,7 +7692,7 @@ be saved.</p>
                 <code>metadata</code>
             </td>
             <td>
-                  <code>Optional[Dict[str, Any]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7852,7 +7852,7 @@ be saved.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code>_Step</code>, <code>ABC</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="#distilabel.steps.base._Step">_Step</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
         <p>Base class for the steps that can be included in a <code>Pipeline</code>.</p>
@@ -7871,7 +7871,7 @@ be saved.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.base.Step.input_batch_size">input_batch_size</span></code></td>
             <td>
-                  <code>RuntimeParameter[PositiveInt]</code>
+                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[<span title="pydantic.PositiveInt">PositiveInt</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8219,7 +8219,7 @@ output rows.</p>
                 <code>*inputs</code>
             </td>
             <td>
-                  <code>StepInput</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8294,7 +8294,7 @@ should be used to run the processing logic of the step.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>StepOutput</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">

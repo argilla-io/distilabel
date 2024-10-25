@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4260,7 +4260,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../llm/" class="md-nav__link ">
+            <a href="../../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4291,7 +4291,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llm/llm_gallery/" class="md-nav__link">
+      <a href="../../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4340,7 +4340,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../embedding/" class="md-nav__link ">
+            <a href="../../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4371,7 +4371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5705,7 +5705,7 @@ has been unloaded or has failed to load.</p>
                 <code>step</code>
             </td>
             <td>
-                  <code>Union[Step, GeneratorStep]</code>
+                  <code><span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a>, <a class="autorefs autorefs-internal" title="distilabel.steps.base.GeneratorStep" href="../../step/generator_step/#distilabel.steps.base.GeneratorStep">GeneratorStep</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5721,7 +5721,7 @@ has been unloaded or has failed to load.</p>
                 <code>input_queue</code>
             </td>
             <td>
-                  <code>Queue[_Batch]</code>
+                  <code><span title="queue.Queue">Queue</span>[<span title="distilabel.pipeline.batch._Batch">_Batch</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5737,7 +5737,7 @@ has been unloaded or has failed to load.</p>
                 <code>output_queue</code>
             </td>
             <td>
-                  <code>Queue[_Batch]</code>
+                  <code><span title="queue.Queue">Queue</span>[<span title="distilabel.pipeline.batch._Batch">_Batch</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5753,7 +5753,7 @@ has been unloaded or has failed to load.</p>
                 <code>load_queue</code>
             </td>
             <td>
-                  <code>Queue[Union[StepLoadStatus, None]]</code>
+                  <code><span title="queue.Queue">Queue</span>[<span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.StepLoadStatus" href="../typing/#distilabel.pipeline.typing.StepLoadStatus">StepLoadStatus</a>, None]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6324,7 +6324,7 @@ waiting to receive a batch from the <code>input_queue</code> that will be handle
                 <code>step</code>
             </td>
             <td>
-                  <code>_Step</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="../../step/#distilabel.steps.base._Step">_Step</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6340,7 +6340,7 @@ waiting to receive a batch from the <code>input_queue</code> that will be handle
                 <code>subprocess_exception</code>
             </td>
             <td>
-                  <code>Optional[Exception]</code>
+                  <code><span title="typing.Optional">Optional</span>[Exception]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6366,7 +6366,7 @@ waiting to receive a batch from the <code>input_queue</code> that will be handle
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>_StepWrapperException</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.pipeline.step_wrapper._StepWrapperException" href="#distilabel.pipeline.step_wrapper._StepWrapperException">_StepWrapperException</a></code>
             </td>
             <td>
               <div class="doc-md-description">

@@ -70,7 +70,7 @@ graph TD
 
 #### Generate sentence embeddings with Sentence Transformers
 ```python
-from distilabel.embeddings import SentenceTransformerEmbeddings
+from distilabel.models import SentenceTransformerEmbeddings
 from distilabel.steps import EmbeddingGeneration
 
 embedding_generation = EmbeddingGeneration(

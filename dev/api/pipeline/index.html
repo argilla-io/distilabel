@@ -15,14 +15,14 @@
         <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/api/pipeline/">
       
       
-        <link rel="prev" href="../embedding/embedding_gallery/">
+        <link rel="prev" href="../models/embedding/embedding_gallery/">
       
       
         <link rel="next" href="routing_batch_function/">
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4260,7 +4260,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../llm/" class="md-nav__link ">
+            <a href="../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4291,7 +4291,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../llm/llm_gallery/" class="md-nav__link">
+      <a href="../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4340,7 +4340,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../embedding/" class="md-nav__link ">
+            <a href="../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4371,7 +4371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5108,7 +5108,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code>ABC</code>, <code>RequirementsMixin</code>, <code>_Serializable</code></p>
+              Bases: <code><span title="abc.ABC">ABC</span></code>, <code><a class="autorefs autorefs-internal" title="distilabel.mixins.requirements.RequirementsMixin" href="../mixins/requirements/#distilabel.mixins.requirements.RequirementsMixin">RequirementsMixin</a></code>, <code><span title="distilabel.utils.serialization._Serializable">_Serializable</span></code></p>
 
 
         <p>Base class for a <code>distilabel</code> pipeline.</p>
@@ -5177,7 +5177,7 @@
           <tr class="doc-section-item">
             <td><code><span title="distilabel.pipeline.base.BasePipeline._batch_manager">_batch_manager</span></code></td>
             <td>
-                  <code>Optional[_BatchManager]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.pipeline.batch_manager._BatchManager">_BatchManager</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5190,7 +5190,7 @@ from scratch or from cache. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.pipeline.base.BasePipeline._write_buffer">_write_buffer</span></code></td>
             <td>
-                  <code>Optional[_WriteBuffer]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.pipeline.write_buffer._WriteBuffer">_WriteBuffer</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5203,7 +5203,7 @@ when the pipeline is run. Defaults to <code>None</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.pipeline.base.BasePipeline._fs">_fs</span></code></td>
             <td>
-                  <code>Optional[AbstractFileSystem]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="fsspec.AbstractFileSystem">AbstractFileSystem</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5215,7 +5215,7 @@ between the steps. It will be set when the pipeline is run. Defaults to <code>No
           <tr class="doc-section-item">
             <td><code><span title="distilabel.pipeline.base.BasePipeline._storage_base_path">_storage_base_path</span></code></td>
             <td>
-                  <code>Optional[str]</code>
+                  <code><span title="typing.Optional">Optional</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8617,7 +8617,7 @@ the <code>_BatchManager</code>.</p>
                 <code>name</code>
             </td>
             <td>
-                  <code>Optional[str]</code>
+                  <code><span title="typing.Optional">Optional</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8633,7 +8633,7 @@ the <code>_BatchManager</code>.</p>
                 <code>description</code>
             </td>
             <td>
-                  <code>Optional[str]</code>
+                  <code><span title="typing.Optional">Optional</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8649,7 +8649,7 @@ the <code>_BatchManager</code>.</p>
                 <code>cache_dir</code>
             </td>
             <td>
-                  <code>Optional[Union[str, PathLike]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[str, <span title="os.PathLike">PathLike</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8684,7 +8684,7 @@ field. Defaults to <code>False</code>.</p>
                 <code>requirements</code>
             </td>
             <td>
-                  <code>Optional[List[str]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8922,7 +8922,7 @@ adding the logic to run the pipeline.</p>
                 <code>parameters</code>
             </td>
             <td>
-                  <code>Optional[Dict[str, Dict[str, Any]]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8956,7 +8956,7 @@ the runtime parameters for the step as the value. Defaults to <code>None</code>.
                 <code>storage_parameters</code>
             </td>
             <td>
-                  <code>Optional[Dict[str, Any]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8997,7 +8997,7 @@ pass the data. Defaults to <code>False</code>.</p>
                 <code>dataset</code>
             </td>
             <td>
-                  <code>Optional[InputDataset]</code>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.InputDataset" href="typing/#distilabel.pipeline.typing.InputDataset">InputDataset</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9032,7 +9032,7 @@ yield by the <code>GeneratorStep</code> created using the <code>dataset</code>. 
                 <code>logging_handlers</code>
             </td>
             <td>
-                  <code>Optional[List[Handler]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[<span title="logging.Handler">Handler</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9060,7 +9060,7 @@ can be extracted and used in a different context. Defaults to <code>None</code>.
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Distiset</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.distiset.Distiset" href="../distiset/#distilabel.distiset.Distiset">Distiset</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9343,7 +9343,7 @@ running the whole pipeline with a single example. The cache will be set to <code
                 <code>parameters</code>
             </td>
             <td>
-                  <code>Optional[Dict[str, Dict[str, Any]]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9377,7 +9377,7 @@ steps of the pipeline. Defaults to <code>1</code>.</p>
                 <code>dataset</code>
             </td>
             <td>
-                  <code>Optional[InputDataset]</code>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.InputDataset" href="typing/#distilabel.pipeline.typing.InputDataset">InputDataset</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9405,7 +9405,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Distiset</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.distiset.Distiset" href="../distiset/#distilabel.distiset.Distiset">Distiset</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9524,7 +9524,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>PipelineRuntimeParametersInfo</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.PipelineRuntimeParametersInfo" href="typing/#distilabel.pipeline.typing.PipelineRuntimeParametersInfo">PipelineRuntimeParametersInfo</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9534,7 +9534,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code>PipelineRuntimeParametersInfo</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.PipelineRuntimeParametersInfo" href="typing/#distilabel.pipeline.typing.PipelineRuntimeParametersInfo">PipelineRuntimeParametersInfo</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9606,7 +9606,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
                 <code>path</code>
             </td>
             <td>
-                  <code>Optional[Union[str, Path]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[str, <span title="pathlib.Path">Path</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9815,7 +9815,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
                 <code>data</code>
             </td>
             <td>
-                  <code>Dict[str, Any]</code>
+                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9841,7 +9841,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
       <tbody>
           <tr class="doc-section-item">
 <td><code>BasePipeline</code></td>            <td>
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9955,7 +9955,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code>BasePipeline</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.pipeline.base.BasePipeline" href="#distilabel.pipeline.base.BasePipeline">BasePipeline</a></code></p>
 
 
         <p>Local pipeline implementation using <code>multiprocessing</code>.</p>
@@ -10643,7 +10643,7 @@ your script and just want to pass it already processed. Defaults to <code>None</
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Callable</code>
+                  <code><span title="typing.Callable">Callable</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10691,7 +10691,7 @@ and it's mainly used by the CLI.</p>
                 <code>ray_head_node_url</code>
             </td>
             <td>
-                  <code>Optional[str]</code>
+                  <code><span title="typing.Optional">Optional</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10711,7 +10711,7 @@ Defaults to <code>None</code>.</p>
                 <code>ray_init_kwargs</code>
             </td>
             <td>
-                  <code>Optional[Dict[str, Any]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10738,7 +10738,7 @@ to <code>None</code>.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>RayPipeline</code>
+                  <code><span title="distilabel.pipeline.ray.RayPipeline">RayPipeline</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10850,7 +10850,7 @@ to <code>None</code>.</p>
                 <code>parameters</code>
             </td>
             <td>
-                  <code>Optional[Dict[Any, Dict[str, Any]]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[<span title="typing.Any">Any</span>, <span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10884,7 +10884,7 @@ the runtime parameters for the step as the value. Defaults to <code>None</code>.
                 <code>storage_parameters</code>
             </td>
             <td>
-                  <code>Optional[Dict[str, Any]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10925,7 +10925,7 @@ pass the data. Defaults to <code>False</code>.</p>
                 <code>dataset</code>
             </td>
             <td>
-                  <code>Optional[InputDataset]</code>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.InputDataset" href="typing/#distilabel.pipeline.typing.InputDataset">InputDataset</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10960,7 +10960,7 @@ yield by the <code>GeneratorStep</code> created using the <code>dataset</code>. 
                 <code>logging_handlers</code>
             </td>
             <td>
-                  <code>Optional[List[Handler]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[<span title="logging.Handler">Handler</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10988,7 +10988,7 @@ can be extracted and used in a different context. Defaults to <code>None</code>.
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>Distiset</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.distiset.Distiset" href="../distiset/#distilabel.distiset.Distiset">Distiset</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11345,7 +11345,7 @@ can be extracted and used in a different context. Defaults to <code>None</code>.
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../embedding/embedding_gallery/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Embedding Gallery">
+          <a href="../models/embedding/embedding_gallery/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Embedding Gallery">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>

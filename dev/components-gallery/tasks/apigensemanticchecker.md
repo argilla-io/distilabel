@@ -90,7 +90,7 @@ graph TD
 #### Semantic checker for generated function calls (original implementation)
 ```python
 from distilabel.steps.tasks import APIGenSemanticChecker
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 llm=InferenceEndpointsLLM(
     model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
@@ -134,7 +134,7 @@ res
 #### Semantic checker for generated function calls (structured output)
 ```python
 from distilabel.steps.tasks import APIGenSemanticChecker
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 llm=InferenceEndpointsLLM(
     model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",

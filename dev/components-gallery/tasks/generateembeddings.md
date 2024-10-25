@@ -76,7 +76,7 @@ graph TD
 #### Rank LLM candidates
 ```python
 from distilabel.steps.tasks import GenerateEmbeddings
-from distilabel.llms.huggingface import TransformersLLM
+from distilabel.models.llms.huggingface import TransformersLLM
 
 # Consider this as a placeholder for your actual LLM.
 embedder = GenerateEmbeddings(

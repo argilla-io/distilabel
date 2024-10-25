@@ -89,7 +89,7 @@ graph TD
 #### Generate evolved instructions without initial instructions
 ```python
 from distilabel.steps.tasks import EvolInstructGenerator
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 evol_instruct_generator = EvolInstructGenerator(

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4261,7 +4261,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4292,7 +4292,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4338,7 +4338,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4369,7 +4369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4902,9 +4902,9 @@
 
 <h1 id="tasks-for-generating-and-judging-with-llms">Tasks for generating and judging with LLMs<a class="headerlink" href="#tasks-for-generating-and-judging-with-llms" title="Permanent link">&para;</a></h1>
 <h2 id="working-with-tasks">Working with Tasks<a class="headerlink" href="#working-with-tasks" title="Permanent link">&para;</a></h2>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> is a special kind of <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> that includes the <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.LLM"><code>LLM</code></a> as a mandatory argument. As with a <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>, it is normally used within a <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> but can also be used standalone.</p>
+<p>The <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> is a special kind of <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> that includes the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> as a mandatory argument. As with a <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>, it is normally used within a <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> but can also be used standalone.</p>
 <p>For example, the most basic task is the <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task, which generates text based on a given instruction.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">task</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
@@ -4958,7 +4958,7 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 </div>
 <p>The <code>Tasks</code> include a handy method to show what the prompt formatted for an <code>LLM</code> would look like, let's see an example with <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.UltraFeedback"><code>UltraFeedback</code></a>, but it applies to any other <code>Task</code>.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">UltraFeedback</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms.huggingface</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">uf</span> <span class="o">=</span> <span class="n">UltraFeedback</span><span class="p">(</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
@@ -4978,8 +4978,8 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 <details>
 <summary>Using a DummyLLM to avoid loading one</summary>
 <p>In case you don't want to load an LLM to render the template, you can create a dummy one like the ones we could use for testing.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms.base</span> <span class="kn">import</span> <span class="n">LLM</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms.mixins.magpie</span> <span class="kn">import</span> <span class="n">MagpieChatTemplateMixin</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">LLM</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">distilabel.models.mixins</span> <span class="kn">import</span> <span class="n">MagpieChatTemplateMixin</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">class</span> <span class="nc">DummyLLM</span><span class="p">(</span><span class="n">AsyncLLM</span><span class="p">,</span> <span class="n">MagpieChatTemplateMixin</span><span class="p">):</span>
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">structured_output</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
@@ -5009,7 +5009,7 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 </div>
 <h2 id="specifying-the-number-of-generations-and-grouping-generations">Specifying the number of generations and grouping generations<a class="headerlink" href="#specifying-the-number-of-generations-and-grouping-generations" title="Permanent link">&para;</a></h2>
 <p>All the <code>Task</code>s have a <code>num_generations</code> attribute that allows defining the number of generations that we want to have per input. We can update the example above to generate 3 completions per input:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">task</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
@@ -5045,7 +5045,7 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 </span><span id="__span-6-34"><a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a><span class="c1"># ]</span>
 </span></code></pre></div>
 <p>In addition, we might want to group the generations in a single output row as maybe one downstream step expects a single row with multiple generations. We can achieve this by setting the <code>group_generations</code> attribute to <code>True</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">task</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
@@ -5086,7 +5086,7 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 <p><code>outputs</code>: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not. This property should always include <code>model_name</code> as one of the outputs since that's automatically injected from the LLM.</p>
 </li>
 <li>
-<p><code>format_output</code>: is a method that receives the output from the <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.LLM"><code>LLM</code></a> and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in <code>outputs</code>. Note that there's no need to include the <code>model_name</code> in the output.</p>
+<p><code>format_output</code>: is a method that receives the output from the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in <code>outputs</code>. Note that there's no need to include the <code>model_name</code> in the output.</p>
 </li>
 </ul>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Inherit from <code>Task</code></label><label for="__tabbed_1_2">Using the <code>@task</code> decorator</label></div>

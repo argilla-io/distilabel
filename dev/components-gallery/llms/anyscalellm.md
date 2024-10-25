@@ -34,7 +34,7 @@ Anyscale LLM implementation running the async API client of OpenAI.
 
 #### Generate text
 ```python
-from distilabel.llms import AnyscaleLLM
+from distilabel.models.llms import AnyscaleLLM
 
 llm = AnyscaleLLM(model="google/gemma-7b-it", api_key="api.key")
 

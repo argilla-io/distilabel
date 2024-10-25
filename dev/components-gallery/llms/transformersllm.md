@@ -56,7 +56,7 @@ pipeline.
 
 #### Generate text
 ```python
-from distilabel.llms import TransformersLLM
+from distilabel.models.llms import TransformersLLM
 
 llm = TransformersLLM(model="microsoft/Phi-3-mini-4k-instruct")
 

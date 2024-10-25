@@ -108,7 +108,7 @@ graph TD
 
 #### Generating instructions with Llama 3 8B Instruct and TransformersLLM
 ```python
-from distilabel.llms import TransformersLLM
+from distilabel.models import TransformersLLM
 from distilabel.steps.tasks import MagpieGenerator
 
 generator = MagpieGenerator(
@@ -139,7 +139,7 @@ result = next(generator.process())
 
 #### Generating a conversation with Llama 3 8B Instruct and TransformersLLM
 ```python
-from distilabel.llms import TransformersLLM
+from distilabel.models import TransformersLLM
 from distilabel.steps.tasks import MagpieGenerator
 
 generator = MagpieGenerator(
@@ -218,7 +218,7 @@ result = next(generator.process())
 
 #### Generating with system prompts with probabilities
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.steps.tasks import MagpieGenerator
 
 magpie = MagpieGenerator(

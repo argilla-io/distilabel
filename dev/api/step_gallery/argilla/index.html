@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4484,7 +4484,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../llm/" class="md-nav__link ">
+            <a href="../../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4515,7 +4515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llm/llm_gallery/" class="md-nav__link">
+      <a href="../../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4564,7 +4564,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../embedding/" class="md-nav__link ">
+            <a href="../../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4595,7 +4595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5315,7 +5315,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code>Step</code>, <code>ABC</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
 
 
         <p>Abstract step that provides a class to subclass from, that contains the boilerplate code
@@ -5341,7 +5341,7 @@ the abstract methods that need to be implemented in order to add a new dataset t
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.argilla.base.ArgillaBase.dataset_name">dataset_name</span></code></td>
             <td>
-                  <code>RuntimeParameter[str]</code>
+                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5352,7 +5352,7 @@ the abstract methods that need to be implemented in order to add a new dataset t
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.argilla.base.ArgillaBase.dataset_workspace">dataset_workspace</span></code></td>
             <td>
-                  <code>Optional[RuntimeParameter[str]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5364,7 +5364,7 @@ the abstract methods that need to be implemented in order to add a new dataset t
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.argilla.base.ArgillaBase.api_url">api_url</span></code></td>
             <td>
-                  <code>Optional[RuntimeParameter[str]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[str]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5376,7 +5376,7 @@ the <code>ARGILLA_API_URL</code> environment variable.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.argilla.base.ArgillaBase.api_key">api_key</span></code></td>
             <td>
-                  <code>Optional[RuntimeParameter[SecretStr]]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5841,7 +5841,7 @@ called. For example, to load an LLM, stablish a connection to a database, etc.</
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code>ArgillaBase</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.argilla.base.ArgillaBase" href="#distilabel.steps.argilla.base.ArgillaBase">ArgillaBase</a></code></p>
 
 
         <p>Creates a preference dataset in Argilla.</p>
@@ -6810,7 +6810,7 @@ the text-generation scenario. And then it pushes it to Argilla.</p>
                 <code>inputs</code>
             </td>
             <td>
-                  <code>StepInput</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6836,7 +6836,7 @@ the text-generation scenario. And then it pushes it to Argilla.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>StepOutput</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6980,7 +6980,7 @@ the text-generation scenario. And then it pushes it to Argilla.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code>ArgillaBase</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.argilla.base.ArgillaBase" href="#distilabel.steps.argilla.base.ArgillaBase">ArgillaBase</a></code></p>
 
 
         <p>Creates a text generation dataset in Argilla.</p>
@@ -7632,7 +7632,7 @@ the text-generation scenario. And then it pushes it to Argilla.</p>
                 <code>inputs</code>
             </td>
             <td>
-                  <code>StepInput</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7658,7 +7658,7 @@ the text-generation scenario. And then it pushes it to Argilla.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>StepOutput</code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../step/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">

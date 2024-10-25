@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -4242,7 +4242,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/llm/" class="md-nav__link ">
+            <a href="../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4273,7 +4273,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4319,7 +4319,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4350,7 +4350,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5023,7 +5023,7 @@
 </ul>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
 <h4 id="generating-instructions-with-llama-3-8b-instruct-and-transformersllm">Generating instructions with Llama 3 8B Instruct and TransformersLLM<a class="headerlink" href="#generating-instructions-with-llama-3-8b-instruct-and-transformersllm" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">TransformersLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">TransformersLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">MagpieGenerator</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">generator</span> <span class="o">=</span> <span class="n">MagpieGenerator</span><span class="p">(</span>
@@ -5052,7 +5052,7 @@
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="c1"># )</span>
 </span></code></pre></div>
 <h4 id="generating-a-conversation-with-llama-3-8b-instruct-and-transformersllm">Generating a conversation with Llama 3 8B Instruct and TransformersLLM<a class="headerlink" href="#generating-a-conversation-with-llama-3-8b-instruct-and-transformersllm" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">TransformersLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">TransformersLLM</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">MagpieGenerator</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">generator</span> <span class="o">=</span> <span class="n">MagpieGenerator</span><span class="p">(</span>
@@ -5129,7 +5129,7 @@
 </span><span id="__span-1-75"><a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a><span class="c1"># )</span>
 </span></code></pre></div>
 <h4 id="generating-with-system-prompts-with-probabilities">Generating with system prompts with probabilities<a class="headerlink" href="#generating-with-system-prompts-with-probabilities" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">MagpieGenerator</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">magpie</span> <span class="o">=</span> <span class="n">MagpieGenerator</span><span class="p">(</span>
