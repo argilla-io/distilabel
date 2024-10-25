@@ -331,7 +331,7 @@ class ArenaHardResults(GlobalStep):
 if __name__ == "__main__":
     import json
 
-    from distilabel.llms import InferenceEndpointsLLM, OpenAILLM
+    from distilabel.models import InferenceEndpointsLLM, OpenAILLM
     from distilabel.pipeline import Pipeline
     from distilabel.steps import (
         GroupColumns,

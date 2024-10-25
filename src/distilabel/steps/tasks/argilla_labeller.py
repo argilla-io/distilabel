@@ -81,7 +81,7 @@ class ArgillaLabeller(Task):
         import argilla as rg
         from argilla import Suggestion
         from distilabel.steps.tasks import ArgillaLabeller
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Get information from Argilla dataset definition
         dataset = rg.Dataset("my_dataset")
@@ -138,7 +138,7 @@ class ArgillaLabeller(Task):
         ```python
         import argilla as rg
         from distilabel.steps.tasks import ArgillaLabeller
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Get information from Argilla dataset definition
         dataset = rg.Dataset("my_dataset")
@@ -186,7 +186,7 @@ class ArgillaLabeller(Task):
         ```python
         import argilla as rg
         from distilabel.steps.tasks import ArgillaLabeller
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Overwrite default prompts and instructions
         labeller = ArgillaLabeller(
