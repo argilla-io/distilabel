@@ -4,7 +4,7 @@ When dealing with complex pipelines that get executed in a distributed environme
 
 ```python
 from distilabel.pipeline import Pipeline
-from distilabel.llms import vLLM
+from distilabel.models import vLLM
 from distilabel.steps import StepResources
 from distilabel.steps.tasks import PrometheusEval
 
