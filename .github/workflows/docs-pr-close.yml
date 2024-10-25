@@ -8,6 +8,9 @@ concurrency:
   group: distilabel-docs
   cancel-in-progress: false
 
+permissions:
+  contents: write
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
