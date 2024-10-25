@@ -12,11 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Final, Optional
+import json
+import re
+from typing import TYPE_CHECKING, Any, Dict, Final, Optional, Union
 
 from jinja2 import Template
 
 from distilabel.steps.tasks.text_generation import TextGeneration
+
+if TYPE_CHECKING:
+    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.steps.typing import StepColumns
+
 
 SYSTEM_PROMPT = """\
 You are a math tutor that helps students solve math problems by breaking them down into clear, logical steps. Follow these guidelines:
@@ -58,7 +65,6 @@ A recipe calls for 2.5 cups of flour to make 12 cookies. How many cups of flour 
 Step 1: Find out how many cups of flour are needed per cookie: 2.5 ÷ 12 = <<2.5/12=0.208333>>0.208333 cups
 Step 2: Calculate the flour needed for 30 cookies: 0.208333 * 30 = <<0.208333*30=6.25>>6.25 cups. Answer: 6.25"""
 
-
 RULES_MATH: Final[str] = """\
 # Rules:
 - Always wrap mathematical expressions in $ symbols
@@ -67,7 +73,6 @@ RULES_MATH: Final[str] = """\
 - Keep explanations precise and mathematically rigorous
 - Use $\boxed{}$ notation only in the final step
 """
-
 
 FEW_SHOTS_MATH: Final[str] = """
 # Examples
@@ -92,10 +97,32 @@ Step 4: Therefore, the answer is $\boxed{59}$. The answer is: 59
 """
 
 
+DEFAULT_TEMPLATE = """\
+{{ errors }}This is the instruction:
+{{ instruction }}"""
+
+
+def split_solution_steps(text):
+    """
+    Split a step-by-step solution text into individual components.
+    Returns a list of steps and the final answer.
+    """
+    # Pattern to match:
+    # 1. Steps starting with "Step N:" and capturing all content until the next step or answer
+    # 2. The final answer starting with "The answer is:"
+    pattern = r"Step \d+:.*?(?=Step \d+:|The answer is:|$)|The answer is:.*"
+
+    # Find all matches, strip whitespace
+    matches = [match.strip() for match in re.findall(pattern, text, re.DOTALL)]
+
+    return matches
+
+
 class StepByStepReasoning(TextGeneration):
     system_prompt: Optional[str] = SYSTEM_PROMPT
     extra_rules: Optional[str] = RULES_GSM8K
     few_shots: Optional[str] = FEW_SHOTS_GSM8K
+    include_errors: bool = True
 
     def load(self) -> None:
         super().load()
@@ -105,3 +132,36 @@ class StepByStepReasoning(TextGeneration):
                 extra_rules=self.extra_rules or "",
                 few_shots=self.few_shots or "",
             )
+        self._errors = ""
+        if self.include_errors:
+            self._errors = "Add your step-by-step solution including errors on the steps and possibly in the final answer.\n\n"
+        self._template = Template(DEFAULT_TEMPLATE)
+
+    @property
+    def inputs(self) -> "StepColumns":
+        return ["instruction"]
+
+    @property
+    def outputs(self) -> "StepColumns":
+        return ["reasoning", "model_name"]
+
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
+        messages = [
+            {
+                "role": "user",
+                "content": self._template.render(
+                    instruction=input["instruction"], errors=self._errors
+                ),
+            }
+        ]
+        if self.system_prompt:
+            messages.insert(0, {"role": "system", "content": self.system_prompt})
+        return messages
+
+    def format_output(
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
+    ) -> Dict[str, Any]:
+        if output is None:
+            return {"reasoning": None}
+
+        return {"reasoning": split_solution_steps(json.dumps(output))}
