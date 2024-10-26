@@ -67,7 +67,6 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             the tokenizer files. If not provided, the tokenizer will be loaded from the
             model directory. Defaults to `None`.
         tokenizer_mode: the mode to use for the tokenizer. Defaults to `auto`.
-        tokenizer_revision: the revision of the tokenizer to load. Defaults to `None`.
         skip_tokenizer_init: whether to skip the initialization of the tokenizer. Defaults
             to `False`.
         chat_template: a chat template that will be used to build the prompts before
@@ -106,8 +105,6 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         llm = llm = SGLangLLM(
             model="mistralai/Mistral-7B-Instruct-v0.2",
-            tensor_parallel_size=1,  # Using single GPU
-            log_level="info"  # Set to "info" to see SGLang's logs
         )
         llm.load()
 
@@ -133,8 +130,6 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         llm = llm = SGLangLLM(
             model="mistralai/Mistral-7B-Instruct-v0.2",
-            tensor_parallel_size=1,  # Using single GPU
-            log_level="info"  # Set to "info" to see SGLang's logs
         )
         llm.load()
 
@@ -159,10 +154,8 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     trust_remote_code: bool = False
     quantization: Optional[str] = None
     revision: Optional[str] = None
-
     tokenizer: Optional[str] = None
     tokenizer_mode: Literal["auto", "slow"] = "auto"
-    tokenizer_revision: Optional[str] = None
     skip_tokenizer_init: bool = False
     chat_template: Optional[str] = None
 
@@ -179,7 +172,7 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         description="The structured output format to use across all the generations.",
     )
 
-    _runtime: "Runtime" = PrivateAttr(None)
+    _model: "Runtime" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
     _structured_output_logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
@@ -199,17 +192,14 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 'sglang is not installed. Please install it using `pip install "sglang[all]"`.'
             ) from ie
 
-        self._runtime = Runtime(
+        self._model = Runtime(
             model_path=self.model,
-            ldtype=self.dtype,
+            dtype=self.dtype,
             trust_remote_code=self.trust_remote_code,
             quantization=self.quantization,
-            revision=self.revision,
-            tokenizer=self.tokenizer,
+            tokenizer_path=self.tokenizer,
             tokenizer_mode=self.tokenizer_mode,
-            tokenizer_revision=self.tokenizer_revision,
             skip_tokenizer_init=self.skip_tokenizer_init,
-            seed=self.seed,
             **self.extra_kwargs,
         )
         self._tokenizer = self._model.get_tokenizer()  # type: ignore
@@ -223,8 +213,8 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     def unload(self) -> None:
         """Unloads the `sglang` model."""
-        self._runtime.shutdown()
-        self._runtime = None  # type: ignore
+        self._model.shutdown()
+        self._model = None  # type: ignore
         self._tokenizer = None  # type: ignore
         CudaDevicePlacementMixin.unload(self)
         super().unload()
@@ -315,7 +305,6 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         min_p: float = 0.0,
         stop: Optional[List[str]] = None,
         stop_token_ids: Optional[List[int]] = None,
-        include_stop_str_in_output: bool = False,
         logits_processors: Optional[LogitsProcessors] = None,
         extra_sampling_params: Optional[Dict[str, Any]] = None,
     ) -> List[GenerateOutput]:
@@ -341,8 +330,6 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 Defaults to `None`.
             stop_token_ids: a list of token ids that will be used to stop the generation
                 when found. Defaults to `None`.
-            include_stop_str_in_output: whether to include the stop string in the output.
-                Defaults to `False`.
             logits_processors: a list of functions to process the logits before sampling.
                 Defaults to `None`.
             extra_sampling_params: dictionary with additional arguments to be passed to
@@ -351,7 +338,6 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        from sglang.srt.server import SamplingParams
 
         if not logits_processors:
             logits_processors = []
@@ -366,13 +352,10 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         else:
             # Simulate a batch without the structured output content
             prepared_batches = [([self.prepare_input(input) for input in inputs], None)]
-            sorted_indices = None
 
         # Case in which we have a single structured output for the dataset
         if self._structured_output_logits_processor:
             logits_processors.append(self._structured_output_logits_processor)
-
-        batched_outputs = []
 
         for prepared_inputs, structured_output in prepared_batches:
             if structured_output:
@@ -380,40 +363,26 @@ class SGLangLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                     self._prepare_structured_output(structured_output)
                 )
 
-            sampling_params = SamplingParams(  # type: ignore
-                n=num_generations,
-                presence_penalty=presence_penalty,
-                frequency_penalty=frequency_penalty,
-                repetition_penalty=repetition_penalty,
-                temperature=temperature,
-                top_p=top_p,
-                top_k=top_k,
-                min_p=min_p,
-                max_tokens=max_new_tokens,
-                stop=stop,
-                stop_token_ids=stop_token_ids,
-                include_stop_str_in_output=include_stop_str_in_output,
-                logits_processors=logits_processors,
+            sampling_params = {
+                "n": num_generations,
+                "presence_penalty": presence_penalty,
+                "frequency_penalty": frequency_penalty,
+                "repetition_penalty": repetition_penalty,
+                "temperature": temperature,
+                "top_p": top_p,
+                "top_k": top_k,
+                "min_p": min_p,
+                "max_new_tokens": max_new_tokens,
+                "stop": stop,
+                "stop_token_ids": stop_token_ids,
                 **extra_sampling_params,
-            )
+            }
 
             batch_outputs = self._model.generate(
                 prepared_inputs,
                 sampling_params,
-                use_tqdm=False,  # type: ignore
             )
-
-            batched_outputs += [
-                [output.text for output in outputs.outputs] for outputs in batch_outputs
-            ]
-
-        # If logits_processor is set, we need to sort the outputs back to the original order
-        # (would be needed only if we have multiple structured outputs in the dataset)
-        if sorted_indices is not None:
-            batched_outputs = _sort_batches(
-                batched_outputs, sorted_indices, num_generations=num_generations
-            )
-        return batched_outputs
+        return batch_outputs
 
     def _prepare_structured_output(
         self, structured_output: Optional[OutlinesStructuredOutputType] = None
