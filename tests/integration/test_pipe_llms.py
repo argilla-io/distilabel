@@ -15,9 +15,9 @@
 import os
 from typing import TYPE_CHECKING, Dict, List
 
-from distilabel.llms.huggingface.transformers import TransformersLLM
-from distilabel.llms.openai import OpenAILLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.models.llms.huggingface.transformers import TransformersLLM
+from distilabel.models.llms.openai import OpenAILLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.huggingface import LoadDataFromHub

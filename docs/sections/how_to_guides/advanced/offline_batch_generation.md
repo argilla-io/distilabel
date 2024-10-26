@@ -14,7 +14,7 @@ The [offline batch generation](../basic/llm/index.md#offline-batch-generation) i
 ## Example pipeline using `OpenAILLM` with offline batch generation
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models import OpenAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration

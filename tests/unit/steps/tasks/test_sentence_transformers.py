@@ -26,27 +26,6 @@ from distilabel.steps.tasks.sentence_transformers import (
 )
 from tests.unit.conftest import DummyAsyncLLM
 
-# from distilabel.llms.base import LLM, AsyncLLM
-
-# if TYPE_CHECKING:
-#     from distilabel.llms.typing import GenerateOutput
-#     from distilabel.steps.tasks.typing import FormattedInput
-
-# # Defined here too, so that the serde still works
-# class DummyStructuredLLM(LLM):
-#     structured_output: Any = None
-#     def load(self) -> None:
-#         pass
-
-#     @property
-#     def model_name(self) -> str:
-#         return "test"
-
-#     def generate(
-#         self, input: "FormattedInput", num_generations: int = 1
-#     ) -> "GenerateOutput":
-#         return ['{ \n  "negative": "negative",\n  "positive": "positive"\n}' for _ in range(num_generations)]
-
 
 class TestGenerateSentencePair:
     @pytest.mark.parametrize(

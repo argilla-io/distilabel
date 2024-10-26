@@ -19,12 +19,12 @@ from urllib.request import urlretrieve
 
 import pytest
 
-from distilabel.llms.base import LLM, AsyncLLM
-from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
+from distilabel.models.llms.base import LLM, AsyncLLM
+from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import GenerateOutput
+    from distilabel.models.llms.typing import GenerateOutput
     from distilabel.steps.tasks.typing import ChatType, FormattedInput
 
 

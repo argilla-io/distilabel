@@ -44,13 +44,13 @@ hide:
     You can serve the LLM using a solution like TGI or vLLM, and then connect to it using an `AsyncLLM` client like `InferenceEndpointsLLM` or `OpenAILLM`. Please refer to [Serving LLMs guide](../how_to_guides/advanced/serving_an_llm_for_reuse.md) for more information.
 
 ??? faq "Can `distilabel` be used with [OpenAI Batch API](https://platform.openai.com/docs/guides/batch)?"
-    Yes, `distilabel` is integrated with OpenAI Batch API via [OpenAILLM][distilabel.llms.openai.OpenAILLM]. Check [LLMs - Offline Batch Generation](../how_to_guides/basic/llm/index.md#offline-batch-generation) for a small example on how to use it and [Advanced - Offline Batch Generation](../how_to_guides/advanced/offline_batch_generation.md) for a more detailed guide.
+    Yes, `distilabel` is integrated with OpenAI Batch API via [OpenAILLM][distilabel.models.llms.openai.OpenAILLM]. Check [LLMs - Offline Batch Generation](../how_to_guides/basic/llm/index.md#offline-batch-generation) for a small example on how to use it and [Advanced - Offline Batch Generation](../how_to_guides/advanced/offline_batch_generation.md) for a more detailed guide.
 
-??? faq "Prevent overloads on [Free Serverless Endpoints][distilabel.llms.huggingface.InferenceEndpointsLLM]"
-    When running a task using the [InferenceEndpointsLLM][distilabel.llms.huggingface.InferenceEndpointsLLM] with Free Serverless Endpoints, you may be facing some errors such as `Model is overloaded` if you let the batch size to the default (set at 50). To fix the issue, lower the value or even better set `input_batch_size=1` in your task. It may take a longer time to finish, but please remember this is a free service.
+??? faq "Prevent overloads on [Free Serverless Endpoints][distilabel.models.llms.huggingface.InferenceEndpointsLLM]"
+    When running a task using the [InferenceEndpointsLLM][distilabel.models.llms.huggingface.InferenceEndpointsLLM] with Free Serverless Endpoints, you may be facing some errors such as `Model is overloaded` if you let the batch size to the default (set at 50). To fix the issue, lower the value or even better set `input_batch_size=1` in your task. It may take a longer time to finish, but please remember this is a free service.
 
     ```python
-    from distilabel.llms.huggingface import InferenceEndpointsLLM
+    from distilabel.models import InferenceEndpointsLLM
     from distilabel.steps import TextGeneration
 
     TextGeneration(
