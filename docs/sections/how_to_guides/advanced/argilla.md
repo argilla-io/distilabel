@@ -23,7 +23,7 @@ The dataset will be pushed with the following configuration:
     The [`TextGenerationToArgilla`][distilabel.steps.TextGenerationToArgilla] step will only work as is if the [`Pipeline`][distilabel.pipeline.Pipeline] contains one or multiple [`TextGeneration`][distilabel.steps.tasks.TextGeneration] steps, or if the columns `instruction` and `generation` are available within the batch data. Otherwise, the variable `input_mappings` will need to be set so that either both or one of `instruction` and `generation` are mapped to one of the existing columns in the batch data.
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models import OpenAILLM
 from distilabel.steps import LoadDataFromDicts, TextGenerationToArgilla
 from distilabel.steps.tasks import TextGeneration
 
@@ -74,7 +74,7 @@ The dataset will be pushed with the following configuration:
     Additionally, if the [`Pipeline`][distilabel.pipeline.Pipeline] contains an [`UltraFeedback`][distilabel.steps.tasks.UltraFeedback] step, the `ratings` and `rationales` will also be available and be automatically injected as suggestions to the existing dataset.
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models import OpenAILLM
 from distilabel.steps import LoadDataFromDicts, PreferenceToArgilla
 from distilabel.steps.tasks import TextGeneration
 

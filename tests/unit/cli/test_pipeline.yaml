@@ -40,7 +40,7 @@ pipeline:
           model: gpt-3.5-turbo
           base_url: https://api.openai.com/v1
           type_info:
-            module: distilabel.llms.openai
+            module: distilabel.models.llms.openai
             name: OpenAILLM
         group_generations: false
         num_generations: 3
@@ -94,7 +94,7 @@ pipeline:
           model: gpt-3.5-turbo
           base_url: https://api.openai.com/v1
           type_info:
-            module: distilabel.llms.openai
+            module: distilabel.models.llms.openai
             name: OpenAILLM
         group_generations: true
         num_generations: 3

@@ -118,7 +118,7 @@ pip install "distilabel[hf-inference-endpoints]" --upgrade
 Then run:
 
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration

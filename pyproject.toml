@@ -104,11 +104,7 @@ text-clustering = [
 ]
 sglang = [
     "sglang >= 0.3.2",
-    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp38-cp38-linux_x86_64.whl ; python_version == '3.8'",
-    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp39-cp39-linux_x86_64.whl ; python_version == '3.9'",
-    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp310-cp310-linux_x86_64.whl ; python_version == '3.10'",
-    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp311-cp311-linux_x86_64.whl ; python_version == '3.11'",
-    "flashinfer @ https://flashinfer.ai/whl/cu121/torch2.4/flashinfer-1.1.0-cp312-cp312-linux_x86_64.whl ; python_version == '3.12'",
+    "flashinfer @https://github.com/flashinfer-ai/flashinfer/releases/download/v0.1.3/flashinfer-0.1.3+cu121torch2.4-cp310-cp310-linux_x86_64.whl#sha256=dc9ed41c47e65abc368b16b27cedf9391ba51a6bebdea3485808321958cc36c2",
 ]
 
 # minhash
@@ -121,6 +117,9 @@ Source = "https://github.com/argilla/distilabel"
 
 [tool.hatch.version]
 path = "src/distilabel/__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.ruff]
 line-length = 88
