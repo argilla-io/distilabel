@@ -63,54 +63,37 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
 
         # You can follow along this example downloading the following model running the following
         # command in the terminal, that will download the model to the `Downloads` folder:
-        # curl -L -o ~/Downloads/All-MiniLM-L6-v2-Embedding-GGUF https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/blob/main/all-MiniLM-L6-v2-Q2_K.gguf
+        # curl -L -o ~/Downloads/all-MiniLM-L6-v2-Q2_K.gguf https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/all-MiniLM-L6-v2-Q2_K.gguf
 
         model_path = "Downloads/"
         model = "all-MiniLM-L6-v2-Q2_K.gguf"
-        embeddings = LlamaCppEmbeddings(model=model,model_path=str(Path.home() / model_path))
+        embeddings = LlamaCppEmbeddings(
+            model=model,
+            model_path=str(Path.home() / model_path),
+        )
 
         embeddings.load()
 
         results = embeddings.encode(inputs=["distilabel is awesome!", "and Argilla!"])
-        # [
-        #   [-0.05447685346007347, -0.01623094454407692, ...],
-        #   [4.4889533455716446e-05, 0.044016145169734955, ...],
-        # ]
+        print(results)
+        embeddings.unload()
         ```
 
-        Generate sentence embeddings using a HuggingFace Hub public model:
+        Generate sentence embeddings using a HuggingFace Hub model:
 
         ```python
         from distilabel.models.embeddings import LlamaCppEmbeddings
+        # You need to set environment variable to download private model to the local machine
 
         repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
-        model = "all-MiniLM-L6-v2-Q5_K_M.gguf"
+        model = "all-MiniLM-L6-v2-Q2_K.gguf"
         embeddings = LlamaCppEmbeddings(model=model,repo_id=repo_id)
 
         embeddings.load()
 
         results = embeddings.encode(inputs=["distilabel is awesome!", "and Argilla!"])
-        # [
-        #   [-0.05447685346007347, -0.01623094454407692, ...],
-        #   [4.4889533455716446e-05, 0.044016145169734955, ...],
-        # ]
-        ```
-
-        Generate sentence embeddings using a HuggingFace Hub private model:
-
-        ```python
-        from distilabel.models.embeddings import LlamaCppEmbeddings
-
-        # You need to set environment variable to download private model to the local machine
-        os.environ["HF_TOKEN"] = "hf_..."
-
-        repo_id = "private_repo_id"
-        model = "model"
-        embeddings = LlamaCppEmbeddings(model=model,repo_id=repo_id)
-
-        embeddings.load()
-
-        results = embeddings.encode(inputs=["distilabel is awesome!", "and Argilla!"])
+        print(results)
+        embeddings.unload()
         # [
         #   [-0.05447685346007347, -0.01623094454407692, ...],
         #   [4.4889533455716446e-05, 0.044016145169734955, ...],
@@ -125,15 +108,22 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
 
         # You can follow along this example downloading the following model running the following
         # command in the terminal, that will download the model to the `Downloads` folder:
-        # curl -L -o ~/Downloads/All-MiniLM-L6-v2-Embedding-GGUF https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/blob/main/all-MiniLM-L6-v2-Q2_K.gguf
+        # curl -L -o ~/Downloads/all-MiniLM-L6-v2-Q2_K.gguf https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/all-MiniLM-L6-v2-Q2_K.gguf
 
         model_path = "Downloads/"
         model = "all-MiniLM-L6-v2-Q2_K.gguf"
-        embeddings = LlamaCppEmbeddings(model=model,model_path=str(Path.home() / model_path), n_gpu_layers=0)
+        embeddings = LlamaCppEmbeddings(
+            model=model,
+            model_path=str(Path.home() / model_path),
+            n_gpu_layers=0,
+            disable_cuda_device_placement=True,
+        )
 
         embeddings.load()
 
         results = embeddings.encode(inputs=["distilabel is awesome!", "and Argilla!"])
+        print(results)
+        embeddings.unload()
         # [
         #   [-0.05447685346007347, -0.01623094454407692, ...],
         #   [4.4889533455716446e-05, 0.044016145169734955, ...],
@@ -227,6 +217,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
     def unload(self) -> None:
         """Unloads the `gguf` model."""
         CudaDevicePlacementMixin.unload(self)
+        self._model.close()
         super().unload()
 
     @property
