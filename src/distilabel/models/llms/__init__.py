@@ -25,6 +25,7 @@ from distilabel.models.llms.mistral import MistralLLM
 from distilabel.models.llms.moa import MixtureOfAgentsLLM
 from distilabel.models.llms.ollama import OllamaLLM
 from distilabel.models.llms.openai import OpenAILLM
+from distilabel.models.llms.sglang import SGLangLLM
 from distilabel.models.llms.together import TogetherLLM
 from distilabel.models.llms.typing import GenerateOutput, HiddenState
 from distilabel.models.llms.vertexai import VertexAILLM
@@ -54,4 +55,5 @@ __all__ = [
     "VertexAILLM",
     "ClientvLLM",
     "vLLM",
+    "SGLangLLM",
 ]
