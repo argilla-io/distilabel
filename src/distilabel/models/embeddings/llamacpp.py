@@ -59,7 +59,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
 
         ```python
         from pathlib import Path
-        from distilabel.embeddings import LlamaCppEmbeddings
+        from distilabel.models.embeddings import LlamaCppEmbeddings
 
         # You can follow along this example downloading the following model running the following
         # command in the terminal, that will download the model to the `Downloads` folder:
@@ -81,7 +81,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         Generate sentence embeddings using a HuggingFace Hub public model:
 
         ```python
-        from distilabel.embeddings import LlamaCppEmbeddings
+        from distilabel.models.embeddings import LlamaCppEmbeddings
 
         repo_id = "second-state/All-MiniLM-L6-v2-Embedding-GGUF"
         model = "all-MiniLM-L6-v2-Q5_K_M.gguf"
@@ -99,7 +99,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         Generate sentence embeddings using a HuggingFace Hub private model:
 
         ```python
-        from distilabel.embeddings import LlamaCppEmbeddings
+        from distilabel.models.embeddings import LlamaCppEmbeddings
 
         # You need to set environment variable to download private model to the local machine
         os.environ["HF_TOKEN"] = "hf_..."
@@ -121,7 +121,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
 
         ```python
         from pathlib import Path
-        from distilabel.embeddings import LlamaCppEmbeddings
+        from distilabel.models.embeddings import LlamaCppEmbeddings
 
         # You can follow along this example downloading the following model running the following
         # command in the terminal, that will download the model to the `Downloads` folder:
