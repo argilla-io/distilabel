@@ -51,7 +51,7 @@ A client for the `vLLM` server implementing the OpenAI API specification.
 
 #### Generate text
 ```python
-from distilabel.llms import ClientvLLM
+from distilabel.models.llms import ClientvLLM
 
 llm = ClientvLLM(
     base_url="http://localhost:8000/v1",

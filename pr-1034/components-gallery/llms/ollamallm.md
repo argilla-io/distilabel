@@ -41,7 +41,7 @@ Ollama LLM implementation running the Async API client.
 
 #### Generate text
 ```python
-from distilabel.llms import OllamaLLM
+from distilabel.models.llms import OllamaLLM
 
 llm = OllamaLLM(model="llama3")
 

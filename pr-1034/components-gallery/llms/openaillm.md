@@ -49,7 +49,7 @@ OpenAI LLM implementation running the async API client.
 
 #### Generate text
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models.llms import OpenAILLM
 
 llm = OpenAILLM(model="gpt-4-turbo", api_key="api.key")
 
@@ -60,7 +60,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 
 #### Generate text from a custom endpoint following the OpenAI API
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models.llms import OpenAILLM
 
 llm = OpenAILLM(
     model="prometheus-eval/prometheus-7b-v2.0",
@@ -75,7 +75,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 #### Generate structured data
 ```python
 from pydantic import BaseModel
-from distilabel.llms import OpenAILLM
+from distilabel.models.llms import OpenAILLM
 
 class User(BaseModel):
     name: str
@@ -95,7 +95,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a use
 
 #### Generate with Batch API (offline batch generation)
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models.llms import OpenAILLM
 
 load = llm = OpenAILLM(
     model="gpt-3.5-turbo",

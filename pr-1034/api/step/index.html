@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.40">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -4262,7 +4262,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../llm/" class="md-nav__link ">
+            <a href="../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4293,7 +4293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../llm/llm_gallery/" class="md-nav__link">
+      <a href="../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4342,7 +4342,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../embedding/" class="md-nav__link ">
+            <a href="../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4373,7 +4373,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5148,6 +5148,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -5237,6 +5242,11 @@ logic before the <code>process</code> method is called. For example, to load an 
 connection to a database, etc.</p>
 <p>Finally, the <code>Step</code> class inherits from <code>pydantic.BaseModel</code>, so attributes can be easily
 defined, validated, serialized and included in the <code>__init__</code> method of the step.</p>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/base.py</code></summary>
@@ -6555,7 +6565,9 @@ the output of this step will be the input of the other step.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>steps</code></td>
+            <td>
+                <code>steps</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="#distilabel.steps.base._Step">_Step</a></code>
             </td>
@@ -6569,7 +6581,9 @@ the output of this step will be the input of the other step.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>routing_batch_function</code></td>
+            <td>
+                <code>routing_batch_function</code>
+            </td>
             <td>
                   <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction" href="../pipeline/routing_batch_function/#distilabel.pipeline.routing_batch_function.RoutingBatchFunction">RoutingBatchFunction</a>]</code>
             </td>
@@ -6649,6 +6663,11 @@ Defaults to <code>None</code>.</p>
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__rshift__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
 
 <a href="#distilabel.steps.base._Step.__rshift__" class="headerlink" title="Permanent link">&para;</a></h5>
+          <div class="doc-overloads">
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__rshift__</span><span class="p">(</span><span class="nf">other</span><span class="p">:</span> <span class="n">RoutingBatchFunction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RoutingBatchFunction</span>
+</span></code></pre></div><div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__rshift__</span><span class="p">(</span><span class="nf">other</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DownstreamConnectableSteps</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DownstreamConnectableSteps</span><span class="p">]</span>
+</span></code></pre></div><div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__rshift__</span><span class="p">(</span><span class="nf">other</span><span class="p">:</span> <span class="n">DownstreamConnectable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DownstreamConnectable</span>
+</span></code></pre></div>          </div>
 
 
     <div class="doc doc-contents ">
@@ -6668,7 +6687,9 @@ Defaults to <code>None</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>other</code></td>
+            <td>
+                <code>other</code>
+            </td>
             <td>
                   <code><span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.DownstreamConnectable" href="../pipeline/typing/#distilabel.pipeline.typing.DownstreamConnectable">DownstreamConnectable</a>, <a class="autorefs autorefs-internal" title="distilabel.pipeline.routing_batch_function.RoutingBatchFunction" href="../pipeline/routing_batch_function/#distilabel.pipeline.routing_batch_function.RoutingBatchFunction">RoutingBatchFunction</a>, <span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.DownstreamConnectableSteps" href="../pipeline/typing/#distilabel.pipeline.typing.DownstreamConnectableSteps">DownstreamConnectableSteps</a>]]</code>
             </td>
@@ -6841,7 +6862,9 @@ to a single step, as the list doesn't have the <strong>rshift</strong> operator.
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>other</code></td>
+            <td>
+                <code>other</code>
+            </td>
             <td>
                   <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.UpstreamConnectableSteps" href="../pipeline/typing/#distilabel.pipeline.typing.UpstreamConnectableSteps">UpstreamConnectableSteps</a>]</code>
             </td>
@@ -7562,7 +7585,9 @@ by the <code>Pipeline</code> once the cache location is known.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>path</code></td>
+            <td>
+                <code>path</code>
+            </td>
             <td>
                   <code><span title="pathlib.Path">Path</span></code>
             </td>
@@ -7630,7 +7655,9 @@ saved.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>name</code></td>
+            <td>
+                <code>name</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -7644,7 +7671,9 @@ saved.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>write_function</code></td>
+            <td>
+                <code>write_function</code>
+            </td>
             <td>
                   <code><span title="typing.Callable">Callable</span>[[<span title="pathlib.Path">Path</span>], None]</code>
             </td>
@@ -7659,7 +7688,9 @@ be saved.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>metadata</code></td>
+            <td>
+                <code>metadata</code>
+            </td>
             <td>
                   <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
             </td>
@@ -7860,6 +7891,11 @@ the step. Defaults to <code>50</code>.</p>
     by the step. Defaults to <code>50</code>.</li>
 </ul>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/base.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-614">614</a></span>
@@ -8179,7 +8215,9 @@ output rows.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
+            <td>
+                <code>*inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -8556,7 +8594,7 @@ should be used to run the processing logic of the step.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

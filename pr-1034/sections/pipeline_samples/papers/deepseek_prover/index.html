@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.40">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -4371,7 +4371,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4402,7 +4402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4448,7 +4448,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4479,7 +4479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5320,7 +5320,7 @@
 </span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">PrivateAttr</span>
 </span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">override</span>
 </span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>
-</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks.base</span> <span class="kn">import</span> <span class="n">Task</span>
@@ -5367,7 +5367,7 @@
 </span><span id="__span-6-68"><a id="__codelineno-6-68" name="__codelineno-6-68" href="#__codelineno-6-68"></a>
 </span><span id="__span-6-69"><a id="__codelineno-6-69" name="__codelineno-6-69" href="#__codelineno-6-69"></a><span class="sd">        ```python</span>
 </span><span id="__span-6-70"><a id="__codelineno-6-70" name="__codelineno-6-70" href="#__codelineno-6-70"></a><span class="sd">        from distilabel.steps.tasks import DeepSeekProverAutoFormalization</span>
-</span><span id="__span-6-71"><a id="__codelineno-6-71" name="__codelineno-6-71" href="#__codelineno-6-71"></a><span class="sd">        from distilabel.llms.huggingface import InferenceEndpointsLLM</span>
+</span><span id="__span-6-71"><a id="__codelineno-6-71" name="__codelineno-6-71" href="#__codelineno-6-71"></a><span class="sd">        from distilabel.models import InferenceEndpointsLLM</span>
 </span><span id="__span-6-72"><a id="__codelineno-6-72" name="__codelineno-6-72" href="#__codelineno-6-72"></a>
 </span><span id="__span-6-73"><a id="__codelineno-6-73" name="__codelineno-6-73" href="#__codelineno-6-73"></a><span class="sd">        # Consider this as a placeholder for your actual LLM.</span>
 </span><span id="__span-6-74"><a id="__codelineno-6-74" name="__codelineno-6-74" href="#__codelineno-6-74"></a><span class="sd">        prover_autoformal = DeepSeekProverAutoFormalization(</span>
@@ -5403,7 +5403,7 @@
 </span><span id="__span-6-104"><a id="__codelineno-6-104" name="__codelineno-6-104" href="#__codelineno-6-104"></a>
 </span><span id="__span-6-105"><a id="__codelineno-6-105" name="__codelineno-6-105" href="#__codelineno-6-105"></a><span class="sd">        ```python</span>
 </span><span id="__span-6-106"><a id="__codelineno-6-106" name="__codelineno-6-106" href="#__codelineno-6-106"></a><span class="sd">        from distilabel.steps.tasks import DeepSeekProverAutoFormalization</span>
-</span><span id="__span-6-107"><a id="__codelineno-6-107" name="__codelineno-6-107" href="#__codelineno-6-107"></a><span class="sd">        from distilabel.llms.huggingface import InferenceEndpointsLLM</span>
+</span><span id="__span-6-107"><a id="__codelineno-6-107" name="__codelineno-6-107" href="#__codelineno-6-107"></a><span class="sd">        from distilabel.models import InferenceEndpointsLLM</span>
 </span><span id="__span-6-108"><a id="__codelineno-6-108" name="__codelineno-6-108" href="#__codelineno-6-108"></a>
 </span><span id="__span-6-109"><a id="__codelineno-6-109" name="__codelineno-6-109" href="#__codelineno-6-109"></a><span class="sd">        # You can gain inspiration from the following examples to create your own few-shot examples:</span>
 </span><span id="__span-6-110"><a id="__codelineno-6-110" name="__codelineno-6-110" href="#__codelineno-6-110"></a><span class="sd">        # https://github.com/yangky11/miniF2F-lean4/blob/main/MiniF2F/Valid.lean</span>
@@ -5545,7 +5545,7 @@
 </span><span id="__span-6-246"><a id="__codelineno-6-246" name="__codelineno-6-246" href="#__codelineno-6-246"></a>
 </span><span id="__span-6-247"><a id="__codelineno-6-247" name="__codelineno-6-247" href="#__codelineno-6-247"></a><span class="sd">        ```python</span>
 </span><span id="__span-6-248"><a id="__codelineno-6-248" name="__codelineno-6-248" href="#__codelineno-6-248"></a><span class="sd">        from distilabel.steps.tasks import DeepSeekProverScorer</span>
-</span><span id="__span-6-249"><a id="__codelineno-6-249" name="__codelineno-6-249" href="#__codelineno-6-249"></a><span class="sd">        from distilabel.llms.huggingface import InferenceEndpointsLLM</span>
+</span><span id="__span-6-249"><a id="__codelineno-6-249" name="__codelineno-6-249" href="#__codelineno-6-249"></a><span class="sd">        from distilabel.models import InferenceEndpointsLLM</span>
 </span><span id="__span-6-250"><a id="__codelineno-6-250" name="__codelineno-6-250" href="#__codelineno-6-250"></a>
 </span><span id="__span-6-251"><a id="__codelineno-6-251" name="__codelineno-6-251" href="#__codelineno-6-251"></a><span class="sd">        # Consider this as a placeholder for your actual LLM.</span>
 </span><span id="__span-6-252"><a id="__codelineno-6-252" name="__codelineno-6-252" href="#__codelineno-6-252"></a><span class="sd">        prover_scorer = DeepSeekProverAutoFormalization(</span>
@@ -5998,7 +5998,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

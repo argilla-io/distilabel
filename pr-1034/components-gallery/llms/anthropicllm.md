@@ -55,7 +55,7 @@ Anthropic LLM implementation running the Async API client.
 
 #### Generate text
 ```python
-from distilabel.llms import AnthropicLLM
+from distilabel.models.llms import AnthropicLLM
 
 llm = AnthropicLLM(model="claude-3-opus-20240229", api_key="api.key")
 
@@ -67,7 +67,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 #### Generate structured data
 ```python
 from pydantic import BaseModel
-from distilabel.llms import AnthropicLLM
+from distilabel.models.llms import AnthropicLLM
 
 class User(BaseModel):
     name: str

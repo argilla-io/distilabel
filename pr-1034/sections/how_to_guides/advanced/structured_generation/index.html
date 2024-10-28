@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.40">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -4350,7 +4350,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4381,7 +4381,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4427,7 +4427,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4458,7 +4458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4999,10 +4999,10 @@
 
 
 <h1 id="structured-data-generation">Structured data generation<a class="headerlink" href="#structured-data-generation" title="Permanent link">&para;</a></h1>
-<p><code>Distilabel</code> has integrations with relevant libraries to generate structured text i.e. to guide the <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.LLM"><code>LLM</code></a> towards the generation of structured outputs following a JSON schema, a regex, etc.</p>
+<p><code>Distilabel</code> has integrations with relevant libraries to generate structured text i.e. to guide the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> towards the generation of structured outputs following a JSON schema, a regex, etc.</p>
 <h2 id="outlines">Outlines<a class="headerlink" href="#outlines" title="Permanent link">&para;</a></h2>
-<p><code>Distilabel</code> integrates <a href="https://outlines-dev.github.io/outlines/welcome/"><code>outlines</code></a> within some <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.LLM"><code>LLM</code></a> subclasses. At the moment, the following LLMs integrated with <code>outlines</code> are supported in <code>distilabel</code>: <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.TransformersLLM"><code>TransformersLLM</code></a>, <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.vLLM"><code>vLLM</code></a> or <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a>, so that anyone can generate structured outputs in the form of <em>JSON</em> or a parseable <em>regex</em>.</p>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.LLM"><code>LLM</code></a> has an argument named <code>structured_output</code><sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> that determines how we can generate structured outputs with it, let's see an example using <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a>.</p>
+<p><code>Distilabel</code> integrates <a href="https://outlines-dev.github.io/outlines/welcome/"><code>outlines</code></a> within some <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> subclasses. At the moment, the following LLMs integrated with <code>outlines</code> are supported in <code>distilabel</code>: <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.TransformersLLM"><code>TransformersLLM</code></a>, <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.vLLM"><code>vLLM</code></a> or <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a>, so that anyone can generate structured outputs in the form of <em>JSON</em> or a parseable <em>regex</em>.</p>
+<p>The <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> has an argument named <code>structured_output</code><sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> that determines how we can generate structured outputs with it, let's see an example using <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For <code>outlines</code> integration to work you may need to install the corresponding dependencies:</p>
@@ -5024,7 +5024,7 @@ of the <code>structured_output</code> dict variable.</p>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
 </span></code></pre></div>
 <p>And then we provide that schema to the <code>structured_output</code> argument of the LLM.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">LlamaCppLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">LlamaCppLLM</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">LlamaCppLLM</span><span class="p">(</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./openhermes-2.5-mistral-7b.Q4_K_M.gguf&quot;</span>  <span class="c1"># (1)</span>
@@ -5091,7 +5091,7 @@ of the <code>structured_output</code> dict variable.</p>
 <a href="../../../pipeline_samples/examples/llama_cpp_with_outlines/"><code>examples/structured_generation_with_outlines.py</code></a></p>
 </div>
 <h2 id="instructor">Instructor<a class="headerlink" href="#instructor" title="Permanent link">&para;</a></h2>
-<p>For other LLM providers behind APIs, there's no direct way of accessing the internal logit processor like <code>outlines</code> does, but thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> we can generate structured output from LLM providers based on <code>pydantic.BaseModel</code> objects. We have integrated <code>instructor</code> to deal with the <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.AsyncLLM"><code>AsyncLLM</code></a>.</p>
+<p>For other LLM providers behind APIs, there's no direct way of accessing the internal logit processor like <code>outlines</code> does, but thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> we can generate structured output from LLM providers based on <code>pydantic.BaseModel</code> objects. We have integrated <code>instructor</code> to deal with the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.AsyncLLM"><code>AsyncLLM</code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For <code>instructor</code> integration to work you may need to install the corresponding dependencies:</p>
@@ -5116,7 +5116,7 @@ of the <code>structured_output</code> dict variable.</p>
 <p class="admonition-title">Note</p>
 <p>In this example we are using <em>Meta Llama 3.1 8B Instruct</em>, keep in mind not all the models support structured outputs.</p>
 </div>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">MistralLLM</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
@@ -5153,7 +5153,7 @@ of the <code>structured_output</code> dict variable.</p>
 </div>
 <p>Contrary to what we have via <code>outlines</code>, JSON mode will not guarantee the output matches any specific schema, only that it is valid and parses without errors. More information can be found in the OpenAI documentation.</p>
 <p>Other than the reference to generating JSON, to ensure the model generates parseable JSON we can pass the argument <code>response_format="json"</code><sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt4-turbo&quot;</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api.key&quot;</span><span class="p">)</span>
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">response_format</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
 </span></code></pre></div>
@@ -5378,7 +5378,7 @@ of the <code>structured_output</code> dict variable.</p>
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

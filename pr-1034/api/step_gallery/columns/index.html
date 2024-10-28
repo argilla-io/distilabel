@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.40">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -4559,7 +4559,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../llm/" class="md-nav__link ">
+            <a href="../../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4590,7 +4590,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llm/llm_gallery/" class="md-nav__link">
+      <a href="../../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4639,7 +4639,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../embedding/" class="md-nav__link ">
+            <a href="../../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4670,7 +4670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5438,6 +5438,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -5539,6 +5544,11 @@ will be the same as the column name.</p>
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1"># &gt;&gt;&gt; result</span>
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1"># [{&#39;instruction&#39;: &#39;instruction 1&#39;, &#39;generation&#39;: &#39;generation 1&#39;}, {&#39;instruction&#39;: &#39;instruction 1&#39;, &#39;generation&#39;: &#39;generation 2&#39;}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/expand.py</code></summary>
@@ -5840,7 +5850,9 @@ will be the same as the column name.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>value</code></td>
+            <td>
+                <code>value</code>
+            </td>
             <td>
                   <code><span title="typing.Union">Union</span>[<span title="typing.Dict">Dict</span>[str, str], <span title="typing.List">List</span>[str]]</code>
             </td>
@@ -5942,7 +5954,9 @@ will be the same as the column name.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td>
+                <code>inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -6036,6 +6050,11 @@ will be the same as the column name.</p>
 <a href="#distilabel.steps.columns.keep" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents first">
+
+
+
+
+
 
 
 
@@ -6141,6 +6160,11 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># &gt;&gt;&gt; result</span>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># [{&#39;instruction&#39;: &quot;What&#39;s the brightest color?&quot;, &#39;generation&#39;: &#39;white&#39;}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/keep.py</code></summary>
@@ -6372,7 +6396,9 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
+            <td>
+                <code>*inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -6476,6 +6502,11 @@ the <code>PushToHub</code> step or a <code>distilabel.Distiset</code> via the <c
 <a href="#distilabel.steps.columns.merge" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents first">
+
+
+
+
+
 
 
 
@@ -6596,6 +6627,11 @@ further processing.</p>
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># &gt;&gt;&gt; result</span>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1"># [{&#39;queries&#39;: [&#39;How are you?&#39;, &quot;What&#39;s up?&quot;, &#39;Everything ok?&#39;]}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/merge.py</code></summary>
@@ -6798,6 +6834,11 @@ further processing.</p>
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -6930,6 +6971,11 @@ result = next(
 #[{&#39;generations&#39;: [&#39;AI generated text&#39;, &#39;Other generated text&#39;], &#39;generation_models&#39;: [&#39;my_model&#39;]}]
 ```
 </code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/group.py</code></summary>
@@ -7218,7 +7264,9 @@ result = next(
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
+            <td>
+                <code>*inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -7320,6 +7368,11 @@ result = next(
 
         <p><code>CombineColumns</code> is deprecated and will be removed in version 1.5.0, use <code>GroupColumns</code> instead.</p>
 
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/group.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-130">130</a></span>
@@ -7387,6 +7440,11 @@ result = next(
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -7423,7 +7481,9 @@ result = next(
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*output_dicts</code></td>
+            <td>
+                <code>*output_dicts</code>
+            </td>
             <td>
                   <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
             </td>
@@ -7547,7 +7607,9 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td>
+                <code>inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -7561,7 +7623,9 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>group_columns</code></td>
+            <td>
+                <code>group_columns</code>
+            </td>
             <td>
                   <code><span title="typing.List">List</span>[str]</code>
             </td>
@@ -7575,7 +7639,9 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>output_group_columns</code></td>
+            <td>
+                <code>output_group_columns</code>
+            </td>
             <td>
                   <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
             </td>
@@ -7773,7 +7839,9 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>row</code></td>
+            <td>
+                <code>row</code>
+            </td>
             <td>
                   <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
             </td>
@@ -7787,7 +7855,9 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>columns</code></td>
+            <td>
+                <code>columns</code>
+            </td>
             <td>
                   <code><span title="typing.List">List</span>[str]</code>
             </td>
@@ -7801,7 +7871,9 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>new_column</code></td>
+            <td>
+                <code>new_column</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -8088,7 +8160,7 @@ specified <code>group_columns</code>. If <code>group_columns</code> are provided
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.40">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -4274,7 +4274,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4305,7 +4305,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4351,7 +4351,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4382,7 +4382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4867,9 +4867,9 @@
 
 <h1 id="structured-generation-with-outlines">Structured generation with <code>outlines</code><a class="headerlink" href="#structured-generation-with-outlines" title="Permanent link">&para;</a></h1>
 <p>Generate RPG characters following a <code>pydantic.BaseModel</code> with <code>outlines</code> in <code>distilabel</code>.</p>
-<p>This script makes use of <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a> and the structured output capabilities thanks to <a href="https://outlines-dev.github.io/outlines/welcome/"><code>outlines</code></a> to generate RPG characters that adhere to a JSON schema.</p>
+<p>This script makes use of <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a> and the structured output capabilities thanks to <a href="https://outlines-dev.github.io/outlines/welcome/"><code>outlines</code></a> to generate RPG characters that adhere to a JSON schema.</p>
 <p><a class="glightbox" href="../../../../assets/pipelines/knowledge_graphs.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Arena Hard" src="../../../../assets/pipelines/knowledge_graphs.png" /></a></p>
-<p>It makes use of a local model which can be downloaded using curl (explained in the script itself), and can be exchanged with other <code>LLMs</code> like <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.vLLM"><code>vLLM</code></a>.</p>
+<p>It makes use of a local model which can be downloaded using curl (explained in the script itself), and can be exchanged with other <code>LLMs</code> like <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.vLLM"><code>vLLM</code></a>.</p>
 <details class="run">
 <summary>Run</summary>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">structured_generation_with_outlines</span><span class="o">.</span><span class="n">py</span>
@@ -4895,7 +4895,7 @@
 </span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">StringConstraints</span><span class="p">,</span> <span class="n">conint</span>
 </span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Annotated</span>
 </span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">LlamaCppLLM</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">LlamaCppLLM</span>
 </span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromDicts</span>
 </span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
@@ -5187,7 +5187,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

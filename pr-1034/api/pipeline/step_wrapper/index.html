@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.40">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -4260,7 +4260,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../llm/" class="md-nav__link ">
+            <a href="../../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4291,7 +4291,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llm/llm_gallery/" class="md-nav__link">
+      <a href="../../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4340,7 +4340,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../embedding/" class="md-nav__link ">
+            <a href="../../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4371,7 +4371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5124,6 +5124,11 @@ has been unloaded or has failed to load.</p>
       </tbody>
     </table>
 
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/pipeline/step_wrapper.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-28"> 28</a></span>
@@ -5696,7 +5701,9 @@ has been unloaded or has failed to load.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>step</code></td>
+            <td>
+                <code>step</code>
+            </td>
             <td>
                   <code><span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a>, <a class="autorefs autorefs-internal" title="distilabel.steps.base.GeneratorStep" href="../../step/generator_step/#distilabel.steps.base.GeneratorStep">GeneratorStep</a>]</code>
             </td>
@@ -5710,7 +5717,9 @@ has been unloaded or has failed to load.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>input_queue</code></td>
+            <td>
+                <code>input_queue</code>
+            </td>
             <td>
                   <code><span title="queue.Queue">Queue</span>[<span title="distilabel.pipeline.batch._Batch">_Batch</span>]</code>
             </td>
@@ -5724,7 +5733,9 @@ has been unloaded or has failed to load.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>output_queue</code></td>
+            <td>
+                <code>output_queue</code>
+            </td>
             <td>
                   <code><span title="queue.Queue">Queue</span>[<span title="distilabel.pipeline.batch._Batch">_Batch</span>]</code>
             </td>
@@ -5738,7 +5749,9 @@ has been unloaded or has failed to load.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>load_queue</code></td>
+            <td>
+                <code>load_queue</code>
+            </td>
             <td>
                   <code><span title="queue.Queue">Queue</span>[<span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="distilabel.pipeline.typing.StepLoadStatus" href="../typing/#distilabel.pipeline.typing.StepLoadStatus">StepLoadStatus</a>, None]]</code>
             </td>
@@ -5753,7 +5766,9 @@ loaded, has been unloaded or has failed to load.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>dry_run</code></td>
+            <td>
+                <code>dry_run</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -5767,7 +5782,9 @@ loaded, has been unloaded or has failed to load.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>ray_pipeline</code></td>
+            <td>
+                <code>ray_pipeline</code>
+            </td>
             <td>
                   <code>bool</code>
             </td>
@@ -6074,6 +6091,11 @@ waiting to receive a batch from the <code>input_queue</code> that will be handle
       </tbody>
     </table>
 
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/pipeline/step_wrapper.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-295">295</a></span>
@@ -6282,7 +6304,9 @@ waiting to receive a batch from the <code>input_queue</code> that will be handle
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>message</code></td>
+            <td>
+                <code>message</code>
+            </td>
             <td>
                   <code>str</code>
             </td>
@@ -6296,7 +6320,9 @@ waiting to receive a batch from the <code>input_queue</code> that will be handle
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>step</code></td>
+            <td>
+                <code>step</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base._Step" href="../../step/#distilabel.steps.base._Step">_Step</a></code>
             </td>
@@ -6310,7 +6336,9 @@ waiting to receive a batch from the <code>input_queue</code> that will be handle
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>subprocess_exception</code></td>
+            <td>
+                <code>subprocess_exception</code>
+            </td>
             <td>
                   <code><span title="typing.Optional">Optional</span>[Exception]</code>
             </td>
@@ -6589,7 +6617,7 @@ waiting to receive a batch from the <code>input_queue</code> that will be handle
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       

@@ -82,7 +82,7 @@ graph TD
 #### Rate generations from different LLMs based on the selected aspect
 ```python
 from distilabel.steps.tasks import UltraFeedback
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 ultrafeedback = UltraFeedback(
@@ -119,7 +119,7 @@ result = next(
 #### Rate generations from different LLMs based on the honesty, using the default structured output
 ```python
 from distilabel.steps.tasks import UltraFeedback
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 ultrafeedback = UltraFeedback(
@@ -154,7 +154,7 @@ result = next(
 #### Rate generations from different LLMs based on the helpfulness, using the default structured output
 ```python
 from distilabel.steps.tasks import UltraFeedback
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 ultrafeedback = UltraFeedback(

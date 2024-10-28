@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.40">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -4344,7 +4344,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4375,7 +4375,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/llm/llm_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4421,7 +4421,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../api/embedding/" class="md-nav__link ">
+            <a href="../../../../api/models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4452,7 +4452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../../../api/models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5004,22 +5004,22 @@
 <p>To replicate Self Alignment with Instruction Backtranslation one will need to install <code>distilabel</code> as it follows:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;distilabel[hf-inference-endpoints,openai]&gt;=1.0.0&quot;</span>
 </span></code></pre></div>
-<p>And since we will be using <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> (installed via the extra <code>hf-inference-endpoints</code>) we will need deploy those in advance either locally or in the Hugging Face Hub (alternatively also the serverless endpoints can be used, but most of the times the inference times are slower, and there's a limited quota to use those as those are free) and set both the <code>HF_TOKEN</code> (to use the <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a>) and the <code>OPENAI_API_KEY</code> environment variable value (to use the <a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.OpenAILLM"><code>OpenAILLM</code></a>).</p>
+<p>And since we will be using <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> (installed via the extra <code>hf-inference-endpoints</code>) we will need deploy those in advance either locally or in the Hugging Face Hub (alternatively also the serverless endpoints can be used, but most of the times the inference times are slower, and there's a limited quota to use those as those are free) and set both the <code>HF_TOKEN</code> (to use the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a>) and the <code>OPENAI_API_KEY</code> environment variable value (to use the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.OpenAILLM"><code>OpenAILLM</code></a>).</p>
 <h4 id="building-blocks">Building blocks<a class="headerlink" href="#building-blocks" title="Permanent link">&para;</a></h4>
 <ul>
 <li><a class="autorefs autorefs-internal" href="../../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a>: Generator Step to load a dataset from the Hugging Face Hub.</li>
 <li><a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a>: Task to generate responses for a given instruction using an LLM.<ul>
-<li><a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a>: LLM that runs a model from an Inference Endpoint in the Hugging Face Hub.</li>
+<li><a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a>: LLM that runs a model from an Inference Endpoint in the Hugging Face Hub.</li>
 </ul>
 </li>
 <li><a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.InstructionBacktranslation"><code>InstructionBacktranslation</code></a>: Task that generates a score and a reason for a response for a given instruction using the Self Alignment with Instruction Backtranslation prompt.<ul>
-<li><a class="autorefs autorefs-internal" href="../../../../api/llm/llm_gallery/#distilabel.llms.OpenAILLM"><code>OpenAILLM</code></a>: LLM that loads a model from OpenAI.</li>
+<li><a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.OpenAILLM"><code>OpenAILLM</code></a>: LLM that loads a model from OpenAI.</li>
 </ul>
 </li>
 </ul>
 <h4 id="code">Code<a class="headerlink" href="#code" title="Permanent link">&para;</a></h4>
 <p>As mentioned before, we will put the previously mentioned building blocks together to replicate Self Alignment with Instruction Backtranslation.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span><span class="p">,</span> <span class="n">KeepColumns</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">InstructionBacktranslation</span><span class="p">,</span> <span class="n">TextGeneration</span>
@@ -5285,7 +5285,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

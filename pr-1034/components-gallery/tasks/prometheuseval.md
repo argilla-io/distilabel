@@ -113,7 +113,7 @@ graph TD
 #### Critique and evaluate LLM generation quality using Prometheus 2_0
 ```python
 from distilabel.steps.tasks import PrometheusEval
-from distilabel.llms import vLLM
+from distilabel.models import vLLM
 
 # Consider this as a placeholder for your actual LLM.
 prometheus = PrometheusEval(
@@ -149,7 +149,7 @@ result = next(
 #### Critique for relative evaluation
 ```python
 from distilabel.steps.tasks import PrometheusEval
-from distilabel.llms import vLLM
+from distilabel.models import vLLM
 
 # Consider this as a placeholder for your actual LLM.
 prometheus = PrometheusEval(
@@ -185,7 +185,7 @@ result = next(
 #### Critique with a custom rubric
 ```python
 from distilabel.steps.tasks import PrometheusEval
-from distilabel.llms import vLLM
+from distilabel.models import vLLM
 
 # Consider this as a placeholder for your actual LLM.
 prometheus = PrometheusEval(
@@ -224,7 +224,7 @@ result = next(
 #### Critique using a reference answer
 ```python
 from distilabel.steps.tasks import PrometheusEval
-from distilabel.llms import vLLM
+from distilabel.models import vLLM
 
 # Consider this as a placeholder for your actual LLM.
 prometheus = PrometheusEval(

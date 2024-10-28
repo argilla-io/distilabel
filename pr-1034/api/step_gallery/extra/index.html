@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.40">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -4919,7 +4919,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../llm/" class="md-nav__link ">
+            <a href="../../models/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4950,7 +4950,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llm/llm_gallery/" class="md-nav__link">
+      <a href="../../models/llm/llm_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4999,7 +4999,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../embedding/" class="md-nav__link ">
+            <a href="../../models/embedding/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -5030,7 +5030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../embedding/embedding_gallery/" class="md-nav__link">
+      <a href="../../models/embedding/embedding_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6157,6 +6157,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -6306,6 +6311,11 @@ by <code>sklearn.metrics.pairwise_distances</code> for its metric parameter.</p>
 <li><code>n_jobs</code>: The number of parallel jobs to run.</li>
 </ul>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/clustering/dbscan.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33"> 33</a></span>
@@ -6724,7 +6734,7 @@ https://github.com/huggingface/text-clustering</p>
 
 <p><span class="doc-section-title">Examples:</span></p>
     <p>Generate labels for a set of texts using clustering:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">UMAP</span><span class="p">,</span> <span class="n">DBSCAN</span><span class="p">,</span> <span class="n">TextClustering</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
@@ -6761,6 +6771,11 @@ https://github.com/huggingface/text-clustering</p>
 </span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
 </span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="n">loader</span> <span class="o">&gt;&gt;</span> <span class="n">umap</span> <span class="o">&gt;&gt;</span> <span class="n">dbscan</span> <span class="o">&gt;&gt;</span> <span class="n">text_clustering</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/clustering/text_clustering.py</code></summary>
@@ -7056,7 +7071,8 @@ https://github.com/huggingface/text-clustering</p>
 <span class="normal"><a href="#__codelineno-0-323">323</a></span>
 <span class="normal"><a href="#__codelineno-0-324">324</a></span>
 <span class="normal"><a href="#__codelineno-0-325">325</a></span>
-<span class="normal"><a href="#__codelineno-0-326">326</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="k">class</span> <span class="nc">TextClustering</span><span class="p">(</span><span class="n">TextClassification</span><span class="p">,</span> <span class="n">GlobalTask</span><span class="p">):</span>
+<span class="normal"><a href="#__codelineno-0-326">326</a></span>
+<span class="normal"><a href="#__codelineno-0-327">327</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="k">class</span> <span class="nc">TextClustering</span><span class="p">(</span><span class="n">TextClassification</span><span class="p">,</span> <span class="n">GlobalTask</span><span class="p">):</span>
 </span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Task that clusters a set of texts and generates summary labels for each cluster.</span>
 </span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>
 </span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">    This is a `GlobalTask` that inherits from `TextClassification`, this means that all</span>
@@ -7099,7 +7115,7 @@ https://github.com/huggingface/text-clustering</p>
 </span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        Generate labels for a set of texts using clustering:</span>
 </span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a>
 </span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">        ```python</span>
-</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        from distilabel.llms import InferenceEndpointsLLM</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        from distilabel.models import InferenceEndpointsLLM</span>
 </span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="sd">        from distilabel.steps import UMAP, DBSCAN, TextClustering</span>
 </span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">        from distilabel.pipeline import Pipeline</span>
 </span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a>
@@ -7337,18 +7353,19 @@ https://github.com/huggingface/text-clustering</p>
 </span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📦 Processing internal batch of inputs </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
 </span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a>            <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">batched_inputs</span><span class="p">)</span>
 </span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a>            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">next</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>  <span class="c1"># Extract the elements from the generator</span>
-</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a>                <span class="n">cluster_summaries</span><span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;__LABEL&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span>
-</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a>
-</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a>        <span class="c1"># Assign the labels to each text</span>
-</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
-</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>            <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;summary_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
-</span><span id="__span-0-320"><a id="__codelineno-0-320" name="__codelineno-0-320"></a>                <span class="n">cluster_summaries</span><span class="p">[</span><span class="nb">input</span><span class="p">[</span><span class="s2">&quot;cluster_label&quot;</span><span class="p">]]</span>
-</span><span id="__span-0-321"><a id="__codelineno-0-321" name="__codelineno-0-321"></a>            <span class="p">)</span>
-</span><span id="__span-0-322"><a id="__codelineno-0-322" name="__codelineno-0-322"></a>
-</span><span id="__span-0-323"><a id="__codelineno-0-323" name="__codelineno-0-323"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">savefig</span><span class="p">:</span>
-</span><span id="__span-0-324"><a id="__codelineno-0-324" name="__codelineno-0-324"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_create_figure</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">label2docs</span><span class="p">,</span> <span class="n">cluster_summaries</span><span class="p">)</span>
-</span><span id="__span-0-325"><a id="__codelineno-0-325" name="__codelineno-0-325"></a>
-</span><span id="__span-0-326"><a id="__codelineno-0-326" name="__codelineno-0-326"></a>        <span class="k">yield</span> <span class="n">inputs</span>
+</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a>                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;INTERMEDIATE RESULTS&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a>                <span class="n">cluster_summaries</span><span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;__LABEL&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span>
+</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a>
+</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a>        <span class="c1"># Assign the labels to each text</span>
+</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+</span><span id="__span-0-320"><a id="__codelineno-0-320" name="__codelineno-0-320"></a>            <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;summary_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+</span><span id="__span-0-321"><a id="__codelineno-0-321" name="__codelineno-0-321"></a>                <span class="n">cluster_summaries</span><span class="p">[</span><span class="nb">input</span><span class="p">[</span><span class="s2">&quot;cluster_label&quot;</span><span class="p">]]</span>
+</span><span id="__span-0-322"><a id="__codelineno-0-322" name="__codelineno-0-322"></a>            <span class="p">)</span>
+</span><span id="__span-0-323"><a id="__codelineno-0-323" name="__codelineno-0-323"></a>
+</span><span id="__span-0-324"><a id="__codelineno-0-324" name="__codelineno-0-324"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">savefig</span><span class="p">:</span>
+</span><span id="__span-0-325"><a id="__codelineno-0-325" name="__codelineno-0-325"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_create_figure</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">label2docs</span><span class="p">,</span> <span class="n">cluster_summaries</span><span class="p">)</span>
+</span><span id="__span-0-326"><a id="__codelineno-0-326" name="__codelineno-0-326"></a>
+</span><span id="__span-0-327"><a id="__codelineno-0-327" name="__codelineno-0-327"></a>        <span class="k">yield</span> <span class="n">inputs</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 
@@ -7434,7 +7451,9 @@ UMAP + DBSCAN steps).</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>data</code></td>
+            <td>
+                <code>data</code>
+            </td>
             <td>
                   <code><span title="pandas.DataFrame">DataFrame</span></code>
             </td>
@@ -7449,7 +7468,9 @@ the projections and the label of each text respectively.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>cluster_centers</code></td>
+            <td>
+                <code>cluster_centers</code>
+            </td>
             <td>
                   <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Tuple">Tuple</span>[float, float]]</code>
             </td>
@@ -7464,7 +7485,9 @@ to help with the placement of the annotations.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>cluster_summaries</code></td>
+            <td>
+                <code>cluster_summaries</code>
+            </td>
             <td>
                   <code><span title="typing.Dict">Dict</span>[int, str]</code>
             </td>
@@ -7649,7 +7672,9 @@ to help with the placement of the annotations.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td>
+                <code>inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -7663,7 +7688,9 @@ to help with the placement of the annotations.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>label2docs</code></td>
+            <td>
+                <code>label2docs</code>
+            </td>
             <td>
                   <code><span title="typing.Dict">Dict</span>[int, <span title="typing.List">List</span>[str]]</code>
             </td>
@@ -7677,7 +7704,9 @@ to help with the placement of the annotations.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>cluster_summaries</code></td>
+            <td>
+                <code>cluster_summaries</code>
+            </td>
             <td>
                   <code><span title="typing.Dict">Dict</span>[int, str]</code>
             </td>
@@ -7814,7 +7843,9 @@ to help with the placement of the annotations.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td>
+                <code>inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -7828,7 +7859,9 @@ to help with the placement of the annotations.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>label2docs</code></td>
+            <td>
+                <code>label2docs</code>
+            </td>
             <td>
                   <code><span title="typing.Dict">Dict</span>[int, <span title="typing.List">List</span>[int]]</code>
             </td>
@@ -7843,7 +7876,9 @@ belong to that cluster.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>unique_labels</code></td>
+            <td>
+                <code>unique_labels</code>
+            </td>
             <td>
                   <code><span title="typing.List">List</span>[int]</code>
             </td>
@@ -8139,6 +8174,11 @@ Visit UMAP's documentation for more information. Defaults to <code>euclidean</co
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/clustering/umap.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33"> 33</a></span>
@@ -8504,6 +8544,11 @@ with Pipeline() as pipeline:
 ```
 </code></pre></div>
 
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/columns/combine.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-25">25</a></span>
@@ -8843,6 +8888,11 @@ distance. Defaults to <code>True</code>.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/deita.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27"> 27</a></span>
@@ -9388,7 +9438,9 @@ embeddings.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td>
+                <code>inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -9503,7 +9555,9 @@ the product of the instruction score and the response score.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td>
+                <code>inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -9668,7 +9722,9 @@ pairs and the nearest neighbor.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td>
+                <code>inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -9790,7 +9846,9 @@ pairs and the nearest neighbor.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>embeddings</code></td>
+            <td>
+                <code>embeddings</code>
+            </td>
             <td>
                   <code><span title="numpy.ndarray">ndarray</span></code>
             </td>
@@ -9886,7 +9944,9 @@ pairs and the nearest neighbor.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>embeddings</code></td>
+            <td>
+                <code>embeddings</code>
+            </td>
             <td>
                   <code><span title="numpy.array">array</span></code>
             </td>
@@ -9986,7 +10046,9 @@ pairs and the nearest neighbor.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>embeddings</code></td>
+            <td>
+                <code>embeddings</code>
+            </td>
             <td>
                   <code><span title="numpy.array">array</span></code>
             </td>
@@ -10100,7 +10162,7 @@ embeddings for the provided input texts.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.EmbeddingGeneration.embeddings">embeddings</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.embeddings.base.Embeddings" href="../../embedding/#distilabel.embeddings.base.Embeddings">Embeddings</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.models.embeddings.base.Embeddings" href="../../models/embedding/#distilabel.models.embeddings.base.Embeddings">Embeddings</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10135,7 +10197,7 @@ embeddings for the provided input texts.</p>
 
 <p><span class="doc-section-title">Examples:</span></p>
     <p>Generate sentence embeddings with Sentence Transformers:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.embeddings</span> <span class="kn">import</span> <span class="n">SentenceTransformerEmbeddings</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">SentenceTransformerEmbeddings</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">EmbeddingGeneration</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">embedding_generation</span> <span class="o">=</span> <span class="n">EmbeddingGeneration</span><span class="p">(</span>
@@ -10149,6 +10211,11 @@ embeddings for the provided input texts.</p>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">embedding_generation</span><span class="o">.</span><span class="n">process</span><span class="p">([{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, how are you?&quot;</span><span class="p">}]))</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># [{&#39;text&#39;: &#39;Hello, how are you?&#39;, &#39;embedding&#39;: [0.06209656596183777, -0.015797119587659836, ...]}]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/embeddings/embedding_generation.py</code></summary>
@@ -10238,7 +10305,7 @@ embeddings for the provided input texts.</p>
 </span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">        Generate sentence embeddings with Sentence Transformers:</span>
 </span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a>
 </span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="sd">        ```python</span>
-</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">        from distilabel.embeddings import SentenceTransformerEmbeddings</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">        from distilabel.models import SentenceTransformerEmbeddings</span>
 </span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">        from distilabel.steps import EmbeddingGeneration</span>
 </span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a>
 </span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">        embedding_generation = EmbeddingGeneration(</span>
@@ -10497,7 +10564,7 @@ used to train the index.</p>
 
 <p><span class="doc-section-title">Examples:</span></p>
     <p>Generating embeddings and getting the nearest neighbours:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.embeddings.sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformerEmbeddings</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">SentenceTransformerEmbeddings</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">EmbeddingGeneration</span><span class="p">,</span> <span class="n">FaissNearestNeighbour</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
@@ -10540,6 +10607,11 @@ used to train the index.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
 </span></code></pre></div>
 </details>
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/embeddings/nearest_neighbour.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-29"> 29</a></span>
@@ -10816,7 +10888,7 @@ used to train the index.</p>
 </span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">        Generating embeddings and getting the nearest neighbours:</span>
 </span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>
 </span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">        ```python</span>
-</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a><span class="sd">        from distilabel.embeddings.sentence_transformers import SentenceTransformerEmbeddings</span>
+</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a><span class="sd">        from distilabel.models import SentenceTransformerEmbeddings</span>
 </span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="sd">        from distilabel.pipeline import Pipeline</span>
 </span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a><span class="sd">        from distilabel.steps import EmbeddingGeneration, FaissNearestNeighbour, LoadDataFromHub</span>
 </span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>
@@ -11016,7 +11088,9 @@ used to train the index.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td>
+                <code>inputs</code>
+            </td>
             <td>
                   <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
             </td>
@@ -11128,7 +11202,9 @@ used to train the index.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>dataset</code></td>
+            <td>
+                <code>dataset</code>
+            </td>
             <td>
                   <code><span title="datasets.Dataset">Dataset</span></code>
             </td>
@@ -11209,7 +11285,9 @@ used to train the index.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>dataset</code></td>
+            <td>
+                <code>dataset</code>
+            </td>
             <td>
                   <code><span title="datasets.Dataset">Dataset</span></code>
             </td>
@@ -11502,6 +11580,11 @@ if __name__ == &quot;__main__&quot;:
     ds_dedup = ds.filter(lambda x: x[&quot;keep_row_after_embedding_filtering&quot;])
 ```
 </code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/filtering/embedding.py</code></summary>
@@ -12038,6 +12121,11 @@ if __name__ == &quot;__main__&quot;:
 ```
 </code></pre></div>
 
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/filtering/minhash.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-83"> 83</a></span>
@@ -12434,6 +12522,11 @@ if __name__ == &quot;__main__&quot;:
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1"># [{&#39;instruction&#39;: &#39;Hello&#39;, &#39;response&#39;: &#39;Hi&#39;, &#39;conversation&#39;: [{&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: &#39;Hello&#39;}, {&#39;role&#39;: &#39;assistant&#39;, &#39;content&#39;: &#39;Hi&#39;}]}]</span>
 </span></code></pre></div>
 
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/conversation.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-23">23</a></span>
@@ -12646,7 +12739,9 @@ if __name__ == &quot;__main__&quot;:
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td>
+                <code>inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -12834,6 +12929,11 @@ number of ratings as generations.</p>
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="c1">#     }</span>
 </span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/dpo.py</code></summary>
@@ -13271,7 +13371,9 @@ according to the DPO formatting standard.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
+            <td>
+                <code>*inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -13524,6 +13626,11 @@ contain the same number of ratings as generations.</p>
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1">#    }</span>
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/dpo.py</code></summary>
@@ -13987,7 +14094,9 @@ according to the DPO formatting standard.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
+            <td>
+                <code>*inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -14230,6 +14339,11 @@ in the conversation.</p>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="c1">#     }</span>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/sft.py</code></summary>
@@ -14529,7 +14643,9 @@ according to the SFT formatting standard.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
+            <td>
+                <code>*inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -14725,6 +14841,11 @@ in the conversation.</p>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1">#     }</span>
 </span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/formatting/sft.py</code></summary>
@@ -15076,7 +15197,9 @@ according to the SFT formatting standard.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>*inputs</code></td>
+            <td>
+                <code>*inputs</code>
+            </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
@@ -15279,6 +15402,11 @@ batches.</p>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># ([{&#39;instruction&#39;: &#39;What are 2+2?&#39;}, {&#39;instruction&#39;: &#39;What are 2+2?&#39;}], False)</span>
 </span></code></pre></div>
 
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/generators/data.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-26">26</a></span>
@@ -15472,7 +15600,9 @@ batches.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>offset</code></td>
+            <td>
+                <code>offset</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -15729,6 +15859,11 @@ of samples in the loader step. Defaults to 100.</p>
 </span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>    <span class="p">)</span>
 </span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="c1"># Now we have a single stream of data with the loader and the sampler data</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/generators/data_sampler.py</code></summary>
@@ -16076,7 +16211,9 @@ of samples in the loader step. Defaults to 100.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>offset</code></td>
+            <td>
+                <code>offset</code>
+            </td>
             <td>
                   <code>int</code>
             </td>
@@ -16203,7 +16340,7 @@ of samples in the loader step. Defaults to 100.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.llms.mixins.cuda_device_placement.CudaDevicePlacementMixin" href="../../llm/llm_gallery/#distilabel.llms.CudaDevicePlacementMixin">CudaDevicePlacementMixin</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../step/#distilabel.steps.base.Step">Step</a></code>, <code><a class="autorefs autorefs-internal" title="distilabel.models.mixins.cuda_device_placement.CudaDevicePlacementMixin" href="../../models/llm/llm_gallery/#distilabel.models.llms.CudaDevicePlacementMixin">CudaDevicePlacementMixin</a></code></p>
 
 
         <p>Assign a score to a response using a Reward Model.</p>
@@ -16405,6 +16542,11 @@ local configuration will be used. Defaults to <code>None</code>.</p>
 </span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="c1">#   {&#39;conversation&#39;: [{&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: &#39;How much is 2+2?&#39;}, {&#39;role&#39;: &#39;assistant&#39;, &#39;content&#39;: &#39;4&#39;}], &#39;score&#39;: 0.10300665348768234}</span>
 </span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+
+
+
+
+
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/reward_model.py</code></summary>
@@ -17010,6 +17152,11 @@ truncated using the tokenizer. Defaults to <code>None</code>.</p>
 </span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="c1"># [{&#39;text&#39;: &#39;This is a &#39;}]</span>
 </span></code></pre></div>
 
+
+
+
+
+
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/truncate.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-26"> 26</a></span>
@@ -17544,7 +17691,7 @@ truncated using the tokenizer. Defaults to <code>None</code>.</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       

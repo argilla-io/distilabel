@@ -84,7 +84,7 @@ graph TD
 #### Generate text from an instruction
 ```python
 from distilabel.steps.tasks import TextGeneration
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 text_gen = TextGeneration(
@@ -113,7 +113,7 @@ result = next(
 #### Use a custom template to generate text
 ```python
 from distilabel.steps.tasks import TextGeneration
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 CUSTOM_TEMPLATE = '''Document:
 {{ document }}
@@ -158,7 +158,7 @@ result = next(
 #### Few shot learning with different system prompts
 ```python
 from distilabel.steps.tasks import TextGeneration
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 CUSTOM_TEMPLATE = '''Generate a clear, single-sentence instruction based on the following examples:
 

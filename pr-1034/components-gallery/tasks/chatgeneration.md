@@ -71,7 +71,7 @@ graph TD
 #### Generate text from a conversation in OpenAI chat format
 ```python
 from distilabel.steps.tasks import ChatGeneration
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 chat = ChatGeneration(

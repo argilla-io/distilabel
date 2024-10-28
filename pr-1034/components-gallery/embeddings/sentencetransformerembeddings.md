@@ -52,7 +52,7 @@ hide:
 
 #### Generating sentence embeddings
 ```python
-from distilabel.embeddings import SentenceTransformerEmbeddings
+from distilabel.models import SentenceTransformerEmbeddings
 
 embeddings = SentenceTransformerEmbeddings(model="mixedbread-ai/mxbai-embed-large-v1")
 

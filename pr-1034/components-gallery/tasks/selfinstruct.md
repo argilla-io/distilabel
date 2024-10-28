@@ -83,7 +83,7 @@ graph TD
 #### Generate instructions based on a given input
 ```python
 from distilabel.steps.tasks import SelfInstruct
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 self_instruct = SelfInstruct(
     llm=InferenceEndpointsLLM(

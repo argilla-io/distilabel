@@ -38,7 +38,7 @@ An `LLM` class that leverages `LLM`s collective strenghts to generate a response
 
 #### Generate text
 ```python
-from distilabel.llms import MixtureOfAgentsLLM, InferenceEndpointsLLM
+from distilabel.models.llms import MixtureOfAgentsLLM, InferenceEndpointsLLM
 
 llm = MixtureOfAgentsLLM(
     aggregator_llm=InferenceEndpointsLLM(

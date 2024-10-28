@@ -48,7 +48,7 @@ This LLM will internally use `huggingface_hub.AsyncInferenceClient`.
 
 #### Free serverless Inference API, set the input_batch_size of the Task that uses this to avoid Model is overloaded
 ```python
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models.llms.huggingface import InferenceEndpointsLLM
 
 llm = InferenceEndpointsLLM(
     model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
@@ -61,7 +61,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 
 #### Dedicated Inference Endpoints
 ```python
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models.llms.huggingface import InferenceEndpointsLLM
 
 llm = InferenceEndpointsLLM(
     endpoint_name="<ENDPOINT_NAME>",
@@ -76,7 +76,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 
 #### Dedicated Inference Endpoints or TGI
 ```python
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models.llms.huggingface import InferenceEndpointsLLM
 
 llm = InferenceEndpointsLLM(
     api_key="<HF_API_KEY>",
@@ -91,7 +91,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 #### Generate structured data
 ```python
 from pydantic import BaseModel
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models.llms import InferenceEndpointsLLM
 
 class User(BaseModel):
     name: str
