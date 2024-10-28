@@ -5021,19 +5021,44 @@
 <p>LLM subclasses are designed to be used within a <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task">Task</a>, but they can also be used standalone.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">)</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">llm</span><span class="o">.</span><span class="n">generate_outputs</span><span class="p">(</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">inputs</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">}],</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="p">],</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># &quot;The capital of Spain is Madrid.&quot;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">llm</span><span class="o">.</span><span class="n">generate_outputs</span><span class="p">(</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">inputs</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">}],</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">],</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">)</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># [</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1">#   {</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1">#     &quot;generations&quot;: [</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1">#       &quot;The capital of Spain is Madrid.&quot;</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1">#     ],</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1">#     &quot;statistics&quot;: {</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1">#       &quot;input_tokens&quot;: [</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c1">#         43</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1">#       ],</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1">#       &quot;output_tokens&quot;: [</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="c1">#         8</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1">#       ]</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="c1">#     }</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="c1">#   }</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1"># ]</span>
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Always call the <code>LLM.load</code> or <code>Task.load</code> method when using LLMs standalone or as part of a <code>Task</code>. If using a <code>Pipeline</code>, this is done automatically in <code>Pipeline.run()</code>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">New in version 1.5.0</p>
+<p>Since version <code>1.5.0</code> the LLM output is a list of dictionaries (one per item in the <code>inputs</code>),
+each containing <code>generations</code>, that reports the text returned by the <code>LLM</code>, and a <code>statistics</code> field that will store statistics related to the <code>LLM</code> generation. Initially, this will include
+<code>input_tokens</code> and <code>output_tokens</code> when available, which will be obtained via the API when available, or if a tokenizer is available for the model used, using the tokenizer for the model.
+This data will be moved by the corresponding <code>Task</code> during the pipeline processing and moved to <code>distilabel_metadata</code> so we can operate on this data if we want, like for example computing the number of tokens per dataset.</p>
+<p>To access to the previous result one just has to access to the generations in the resulting dictionary: <code>result[0]["generations"]</code>.</p>
 </div>
 <h3 id="offline-batch-generation">Offline Batch Generation<a class="headerlink" href="#offline-batch-generation" title="Permanent link">&para;</a></h3>
 <p>By default, all <code>LLM</code>s will generate text in a synchronous manner i.e. send inputs using <code>generate_outputs</code> method that will get blocked until outputs are generated. There are some <code>LLM</code>s (such as <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.OpenAILLM">OpenAILLM</a>) that implements what we denote as <em>offline batch generation</em>, which allows to send the inputs to the LLM-as-a-service which will generate the outputs asynchronously and give us a job id that we can use later to check the status and retrieve the generated outputs when they are ready. LLM-as-a-service platforms offers this feature as a way to save costs in exchange of waiting for the outputs to be generated.</p>
@@ -5066,7 +5091,8 @@
 </span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">}],</span>
 </span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>    <span class="p">],</span>
 </span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="p">)</span>
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="c1"># &quot;The capital of Spain is Madrid.&quot;</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="c1"># [{&#39;generations&#39;: [&#39;The capital of Spain is Madrid.&#39;],</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="c1">#   &#39;statistics&#39;: {&#39;input_tokens&#39;: [13], &#39;output_tokens&#39;: [7]}}]</span>
 </span></code></pre></div>
 <ol>
 <li>At first the <code>jobs_ids</code> attribute is <code>None</code>.</li>
@@ -5089,21 +5115,33 @@
 </span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">}],</span>
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="p">],</span>
 </span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="p">)</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1"># &quot;The capital of Spain is Madrid.&quot;</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1"># [{&#39;generations&#39;: [&#39;The capital of Spain is Madrid.&#39;],</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="c1">#   &#39;statistics&#39;: {&#39;input_tokens&#39;: [13], &#39;output_tokens&#39;: [7]}}]</span>
 </span></code></pre></div>
 <h3 id="within-a-task">Within a Task<a class="headerlink" href="#within-a-task" title="Permanent link">&para;</a></h3>
 <p>Pass the LLM as an argument to the <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a>, and the task will handle the rest.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">distilabel.models</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">)</span>
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">task</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;text_generation&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">task</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="nb">next</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">}]))</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1"># [{&#39;instruction&#39;: &quot;What&#39;s the capital of Spain?&quot;, &quot;generation&quot;: &quot;The capital of Spain is Madrid.&quot;}]</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1"># [{&#39;instruction&#39;: &quot;What&#39;s the capital of Spain?&quot;,</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="c1">#   &#39;generation&#39;: &#39;The capital of Spain is Madrid.&#39;,</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1">#   &#39;distilabel_metadata&#39;: {&#39;raw_output_text_generation&#39;: &#39;The capital of Spain is Madrid.&#39;,</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c1">#    &#39;raw_input_text_generation&#39;: [{&#39;role&#39;: &#39;user&#39;,</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="c1">#      &#39;content&#39;: &quot;What&#39;s the capital of Spain?&quot;}],</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="c1">#    &#39;statistics_text_generation&#39;: {&#39;input_tokens&#39;: 13, &#39;output_tokens&#39;: 7}},</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="c1">#   &#39;model_name&#39;: &#39;gpt-4o-mini&#39;}]</span>
 </span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As mentioned in <em>Working with LLMs</em> section, the generation of an LLM is automatically moved to <code>distilabel_metadata</code> to avoid interference with the common workflow, so the addition of the <code>statistics</code> it's an extra component available for the user, but nothing has to be changed in the
+defined pipelines.</p>
+</div>
 <h3 id="runtime-parameters">Runtime Parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
 <p>LLMs can have runtime parameters, such as <code>generation_kwargs</code>, provided via the <code>Pipeline.run()</code> method using the <code>params</code> argument.</p>
 <div class="admonition note">
@@ -5123,7 +5161,7 @@
 </span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="n">text_generation</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
 </span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;text_generation&quot;</span><span class="p">,</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">),</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">),</span>
 </span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="p">)</span>
 </span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
 </span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    <span class="n">load_dataset</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span>
@@ -5205,6 +5243,10 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>To have the arguments of the <code>generate</code> and <code>agenerate</code> coerced to the expected types, the <code>validate_call</code> decorator is used, which will automatically coerce the arguments to the expected types, and raise an error if the types are not correct. This is specially useful when providing a value for an argument of <code>generate</code> or <code>agenerate</code> from the CLI, since the CLI will always provide the arguments as strings.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Additional LLMs created in <code>distilabel</code> will have to take into account how the <code>statistics</code> are generated to properly include them in the LLM output.</p>
 </div>
 <h2 id="available-llms">Available LLMs<a class="headerlink" href="#available-llms" title="Permanent link">&para;</a></h2>
 <p><a href="../../../../components-gallery/llms/">Our LLM gallery</a> shows a list of the available LLMs that can be used within the <code>distilabel</code> library.</p>
