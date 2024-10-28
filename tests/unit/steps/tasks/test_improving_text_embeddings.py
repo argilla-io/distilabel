@@ -17,8 +17,8 @@ from typing import Any, List
 
 import pytest
 
-from distilabel.llms import LLM
-from distilabel.llms.typing import GenerateOutput
+from distilabel.models.llms.base import LLM
+from distilabel.models.llms.typing import GenerateOutput
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.improving_text_embeddings import (
     BitextRetrievalGenerator,

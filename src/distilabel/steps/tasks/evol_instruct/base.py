@@ -77,7 +77,7 @@ class EvolInstruct(Task):
 
         ```python
         from distilabel.steps.tasks import EvolInstruct
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         evol_instruct = EvolInstruct(
@@ -98,7 +98,7 @@ class EvolInstruct(Task):
 
         ```python
         from distilabel.steps.tasks import EvolInstruct
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         evol_instruct = EvolInstruct(
@@ -126,7 +126,7 @@ class EvolInstruct(Task):
 
         ```python
         from distilabel.steps.tasks import EvolInstruct
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         evol_instruct = EvolInstruct(

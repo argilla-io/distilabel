@@ -17,7 +17,7 @@ from typing import Any, Dict, Literal, Type, Union
 import pytest
 from pydantic import BaseModel
 
-from distilabel.llms.huggingface.transformers import TransformersLLM
+from distilabel.models.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
     model_to_schema,
 )
@@ -64,7 +64,7 @@ DUMP_JSON = {
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {
-        "module": "distilabel.llms.huggingface.transformers",
+        "module": "distilabel.models.llms.huggingface.transformers",
         "name": "TransformersLLM",
     },
 }
@@ -94,7 +94,7 @@ DUMP_REGEX = {
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {
-        "module": "distilabel.llms.huggingface.transformers",
+        "module": "distilabel.models.llms.huggingface.transformers",
         "name": "TransformersLLM",
     },
 }

@@ -19,12 +19,12 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 from pydantic import Field, PositiveInt, field_validator
 
 from distilabel.errors import DistilabelUserError
-from distilabel.llms.base import LLM
-from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
 )
+from distilabel.models.llms.base import LLM
+from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 from distilabel.utils.dicts import merge_dicts
@@ -441,7 +441,7 @@ class Magpie(Task, MagpieBase):
         Generating instructions with Llama 3 8B Instruct and TransformersLLM:
 
         ```python
-        from distilabel.llms import TransformersLLM
+        from distilabel.models import TransformersLLM
         from distilabel.steps.tasks import Magpie
 
         magpie = Magpie(
@@ -480,7 +480,7 @@ class Magpie(Task, MagpieBase):
         Generating conversations with Llama 3 8B Instruct and TransformersLLM:
 
         ```python
-        from distilabel.llms import TransformersLLM
+        from distilabel.models import TransformersLLM
         from distilabel.steps.tasks import Magpie
 
         magpie = Magpie(

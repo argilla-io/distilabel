@@ -21,7 +21,7 @@ from distilabel.steps.tasks.apigen.generator import APIGenGenerator
 from tests.unit.conftest import DummyLLM
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import GenerateOutput
+    from distilabel.models.llms.typing import GenerateOutput
     from distilabel.steps.tasks.typing import FormattedInput
 
 import json
