@@ -149,7 +149,7 @@ class TestInferenceEndpointsLLM:
         assert result == {
             "generations": ["Aenean hendrerit aliquam velit..."],
             "statistics": {
-                "input_tokens": [0],
+                "input_tokens": [31],
                 "output_tokens": [66],
             },
         }
@@ -358,7 +358,7 @@ class TestInferenceEndpointsLLM:
         assert result == {
             "generations": ["Aenean hendrerit aliquam velit..."],
             "statistics": {
-                "input_tokens": [0],
+                "input_tokens": [31],
                 "output_tokens": [66],
             },
         }

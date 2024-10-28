@@ -32,7 +32,7 @@ from typing_extensions import Annotated, override
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
-from distilabel.models.llms.utils import prepare_output
+from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.typing import (
     FormattedInput,
@@ -423,11 +423,14 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
-        # NOTE: I cannot see the input tokens returned, and given that the model can be private, I cannot
-        # count them...
+
         return prepare_output(
             [completion.generated_text],
-            input_tokens=[0],
+            input_tokens=[
+                compute_tokens(self.prepare_input(input), self._tokenizer.encode)
+                if self._tokenizer
+                else 0
+            ],
             output_tokens=[
                 completion.details.generated_tokens if completion.details else 0
             ],
