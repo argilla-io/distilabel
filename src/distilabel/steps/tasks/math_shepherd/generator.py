@@ -17,8 +17,9 @@ import re
 from typing import TYPE_CHECKING, Any, Dict, Final, Optional, Union
 
 from jinja2 import Template
+from pydantic import PositiveInt
 
-from distilabel.steps.tasks.text_generation import TextGeneration
+from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 
 
 SYSTEM_PROMPT = """\
-You are a math tutor that helps students solve math problems by breaking them down into clear, logical steps. Follow these guidelines:
+You are a math tutor that helps students solve math problems by breaking them down into clear, logical steps{% if include_errors %}, but trick them by including unannounced errors in the reasoning without explaining them{% endif %}. Follow these guidelines:
 
 # For each step:
 - Clearly explain the reasoning
@@ -36,10 +37,10 @@ You are a math tutor that helps students solve math problems by breaking them do
 
 # Format requirements:
 - Number each step starting with "Step 1:"
-- Include a clear "The answer is: " statement at the end
+- Include a clear "The answer is: " statement at the end of each problem
 - Keep explanations clear and concise
 
-{{ extra_rules }}{{ few_shots }}"""
+{{ extra_rules }}{{ few_shots }}{{ errors }}"""
 
 RULES_GSM8K: Final[str] = """\
 # Rules:
@@ -49,7 +50,7 @@ RULES_GSM8K: Final[str] = """\
 """
 
 FEW_SHOTS_GSM8K: Final[str] = """
-# Examples
+# Examples:
 ## Input
 A store sells notebooks for $3 each. If you buy 5 or more, you get a 20% discount. How much would you pay for 6 notebooks?
 
@@ -97,9 +98,9 @@ Step 4: Therefore, the answer is $\boxed{59}$. The answer is: 59
 """
 
 
-DEFAULT_TEMPLATE = """\
-{{ errors }}This is the instruction:
-{{ instruction }}"""
+TEMPLATE = """\
+This is your instruction, don't include it in your answer:
+{{ instruction }}{% if example_solutions %}{{ example_solutions }}{% endif %}"""
 
 
 def split_solution_steps(text):
@@ -118,24 +119,33 @@ def split_solution_steps(text):
     return matches
 
 
-class StepByStepReasoning(TextGeneration):
+class MathShepherdGenerator(Task):
     system_prompt: Optional[str] = SYSTEM_PROMPT
     extra_rules: Optional[str] = RULES_GSM8K
     few_shots: Optional[str] = FEW_SHOTS_GSM8K
     include_errors: bool = True
+    N: PositiveInt = 1
 
     def load(self) -> None:
         super().load()
+        errors = ""
+        self._example_solutions = ""
+        if self.include_errors:
+            errors = "\n\nInclude errors to help students learn from their mistakes in any of the steps, including the final answer."
+            self._example_solutions = (
+                f"\n\nGenerate {self.N} example solution"
+                if self.N == 1
+                else f"\n\nGenerate {self.N} example solutions to the same problem, separated by a single `---`"
+            )
+
         if self.system_prompt is not None:
-            # TODO: Test if this fails when a string without template format is used
             self.system_prompt = Template(self.system_prompt).render(
                 extra_rules=self.extra_rules or "",
                 few_shots=self.few_shots or "",
+                errors=errors,
+                include_errors=self.include_errors,
             )
-        self._errors = ""
-        if self.include_errors:
-            self._errors = "Add your step-by-step solution including errors on the steps and possibly in the final answer.\n\n"
-        self._template = Template(DEFAULT_TEMPLATE)
+        self._template = Template(TEMPLATE)
 
     @property
     def inputs(self) -> "StepColumns":
@@ -143,14 +153,15 @@ class StepByStepReasoning(TextGeneration):
 
     @property
     def outputs(self) -> "StepColumns":
-        return ["reasoning", "model_name"]
+        return ["steps", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         messages = [
             {
                 "role": "user",
                 "content": self._template.render(
-                    instruction=input["instruction"], errors=self._errors
+                    instruction=input["instruction"],
+                    example_solutions=self._example_solutions,
                 ),
             }
         ]
@@ -162,6 +173,11 @@ class StepByStepReasoning(TextGeneration):
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         if output is None:
-            return {"reasoning": None}
-
-        return {"reasoning": split_solution_steps(json.dumps(output))}
+            input.update(**{"steps": None})
+            return input
+        if self.include_errors:
+            examples = [split_solution_steps(o) for o in output.split("---")]
+        else:
+            examples = [split_solution_steps(output)]
+        input.update(**{"steps": json.dumps(examples)})
+        return input
