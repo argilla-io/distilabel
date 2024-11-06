@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import json
-from typing import Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import pytest
 
@@ -25,8 +25,13 @@ from distilabel.steps.tasks.math_shepherd.generator import (
 )
 from tests.unit.conftest import DummyLLM
 
+if TYPE_CHECKING:
+    from distilabel.models.llms.typing import GenerateOutput
+
 
 class MathShepherdGeneratorLLM(DummyLLM):
+    M: Optional[int] = None
+
     def load(self) -> None:
         pass
 
@@ -36,7 +41,7 @@ class MathShepherdGeneratorLLM(DummyLLM):
 
     def generate(
         self, inputs: Dict[str, Any], num_generations: int = 1
-    ) -> Union[str, None]:
+    ) -> List["GenerateOutput"]:
         response = """
 Step 1: Calculate the number of books borrowed on a regular day (Monday to Thursday):
 40 books per day
@@ -52,6 +57,8 @@ Step 4: Calculate the total number of books borrowed in the entire week:
 160 + 56 = <<160+56=216>>216 books
 
 The answer is: 216 books."""
+        if self.M:
+            response = "---".join([response for _ in range(self.M)])
         return [[response for _ in range(num_generations)]]
 
 
@@ -70,23 +77,23 @@ class TestMathShepherdGenerator:
             (RULES_GSM8K, FEW_SHOTS_GSM8K),
         ],
     )
-    @pytest.mark.parametrize("include_errors", [True, False])
-    @pytest.mark.parametrize("N", [1, 3])
+    @pytest.mark.parametrize(
+        "M",
+        [None, 5],
+    )
     def test_format_input(
         self,
         system_prompt: Optional[str],
         extra_rules: Optional[str],
         few_shots: Optional[str],
-        include_errors: bool,
-        N: int,
+        M: Optional[int],
     ) -> None:
         task = MathShepherdGenerator(
             llm=MathShepherdGeneratorLLM(),
             system_prompt=system_prompt,
             extra_rules=extra_rules,
             few_shots=few_shots,
-            include_errors=include_errors,
-            N=N,
+            M=M,
         )
         task.load()
 
@@ -96,40 +103,39 @@ class TestMathShepherdGenerator:
             }
         )
         rendered_system_prompt = ""
-        if not system_prompt:
-            user_prompt = result[0]["content"]
-        else:
+        if system_prompt:
             rendered_system_prompt = result[0]["content"]
-            user_prompt = result[1]["content"]
             if extra_rules:
                 assert RULES_GSM8K in rendered_system_prompt
             if few_shots:
                 assert FEW_SHOTS_GSM8K in rendered_system_prompt
-
-        if include_errors:
-            if N == 1:
-                assert f"Generate {N} example solution" in user_prompt
-            else:
+            if M:
                 assert (
-                    f"Generate {N} example solutions to the same problem, separated by a single `---`"
-                    in user_prompt
+                    "Generate 5 example solutions to the same problem"
+                    in result[1]["content"]
                 )
-            if system_prompt:
+        else:
+            if M:
                 assert (
-                    "Include errors to help students learn from their mistakes in any of the steps, including the final answer."
-                    in rendered_system_prompt
-                )
-                assert (
-                    ", but trick them by including unannounced errors in the reasoning without explaining them"
-                    in rendered_system_prompt
+                    "Generate 5 example solutions to the same problem"
+                    in result[0]["content"]
                 )
 
-    def test_process(self) -> None:
-        task = MathShepherdGenerator(
-            llm=MathShepherdGeneratorLLM(),
-        )
+    @pytest.mark.parametrize(
+        "M, output_name",
+        [
+            (None, "golden_solution"),
+            (3, "solutions"),
+        ],
+    )
+    def test_process(self, M: Optional[int], output_name: str) -> None:
+        task = MathShepherdGenerator(llm=MathShepherdGeneratorLLM(M=M), M=M)
         task.load()
 
-        result = next(task.process([{"instruction": ""}]))[0]["steps"]
-        result = json.loads(result)[0]
-        assert len(result) == 5
+        result = next(task.process([{"instruction": ""}]))[0][output_name]
+        result = json.loads(result)
+        if M:
+            assert len(result) == 3
+            assert all(len(r) == 5 for r in result)
+        else:
+            assert len(result) == 5
