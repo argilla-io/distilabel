@@ -5,7 +5,7 @@
 LLM subclasses are designed to be used within a [Task][distilabel.steps.tasks.Task], but they can also be used standalone.
 
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 llm = InferenceEndpointsLLM(model="meta-llama/Meta-Llama-3.1-70B-Instruct")
 llm.load()
@@ -23,12 +23,12 @@ llm.generate_outputs(
 
 ### Offline Batch Generation
 
-By default, all `LLM`s will generate text in a synchronous manner i.e. send inputs using `generate_outputs` method that will get blocked until outputs are generated. There are some `LLM`s (such as [OpenAILLM][distilabel.llms.openai.OpenAILLM]) that implements what we denote as _offline batch generation_, which allows to send the inputs to the LLM-as-a-service which will generate the outputs asynchronously and give us a job id that we can use later to check the status and retrieve the generated outputs when they are ready. LLM-as-a-service platforms offers this feature as a way to save costs in exchange of waiting for the outputs to be generated.
+By default, all `LLM`s will generate text in a synchronous manner i.e. send inputs using `generate_outputs` method that will get blocked until outputs are generated. There are some `LLM`s (such as [OpenAILLM][distilabel.models.llms.openai.OpenAILLM]) that implements what we denote as _offline batch generation_, which allows to send the inputs to the LLM-as-a-service which will generate the outputs asynchronously and give us a job id that we can use later to check the status and retrieve the generated outputs when they are ready. LLM-as-a-service platforms offers this feature as a way to save costs in exchange of waiting for the outputs to be generated.
 
 To use this feature in `distilabel` the only thing we need to do is to set the `use_offline_batch_generation` attribute to `True` when creating the `LLM` instance:
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models import OpenAILLM
 
 llm = OpenAILLM(
     model="gpt-4o",
@@ -67,7 +67,7 @@ llm.generate_outputs(  # (4)
 The `offline_batch_generation_block_until_done` attribute can be used to block the `generate_outputs` method until the outputs are ready polling the platform the specified amount of seconds.
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models import OpenAILLM
 
 llm = OpenAILLM(
     model="gpt-4o",
@@ -89,7 +89,7 @@ llm.generate_outputs(
 Pass the LLM as an argument to the [`Task`][distilabel.steps.tasks.Task], and the task will handle the rest.
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models import OpenAILLM
 from distilabel.steps.tasks import TextGeneration
 
 llm = OpenAILLM(model="gpt-4")
@@ -110,7 +110,7 @@ LLMs can have runtime parameters, such as `generation_kwargs`, provided via the 
 
 ```python
 from distilabel.pipeline import Pipeline
-from distilabel.llms import OpenAILLM
+from distilabel.models import OpenAILLM
 from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration
 
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
 ## Creating custom LLMs
 
-To create custom LLMs, subclass either [`LLM`][distilabel.llms.LLM] for synchronous or [`AsyncLLM`][distilabel.llms.AsyncLLM] for asynchronous LLMs. Implement the following methods:
+To create custom LLMs, subclass either [`LLM`][distilabel.models.llms.LLM] for synchronous or [`AsyncLLM`][distilabel.models.llms.AsyncLLM] for asynchronous LLMs. Implement the following methods:
 
 * `model_name`: A property containing the model's name.
 
@@ -155,9 +155,9 @@ To create custom LLMs, subclass either [`LLM`][distilabel.llms.LLM] for synchron
 
     from pydantic import validate_call
 
-    from distilabel.llms import LLM
-    from distilabel.llms.typing import GenerateOutput, HiddenState
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.models import LLM
+    from distilabel.typing import GenerateOutput, HiddenState
+    from distilabel.typing import ChatType
 
     class CustomLLM(LLM):
         @property
@@ -180,9 +180,9 @@ To create custom LLMs, subclass either [`LLM`][distilabel.llms.LLM] for synchron
 
     from pydantic import validate_call
 
-    from distilabel.llms import AsyncLLM
-    from distilabel.llms.typing import GenerateOutput, HiddenState
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.models import AsyncLLM
+    from distilabel.typing import GenerateOutput, HiddenState
+    from distilabel.typing import ChatType
 
     class CustomAsyncLLM(AsyncLLM):
         @property

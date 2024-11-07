@@ -49,7 +49,7 @@ pip install flash-attn --no-build-isolation
 - [`LoadDataFromHub`][distilabel.steps.LoadDataFromHub]: [`GeneratorStep`][distilabel.steps.GeneratorStep] to load a dataset from the Hugging Face Hub.
 
 - [`PrometheusEval`][distilabel.steps.tasks.PrometheusEval]: [`Task`][distilabel.steps.tasks.Task] that assesses the quality of a response for a given instruction using any of the Prometheus 2 models.
-    - [`vLLM`][distilabel.llms.vLLM]: [`LLM`][distilabel.llms.LLM] that loads a model from the Hugging Face Hub via [vllm-project/vllm](https://github.com/vllm-project/vllm).
+    - [`vLLM`][distilabel.models.vLLM]: [`LLM`][distilabel.models.LLM] that loads a model from the Hugging Face Hub via [vllm-project/vllm](https://github.com/vllm-project/vllm).
 
     !!! NOTE
         Since the Prometheus 2 models use a slightly different chat template than [`mistralai/Mistral-7B-Instruct-v0.2`](https://hf.co/mistralai/Mistral-7B-Instruct-v0.2), we need to set the `chat_template` parameter to `[INST] {{ messages[0]['content'] }}\n{{ messages[1]['content'] }}[/INST]` so as to properly format the input for Prometheus 2.
@@ -61,7 +61,7 @@ pip install flash-attn --no-build-isolation
 As mentioned before, we will put the previously mentioned building blocks together to see how Prometheus 2 can be used via `distilabel`.
 
 ```python
-from distilabel.llms import vLLM
+from distilabel.models import vLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import KeepColumns, LoadDataFromHub
 from distilabel.steps.tasks import PrometheusEval

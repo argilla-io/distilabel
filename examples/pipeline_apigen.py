@@ -16,7 +16,7 @@ from pathlib import Path
 
 from datasets import load_dataset
 
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import CombineOutputs, DataSampler, LoadDataFromDicts
 from distilabel.steps.tasks import (

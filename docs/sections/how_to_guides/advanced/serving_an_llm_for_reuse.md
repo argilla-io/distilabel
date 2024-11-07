@@ -21,7 +21,7 @@ docker run --gpus all --shm-size 1g -p 8080:80 -v $volume:/data \
 And then we can use `InferenceEndpointsLLM` with `base_url=http://localhost:8080` (pointing to our `TGI` local deployment):
 
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration, UltraFeedback
@@ -66,7 +66,7 @@ docker run --gpus all \
 And then we can use `OpenAILLM` with `base_url=http://localhost:8000` (pointing to our `vLLM` local deployment):
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models import OpenAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration, UltraFeedback

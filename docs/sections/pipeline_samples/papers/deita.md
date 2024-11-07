@@ -38,7 +38,7 @@ pip install pynvml huggingface_hub argilla
 Import distilabel:
 
 ```python
-from distilabel.llms import TransformersLLM, OpenAILLM
+from distilabel.models import TransformersLLM, OpenAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import ConversationTemplate, DeitaFiltering, ExpandColumns, LoadDataFromHub
 from distilabel.steps.tasks import ComplexityScorer, EvolInstruct, EvolQuality, GenerateEmbeddings, QualityScorer

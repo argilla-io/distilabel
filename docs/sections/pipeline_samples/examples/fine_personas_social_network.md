@@ -130,7 +130,7 @@ With our data in hand, we're ready to explore the capabilities of our SocialAI t
 While this model has become something of a go-to choice recently, it's worth noting that experimenting with a variety of models could yield even more interesting results:
 
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 llm = InferenceEndpointsLLM(
     model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
