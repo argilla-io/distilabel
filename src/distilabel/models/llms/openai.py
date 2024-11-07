@@ -239,33 +239,32 @@ class OpenAILLM(AsyncLLM):
         response_format: Optional[Dict[str, str]] = None,
     ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
-                client.
+        client.
 
-                Args:
-                    input: a single input in chat format to generate responses for.
-                    num_generations: the number of generations to create per input. Defaults to
-                        `1`.
-                    max_new_tokens: the maximum number of new tokens that the model will generate.
-                        Defaults to `128`.
-                    frequency_penalty: the repetition penalty to use for the generation. Defaults
-                        to `0.0`.
-                    presence_penalty: the presence penalty to use for the generation. Defaults to
-                        `0.0`.
-                    temperature: the temperature to use for the generation. Defaults to `0.1`.
-                    top_p: the top-p value to use for the generation. Defaults to `1.0`.
-                    stop: a string or a list of strings to use as a stop sequence for the generation.
-                        Defaults to `None`.
-                    response_format: the format of the response to return. Must be one of
-                        "text" or "json". Read the documentation [here](https://platform.openai.com/docs/guides/text-generation/json-mode)
-                        for more information on how to use the JSON model from OpenAI. Defaults to None
-                        which returns text. To return JSON, use {"type": "json_object"}.
-        )
+        Args:
+            input: a single input in chat format to generate responses for.
+            num_generations: the number of generations to create per input. Defaults to
+                `1`.
+            max_new_tokens: the maximum number of new tokens that the model will generate.
+                Defaults to `128`.
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            stop: a string or a list of strings to use as a stop sequence for the generation.
+                Defaults to `None`.
+            response_format: the format of the response to return. Must be one of
+                "text" or "json". Read the documentation [here](https://platform.openai.com/docs/guides/text-generation/json-mode)
+                for more information on how to use the JSON model from OpenAI. Defaults to None
+                which returns text. To return JSON, use {"type": "json_object"}.
 
-                Note:
-                    If response_format
+        Note:
+            If response_format
 
-                Returns:
-                    A list of lists of strings containing the generated responses for each input.
+        Returns:
+            A list of lists of strings containing the generated responses for each input.
         """
 
         structured_output = None
