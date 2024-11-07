@@ -236,7 +236,7 @@ class OpenAILLM(AsyncLLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
         stop: Optional[Union[str, List[str]]] = None,
-        response_format: Optional[str] = None,
+        response_format: Optional[Dict[str, str]] = None,
     ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
         client.
@@ -257,7 +257,8 @@ class OpenAILLM(AsyncLLM):
                 Defaults to `None`.
             response_format: the format of the response to return. Must be one of
                 "text" or "json". Read the documentation [here](https://platform.openai.com/docs/guides/text-generation/json-mode)
-                for more information on how to use the JSON model from OpenAI. Defaults to `text`.
+                for more information on how to use the JSON model from OpenAI. Defaults to None
+                which returns text. To return JSON, use {"type": "json_object"}.
 
         Note:
             If response_format
@@ -292,15 +293,6 @@ class OpenAILLM(AsyncLLM):
         }
 
         if response_format is not None:
-            if response_format not in ["text", "json", "json_object"]:
-                raise ValueError(
-                    f"Invalid response format '{response_format}'. Must be either 'text'"
-                    " or 'json'."
-                )
-
-            if response_format == "json":
-                response_format = "json_object"
-
             kwargs["response_format"] = response_format
 
         if structured_output:
