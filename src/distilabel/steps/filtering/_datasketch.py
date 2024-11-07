@@ -13,8 +13,8 @@
 # limitations under the License.
 
 """
-`dataskech` (https://github.com/ekzhu/datasketch) doesn't offer a way to store the hash tables in disk. This
-is a custom implementation that uses `shelve` to store the hash tables in disk.
+`datasketch` (https://github.com/ekzhu/datasketch) doesn't offer a way to store the hash tables in disk. This
+is a custom implementation that uses `diskcache` to store the hash tables in disk.
 Note: This implementation is not optimized for performance, but could be worth
 creating a PR to `datasketch`.
 """
@@ -98,7 +98,7 @@ class DiskCacheSetStorage(UnorderedStorage, DiskCacheListStorage):
 
 
 def ordered_storage(config, name=None):
-    """Copy of `datasketch.storage.ordered_storage` with the addition of `ShelveListStorage`."""
+    """Copy of `datasketch.storage.ordered_storage` with the addition of `DiskCacheListStorage`."""
     tp = config["type"]
     if tp == "disk":
         return DiskCacheListStorage(config, name=name)
@@ -106,7 +106,7 @@ def ordered_storage(config, name=None):
 
 
 def unordered_storage(config, name=None):
-    """Copy of `datasketch.storage.ordered_storage` with the addition of `ShelveSetStorage`."""
+    """Copy of `datasketch.storage.ordered_storage` with the addition of `DiskCacheSetStorage`."""
     tp = config["type"]
     if tp == "disk":
         return DiskCacheSetStorage(config, name=name)
