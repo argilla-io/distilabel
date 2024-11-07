@@ -1,12 +1,12 @@
 # Structured data generation
 
-`Distilabel` has integrations with relevant libraries to generate structured text i.e. to guide the [`LLM`][distilabel.llms.LLM] towards the generation of structured outputs following a JSON schema, a regex, etc.
+`Distilabel` has integrations with relevant libraries to generate structured text i.e. to guide the [`LLM`][distilabel.models.llms.LLM] towards the generation of structured outputs following a JSON schema, a regex, etc.
 
 ## Outlines
 
-`Distilabel` integrates [`outlines`](https://outlines-dev.github.io/outlines/welcome/) within some [`LLM`][distilabel.llms.LLM] subclasses. At the moment, the following LLMs integrated with `outlines` are supported in `distilabel`: [`TransformersLLM`][distilabel.llms.TransformersLLM], [`vLLM`][distilabel.llms.vLLM] or [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM], so that anyone can generate structured outputs in the form of *JSON* or a parseable *regex*.
+`Distilabel` integrates [`outlines`](https://outlines-dev.github.io/outlines/welcome/) within some [`LLM`][distilabel.models.llms.LLM] subclasses. At the moment, the following LLMs integrated with `outlines` are supported in `distilabel`: [`TransformersLLM`][distilabel.models.llms.TransformersLLM], [`vLLM`][distilabel.models.llms.vLLM] or [`LlamaCppLLM`][distilabel.models.llms.LlamaCppLLM], so that anyone can generate structured outputs in the form of *JSON* or a parseable *regex*.
 
-The [`LLM`][distilabel.llms.LLM] has an argument named `structured_output`[^1] that determines how we can generate structured outputs with it, let's see an example using [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM].
+The [`LLM`][distilabel.models.llms.LLM] has an argument named `structured_output`[^1] that determines how we can generate structured outputs with it, let's see an example using [`LlamaCppLLM`][distilabel.models.llms.LlamaCppLLM].
 
 !!! Note
 
@@ -36,7 +36,7 @@ class User(BaseModel):
 And then we provide that schema to the `structured_output` argument of the LLM.
 
 ```python
-from distilabel.llms import LlamaCppLLM
+from distilabel.models import LlamaCppLLM
 
 llm = LlamaCppLLM(
     model_path="./openhermes-2.5-mistral-7b.Q4_K_M.gguf"  # (1)
@@ -129,7 +129,7 @@ These were some simple examples, but one can see the options this opens.
 
 ## Instructor
 
-For other LLM providers behind APIs, there's no direct way of accessing the internal logit processor like `outlines` does, but thanks to [`instructor`](https://python.useinstructor.com/) we can generate structured output from LLM providers based on `pydantic.BaseModel` objects. We have integrated `instructor` to deal with the [`AsyncLLM`][distilabel.llms.AsyncLLM].
+For other LLM providers behind APIs, there's no direct way of accessing the internal logit processor like `outlines` does, but thanks to [`instructor`](https://python.useinstructor.com/) we can generate structured output from LLM providers based on `pydantic.BaseModel` objects. We have integrated `instructor` to deal with the [`AsyncLLM`][distilabel.models.llms.AsyncLLM].
 
 !!! Note
     For `instructor` integration to work you may need to install the corresponding dependencies:
@@ -159,7 +159,7 @@ And then we provide that schema to the `structured_output` argument of the LLM:
     In this example we are using *Meta Llama 3.1 8B Instruct*, keep in mind not all the models support structured outputs.
 
 ```python
-from distilabel.llms import MistralLLM
+from distilabel.models import MistralLLM
 
 llm = InferenceEndpointsLLM(
     model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
@@ -204,7 +204,7 @@ Contrary to what we have via `outlines`, JSON mode will not guarantee the output
 Other than the reference to generating JSON, to ensure the model generates parseable JSON we can pass the argument `response_format="json"`[^3]:
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.models import OpenAILLM
 llm = OpenAILLM(model="gpt4-turbo", api_key="api.key")
 llm.generate(..., response_format="json")
 ```

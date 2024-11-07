@@ -63,7 +63,7 @@ class UltraFeedback(Task):
 
         ```python
         from distilabel.steps.tasks import UltraFeedback
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         ultrafeedback = UltraFeedback(
@@ -101,7 +101,7 @@ class UltraFeedback(Task):
 
         ```python
         from distilabel.steps.tasks import UltraFeedback
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         ultrafeedback = UltraFeedback(
@@ -137,7 +137,7 @@ class UltraFeedback(Task):
 
         ```python
         from distilabel.steps.tasks import UltraFeedback
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         ultrafeedback = UltraFeedback(

@@ -37,6 +37,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Tutorial](tutorials/GenerateSentencePair.ipynb)
 
+-   __Generate text classification data__
+
+    ---
+
+    Learn about how synthetic data generation for text classification can help address data imbalance or scarcity.
+
+    [:octicons-arrow-right-24: Tutorial](tutorials/generate_textcat_dataset.ipynb)
+
 </div>
 
 ## Paper Implementations

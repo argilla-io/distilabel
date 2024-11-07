@@ -2,12 +2,12 @@
 
 ## Working with Tasks
 
-The [`Task`][distilabel.steps.tasks.Task] is a special kind of [`Step`][distilabel.steps.Step] that includes the [`LLM`][distilabel.llms.LLM] as a mandatory argument. As with a [`Step`][distilabel.steps.Step], it is normally used within a [`Pipeline`][distilabel.pipeline.Pipeline] but can also be used standalone.
+The [`Task`][distilabel.steps.tasks.Task] is a special kind of [`Step`][distilabel.steps.Step] that includes the [`LLM`][distilabel.models.llms.LLM] as a mandatory argument. As with a [`Step`][distilabel.steps.Step], it is normally used within a [`Pipeline`][distilabel.pipeline.Pipeline] but can also be used standalone.
 
 For example, the most basic task is the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task, which generates text based on a given instruction.
 
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.steps.tasks import TextGeneration
 
 task = TextGeneration(
@@ -66,7 +66,7 @@ The `Tasks` include a handy method to show what the prompt formatted for an `LLM
 
 ```python
 from distilabel.steps.tasks import UltraFeedback
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 uf = UltraFeedback(
     llm=InferenceEndpointsLLM(
@@ -95,8 +95,8 @@ uf.print(
     In case you don't want to load an LLM to render the template, you can create a dummy one like the ones we could use for testing.
 
     ```python
-    from distilabel.llms.base import LLM
-    from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
+    from distilabel.models import LLM
+    from distilabel.models.mixins import MagpieChatTemplateMixin
 
     class DummyLLM(AsyncLLM, MagpieChatTemplateMixin):
         structured_output: Any = None
@@ -131,7 +131,7 @@ uf.print(
 All the `Task`s have a `num_generations` attribute that allows defining the number of generations that we want to have per input. We can update the example above to generate 3 completions per input:
 
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.steps.tasks import TextGeneration
 
 task = TextGeneration(
@@ -170,7 +170,7 @@ next(task.process([{"instruction": "What's the capital of Spain?"}]))
 In addition, we might want to group the generations in a single output row as maybe one downstream step expects a single row with multiple generations. We can achieve this by setting the `group_generations` attribute to `True`:
 
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.steps.tasks import TextGeneration
 
 task = TextGeneration(
@@ -209,37 +209,65 @@ We can define a custom step by creating a new subclass of the [`Task`][distilabe
 
 - `outputs`: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not. This property should always include `model_name` as one of the outputs since that's automatically injected from the LLM.
 
-- `format_output`: is a method that receives the output from the [`LLM`][distilabel.llms.LLM] and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in `outputs`. Note that there's no need to include the `model_name` in the output.
+- `format_output`: is a method that receives the output from the [`LLM`][distilabel.models.llms.LLM] and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in `outputs`. Note that there's no need to include the `model_name` in the output.
 
-```python
-from typing import Any, Dict, List, Union, TYPE_CHECKING
+=== "Inherit from `Task`"
 
-from distilabel.steps.tasks.base import Task
+    When using the `Task` class inheritance method for creating a custom task, we can also optionally override the `Task.process` method to define a more complex processing logic involving an `LLM`, as the default one just calls the `LLM.generate` method once previously formatting the input and subsequently formatting the output. For example, [EvolInstruct][distilabel.steps.tasks.EvolInstruct] task overrides this method to call the `LLM.generate` multiple times (one for each evolution).
 
-if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns
-    from distilabel.steps.tasks.typing import ChatType
+    ```python
+    from typing import Any, Dict, List, Union, TYPE_CHECKING
+
+    from distilabel.steps.tasks import Task
+
+    if TYPE_CHECKING:
+        from distilabel.steps.typing import StepColumns
+        from distilabel.steps.tasks.typing import ChatType
 
 
-class MyCustomTask(Task):
-    @property
-    def inputs(self) -> "StepColumns":
-        return ["input_field"]
+    class MyCustomTask(Task):
+        @property
+        def inputs(self) -> "StepColumns":
+            return ["input_field"]
 
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        return [
-            {
-                "role": "user",
-                "content": input["input_field"],
-            },
-        ]
+        def format_input(self, input: Dict[str, Any]) -> "ChatType":
+            return [
+                {
+                    "role": "user",
+                    "content": input["input_field"],
+                },
+            ]
 
-    @property
-    def outputs(self) -> "StepColumns":
-        return ["output_field", "model_name"]
+        @property
+        def outputs(self) -> "StepColumns":
+            return ["output_field", "model_name"]
 
-    def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        def format_output(
+            self, output: Union[str, None], input: Dict[str, Any]
+        ) -> Dict[str, Any]:
+            return {"output_field": output}
+    ```
+
+=== "Using the `@task` decorator"
+
+    If your task just needs a system prompt, a user message template and a way to format the output given by the `LLM`, then you can use the `@task` decorator to avoid writing too much boilerplate code.
+
+    ```python
+    from typing import Any, Dict, Union
+    from distilabel.steps.tasks import task
+
+
+    @task(inputs=["input_field"], outputs=["output_field"])
+    def MyCustomTask(output: Union[str, None], input: Union[Dict[str, Any], None] = None) -> Dict[str, Any]:
+        """
+        ---
+        system_prompt: |
+            My custom system prompt
+
+        user_message_template: |
+            My custom user message template: {input_field}
+        ---
+        """
+        # Format the `LLM` output here
         return {"output_field": output}
-```
+    ```

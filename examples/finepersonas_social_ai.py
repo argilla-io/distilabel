@@ -16,7 +16,7 @@ from typing import Literal
 
 from datasets import load_dataset
 
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import FormatTextGenerationSFT, LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration

@@ -43,7 +43,7 @@ from datasets import load_dataset
 
 from distilabel.pipeline import Pipeline
 from distilabel.steps.tasks import CLAIR
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 
 def transform_ultrafeedback(example: Dict[str, Any]) -> Dict[str, Any]:

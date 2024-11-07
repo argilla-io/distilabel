@@ -16,12 +16,12 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import pytest
 
-from distilabel.llms.base import LLM, AsyncLLM
-from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
+from distilabel.models.llms.base import LLM, AsyncLLM
+from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import GenerateOutput
+    from distilabel.models.llms.typing import GenerateOutput
     from distilabel.steps.tasks.typing import ChatType, FormattedInput
 
 
@@ -54,8 +54,8 @@ class DummyLLM(LLM):
 
     def generate(  # type: ignore
         self, inputs: "FormattedInput", num_generations: int = 1
-    ) -> "GenerateOutput":
-        return ["output" for _ in range(num_generations)]
+    ) -> List["GenerateOutput"]:
+        return [["output" for _ in range(num_generations)]]
 
 
 class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
