@@ -236,3 +236,45 @@ class TestDistiset:
             "size_categories": "n<1K",
             "tags": ["synthetic", "distilabel", "rlaif"],
         }
+
+    def test_token_counter(self) -> None:
+        disti = Distiset(
+            {
+                "default": DatasetDict(
+                    {
+                        "train": Dataset.from_dict(
+                            {
+                                "instruction": [
+                                    "Generate a list of answers and questions about the document.",
+                                    "other",
+                                ],
+                                "generation": ["some generated text", "other"],
+                                "distilabel_metadata": [
+                                    {
+                                        "raw_input_generation": [],  # Irrelevant in this case
+                                        "raw_output_generation": "",  # Irrelevant in this case
+                                        "statistics_generation": {
+                                            "input_tokens": 1882,
+                                            "output_tokens": 583,
+                                        },
+                                    },
+                                    {
+                                        "raw_input_generation": [],  # Irrelevant in this case
+                                        "raw_output_generation": "",  # Irrelevant in this case
+                                        "statistics_generation": {
+                                            "input_tokens": 1880,
+                                            "output_tokens": 581,
+                                        },
+                                    },
+                                ],
+                            }
+                        )
+                    }
+                ),
+            }
+        )
+        statistics_table = disti._get_dataset_statistics()
+        assert len(statistics_table) == 1
+        assert statistics_table.keys() == {"default"}
+        stats_table = "|                                     |   mean |     std |   min |   max |   sum |\n|:------------------------------------|-------:|--------:|------:|------:|------:|\n| input_tokens_statistics_generation  |   1881 | 1.41421 |  1880 |  1882 |  3762 |\n| output_tokens_statistics_generation |    582 | 1.41421 |   581 |   583 |  1164 |"
+        assert statistics_table["default"] == stats_table

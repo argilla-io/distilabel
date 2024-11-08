@@ -207,6 +207,7 @@ class Distiset(dict):
             include_script=include_script,
             filename_py=filename_py,
             artifacts=self._get_artifacts_metadata(),
+            statistics=self._get_dataset_statistics(),
             references=self.citations,
         )
 
@@ -237,6 +238,48 @@ class Distiset(dict):
                 )
 
         return dict(artifacts_metadata)
+
+    def _get_dataset_statistics(self) -> Dict[str, str]:
+        """Builds a dictionary with the statistics of the dataset.
+
+        Returns:
+            Each key in the dict corresponds to a leaf step in the pipeline, and the value is a markdown
+            table with the statistics.
+        """
+
+        def token_count(row):
+            metadata = row["distilabel_metadata"]
+            for col, data in metadata.items():
+                if col.startswith("statistics"):
+                    row[f"input_tokens_{col}"] = data["input_tokens"]
+                    row[f"output_tokens_{col}"] = data["output_tokens"]
+            return row
+
+        def get_token_count(dataset):
+            # Here we are accessing to a DatasetDict, which can result in error if
+            # there's no "train" split.
+            filtered = (
+                dataset["train"]
+                .select_columns("distilabel_metadata")
+                .map(token_count, num_proc=4)
+            )
+            token_count_columns = [
+                col
+                for col in filtered.column_names
+                if (col.startswith("input_tokens") or col.startswith("output_tokens"))
+            ]
+            select_stat_columns = ["mean", "std", "min", "max"]
+            df = filtered.select_columns(token_count_columns).to_pandas()
+            df_stats = df.describe().T[select_stat_columns]
+            df_stats["sum"] = df.sum(axis=0)
+            return df_stats.to_markdown()
+
+        stats = {}
+
+        for name, dataset in self.items():
+            stats[name] = get_token_count(dataset)
+
+        return stats
 
     def _extract_readme_metadata(
         self, repo_id: str, token: Optional[str]
