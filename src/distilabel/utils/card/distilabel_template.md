@@ -85,6 +85,15 @@ ds = load_dataset("{{ repo_id }}")
 
 {% endif %}
 
+{% if statistics %}
+## Dataset Statistics
+{% for leaf_name, table in statistics.items() %}
+* **Summary statistics**: `{{ leaf_name }}`
+{{ table }}
+{% endfor %}
+
+{% endif %}
+
 {% if references %}
 ## References
 
