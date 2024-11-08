@@ -19,6 +19,7 @@ from unittest import mock
 
 import nest_asyncio
 import pytest
+from tokenizers import Tokenizer
 
 from distilabel.models.llms.cohere import CohereLLM
 
@@ -50,16 +51,12 @@ class TestCohereLLM:
         llm = CohereLLM(model="command-r")
         llm._aclient = mock_async_client  # type: ignore
 
-        mocked_completion = mock.Mock(
-            choices=[
-                mock.Mock(
-                    message=mock.Mock(content=" Aenean hendrerit aliquam velit. ...")
-                )
-            ]
-        )
+        mocked_completion = mock.Mock(text="Aenean hendrerit aliquam velit...")
         llm._aclient.chat = mock.AsyncMock(return_value=mocked_completion)
 
-        await llm.agenerate(
+        llm._tokenizer = Tokenizer.from_pretrained("bert-base-uncased")
+
+        result = await llm.agenerate(
             input=[
                 {"role": "system", "content": ""},
                 {
@@ -68,9 +65,13 @@ class TestCohereLLM:
                 },
             ]
         )
+        assert result == {
+            "generations": ["Aenean hendrerit aliquam velit..."],
+            "statistics": {"input_tokens": [23], "output_tokens": [16]},
+        }
 
     @pytest.mark.skipif(
-        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+        sys.version_info < (3, 9), reason="`cohere` requires Python 3.9 or higher"
     )
     @pytest.mark.asyncio
     async def test_agenerate_structured(
@@ -89,6 +90,7 @@ class TestCohereLLM:
         sample_user = DummyUserDetail(name="John Doe", age=30)
 
         llm._aclient.chat = mock.AsyncMock(return_value=sample_user)
+        llm._tokenizer = Tokenizer.from_pretrained("bert-base-uncased")
 
         generation = await llm.agenerate(
             input=[
@@ -99,25 +101,23 @@ class TestCohereLLM:
                 },
             ]
         )
-        assert generation == [sample_user.model_dump_json()]
+        assert generation == {
+            "generations": [sample_user.model_dump_json()],
+            "statistics": {"input_tokens": [23], "output_tokens": [26]},
+        }
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_async_client: mock.MagicMock) -> None:
         llm = CohereLLM(model="command-r")
         llm._aclient = mock_async_client  # type: ignore
 
-        mocked_completion = mock.Mock(
-            choices=[
-                mock.Mock(
-                    message=mock.Mock(content=" Aenean hendrerit aliquam velit. ...")
-                )
-            ]
-        )
+        mocked_completion = mock.Mock(text="Aenean hendrerit aliquam velit...")
         llm._aclient.chat = mock.AsyncMock(return_value=mocked_completion)
 
+        llm._tokenizer = Tokenizer.from_pretrained("bert-base-uncased")
         nest_asyncio.apply()
 
-        llm.generate(
+        result = llm.generate(
             inputs=[
                 [
                     {"role": "system", "content": ""},
@@ -128,6 +128,12 @@ class TestCohereLLM:
                 ]
             ]
         )
+        assert result == [
+            {
+                "generations": ["Aenean hendrerit aliquam velit..."],
+                "statistics": {"input_tokens": [23], "output_tokens": [16]},
+            }
+        ]
 
     @pytest.mark.parametrize(
         "structured_output, dump",

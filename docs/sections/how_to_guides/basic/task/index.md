@@ -21,26 +21,35 @@ task.load()
 
 next(task.process([{"instruction": "What's the capital of Spain?"}]))
 # [
-#     {
-#         'instruction': "What's the capital of Spain?",
-#         'generation': 'The capital of Spain is Madrid.',
-#         'distilabel_metadata': {
-#               'raw_output_text-generation': 'The capital of Spain is Madrid.',
-#               'raw_input_text-generation': [
-#                   {'role': 'user', 'content': "What's the capital of Spain?"}
-#               ]
-#         },
-#         'model_name': 'meta-llama/Meta-Llama-3-70B-Instruct'
-#     }
+#   {
+#     "instruction": "What's the capital of Spain?",
+#     "generation": "The capital of Spain is Madrid.",
+#     "distilabel_metadata": {
+#       "raw_output_text-generation": "The capital of Spain is Madrid.",
+#       "raw_input_text-generation": [
+#         {
+#           "role": "user",
+#           "content": "What's the capital of Spain?"
+#         }
+#       ],
+#       "statistics_text-generation": {  # (1)
+#         "input_tokens": 18,
+#         "output_tokens": 8
+#       }
+#     },
+#     "model_name": "meta-llama/Meta-Llama-3.1-8B-Instruct"
+#   }
 # ]
 ```
 
-!!! NOTE
+1. The `LLMs` will not only return the text but also a `statistics_{STEP_NAME}` field that will contain statistics related to the generation. If available, at least the input and output tokens will be returned.
+
+!!! Note
     The `Step.load()` always needs to be executed when being used as a standalone. Within a pipeline, this will be done automatically during pipeline execution.
 
 As shown above, the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task adds a `generation` based on the `instruction`.
 
-!!! Tip
+!!! Tip "New in version 1.2.0"
     Since version `1.2.0`, we provide some metadata about the LLM call through `distilabel_metadata`. This can be disabled by setting the `add_raw_output` attribute to `False` when creating the task.
 
     Additionally, since version `1.4.0`, the formatted input can also be included, which can be helpful when testing
@@ -57,9 +66,12 @@ As shown above, the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] ta
     )
     ```
 
+!!! Tip "New in version 1.5.0"
+    Since version `1.5.0` `distilabel_metadata` includes a new `statistics` field out of the box. The generation from the LLM will not only contain the text, but also statistics associated with the text if available, like the input and output tokens. This field will be generated with `statistic_{STEP_NAME}` to avoid collisions between different steps in the pipeline, similar to how `raw_output_{STEP_NAME}` works.
+
 ### Task.print
 
-!!! Info
+!!! Info "New in version 1.4.0"
     New since version `1.4.0`, [`Task.print`][distilabel.steps.tasks.base._Task.print] `Task.print` method.
 
 The `Tasks` include a handy method to show what the prompt formatted for an `LLM` would look like, let's see an example with [`UltraFeedback`][distilabel.steps.tasks.ultrafeedback.UltraFeedback], but it applies to any other `Task`.
@@ -271,3 +283,6 @@ We can define a custom step by creating a new subclass of the [`Task`][distilabe
         # Format the `LLM` output here
         return {"output_field": output}
     ```
+
+!!! Warning
+    Most `Tasks` reuse the `Task.process` method to process the generations, but if a new `Task` defines a custom `process` method, like happens for example with [`Magpie`][distilabel.steps.tasks.magpie.base.Magpie], one hast to deal with the `statistics` returned by the `LLM`.

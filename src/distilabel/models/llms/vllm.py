@@ -33,6 +33,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
 from distilabel.models.llms.openai import OpenAILLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
@@ -41,8 +42,11 @@ if TYPE_CHECKING:
     from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
+    from vllm.outputs import RequestOutputs, CompletionOutput
 
     from distilabel.steps.tasks.typing import StandardInput
+    from distilabel.llms.typing import LLMStatistics
+
 
 LogitsProcessorFn = Union[
     Callable[[List[int], Any], Any],
@@ -231,7 +235,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             The prompt to send to the LLM.
         """
         if self._tokenizer.chat_template is None:
-            return input[0]["content"]
+            return [item["content"] for item in input if item["role"] == "user"][0]
 
         prompt: str = (
             self._tokenizer.apply_chat_template(
@@ -267,7 +271,14 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         batches = {}
         for i, (instruction, structured_output) in enumerate(inputs):
             instruction = self.prepare_input(instruction)
-            instruction_order[instruction] = i
+
+            # We need to convert the instruction to a string to make it hashable
+            str_instruction = instruction
+            if not isinstance(instruction, str):
+                str_instruction = json.dumps(instruction)
+
+            instruction_order[str_instruction] = i
+
             structured_output = json.dumps(structured_output)
             if structured_output not in batches:
                 batches[structured_output] = [instruction]
@@ -280,7 +291,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         ]
         # Generate the list of indices based on the original order
         sorted_indices = [
-            instruction_order[instruction] for instruction in flat_instructions
+            instruction_order[str_instruction] for instruction in flat_instructions
         ]
         return [
             (batch, json.loads(schema)) for schema, batch in batches.items()
@@ -353,12 +364,12 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             # Simulate a batch without the structured output content
             prepared_batches = [([self.prepare_input(input) for input in inputs], None)]
             sorted_indices = None
-
         # Case in which we have a single structured output for the dataset
         if self._structured_output_logits_processor:
             logits_processors.append(self._structured_output_logits_processor)
 
         batched_outputs = []
+        generations = []
 
         for prepared_inputs, structured_output in prepared_batches:
             if structured_output:
@@ -383,23 +394,37 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 **extra_sampling_params,
             )
 
-            batch_outputs = self._model.generate(
+            batch_outputs: List["RequestOutputs"] = self._model.generate(
                 prepared_inputs,
                 sampling_params,
                 use_tqdm=False,  # type: ignore
             )
 
+            # TODO: This is repeated in prepare_output, but for simplicity we extract
+            # the batched_outputs as we did when there wasn't statistics and we just
+            # return the str generations
             batched_outputs += [
                 [output.text for output in outputs.outputs] for outputs in batch_outputs
             ]
+            for input, outputs in zip(prepared_inputs, batch_outputs):
+                generations.append(
+                    prepare_output(
+                        [output.text for output in outputs.outputs],
+                        **self._get_llm_statistics(input, outputs),
+                    )
+                )
 
         # If logits_processor is set, we need to sort the outputs back to the original order
         # (would be needed only if we have multiple structured outputs in the dataset)
         if sorted_indices is not None:
-            batched_outputs = _sort_batches(
-                batched_outputs, sorted_indices, num_generations=num_generations
+            # Sort the batched outputs together with the statistics
+            generations = self._prepare_sorted_resuts(
+                batched_outputs,
+                sorted_indices,
+                generations,
+                num_generations=num_generations,
             )
-        return batched_outputs
+        return generations
 
     def _prepare_structured_output(
         self, structured_output: Optional[OutlinesStructuredOutputType] = None
@@ -420,6 +445,65 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if (schema := result.get("schema")) and self.structured_output:
             self.structured_output["schema"] = schema
         return result["processor"]
+
+    def _get_llm_statistics(
+        self, input: "FormattedInput", outputs: "CompletionOutput"
+    ) -> "LLMStatistics":
+        output_tokens = [len(output.token_ids) for output in outputs.outputs]
+        return {
+            "input_tokens": [compute_tokens(input, self._tokenizer.encode)]
+            * len(output_tokens),
+            "output_tokens": output_tokens,
+        }
+
+    @staticmethod
+    def _prepare_sorted_resuts(
+        batched_outputs: List[List[FormattedInput]],
+        sorted_indices: List[int],
+        generations: List[GenerateOutput],
+        num_generations: int = 1,
+    ) -> List[GenerateOutput]:
+        """Helper method to sort the results in case of multiple structured outputs in the dataset.
+
+        Args:
+            batched_outputs: The mini-batches generated by the model.
+            sorted_indices: The indices that would sort the mini-batches back to the original order.
+            generations: The prepared outputs that would be returned in the general case,
+                from which the statistics will be extracted and sorted.
+            num_generations: The number of generations requested to vLLM. Defaults to 1.
+
+        Returns:
+            The list of GenerateOutput sorted back to the original order.
+        """
+
+        # This was the only required sort back with only the generations
+        batched_outputs = _sort_batches(
+            batched_outputs, sorted_indices, num_generations=num_generations
+        )
+        # Prepare the statistics to be sorted
+        # Loop over all the variables in the statistics
+        # Get the keys from the LLMStatistics
+        statistic_fields = list(generations[0]["statistics"].keys())
+        statistics = {}
+        for field in statistic_fields:
+            batched_field = _sort_batches(
+                [g["statistics"][field] for g in generations],
+                sorted_indices,
+                num_generations=num_generations,
+            )
+            statistics[field] = batched_field
+
+        # Regenerates the outputs as they are returned buy `preare_output`
+        sorted_results = []
+        for i, batched_output in enumerate(batched_outputs):
+            generation = {"generations": batched_output}
+            statistics = {
+                field: batched_field[i] for field, batched_field in statistics.items()
+            }
+            generation.update({"statistics": statistics})
+            sorted_results.append(generation)
+
+        return sorted_results
 
 
 class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
@@ -604,7 +688,8 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(text)
-        return generations
+
+        return prepare_output(generations, **self._get_llm_statistics(completion))
 
 
 def _sort_batches(

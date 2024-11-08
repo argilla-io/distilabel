@@ -30,13 +30,19 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import prepare_output
 from distilabel.steps.tasks.typing import (
     FormattedInput,
     InstructorStructuredOutputType,
 )
 
 if TYPE_CHECKING:
+    from typing import BaseModel
+
     from anthropic import AsyncAnthropic
+    from anthropic.types import Message
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 _ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
@@ -260,17 +266,26 @@ class AnthropicLLM(AsyncLLM):
         if structured_output:
             kwargs = self._prepare_kwargs(kwargs, structured_output)
 
-        generations = []
-
-        completion = await self._aclient.messages.create(**kwargs)  # type: ignore
+        completion: Union["Message", "BaseModel"] = await self._aclient.messages.create(
+            **kwargs
+        )  # type: ignore
         if structured_output:
-            generations.append(completion.model_dump_json())
-            return generations
+            # raw_response = completion._raw_response
+            return prepare_output(
+                [completion.model_dump_json()],
+                **self._get_llm_statistics(completion._raw_response),
+            )
 
         if (content := completion.content[0].text) is None:
             self._logger.warning(
                 f"Received no response using Anthropic client (model: '{self.model}')."
                 f" Finish reason was: {completion.stop_reason}"
             )
-        generations.append(content)
-        return generations
+        return prepare_output([content], **self._get_llm_statistics(completion))
+
+    @staticmethod
+    def _get_llm_statistics(completion: "Message") -> "LLMStatistics":
+        return {
+            "input_tokens": [completion.usage.input_tokens],
+            "output_tokens": [completion.usage.output_tokens],
+        }
