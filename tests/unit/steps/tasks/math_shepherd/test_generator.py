@@ -111,13 +111,13 @@ class TestMathShepherdGenerator:
                 assert FEW_SHOTS_GSM8K in rendered_system_prompt
             if M:
                 assert (
-                    "Generate 5 example solutions to the same problem"
+                    "Generate 5 example solutions to the following problem,"
                     in result[1]["content"]
                 )
         else:
             if M:
                 assert (
-                    "Generate 5 example solutions to the same problem"
+                    "Generate 5 example solutions to the following problem,"
                     in result[0]["content"]
                 )
 

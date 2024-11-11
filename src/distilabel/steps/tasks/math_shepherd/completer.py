@@ -51,7 +51,7 @@ Each step should:
 
 RULES_GSM8K: Final[str] = """\
 # Rules:
-- Calculations should be embedded within the explanatory text using double angle brackets: <<calculation>>
+- All calculations must be shown within <<>> brackets
 - Basic operations: use * for multiplication, / for division, + for addition, - for subtraction
 - Write the full calculation and result, e.g., <<5*10=50>>50
 """
@@ -76,8 +76,9 @@ Step 2: On Friday, he borrows 40 + 40/100 * 40 = <<40+40/100*40=56>>56 books.
 Step 3: In a week, he borrows 5.7 * 7 = <<5.7*7=40>>40 books. The answer is: 40"""
 
 
-TEMPLATE = """{{ instruction }}
-Generate {{ M }} example solutions to the same problem, separated by a single `---` and nothing else"""
+TEMPLATE: str = """Generate {{ N }} example solutions to the same problem, separated by a single `---` and nothing else
+{{ instruction }}
+"""
 
 
 # Type aliases
@@ -367,6 +368,11 @@ class MathShepherdCompleter(Task):
 
             label = f" {self.tags[1]}"
             for completion in n_completions:
+                if len(completion) == 0:
+                    # This can be a failed generation
+                    label = ""  # Everyting stays the same
+                    self._logger.info("Completer failed due to empty completion")
+                    continue
                 if completion[-1] == golden_answers[instruction_i]:
                     label = f" { self.tags[0]}"
                     # If we found one, it's enough as we are doing Hard Estimation

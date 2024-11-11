@@ -37,7 +37,7 @@ You are a math tutor that helps students solve math problems by breaking them do
 
 # Format requirements:
 - Number each step starting with "Step 1:"
-- Include a clear "The answer is: " statement at the end of each problem
+- The final step should clearly state "The answer is: [result]"
 - Keep explanations clear and concise
 
 {{ extra_rules }}{{ few_shots }}{{ errors }}"""
@@ -57,14 +57,15 @@ A store sells notebooks for $3 each. If you buy 5 or more, you get a 20% discoun
 ## Output
 Step 1: Calculate the regular price for 6 notebooks: 6 * $3 = <<63=18>>18 dollars
 Step 2: Calculate the 20% discount amount: 18 * 20/100 = <<1820/100=3.6>>3.6 dollars
-Step 3: Subtract the discount from the regular price: 18 - 3.6 = <<18-3.6=14.4>>14.4 dollars. Answer: 14.4
+Step 3: Subtract the discount from the regular price: 18 - 3.6 = <<18-3.6=14.4>>14.4 dollars. The answer is: 14.4
 
 ## Input
 A recipe calls for 2.5 cups of flour to make 12 cookies. How many cups of flour are needed to make 30 cookies?
 
 ## Output
 Step 1: Find out how many cups of flour are needed per cookie: 2.5 ÷ 12 = <<2.5/12=0.208333>>0.208333 cups
-Step 2: Calculate the flour needed for 30 cookies: 0.208333 * 30 = <<0.208333*30=6.25>>6.25 cups. Answer: 6.25"""
+Step 2: Calculate the flour needed for 30 cookies: 0.208333 * 30 = <<0.208333*30=6.25>>6.25 cups. The answer is: 6.25
+"""
 
 RULES_MATH: Final[str] = """\
 # Rules:
@@ -97,8 +98,8 @@ Step 3: Add the results: $32 + 27 = 59$.
 Step 4: Therefore, the answer is $\boxed{59}$. The answer is: 59
 """
 
-TEMPLATE = """{{ instruction }}
-{% if M %}Generate {{ M }} example solutions to the same problem, separated by a single `---`{% endif %}"""
+TEMPLATE = """{% if M %}Generate {{ M }} example solutions to the following problem, separated by a single `---`:{% endif %}
+{{ instruction }}"""
 
 
 class MathShepherdGenerator(Task):
