@@ -100,7 +100,7 @@ class MathShepherdCompleter(Task):
         system_prompt: The system prompt to be used in the completions. The default one has been
             checked and generates good completions using Llama 3.1 with 8B and 70B,
             but it can be modified to adapt it to the model and dataset selected.
-        extra_rules: This field can be used to inser extra rules relevant to the type of dataset.
+        extra_rules: This field can be used to insert extra rules relevant to the type of dataset.
             For example, in the original paper they used GSM8K and MATH datasets, and this field
             can be used to insert the rules for the GSM8K dataset.
         few_shots: Few shots to help the model generating the completions, write them in the
@@ -124,7 +124,7 @@ class MathShepherdCompleter(Task):
 
     Categories:
         - text-generation
-        - labelling  # TODO: Add it to components_gallery.py
+        - labelling
 
     References:
         - [`Math-Shepherd: Verify and Reinforce LLMs Step-by-step without Human Annotations`](https://arxiv.org/abs/2312.08935)
