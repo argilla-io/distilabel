@@ -212,6 +212,7 @@ nav:
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
           - APIGen: "sections/pipeline_samples/papers/apigen.md"
           - CLAIR: "sections/pipeline_samples/papers/clair.md"
+          - Math Shepherd: "sections/pipeline_samples/papers/math_shepherd.md"
       - Examples:
           - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
           - Structured generation with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"
