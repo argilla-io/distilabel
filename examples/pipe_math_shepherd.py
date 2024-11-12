@@ -16,9 +16,12 @@ from datasets import load_dataset
 
 from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import CombineOutputs
-from distilabel.steps.tasks.math_shepherd.completer import MathShepherdCompleter
-from distilabel.steps.tasks.math_shepherd.generator import MathShepherdGenerator
+from distilabel.steps import CombineOutputs, ExpandColumns
+from distilabel.steps.tasks import (
+    FormatPRM,
+    MathShepherdCompleter,
+    MathShepherdGenerator,
+)
 
 ds_name = "openai/gsm8k"
 
@@ -36,12 +39,12 @@ with Pipeline(name="Math-Shepherd") as pipe:
     llm_70B = InferenceEndpointsLLM(
         model_id=model_id_8B,
         tokenizer_id=model_id_8B,
-        generation_kwargs={"max_new_tokens": 1024, "temperature": 0.6},
+        generation_kwargs={"max_new_tokens": 1024, "temperature": 0.5},
     )
     llm_8B = InferenceEndpointsLLM(
         model_id=model_id_8B,
         tokenizer_id=model_id_8B,
-        generation_kwargs={"max_new_tokens": 2048, "temperature": 0.6},
+        generation_kwargs={"max_new_tokens": 2048, "temperature": 0.7},
     )
 
     generator_golden = MathShepherdGenerator(
@@ -51,14 +54,21 @@ with Pipeline(name="Math-Shepherd") as pipe:
     generator = MathShepherdGenerator(
         name="generator",
         llm=llm_8B,
-        M=5,  # Generate 6 sample solutions
+        M=5,
     )
     completer = MathShepherdCompleter(name="completer", llm=llm_8B, N=4)
 
     combine = CombineOutputs()
-    [generator_golden, generator] >> combine >> completer
+
+    expand = ExpandColumns(
+        name="expand_columns",
+        columns=["solutions"],
+        encoded=True,
+    )
+    formatter = FormatPRM(name="format_prm")
+    [generator_golden, generator] >> combine >> completer >> expand >> formatter
 
 
 if __name__ == "__main__":
     distiset = pipe.run(use_cache=False, dataset=ds)
-    distiset.push_to_hub("plaguss/test_math_shepherd_v4")
+    distiset.push_to_hub("plaguss/test_math_shepherd_prm")
