@@ -45,6 +45,7 @@ from distilabel.steps.tasks.magpie.base import Magpie
 from distilabel.steps.tasks.magpie.generator import MagpieGenerator
 from distilabel.steps.tasks.math_shepherd.completer import MathShepherdCompleter
 from distilabel.steps.tasks.math_shepherd.generator import MathShepherdGenerator
+from distilabel.steps.tasks.math_shepherd.utils import FormatPRM
 from distilabel.steps.tasks.pair_rm import PairRM
 from distilabel.steps.tasks.prometheus_eval import PrometheusEval
 from distilabel.steps.tasks.quality_scorer import QualityScorer
@@ -85,6 +86,7 @@ __all__ = [
     "MagpieGenerator",
     "MathShepherdGenerator",
     "MathShepherdCompleter",
+    "FormatPRM",
     "PairRM",
     "PrometheusEval",
     "QualityScorer",
