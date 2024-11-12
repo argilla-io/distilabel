@@ -1981,6 +1981,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../components-gallery/steps/formatprm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../components-gallery/steps/truncatetextcolumn/" class="md-nav__link">
         
   
@@ -2122,6 +2143,48 @@
   
     <li class="md-nav__item">
       <a href="../../components-gallery/tasks/magpie/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/mathshepherdcompleter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/mathshepherdgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3614,6 +3677,27 @@
   
   <span class="md-ellipsis">
     CLAIR
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sections/pipeline_samples/papers/math_shepherd/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Math Shepherd
   </span>
   
 
@@ -5224,7 +5308,7 @@ class StepWithOnePreviousStep(Step):
 
 class StepWithSeveralPreviousStep(Step):
     # mind the * to indicate that the argument is a list of StepInput
-    def process(self, inputs: *StepInput) -&gt; StepOutput:
+    def process(self, *inputs: StepInput) -&gt; StepOutput:
         yield [...]
 ```
 </code></pre></div>
@@ -5758,7 +5842,7 @@ defined, validated, serialized and included in the <code>__init__</code> method 
 </span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>
 </span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a><span class="sd">        class StepWithSeveralPreviousStep(Step):</span>
 </span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="sd">            # mind the * to indicate that the argument is a list of StepInput</span>
-</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">            def process(self, inputs: *StepInput) -&gt; StepOutput:</span>
+</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">            def process(self, *inputs: StepInput) -&gt; StepOutput:</span>
 </span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a><span class="sd">                yield [...]</span>
 </span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a><span class="sd">        ```</span>
 </span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a>
