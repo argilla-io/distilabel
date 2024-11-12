@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+from typing import Union
+
+import pytest
+
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.columns.expand import ExpandColumns
 
@@ -26,16 +31,43 @@ class TestExpandColumns:
 
         assert expand_columns.columns == {"column1": "column1", "column2": "column2"}
 
-    def test_process(self) -> None:
+    @pytest.mark.parametrize(
+        "encoded, values",
+        [
+            (False, [{"column1": [1, 2, 3], "column2": ["a", "b", "c"]}]),
+            (
+                True,
+                [
+                    {
+                        "column1": json.dumps([1, 2, 3]),
+                        "column2": json.dumps(["a", "b", "c"]),
+                    }
+                ],
+            ),
+            (
+                ["column1", "column2"],
+                [
+                    {
+                        "column1": json.dumps([1, 2, 3]),
+                        "column2": json.dumps(["a", "b", "c"]),
+                    }
+                ],
+            ),
+        ],
+    )
+    def test_process(
+        self,
+        encoded: Union[bool, list[str]],
+        values: list[dict[str, Union[list[int], list[str], str]]],
+    ) -> None:
         expand_columns = ExpandColumns(
             name="expand_columns",
             columns=["column1", "column2"],
+            encoded=encoded,
             pipeline=Pipeline(name="unit-test"),
         )
 
-        result = next(
-            expand_columns.process([{"column1": [1, 2, 3], "column2": ["a", "b", "c"]}])
-        )
+        result = next(expand_columns.process(values))
 
         assert result == [
             {"column1": 1, "column2": "a"},
