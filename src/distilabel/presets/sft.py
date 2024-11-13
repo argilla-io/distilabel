@@ -1,9 +1,23 @@
+# Copyright 2023-present, Argilla, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
-from typing import Optional
+
+from distilabel.llms import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import KeepColumns
 from distilabel.steps.tasks import MagpieGenerator
-from distilabel.llms import InferenceEndpointsLLM
 
 MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
@@ -20,7 +34,6 @@ SYSTEM_PROMPT = "You are a customer support agent for a phone company. \
 
 
 class SFTPipeline:
-
     def __init__(self, hf_token=None) -> None:
         if hf_token:
             os.environ["HF_TOKEN"] = hf_token
