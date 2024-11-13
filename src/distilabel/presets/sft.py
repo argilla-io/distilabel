@@ -17,7 +17,9 @@ import os
 from distilabel.llms import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import KeepColumns
-from distilabel.steps.tasks import MagpieGenerator
+from distilabel.steps.tasks import MagpieGenerator, Task
+from distilabel.llms import InferenceEndpointsLLM
+from distilabel.llms.base import LLM
 
 MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
@@ -34,28 +36,45 @@ SYSTEM_PROMPT = "You are a customer support agent for a phone company. \
 
 
 class SFTPipeline:
-    def __init__(self, hf_token=None) -> None:
+
+    def __init__(
+        self,
+        llm: LLM,
+        hf_token=None,
+        generation_kwargs=None,
+        n_turns: int = 1,
+        num_rows: int = 10,
+        batch_size: int = 1,
+    ) -> None:
+        
         if hf_token:
             os.environ["HF_TOKEN"] = hf_token
+            
+        if generation_kwargs is None:
+            generation_kwargs = {
+                "temperature": 0.9,
+                "do_sample": True,
+                "max_new_tokens": 2048,
+                "stop_sequences": [
+                    "<|eot_id|>",
+                    "<|start_header_id|>",
+                    "assistant",
+                    " \n\n",
+                ],
+            }
+            
+        if llm is None:
+            llm = InferenceEndpointsLLM(
+                model_id=MODEL,
+                tokenizer_id=MODEL,
+                magpie_pre_query_template="llama3",
+                generation_kwargs=generation_kwargs,
+                api_key=hf_token,
+            )
+            
         with Pipeline(name="sft") as pipeline:
             magpie = MagpieGenerator(
-                llm=InferenceEndpointsLLM(
-                    model_id=MODEL,
-                    tokenizer_id=MODEL,
-                    magpie_pre_query_template="llama3",
-                    generation_kwargs={
-                        "temperature": 0.9,
-                        "do_sample": True,
-                        "max_new_tokens": 2048,
-                        "stop_sequences": [
-                            "<|eot_id|>",
-                            "<|start_header_id|>",
-                            "assistant",
-                            " \n\n",
-                        ],
-                    },
-                    api_key=hf_token,
-                ),
+                llm=llm,
                 n_turns=1,
                 num_rows=10,
                 batch_size=1,
@@ -63,7 +82,7 @@ class SFTPipeline:
                 output_mappings={"instruction": "prompt", "response": "completion"},
             )
             keep_columns = KeepColumns(
-                columns=["prompt", "completion"] + ["model_name"],
+                columns=["prompt", "completion", "model_name"],
             )
             magpie.connect(keep_columns)
 
