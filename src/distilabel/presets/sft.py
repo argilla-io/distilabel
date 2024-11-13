@@ -15,11 +15,10 @@
 import os
 
 from distilabel.llms import InferenceEndpointsLLM
+from distilabel.llms.base import LLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import KeepColumns
-from distilabel.steps.tasks import MagpieGenerator, Task
-from distilabel.llms import InferenceEndpointsLLM
-from distilabel.llms.base import LLM
+from distilabel.steps.tasks import MagpieGenerator
 
 MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
@@ -36,7 +35,6 @@ SYSTEM_PROMPT = "You are a customer support agent for a phone company. \
 
 
 class SFTPipeline:
-
     def __init__(
         self,
         llm: LLM,
@@ -46,10 +44,9 @@ class SFTPipeline:
         num_rows: int = 10,
         batch_size: int = 1,
     ) -> None:
-        
         if hf_token:
             os.environ["HF_TOKEN"] = hf_token
-            
+
         if generation_kwargs is None:
             generation_kwargs = {
                 "temperature": 0.9,
@@ -62,7 +59,7 @@ class SFTPipeline:
                     " \n\n",
                 ],
             }
-            
+
         if llm is None:
             llm = InferenceEndpointsLLM(
                 model_id=MODEL,
@@ -71,7 +68,7 @@ class SFTPipeline:
                 generation_kwargs=generation_kwargs,
                 api_key=hf_token,
             )
-            
+
         with Pipeline(name="sft") as pipeline:
             magpie = MagpieGenerator(
                 llm=llm,
