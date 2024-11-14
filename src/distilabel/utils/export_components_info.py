@@ -28,6 +28,7 @@ class ComponentsInfo(TypedDict):
     """A dictionary containing `distilabel` components information."""
 
     llms: List
+    ilms: List
     steps: List
     tasks: List
     embeddings: List
@@ -54,6 +55,10 @@ def export_components_info() -> ComponentsInfo:
         "llms": [
             {"name": llm_type.__name__, "docstring": parse_google_docstring(llm_type)}
             for llm_type in _get_llms()
+        ],
+        "ilms": [
+            {"name": ilm_type.__name__, "docstring": parse_google_docstring(ilm_type)}
+            for ilm_type in _get_ilms()
         ],
         "embeddings": [
             {
@@ -110,6 +115,23 @@ def _get_llms() -> List[Type["LLM"]]:
         llm_type
         for llm_type in _recursive_subclasses(LLM)
         if not inspect.isabstract(llm_type)
+    ]
+
+
+def _get_ilms() -> List[Type["LLM"]]:
+    """Get all `ILM` subclasses, that are not abstract classes.
+
+    Note:
+        This is a placeholder as we don't have `ILM` classes yet.
+
+    Returns:
+        The list of all the classes under `distilabel.models.ilms` that are not abstract classes.
+    """
+    return [
+        llm_type
+        for llm_type in _recursive_subclasses(LLM)
+        if ("distilabel.models.ilms" in str(llm_type))
+        and (not inspect.isabstract(llm_type))
     ]
 
 

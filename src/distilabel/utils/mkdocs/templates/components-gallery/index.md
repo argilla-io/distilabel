@@ -31,6 +31,14 @@ hide:
 
     [:octicons-arrow-right-24: LLMs](llms/index.md){ .bottom }
 
+-   :material-image:{ .lg .middle } __ILMs__
+
+    ---
+
+    Explore all the available `ILM`s integrated with `distilabel`.
+
+    [:octicons-arrow-right-24: ILMs](ilms/index.md){ .bottom }
+
 -   :material-vector-line:{ .lg .middle } __Embeddings__
 
     ---
