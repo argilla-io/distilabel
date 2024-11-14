@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from PIL import Image
 
 
-class InferenceEndpointsImageLLM(InferenceEndpointsLLM):
+class InferenceEndpointsImageLM(InferenceEndpointsLLM):
     """OpenAI image generation implementation running the async API client.
 
     Attributes:
@@ -43,12 +43,12 @@ class InferenceEndpointsImageLLM(InferenceEndpointsLLM):
         Generate images from text prompts:
 
         ```python
-        from distilabel.models.vlms import InferenceEndpointsImageLLM
+        from distilabel.models.ilms import InferenceEndpointsImageLM
 
-        llm = InferenceEndpointsImageLLM(model_id="black-forest-labs/FLUX.1-schnell", api_key="api.key")
-        llm.load()
+        ilm = InferenceEndpointsImageLM(model_id="black-forest-labs/FLUX.1-schnell", api_key="api.key")
+        ilm.load()
 
-        output = llm.generate_outputs(
+        output = ilm.generate_outputs(
             inputs=["a white siamese cat"],
         )
         # {"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}

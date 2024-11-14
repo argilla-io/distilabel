@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.models.vlms.huggingface.inference_endpoints import (
-    InferenceEndpointsImageLLM,
+from distilabel.models.ilms.huggingface.inference_endpoints import (
+    InferenceEndpointsImageLM,
 )
-from distilabel.models.vlms.openai import OpenAIImageLM
+from distilabel.models.ilms.openai import OpenAIImageLM
 
 __all__ = [
-    "InferenceEndpointsImageLLM",
+    "InferenceEndpointsImageLM",
     "OpenAIImageLM",
 ]

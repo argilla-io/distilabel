@@ -48,13 +48,13 @@ class OpenAIImageLM(OpenAILLM):
         Generate images from text prompts:
 
         ```python
-        from distilabel.models.vlms import OpenAIVLM
+        from distilabel.models.vlms import OpenAIImageLM
 
-        llm = OpenAIVLM(model="dall-e-3", api_key="api.key")
+        ilm = OpenAIImageLM(model="dall-e-3", api_key="api.key")
 
-        llm.load()
+        ilm.load()
 
-        output = llm.generate_outputs(
+        output = ilm.generate_outputs(
             inputs=["a white siamese cat"],
             size="1024x1024",
             quality="standard",
