@@ -14,7 +14,7 @@
 
 import base64
 import io
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import validate_call
 
@@ -28,18 +28,13 @@ class InferenceEndpointsImageLLM(InferenceEndpointsLLM):
     """OpenAI image generation implementation running the async API client.
 
     Attributes:
-        model: the model name to use for the LLM e.g. "dall-e-3", etc.
-            Supported models can be found [here](https://platform.openai.com/docs/guides/images).
-        base_url: the base URL to use for the OpenAI API requests. Defaults to `None`, which
-            means that the value set for the environment variable `OPENAI_BASE_URL` will
-            be used, or "https://api.openai.com/v1" if not set.
-        api_key: the API key to authenticate the requests to the OpenAI API. Defaults to
-            `None` which means that the value set for the environment variable `OPENAI_API_KEY`
-            will be used, or `None` if not set.
-        max_retries: the maximum number of times to retry the request to the API before
-            failing. Defaults to `6`.
-        timeout: the maximum time in seconds to wait for a response from the API. Defaults
-            to `120`.
+        model_id: the model ID to use for the LLM as available in the Hugging Face Hub, which
+            will be used to resolve the base URL for the serverless Inference Endpoints API requests.
+            Defaults to `None`.
+        endpoint_name: the name of the Inference Endpoint to use for the LLM. Defaults to `None`.
+        endpoint_namespace: the namespace of the Inference Endpoint to use for the LLM. Defaults to `None`.
+        base_url: the base URL to use for the Inference Endpoints API requests.
+        api_key: the API key to authenticate the requests to the Inference Endpoints API.
 
     Icon:
         `:hugging:`
@@ -50,11 +45,11 @@ class InferenceEndpointsImageLLM(InferenceEndpointsLLM):
         ```python
         from distilabel.models.vlms import InferenceEndpointsImageLLM
 
-        llm = InferenceEndpointsImageLLM(model="black-forest-labs/FLUX.1-schnell", api_key="api.key")
+        llm = InferenceEndpointsImageLLM(model_id="black-forest-labs/FLUX.1-schnell", api_key="api.key")
         llm.load()
 
         output = llm.generate_outputs(
-            inputs=[{"prompt": "a white siamese cat"}],
+            inputs=["a white siamese cat"],
         )
         # {"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}
         ```
@@ -63,7 +58,7 @@ class InferenceEndpointsImageLLM(InferenceEndpointsLLM):
     @validate_call
     async def agenerate(
         self,
-        input: dict[str, Any],
+        input: str,
         negative_prompt: Optional[str] = None,
         height: Optional[float] = None,
         width: Optional[float] = None,
@@ -73,7 +68,7 @@ class InferenceEndpointsImageLLM(InferenceEndpointsLLM):
         """Generates images from text prompts using `huggingface_hub.AsyncInferenceClient.text_to_image`.
 
         Args:
-            input: Input containing a dict with the key "prompt", with the prompt to generate an image from.
+            input: Prompt to generate an image from.
             negative_prompt: An optional negative prompt for the image generation. Defaults to None.
             height: The height in pixels of the image to generate.
             width: The width in pixels of the image to generate.
@@ -87,7 +82,7 @@ class InferenceEndpointsImageLLM(InferenceEndpointsLLM):
         """
 
         image: "Image" = await self._aclient.text_to_image(
-            input["prompt"],
+            input,
             negative_prompt=negative_prompt,
             height=height,
             width=width,

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import base64
-from typing import TYPE_CHECKING, Any, Literal, Optional
+from typing import TYPE_CHECKING, Literal, Optional
 
 import requests
 from pydantic import validate_call
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from openai.types import ImagesResponse
 
 
-class OpenAIVLM(OpenAILLM):
+class OpenAIImageLM(OpenAILLM):
     """OpenAI image generation implementation running the async API client.
 
     Attributes:
@@ -55,7 +55,7 @@ class OpenAIVLM(OpenAILLM):
         llm.load()
 
         output = llm.generate_outputs(
-            inputs=[{"prompt": "a white siamese cat"}],
+            inputs=["a white siamese cat"],
             size="1024x1024",
             quality="standard",
             style="natural",
@@ -67,7 +67,7 @@ class OpenAIVLM(OpenAILLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: dict[str, Any],
+        input: str,
         num_generations: int = 1,
         quality: Optional[Literal["standard", "hd"]] = "standard",
         response_format: Optional[Literal["url", "b64_json"]] = "url",
@@ -99,19 +99,16 @@ class OpenAIVLM(OpenAILLM):
                 images. This param is only supported for `dall-e-3`.
 
         Returns:
-            A list of lists of strings containing the generated responses for each input.
+            A dictionary with the list of images generated.
         """
-        kwargs = {
-            "model": self.model_name,
-            "prompt": input["prompt"],
-            "n": num_generations,
-            "quality": quality,
-            "response_format": response_format,
-            "size": size,
-            "style": style,
-        }
         images_response: "ImagesResponse" = await self._aclient.images.generate(
-            **kwargs
+            model=self.model_name,
+            prompt=input,
+            n=num_generations,
+            quality=quality,
+            response_format=response_format,
+            size=size,
+            style=style,
         )
         images = []
         for image in images_response.data:
