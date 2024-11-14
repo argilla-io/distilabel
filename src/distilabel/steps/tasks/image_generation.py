@@ -57,13 +57,13 @@ class ImageGeneration(Task):
         ```python
         from distilabel.steps.tasks import ImageGeneration
         # Select the Image Generation model to use
-        from distilabel.models.vlms import OpenAIImageLM
-        from distilabel.models.vlms import InferenceEndpointsImageLLM
+        from distilabel.models.ilms import OpenAIImageLM
+        from distilabel.models.ilms import InferenceEndpointsImageLM
 
-        llm = InferenceEndpointsImageLLM(
+        ilm = InferenceEndpointsImageLM(
             model_id="black-forest-labs/FLUX.1-schnell"
         )
-        llm = OpenAIVLM(
+        ilm = OpenAIImageLM(
             model="dall-e-3",
             api_key="api.key",
             generation_kwargs={
@@ -75,7 +75,7 @@ class ImageGeneration(Task):
 
         # save_images=True by default in JPEG format, if set to False, the image will be saved as a string.
         image_gen = ImageGeneration(
-            llm=llm,
+            llm=ilm,
             save_images=True,
             image_format="JPEG"
         )
