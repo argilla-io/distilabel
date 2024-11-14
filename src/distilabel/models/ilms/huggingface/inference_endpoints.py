@@ -64,7 +64,7 @@ class InferenceEndpointsImageLM(InferenceEndpointsLLM):
         width: Optional[float] = None,
         num_inference_steps: Optional[float] = None,
         guidance_scale: Optional[float] = None,
-    ) -> dict[str, list[str]]:
+    ) -> list[dict[str, any]]:
         """Generates images from text prompts using `huggingface_hub.AsyncInferenceClient.text_to_image`.
 
         Args:
@@ -92,4 +92,4 @@ class InferenceEndpointsImageLM(InferenceEndpointsLLM):
         buffered = io.BytesIO()
         image.save(buffered, format="JPEG")
         img_str = base64.b64encode(buffered.getvalue()).decode()
-        return {"images": [img_str]}
+        return [{"images": [img_str]}]

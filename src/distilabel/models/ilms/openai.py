@@ -75,7 +75,7 @@ class OpenAIImageLM(OpenAILLM):
             Literal["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"]
         ] = None,
         style: Optional[Literal["vivid", "natural"]] = None,
-    ) -> dict[str, list[str]]:
+    ) -> list[dict[str, any]]:
         """Generates `num_generations` images for the given input using the OpenAI async
         client. The images are base64 string representations.
 
@@ -120,4 +120,4 @@ class OpenAIImageLM(OpenAILLM):
                 images.append(image_str)
             elif response_format == "b64_json":
                 images.append(image.b64_json)
-        return {"images": images}
+        return [{"images": images}]
