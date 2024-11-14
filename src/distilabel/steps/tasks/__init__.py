@@ -29,6 +29,7 @@ from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
 from distilabel.steps.tasks.evol_quality.base import EvolQuality
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
 from distilabel.steps.tasks.genstruct import Genstruct
+from distilabel.steps.tasks.image_generation import ImageGeneration
 from distilabel.steps.tasks.improving_text_embeddings import (
     BitextRetrievalGenerator,
     EmbeddingTaskGenerator,
@@ -78,6 +79,7 @@ __all__ = [
     "GenerateTextClassificationData",
     "GenerateTextRetrievalData",
     "MonolingualTripletGenerator",
+    "ImageGeneration",
     "InstructionBacktranslation",
     "Magpie",
     "MagpieGenerator",
