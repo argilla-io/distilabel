@@ -51,7 +51,7 @@ class InferenceEndpointsImageLM(InferenceEndpointsLLM):
         output = ilm.generate_outputs(
             inputs=["a white siamese cat"],
         )
-        # {"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}
+        # [{"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}]
         ```
     """
 
@@ -78,7 +78,7 @@ class InferenceEndpointsImageLM(InferenceEndpointsLLM):
                 linked to the text `prompt`, usually at the expense of lower image quality.
 
         Returns:
-            A dictionary containing a list with the image as a base64 string.
+            A list with a dictionary containing a list with the image as a base64 string.
         """
 
         image: "Image" = await self._aclient.text_to_image(

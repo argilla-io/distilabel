@@ -60,7 +60,7 @@ class OpenAIImageLM(OpenAILLM):
             quality="standard",
             style="natural",
         )
-        # {"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}
+        # [{"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}]
         ```
     """
 
@@ -99,7 +99,7 @@ class OpenAIImageLM(OpenAILLM):
                 images. This param is only supported for `dall-e-3`.
 
         Returns:
-            A dictionary with the list of images generated.
+            A list with a dictionary with the list of images generated.
         """
         images_response: "ImagesResponse" = await self._aclient.images.generate(
             model=self.model_name,
