@@ -48,7 +48,7 @@ output = ilm.generate_outputs(
     quality="standard",
     style="natural",
 )
-# {"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}
+# [{"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}]
 ```
 
 

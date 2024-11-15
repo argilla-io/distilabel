@@ -44,7 +44,7 @@ ilm.load()
 output = ilm.generate_outputs(
     inputs=["a white siamese cat"],
 )
-# {"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}
+# [{"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}]
 ```
 
 
