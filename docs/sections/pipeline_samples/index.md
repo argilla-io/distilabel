@@ -145,6 +145,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/fine_personas_social_network.md)
 
+-   __Image generation with distilabel__
+
+    ---
+
+    Generate synthetic images using distilabel.
+
+    [:octicons-arrow-right-24: Example](examples/image_generation.md)
+
 
 </div>
 
