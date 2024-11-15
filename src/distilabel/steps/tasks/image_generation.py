@@ -99,7 +99,10 @@ class ImageGeneration(Task):
 
     @property
     def outputs(self) -> "StepColumns":
-        return ["image", "model_name"]
+        return {
+            "image": True,
+            "model_name": True,
+        }
 
     def format_input(self, input: dict[str, any]) -> dict[str, str]:
         return input["prompt"]
@@ -107,9 +110,19 @@ class ImageGeneration(Task):
     def format_output(
         self, output: dict[str, any], input: dict[str, any]
     ) -> dict[str, any]:
-        image_bytes = base64.b64decode(output)
-        image = Image.open(io.BytesIO(image_bytes))
+        image = None
+        if img_str := output.get("images"):
+            img_str = img_str[0]  # Grab only the first image
+            image_bytes = base64.b64decode(img_str)
+            image = Image.open(io.BytesIO(image_bytes))
+
         return {"image": image, "model_name": self.llm.model_name}
+
+    def save(self, **kwargs):
+        if not self.save_images:
+            from distilabel.utils.serialization import _Serializable
+
+            super(_Serializable).save(**kwargs)
 
     def process(self, inputs: StepInput) -> "StepOutput":
         formatted_inputs = self._format_inputs(inputs)
@@ -122,7 +135,6 @@ class ImageGeneration(Task):
 
         task_outputs = []
         for input, input_outputs in zip(inputs, outputs):
-            input_outputs = input_outputs.get("images", [])
             formatted_outputs = self._format_outputs(input_outputs, input)
             for formatted_output in formatted_outputs:
                 if self.save_images and (image := formatted_output.get("image", None)):
@@ -136,9 +148,16 @@ class ImageGeneration(Task):
                         ),
                         metadata={"type": "image"},
                     )
-                    formatted_output["image"] = {
-                        "path": f"artifacts/{self.name}/images/{prompt_hash}.{self.image_format.lower()}"
-                    }
+                    formatted_output["image"] = (
+                        f"artifacts/{self.name}/images/{prompt_hash}.{self.image_format.lower()}"
+                    )
+                else:
+                    buffered = io.BytesIO()
+                    formatted_output["image"].save(buffered, format=self.image_format)
+
+                    formatted_output["image"] = base64.b64encode(
+                        buffered.getvalue()
+                    ).decode()
 
                 task_outputs.append(
                     {**input, **formatted_output, "model_name": self.llm.model_name}
