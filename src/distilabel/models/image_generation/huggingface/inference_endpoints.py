@@ -18,13 +18,16 @@ from typing import TYPE_CHECKING, Optional
 
 from pydantic import validate_call
 
+from distilabel.models.image_generation.base import AsyncImageGenerationModel
 from distilabel.models.llms.huggingface import InferenceEndpointsLLM
 
 if TYPE_CHECKING:
     from PIL import Image
 
 
-class InferenceEndpointsImageLM(InferenceEndpointsLLM):
+class InferenceEndpointsImageGeneration(
+    InferenceEndpointsLLM, AsyncImageGenerationModel
+):
     """OpenAI image generation implementation running the async API client.
 
     Attributes:
@@ -43,9 +46,9 @@ class InferenceEndpointsImageLM(InferenceEndpointsLLM):
         Generate images from text prompts:
 
         ```python
-        from distilabel.models.image_generation import InferenceEndpointsImageLM
+        from distilabel.models.image_generation import InferenceEndpointsImageGeneration
 
-        igm = InferenceEndpointsImageLM(model_id="black-forest-labs/FLUX.1-schnell", api_key="api.key")
+        igm = InferenceEndpointsImageGeneration(model_id="black-forest-labs/FLUX.1-schnell", api_key="api.key")
         igm.load()
 
         output = igm.generate_outputs(

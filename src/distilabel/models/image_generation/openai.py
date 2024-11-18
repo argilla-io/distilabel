@@ -18,13 +18,14 @@ from typing import TYPE_CHECKING, Literal, Optional
 import requests
 from pydantic import validate_call
 
+from distilabel.models.image_generation.base import AsyncImageGenerationModel
 from distilabel.models.llms.openai import OpenAILLM
 
 if TYPE_CHECKING:
     from openai.types import ImagesResponse
 
 
-class OpenAIImageLM(OpenAILLM):
+class OpenAIImageGeneration(OpenAILLM, AsyncImageGenerationModel):
     """OpenAI image generation implementation running the async API client.
 
     Attributes:
@@ -48,9 +49,9 @@ class OpenAIImageLM(OpenAILLM):
         Generate images from text prompts:
 
         ```python
-        from distilabel.models.image_generation import OpenAIImageLM
+        from distilabel.models.image_generation import OpenAIImageGeneration
 
-        igm = OpenAIImageLM(model="dall-e-3", api_key="api.key")
+        igm = OpenAIImageGeneration(model="dall-e-3", api_key="api.key")
 
         igm.load()
 

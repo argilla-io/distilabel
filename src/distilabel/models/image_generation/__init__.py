@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.models.ilms.huggingface.inference_endpoints import (
-    InferenceEndpointsImageLM,
+from distilabel.models.image_generation.base import (
+    AsyncImageGenerationModel,
+    ImageGenerationModel,
 )
-from distilabel.models.ilms.openai import OpenAIImageLM
+from distilabel.models.image_generation.huggingface.inference_endpoints import (
+    InferenceEndpointsImageGeneration,
+)
+from distilabel.models.image_generation.openai import OpenAIImageGeneration
 
 __all__ = [
-    "InferenceEndpointsImageLM",
-    "OpenAIImageLM",
+    "ImageGenerationModel",
+    "AsyncImageGenerationModel",
+    "InferenceEndpointsImageGeneration",
+    "OpenAIImageGeneration",
 ]
