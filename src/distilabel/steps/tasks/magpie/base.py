@@ -30,13 +30,13 @@ from distilabel.steps.tasks.base import Task
 from distilabel.utils.dicts import merge_dicts
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics
     from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import StepColumns, StepOutput
 
 
 MAGPIE_MULTI_TURN_SYSTEM_PROMPT = (
-    "You are a helpful Al assistant. The user will engage in a multi−round conversation"
+    "You are a helpful Al assistant. The user will engage in a multi-round conversation"
     " with you, asking initial questions and following up with additional related questions."
     " Your goal is to provide thorough, relevant and insightful responses to help the user"
     " with their queries."
@@ -265,9 +265,10 @@ class MagpieBase(RuntimeParametersMixin):
             num_generations=1,
             **self.llm.generation_kwargs,  # type: ignore
         )
-        # Extract the single message from the conversation
-        messages = [output["generations"][0] for output in outputs]
-        statistics = [output["statistics"] for output in outputs]
+        # Extract the single message from the conversation and the statistics in separate lists
+        messages, statistics = zip(
+            *[(output["generations"][0], output["statistics"]) for output in outputs]
+        )
 
         active_conversations = [conversations[idx] for idx in active_indices]
         updated_conversations = self._append_messages_to_conversations(
