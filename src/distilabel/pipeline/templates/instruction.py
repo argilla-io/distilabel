@@ -94,6 +94,15 @@ class InstructionResponsePipeline:
                 api_key=hf_token,
             )
         else:
+            if isinstance(
+                llm, InferenceEndpointsLLM
+            ) and llm.magpie_pre_query_template not in [
+                "llama3",
+                "qwen2",
+            ]:
+                raise ValueError(
+                    "The provided pre-query template is not supported by Magpie. Supported templates are 'llama3' and 'qwen2'."
+                )
             self.llm = llm
 
         self.pipeline: Pipeline = self._get_magpie_pipeline(
@@ -119,8 +128,9 @@ class InstructionResponsePipeline:
                 batch_size=batch_size,
                 system_prompt=system_prompt,
             )
-            keep_columns = KeepColumns(
-                columns=["instruction", "response", "model_name"],
-            )
-            magpie.connect(keep_columns)
+            if n_turns == 1:
+                keep_columns = KeepColumns(
+                    columns=["instruction", "response", "model_name"],
+                )
+                magpie.connect(keep_columns)
         return pipeline
