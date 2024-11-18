@@ -18,5 +18,14 @@ from distilabel.pipeline.routing_batch_function import (
     routing_batch_function,
     sample_n_steps,
 )
+from distilabel.pipeline.templates import (
+    InstructionResponsePipeline,
+)
 
-__all__ = ["Pipeline", "RayPipeline", "routing_batch_function", "sample_n_steps"]
+__all__ = [
+    "Pipeline",
+    "RayPipeline",
+    "InstructionResponsePipeline",
+    "routing_batch_function",
+    "sample_n_steps",
+]

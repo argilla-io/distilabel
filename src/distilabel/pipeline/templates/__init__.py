@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .sft import SFTPipeline
+from .instruction import InstructionResponsePipeline  # noqa: F401
