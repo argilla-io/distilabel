@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
     
     
       
@@ -4922,10 +4922,10 @@
 <p><strong>num_perm</strong>: the number of permutations to use. Defaults to <code>128</code>.</p>
 </li>
 <li>
-<p><strong>seed</strong>: the seed to use for the MinHash. This seed must be the same  used for <code>MinHash</code>, keep in mind when both steps are created. Defaults to <code>1</code>.</p>
+<p><strong>seed</strong>: the seed to use for the MinHash. Defaults to <code>1</code>.</p>
 </li>
 <li>
-<p><strong>tokenizer</strong>: the tokenizer to use. Available ones are <code>words</code> or <code>ngrams</code>.  If <code>words</code> is selected, it tokenize the text into words using nltk's  word tokenizer. <code>ngram</code> estimates the ngrams (together with the size  <code>n</code>) using. Defaults to <code>words</code>.</p>
+<p><strong>tokenizer</strong>: the tokenizer to use. Available ones are <code>words</code> or <code>ngrams</code>.  If <code>words</code> is selected, it tokenizes the text into words using nltk's  word tokenizer. <code>ngram</code> estimates the ngrams (together with the size  <code>n</code>). Defaults to <code>words</code>.</p>
 </li>
 <li>
 <p><strong>n</strong>: the size of the ngrams to use. Only relevant if <code>tokenizer="ngrams"</code>. Defaults to <code>5</code>.</p>
@@ -4934,7 +4934,7 @@
 <p><strong>threshold</strong>: the threshold to consider two MinHashes as duplicates.  Values closer to 0 detect more duplicates. Defaults to <code>0.9</code>.</p>
 </li>
 <li>
-<p><strong>storage</strong>: the storage to use for the LSH. Can be <code>dict</code> to store the index  in memory, or <code>disk</code>. Keep in mind, <code>disk</code> is an experimental feature  not defined in <code>datasketch</code>, that is based on DiskCache's <code>Index</code> class.  It should work as a <code>dict</code>, but backed by disk, but depending on the system  it can be slower. Defaults to <code>dict</code>.  which uses a custom <code>shelve</code> backend. Note the <code>disk</code>  is an experimetal feature that may cause issues. Defaults to <code>dict</code>.</p>
+<p><strong>storage</strong>: the storage to use for the LSH. Can be <code>dict</code> to store the index  in memory, or <code>disk</code>. Keep in mind, <code>disk</code> is an experimental feature  not defined in <code>datasketch</code>, that is based on DiskCache's <code>Index</code> class.  It should work as a <code>dict</code>, but backed by disk, but depending on the system  it can be slower. Defaults to <code>dict</code>.</p>
 </li>
 </ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
