@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 class InferenceEndpointsImageGeneration(
     InferenceEndpointsLLM, AsyncImageGenerationModel
 ):
-    """OpenAI image generation implementation running the async API client.
+    """Inference Endpoint image generation implementation running the async API client.
 
     Attributes:
         model_id: the model ID to use for the ImageGenerationModel as available in the Hugging Face Hub, which

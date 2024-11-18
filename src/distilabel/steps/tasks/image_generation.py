@@ -27,25 +27,32 @@ if TYPE_CHECKING:
 
 
 class ImageGeneration(Task):
-    """Image generation with a Vision Language Model (VLM) given a prompt.
+    """Image generation with an image to text model given a prompt.
 
     `ImageGeneration` is a pre-defined task that allows generating images from a prompt.
-    It works with any of the `vlms` defined under `distilabel.models.vlms`, the models
-    implemented models that allow image generation.
-    By default, the images are saved as JPEG files, but this can be changed using the
-    `save_artifacts` and `image_format` attributes.
+    It works with any of the `image_generation` defined under `distilabel.models.image_generation`,
+    the models implemented models that allow image generation.
+    By default, the images are generated as a base64 string format, and after the dataset
+    has been generated, the images can be automatically transformed to `PIL.Image.Image` using
+    `Distiset.transform_columns_to_image`. Take a look at the `Image Generation with distilabel`
+    example in the documentation for more information.
+    Using the `save_artifacts` attribute, the images can be saved on the artifacts folder in the
+    hugging face hub repository.
 
     Attributes:
         save_artifacts: Bool value to save the image artifacts on its folder.
             Otherwise, the base64 representation of the image will be saved as
-            a string. Defaults to True.
+            a string. Defaults to False.
         image_format: Any of the formats supported by PIL. Defaults to `JPEG`.
 
     Input columns:
         - prompt (str): A column named prompt with the prompts to generate the images.
 
     Output columns:
-        - image (`str`): The generated image.
+        - image (`str`): The generated image. Initially is a base64 string, for simplicity
+            during the .
+        - image_path (`str`): The path where the image is saved. Only available if `save_artifacts`
+            is True.
         - model_name (`str`): The name of the model used to generate the image.
 
     Categories:
@@ -90,7 +97,7 @@ class ImageGeneration(Task):
         ```
     """
 
-    save_artifacts: bool = True
+    save_artifacts: bool = False
     image_format: str = "JPEG"
 
     @property
@@ -101,6 +108,7 @@ class ImageGeneration(Task):
     def outputs(self) -> "StepColumns":
         return {
             "image": True,
+            "image_path": False,
             "model_name": True,
         }
 
@@ -137,6 +145,13 @@ class ImageGeneration(Task):
         for input, input_outputs in zip(inputs, outputs):
             formatted_outputs = self._format_outputs(input_outputs, input)
             for formatted_output in formatted_outputs:
+                buffered = io.BytesIO()
+                formatted_output["image"].save(buffered, format=self.image_format)
+
+                formatted_output["image"] = base64.b64encode(
+                    buffered.getvalue()
+                ).decode()
+
                 if self.save_artifacts and (
                     image := formatted_output.get("image", None)
                 ):
@@ -150,16 +165,9 @@ class ImageGeneration(Task):
                         ),
                         metadata={"type": "image"},
                     )
-                    formatted_output["image"] = (
+                    formatted_output["image_path"] = (
                         f"artifacts/{self.name}/images/{prompt_hash}.{self.image_format.lower()}"
                     )
-                else:
-                    buffered = io.BytesIO()
-                    formatted_output["image"].save(buffered, format=self.image_format)
-
-                    formatted_output["image"] = base64.b64encode(
-                        buffered.getvalue()
-                    ).decode()
 
                 task_outputs.append(
                     {**input, **formatted_output, "model_name": self.llm.model_name}
