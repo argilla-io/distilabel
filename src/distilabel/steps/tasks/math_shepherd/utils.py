@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepColumns, StepOutput
 
 
-def split_solution_steps(text):
+def split_solution_steps(text: str) -> list[str]:
     """
     Split a step-by-step solution text into individual components.
     Returns a list of steps and the final answer.
