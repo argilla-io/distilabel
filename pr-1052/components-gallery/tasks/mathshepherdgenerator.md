@@ -22,7 +22,7 @@ This task is in charge of generating completions for a given instruction, in the
 
 ### Attributes
 
-- **system_prompt**: The system prompt to be used in the completions. The default one has been  checked and generates good completions using Llama 3.1 with 8B and 70B,  but it can be modified to adapt it to the model and dataset selected.
+- **system_prompt**: The system prompt to be used in the completions. The default one has been  checked and generates good completions using Llama 3.1 with 8B and 70B,  but it can be modified to adapt it to the model and dataset selected.  Take into account that the system prompt includes 2 variables in the Jinja2 template,  {{extra_rules}} and {{few_shot}}. These variables are used to include extra rules, for example  to steer the model towards a specific type of responses, and few shots to add examples.  They can be modified to adapt the system prompt to the dataset and model used without needing  to change the full system prompt.
 
 - **extra_rules**: This field can be used to insert extra rules relevant to the type of dataset.  For example, in the original paper they used GSM8K and MATH datasets, and this field  can be used to insert the rules for the GSM8K dataset.
 
