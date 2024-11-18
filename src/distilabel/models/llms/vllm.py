@@ -418,7 +418,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         # (would be needed only if we have multiple structured outputs in the dataset)
         if sorted_indices is not None:
             # Sort the batched outputs together with the statistics
-            generations = self._prepare_sorted_resuts(
+            generations = self._prepare_sorted_results(
                 batched_outputs,
                 sorted_indices,
                 generations,
