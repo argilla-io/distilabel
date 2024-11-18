@@ -48,7 +48,7 @@ def flatten_dict(x: Dict[Any, Any]) -> Dict[Any, Any]:
     return {k: json.dumps(v) if isinstance(v, dict) else v for k, v in x.items()}
 
 
-def merge_dicts(*dict_lists):
+def merge_dicts(*dict_lists: dict) -> list[dict]:
     """
     Merge N lists of dictionaries with matching keys.
     The keys can be any strings, but they must match across all dictionaries within each position.

@@ -418,7 +418,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         # (would be needed only if we have multiple structured outputs in the dataset)
         if sorted_indices is not None:
             # Sort the batched outputs together with the statistics
-            generations = self._prepare_sorted_resuts(
+            generations = self._prepare_sorted_results(
                 batched_outputs,
                 sorted_indices,
                 generations,
@@ -457,7 +457,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         }
 
     @staticmethod
-    def _prepare_sorted_resuts(
+    def _prepare_sorted_results(
         batched_outputs: List[List[FormattedInput]],
         sorted_indices: List[int],
         generations: List[GenerateOutput],
@@ -493,7 +493,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             )
             statistics[field] = batched_field
 
-        # Regenerates the outputs as they are returned buy `preare_output`
+        # Regenerates the outputs as they are returned buy `prepare_output`
         sorted_results = []
         for i, batched_output in enumerate(batched_outputs):
             generation = {"generations": batched_output}

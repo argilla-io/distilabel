@@ -50,8 +50,8 @@ def prepare_output(
 
     Args:
         generations: The outputs from an LLM.
-        input_tokens: The number of tokens of the inputs. Defaults to [0].
-        output_tokens: The number of tokens of the LLM response. Defaults to [0].
+        input_tokens: The number of tokens of the inputs. Defaults to `None`.
+        output_tokens: The number of tokens of the LLM response. Defaults to `None`.
 
     Returns:
         Output generation from an LLM.
