@@ -29,7 +29,7 @@ class OpenAIImageGeneration(OpenAILLM, AsyncImageGenerationModel):
     """OpenAI image generation implementation running the async API client.
 
     Attributes:
-        model: the model name to use for the LLM e.g. "dall-e-3", etc.
+        model: the model name to use for the ImageGenerationModel e.g. "dall-e-3", etc.
             Supported models can be found [here](https://platform.openai.com/docs/guides/images).
         base_url: the base URL to use for the OpenAI API requests. Defaults to `None`, which
             means that the value set for the environment variable `OPENAI_BASE_URL` will

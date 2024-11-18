@@ -199,8 +199,11 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         self.file_paths["llms"] = self._generate_llms_pages(
             src_dir=src_dir, llms=components_info["llms"]
         )
-        self.file_paths["ilms"] = self._generate_ilms_pages(
-            src_dir=src_dir, ilms=components_info["ilms"]
+        self.file_paths["image_generation_models"] = (
+            self._generate_image_generation_pages(
+                src_dir=src_dir,
+                image_generation_models=components_info["image_generation_models"],
+            )
         )
         self.file_paths["embeddings"] = self._generate_embeddings_pages(
             src_dir=src_dir, embeddings=components_info["embeddings"]
@@ -212,7 +215,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             *self.file_paths["steps"],
             *self.file_paths["tasks"],
             *self.file_paths["llms"],
-            *self.file_paths["ilms"],
+            *self.file_paths["image_generation_models"],
             *self.file_paths["embeddings"],
         ]:
             file = File(
@@ -433,26 +436,28 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
         return paths
 
-    def _generate_ilms_pages(self, src_dir: Path, ilms: list) -> List[str]:
+    def _generate_image_generation_pages(
+        self, src_dir: Path, image_generation_models: list
+    ) -> List[str]:
         """Generates the files for the `ILMs` subsection of the components gallery.
 
         Args:
             src_dir: The path to the source directory.
-            ilms: The list of `ILM` components.
+            image_generation_models: The list of `ImageGenerationModel` components.
 
         Returns:
             The relative paths to the generated files.
         """
 
-        paths = ["components-gallery/ilms/index.md"]
+        paths = ["components-gallery/image_generation/index.md"]
         steps_gallery_page_path = src_dir / paths[0]
         steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Create detail page for each `ILM`
-        for ilm in ilms:
-            content = _LLM_DETAIL_TEMPLATE.render(llm=ilm)
+        # Create detail page for each `ImageGenerationModel`
+        for igm in image_generation_models:
+            content = _LLM_DETAIL_TEMPLATE.render(llm=igm)
 
-            ilm_path = f"components-gallery/ilms/{ilm['name'].lower()}.md"
+            ilm_path = f"components-gallery/image_generation/{igm['name'].lower()}.md"
             path = src_dir / ilm_path
             with open(path, "w") as f:
                 f.write(content)
@@ -461,10 +466,10 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
         # Create the `components-gallery/ilms/index.md` file
         content = _COMPONENTS_LIST_TEMPLATE.render(
-            title="ILMs Gallery",
+            title="Image Generation Gallery",
             description="",
-            components=ilms,
-            component_group="ilms",
+            components=image_generation_models,
+            component_group="image_generation_models",
             default_icon=":material-image:",
         )
 
@@ -535,7 +540,9 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         steps_file = files.get_file_from_path(self.file_paths["steps"][0])
         tasks_file = files.get_file_from_path(self.file_paths["tasks"][0])
         llms_file = files.get_file_from_path(self.file_paths["llms"][0])
-        ilms_file = files.get_file_from_path(self.file_paths["ilms"][0])
+        image_generation_file = files.get_file_from_path(
+            self.file_paths["image_generation_models"][0]
+        )
 
         steps_files = [
             files.get_file_from_path(path) for path in self.file_paths["steps"][0:]
@@ -546,8 +553,9 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         llms_files = [
             files.get_file_from_path(path) for path in self.file_paths["llms"][0:]
         ]
-        ilms_files = [
-            files.get_file_from_path(path) for path in self.file_paths["ilms"][0:]
+        image_generation_files = [
+            files.get_file_from_path(path)
+            for path in self.file_paths["image_generation_models"][0:]
         ]
 
         # Create subsections
@@ -560,8 +568,11 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         llms_page = SectionPage(
             "LLMs", file=llms_file, config=config, children=llms_files
         )  # type: ignore
-        ilms_page = SectionPage(
-            "ILMs", file=ilms_file, config=config, children=ilms_files
+        igms_page = SectionPage(
+            "ImageGenerationModels",
+            file=image_generation_file,
+            config=config,
+            children=image_generation_files,
         )  # type: ignore
 
         # Create the gallery section
@@ -569,7 +580,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             title=self.config.page_title,
             file=components_gallery_file,
             config=config,
-            children=[steps_page, tasks_page, llms_page, ilms_page],
+            children=[steps_page, tasks_page, llms_page, igms_page],
         )
 
         # Add the page

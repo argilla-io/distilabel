@@ -16,6 +16,7 @@ import inspect
 from typing import Generator, List, Type, TypedDict, TypeVar
 
 from distilabel.models.embeddings.base import Embeddings
+from distilabel.models.image_generation.base import ImageGenerationModel
 from distilabel.models.llms.base import LLM
 from distilabel.steps.base import _Step
 from distilabel.steps.tasks.base import _Task
@@ -28,7 +29,7 @@ class ComponentsInfo(TypedDict):
     """A dictionary containing `distilabel` components information."""
 
     llms: List
-    ilms: List
+    image_generation_models: List
     steps: List
     tasks: List
     embeddings: List
@@ -56,9 +57,9 @@ def export_components_info() -> ComponentsInfo:
             {"name": llm_type.__name__, "docstring": parse_google_docstring(llm_type)}
             for llm_type in _get_llms()
         ],
-        "ilms": [
-            {"name": ilm_type.__name__, "docstring": parse_google_docstring(ilm_type)}
-            for ilm_type in _get_ilms()
+        "image_generation_models": [
+            {"name": igm_type.__name__, "docstring": parse_google_docstring(igm_type)}
+            for igm_type in _get_image_generation_models()
         ],
         "embeddings": [
             {
@@ -118,20 +119,19 @@ def _get_llms() -> List[Type["LLM"]]:
     ]
 
 
-def _get_ilms() -> List[Type["LLM"]]:
-    """Get all `ILM` subclasses, that are not abstract classes.
+def _get_image_generation_models() -> List[Type["ImageGenerationModel"]]:
+    """Get all `ImageGenerationModel` subclasses, that are not abstract classes.
 
     Note:
-        This is a placeholder as we don't have `ILM` classes yet.
+        This is a placeholder as we don't have `ImageGenerationModel` classes yet.
 
     Returns:
-        The list of all the classes under `distilabel.models.ilms` that are not abstract classes.
+        The list of all the classes under `distilabel.models.image_generation` that are not abstract classes.
     """
     return [
-        llm_type
-        for llm_type in _recursive_subclasses(LLM)
-        if ("distilabel.models.ilms" in str(llm_type))
-        and (not inspect.isabstract(llm_type))
+        igm_type
+        for igm_type in _recursive_subclasses(ImageGenerationModel)
+        if not inspect.isabstract(igm_type)
     ]
 
 

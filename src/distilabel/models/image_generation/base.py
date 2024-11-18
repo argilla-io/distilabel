@@ -35,7 +35,7 @@ class ImageGenerationModel(LLM, ABC):
         pass
 
 
-class AsyncImageGenerationModel(AsyncLLM, ABC):
+class AsyncImageGenerationModel(AsyncLLM, ImageGenerationModel, ABC):
     @abstractmethod
     async def agenerate(
         self, input: str, num_generations: int = 1, **kwargs: Any
