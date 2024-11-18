@@ -6,7 +6,7 @@ hide: toc
 
 Create synthetic images using `distilabel`.
 
-This example shows how distilabel can be used to generate image data, either using [`InferenceEndpointsImageLM`](https://distilabel.argilla.io/dev/components-gallery/image_generation/inferenceendpointsimagelm/) or [`OpenAIImageLM`](https://distilabel.argilla.io/dev/components-gallery/image_generation/openaiimagelm/).
+This example shows how distilabel can be used to generate image data, either using [`InferenceEndpointsImageGeneration`](https://distilabel.argilla.io/dev/components-gallery/image_generation/inferenceendpointsimagegeneration/) or [`OpenAIImageGeneration`](https://distilabel.argilla.io/dev/components-gallery/image_generation/openaiimagegeneration/).
 
 
 === "Inference Endpoints - black-forest-labs/FLUX.1-schnell"
@@ -14,7 +14,7 @@ This example shows how distilabel can be used to generate image data, either usi
     ```python
     from distilabel.pipeline import Pipeline
     from distilabel.steps import KeepColumns
-    from distilabel.models.image_generation import InferenceEndpointsImageLM
+    from distilabel.models.image_generation import InferenceEndpointsImageGeneration
     from distilabel.steps.tasks import ImageGeneration
 
     from datasets import load_dataset
@@ -22,7 +22,7 @@ This example shows how distilabel can be used to generate image data, either usi
     ds = load_dataset("dvilasuero/finepersonas-v0.1-tiny", split="train").select(range(3))
 
     with Pipeline(name="image_generation_pipeline") as pipeline:
-        ilm = InferenceEndpointsImageLM(
+        ilm = InferenceEndpointsImageGeneration(
             model_id="black-forest-labs/FLUX.1-schnell"
         )
 
@@ -48,7 +48,7 @@ This example shows how distilabel can be used to generate image data, either usi
     ```python
     from distilabel.pipeline import Pipeline
     from distilabel.steps import KeepColumns
-    from distilabel.models.image_generation import OpenAIImageLM
+    from distilabel.models.image_generation import OpenAIImageGeneration
     from distilabel.steps.tasks import ImageGeneration
 
     from datasets import load_dataset
@@ -56,7 +56,7 @@ This example shows how distilabel can be used to generate image data, either usi
     ds = load_dataset("dvilasuero/finepersonas-v0.1-tiny", split="train").select(range(3))
 
     with Pipeline(name="image_generation_pipeline") as pipeline:
-        ilm = OpenAIImageLM(
+        ilm = OpenAIImageGeneration(
             model="dall-e-3",
             generation_kwargs={
                 "size": "1024x1024",

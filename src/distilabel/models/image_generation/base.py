@@ -22,7 +22,7 @@ class ImageGenerationModel(LLM, ABC):
     @abstractmethod
     def generate(
         self, input: str, num_generations: int = 1, **kwargs: Any
-    ) -> list[dict[str, Any]]:
+    ) -> list[list[dict[str, Any]]]:
         """Generates images from the provided input.
 
         Args:

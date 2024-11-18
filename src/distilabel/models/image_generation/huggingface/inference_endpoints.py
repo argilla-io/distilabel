@@ -67,6 +67,7 @@ class InferenceEndpointsImageGeneration(
         width: Optional[float] = None,
         num_inference_steps: Optional[float] = None,
         guidance_scale: Optional[float] = None,
+        num_generations: int = 1,
     ) -> list[dict[str, any]]:
         """Generates images from text prompts using `huggingface_hub.AsyncInferenceClient.text_to_image`.
 
