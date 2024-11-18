@@ -43,12 +43,12 @@ class InferenceEndpointsImageLM(InferenceEndpointsLLM):
         Generate images from text prompts:
 
         ```python
-        from distilabel.models.ilms import InferenceEndpointsImageLM
+        from distilabel.models.image_generation import InferenceEndpointsImageLM
 
-        ilm = InferenceEndpointsImageLM(model_id="black-forest-labs/FLUX.1-schnell", api_key="api.key")
-        ilm.load()
+        igm = InferenceEndpointsImageLM(model_id="black-forest-labs/FLUX.1-schnell", api_key="api.key")
+        igm.load()
 
-        output = ilm.generate_outputs(
+        output = igm.generate_outputs(
             inputs=["a white siamese cat"],
         )
         # [{"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}]

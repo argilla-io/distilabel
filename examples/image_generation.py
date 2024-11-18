@@ -14,7 +14,7 @@
 
 from datasets import load_dataset
 
-from distilabel.models.ilms import InferenceEndpointsImageLM
+from distilabel.models.image_generation import InferenceEndpointsImageLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import KeepColumns
 from distilabel.steps.tasks import ImageGeneration

@@ -6,7 +6,7 @@ hide: toc
 
 Create synthetic images using `distilabel`.
 
-This example shows how distilabel can be used to generate image data, either using [`InferenceEndpointsImageLM`](https://distilabel.argilla.io/dev/components-gallery/ilms/inferenceendpointsimagelm/) or [`OpenAIImageLM`](https://distilabel.argilla.io/dev/components-gallery/ilms/openaiimagelm/).
+This example shows how distilabel can be used to generate image data, either using [`InferenceEndpointsImageLM`](https://distilabel.argilla.io/dev/components-gallery/image_generation/inferenceendpointsimagelm/) or [`OpenAIImageLM`](https://distilabel.argilla.io/dev/components-gallery/image_generation/openaiimagelm/).
 
 
 === "Inference Endpoints - black-forest-labs/FLUX.1-schnell"
@@ -14,7 +14,7 @@ This example shows how distilabel can be used to generate image data, either usi
     ```python
     from distilabel.pipeline import Pipeline
     from distilabel.steps import KeepColumns
-    from distilabel.models.ilms import InferenceEndpointsImageLM
+    from distilabel.models.image_generation import InferenceEndpointsImageLM
     from distilabel.steps.tasks import ImageGeneration
 
     from datasets import load_dataset
@@ -48,7 +48,7 @@ This example shows how distilabel can be used to generate image data, either usi
     ```python
     from distilabel.pipeline import Pipeline
     from distilabel.steps import KeepColumns
-    from distilabel.models.ilms import OpenAIImageLM
+    from distilabel.models.image_generation import OpenAIImageLM
     from distilabel.steps.tasks import ImageGeneration
 
     from datasets import load_dataset
