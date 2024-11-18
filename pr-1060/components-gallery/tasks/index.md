@@ -251,7 +251,7 @@ hide:
 
     ---
 
-    Image generation with a Vision Language Model (VLM) given a prompt.
+    Image generation with an image to text model given a prompt.
 
     [:octicons-arrow-right-24: ImageGeneration](imagegeneration.md){ .bottom }
 

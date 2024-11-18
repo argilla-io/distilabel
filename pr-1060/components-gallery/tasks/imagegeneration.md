@@ -4,15 +4,19 @@ hide:
 ---
 # ImageGeneration
 
-Image generation with a Vision Language Model (VLM) given a prompt.
+Image generation with an image to text model given a prompt.
 
 
 
 `ImageGeneration` is a pre-defined task that allows generating images from a prompt.
-    It works with any of the `vlms` defined under `distilabel.models.vlms`, the models
-    implemented models that allow image generation.
-    By default, the images are saved as JPEG files, but this can be changed using the
-    `save_artifacts` and `image_format` attributes.
+    It works with any of the `image_generation` defined under `distilabel.models.image_generation`,
+    the models implemented models that allow image generation.
+    By default, the images are generated as a base64 string format, and after the dataset
+    has been generated, the images can be automatically transformed to `PIL.Image.Image` using
+    `Distiset.transform_columns_to_image`. Take a look at the `Image Generation with distilabel`
+    example in the documentation for more information.
+    Using the `save_artifacts` attribute, the images can be saved on the artifacts folder in the
+    hugging face hub repository.
 
 
 
@@ -20,7 +24,7 @@ Image generation with a Vision Language Model (VLM) given a prompt.
 
 ### Attributes
 
-- **save_artifacts**: Bool value to save the image artifacts on its folder.  Otherwise, the base64 representation of the image will be saved as  a string. Defaults to True.
+- **save_artifacts**: Bool value to save the image artifacts on its folder.  Otherwise, the base64 representation of the image will be saved as  a string. Defaults to False.
 
 - **image_format**: Any of the formats supported by PIL. Defaults to `JPEG`.
 
@@ -38,18 +42,20 @@ graph TD
 		end
 		subgraph New columns
 			OCOL0[image]
-			OCOL1[model_name]
+			OCOL1[image_path]
+			OCOL2[model_name]
 		end
 	end
 
 	subgraph ImageGeneration
 		StepInput[Input Columns: prompt]
-		StepOutput[Output Columns: image, model_name]
+		StepOutput[Output Columns: image, image_path, model_name]
 	end
 
 	ICOL0 --> StepInput
 	StepOutput --> OCOL0
 	StepOutput --> OCOL1
+	StepOutput --> OCOL2
 	StepInput --> StepOutput
 
 ```
@@ -66,7 +72,9 @@ graph TD
 #### Outputs
 
 
-- **image** (`str`): The generated image.
+- **image** (`str`): The generated image. Initially is a base64 string, for simplicity  during the .
+
+- **image_path** (`str`): The path where the image is saved. Only available if `save_artifacts`  is True.
 
 - **model_name** (`str`): The name of the model used to generate the image.
 

@@ -94,7 +94,7 @@ hide:
 
     ---
 
-    OpenAI image generation implementation running the async API client.
+    Inference Endpoint image generation implementation running the async API client.
 
     [:octicons-arrow-right-24: InferenceEndpointsImageGeneration](inferenceendpointsimagegeneration.md){ .bottom }
 
@@ -142,7 +142,7 @@ hide:
 
     ---
 
-    OpenAI image generation implementation running the async API client.
+    Inference Endpoint image generation implementation running the async API client.
 
     [:octicons-arrow-right-24: InferenceEndpointsImageGeneration](inferenceendpointsimagegeneration.md){ .bottom }
 
@@ -182,7 +182,7 @@ hide:
 
     ---
 
-    OpenAI image generation implementation running the async API client.
+    Inference Endpoint image generation implementation running the async API client.
 
     [:octicons-arrow-right-24: InferenceEndpointsImageGeneration](inferenceendpointsimagegeneration.md){ .bottom }
 

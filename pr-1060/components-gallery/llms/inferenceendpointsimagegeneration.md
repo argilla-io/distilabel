@@ -5,7 +5,7 @@ hide:
 # InferenceEndpointsImageGeneration
 
 
-OpenAI image generation implementation running the async API client.
+Inference Endpoint image generation implementation running the async API client.
 
 
 

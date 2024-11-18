@@ -5187,16 +5187,20 @@
 
 
 <h1 id="imagegeneration">ImageGeneration<a class="headerlink" href="#imagegeneration" title="Permanent link">&para;</a></h1>
-<p>Image generation with a Vision Language Model (VLM) given a prompt.</p>
+<p>Image generation with an image to text model given a prompt.</p>
 <p><code>ImageGeneration</code> is a pre-defined task that allows generating images from a prompt.
-    It works with any of the <code>vlms</code> defined under <code>distilabel.models.vlms</code>, the models
-    implemented models that allow image generation.
-    By default, the images are saved as JPEG files, but this can be changed using the
-    <code>save_artifacts</code> and <code>image_format</code> attributes.</p>
+    It works with any of the <code>image_generation</code> defined under <code>distilabel.models.image_generation</code>,
+    the models implemented models that allow image generation.
+    By default, the images are generated as a base64 string format, and after the dataset
+    has been generated, the images can be automatically transformed to <code>PIL.Image.Image</code> using
+    <code>Distiset.transform_columns_to_image</code>. Take a look at the <code>Image Generation with distilabel</code>
+    example in the documentation for more information.
+    Using the <code>save_artifacts</code> attribute, the images can be saved on the artifacts folder in the
+    hugging face hub repository.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p><strong>save_artifacts</strong>: Bool value to save the image artifacts on its folder.  Otherwise, the base64 representation of the image will be saved as  a string. Defaults to True.</p>
+<p><strong>save_artifacts</strong>: Bool value to save the image artifacts on its folder.  Otherwise, the base64 representation of the image will be saved as  a string. Defaults to False.</p>
 </li>
 <li>
 <p><strong>image_format</strong>: Any of the formats supported by PIL. Defaults to <code>JPEG</code>.</p>
@@ -5210,18 +5214,20 @@
         end
         subgraph New columns
             OCOL0[image]
-            OCOL1[model_name]
+            OCOL1[image_path]
+            OCOL2[model_name]
         end
     end
 
     subgraph ImageGeneration
         StepInput[Input Columns: prompt]
-        StepOutput[Output Columns: image, model_name]
+        StepOutput[Output Columns: image, image_path, model_name]
     end
 
     ICOL0 --&gt; StepInput
     StepOutput --&gt; OCOL0
     StepOutput --&gt; OCOL1
+    StepOutput --&gt; OCOL2
     StepInput --&gt; StepOutput
 </code></pre>
 <h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
@@ -5231,7 +5237,10 @@
 <h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
-<p><strong>image</strong> (<code>str</code>): The generated image.</p>
+<p><strong>image</strong> (<code>str</code>): The generated image. Initially is a base64 string, for simplicity  during the .</p>
+</li>
+<li>
+<p><strong>image_path</strong> (<code>str</code>): The path where the image is saved. Only available if <code>save_artifacts</code>  is True.</p>
 </li>
 <li>
 <p><strong>model_name</strong> (<code>str</code>): The name of the model used to generate the image.</p>
