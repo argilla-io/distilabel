@@ -28769,7 +28769,7 @@ to <code>None</code>.</p>
 </span><span id="__span-0-493"><a id="__codelineno-0-493" name="__codelineno-0-493"></a>            <span class="p">)</span>
 </span><span id="__span-0-494"><a id="__codelineno-0-494" name="__codelineno-0-494"></a>            <span class="n">statistics</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">batched_field</span>
 </span><span id="__span-0-495"><a id="__codelineno-0-495" name="__codelineno-0-495"></a>
-</span><span id="__span-0-496"><a id="__codelineno-0-496" name="__codelineno-0-496"></a>        <span class="c1"># Regenerates the outputs as they are returned buy `prepare_output`</span>
+</span><span id="__span-0-496"><a id="__codelineno-0-496" name="__codelineno-0-496"></a>        <span class="c1"># Regenerates the outputs as they are returned by `prepare_output`</span>
 </span><span id="__span-0-497"><a id="__codelineno-0-497" name="__codelineno-0-497"></a>        <span class="n">sorted_results</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="__span-0-498"><a id="__codelineno-0-498" name="__codelineno-0-498"></a>        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batched_output</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batched_outputs</span><span class="p">):</span>
 </span><span id="__span-0-499"><a id="__codelineno-0-499" name="__codelineno-0-499"></a>            <span class="n">generation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">batched_output</span><span class="p">}</span>
@@ -30138,7 +30138,7 @@ from which the statistics will be extracted and sorted.</p>
 </span><span id="__span-0-493"><a id="__codelineno-0-493" name="__codelineno-0-493"></a>        <span class="p">)</span>
 </span><span id="__span-0-494"><a id="__codelineno-0-494" name="__codelineno-0-494"></a>        <span class="n">statistics</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">batched_field</span>
 </span><span id="__span-0-495"><a id="__codelineno-0-495" name="__codelineno-0-495"></a>
-</span><span id="__span-0-496"><a id="__codelineno-0-496" name="__codelineno-0-496"></a>    <span class="c1"># Regenerates the outputs as they are returned buy `prepare_output`</span>
+</span><span id="__span-0-496"><a id="__codelineno-0-496" name="__codelineno-0-496"></a>    <span class="c1"># Regenerates the outputs as they are returned by `prepare_output`</span>
 </span><span id="__span-0-497"><a id="__codelineno-0-497" name="__codelineno-0-497"></a>    <span class="n">sorted_results</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="__span-0-498"><a id="__codelineno-0-498" name="__codelineno-0-498"></a>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batched_output</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batched_outputs</span><span class="p">):</span>
 </span><span id="__span-0-499"><a id="__codelineno-0-499" name="__codelineno-0-499"></a>        <span class="n">generation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">batched_output</span><span class="p">}</span>
