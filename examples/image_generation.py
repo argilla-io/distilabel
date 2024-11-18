@@ -14,7 +14,7 @@
 
 from datasets import load_dataset
 
-from distilabel.models.image_generation import InferenceEndpointsImageLM
+from distilabel.models.image_generation import InferenceEndpointsImageGeneration
 from distilabel.pipeline import Pipeline
 from distilabel.steps import KeepColumns
 from distilabel.steps.tasks import ImageGeneration
@@ -22,10 +22,10 @@ from distilabel.steps.tasks import ImageGeneration
 ds = load_dataset("dvilasuero/finepersonas-v0.1-tiny", split="train").select(range(3))
 
 with Pipeline(name="image_generation_pipeline") as pipeline:
-    ilm = InferenceEndpointsImageLM(model_id="black-forest-labs/FLUX.1-schnell")
+    igm = InferenceEndpointsImageGeneration(model_id="black-forest-labs/FLUX.1-schnell")
 
     img_generation = ImageGeneration(
-        name="flux_schnell", llm=ilm, input_mappings={"prompt": "persona"}
+        name="flux_schnell", llm=igm, input_mappings={"prompt": "persona"}
     )
 
     keep_columns = KeepColumns(columns=["persona", "model_name", "image"])
@@ -34,5 +34,7 @@ with Pipeline(name="image_generation_pipeline") as pipeline:
 
 
 if __name__ == "__main__":
-    dataset = pipeline.run(use_cache=False, dataset=ds)
-    dataset.push_to_hub("plaguss/test-finepersonas-v0.1-tiny-flux-schnell")
+    distiset = pipeline.run(use_cache=False, dataset=ds)
+    # Save the images as `PIL.Image.Image`
+    distiset = distiset.transform_columns_to_image("image")
+    distiset.push_to_hub("plaguss/test-finepersonas-v0.1-tiny-flux-schnell")
