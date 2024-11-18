@@ -5271,9 +5271,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#distilabel.models.llms.vLLM._prepare_sorted_resuts" class="md-nav__link">
+  <a href="#distilabel.models.llms.vLLM._prepare_sorted_results" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;_prepare_sorted_resuts
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;_prepare_sorted_results
     </span>
   </a>
   
@@ -6847,9 +6847,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#distilabel.models.llms.vLLM._prepare_sorted_resuts" class="md-nav__link">
+  <a href="#distilabel.models.llms.vLLM._prepare_sorted_results" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;_prepare_sorted_resuts
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;_prepare_sorted_results
     </span>
   </a>
   
@@ -28694,7 +28694,7 @@ to <code>None</code>.</p>
 </span><span id="__span-0-418"><a id="__codelineno-0-418" name="__codelineno-0-418"></a>        <span class="c1"># (would be needed only if we have multiple structured outputs in the dataset)</span>
 </span><span id="__span-0-419"><a id="__codelineno-0-419" name="__codelineno-0-419"></a>        <span class="k">if</span> <span class="n">sorted_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-0-420"><a id="__codelineno-0-420" name="__codelineno-0-420"></a>            <span class="c1"># Sort the batched outputs together with the statistics</span>
-</span><span id="__span-0-421"><a id="__codelineno-0-421" name="__codelineno-0-421"></a>            <span class="n">generations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_sorted_resuts</span><span class="p">(</span>
+</span><span id="__span-0-421"><a id="__codelineno-0-421" name="__codelineno-0-421"></a>            <span class="n">generations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_sorted_results</span><span class="p">(</span>
 </span><span id="__span-0-422"><a id="__codelineno-0-422" name="__codelineno-0-422"></a>                <span class="n">batched_outputs</span><span class="p">,</span>
 </span><span id="__span-0-423"><a id="__codelineno-0-423" name="__codelineno-0-423"></a>                <span class="n">sorted_indices</span><span class="p">,</span>
 </span><span id="__span-0-424"><a id="__codelineno-0-424" name="__codelineno-0-424"></a>                <span class="n">generations</span><span class="p">,</span>
@@ -28733,7 +28733,7 @@ to <code>None</code>.</p>
 </span><span id="__span-0-457"><a id="__codelineno-0-457" name="__codelineno-0-457"></a>        <span class="p">}</span>
 </span><span id="__span-0-458"><a id="__codelineno-0-458" name="__codelineno-0-458"></a>
 </span><span id="__span-0-459"><a id="__codelineno-0-459" name="__codelineno-0-459"></a>    <span class="nd">@staticmethod</span>
-</span><span id="__span-0-460"><a id="__codelineno-0-460" name="__codelineno-0-460"></a>    <span class="k">def</span> <span class="nf">_prepare_sorted_resuts</span><span class="p">(</span>
+</span><span id="__span-0-460"><a id="__codelineno-0-460" name="__codelineno-0-460"></a>    <span class="k">def</span> <span class="nf">_prepare_sorted_results</span><span class="p">(</span>
 </span><span id="__span-0-461"><a id="__codelineno-0-461" name="__codelineno-0-461"></a>        <span class="n">batched_outputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">FormattedInput</span><span class="p">]],</span>
 </span><span id="__span-0-462"><a id="__codelineno-0-462" name="__codelineno-0-462"></a>        <span class="n">sorted_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 </span><span id="__span-0-463"><a id="__codelineno-0-463" name="__codelineno-0-463"></a>        <span class="n">generations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">GenerateOutput</span><span class="p">],</span>
@@ -28769,7 +28769,7 @@ to <code>None</code>.</p>
 </span><span id="__span-0-493"><a id="__codelineno-0-493" name="__codelineno-0-493"></a>            <span class="p">)</span>
 </span><span id="__span-0-494"><a id="__codelineno-0-494" name="__codelineno-0-494"></a>            <span class="n">statistics</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">batched_field</span>
 </span><span id="__span-0-495"><a id="__codelineno-0-495" name="__codelineno-0-495"></a>
-</span><span id="__span-0-496"><a id="__codelineno-0-496" name="__codelineno-0-496"></a>        <span class="c1"># Regenerates the outputs as they are returned buy `preare_output`</span>
+</span><span id="__span-0-496"><a id="__codelineno-0-496" name="__codelineno-0-496"></a>        <span class="c1"># Regenerates the outputs as they are returned buy `prepare_output`</span>
 </span><span id="__span-0-497"><a id="__codelineno-0-497" name="__codelineno-0-497"></a>        <span class="n">sorted_results</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="__span-0-498"><a id="__codelineno-0-498" name="__codelineno-0-498"></a>        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batched_output</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batched_outputs</span><span class="p">):</span>
 </span><span id="__span-0-499"><a id="__codelineno-0-499" name="__codelineno-0-499"></a>            <span class="n">generation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">batched_output</span><span class="p">}</span>
@@ -29807,7 +29807,7 @@ the <code>SamplingParams</code> class from <code>vllm</code>.</p>
 </span><span id="__span-0-418"><a id="__codelineno-0-418" name="__codelineno-0-418"></a>    <span class="c1"># (would be needed only if we have multiple structured outputs in the dataset)</span>
 </span><span id="__span-0-419"><a id="__codelineno-0-419" name="__codelineno-0-419"></a>    <span class="k">if</span> <span class="n">sorted_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-0-420"><a id="__codelineno-0-420" name="__codelineno-0-420"></a>        <span class="c1"># Sort the batched outputs together with the statistics</span>
-</span><span id="__span-0-421"><a id="__codelineno-0-421" name="__codelineno-0-421"></a>        <span class="n">generations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_sorted_resuts</span><span class="p">(</span>
+</span><span id="__span-0-421"><a id="__codelineno-0-421" name="__codelineno-0-421"></a>        <span class="n">generations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_sorted_results</span><span class="p">(</span>
 </span><span id="__span-0-422"><a id="__codelineno-0-422" name="__codelineno-0-422"></a>            <span class="n">batched_outputs</span><span class="p">,</span>
 </span><span id="__span-0-423"><a id="__codelineno-0-423" name="__codelineno-0-423"></a>            <span class="n">sorted_indices</span><span class="p">,</span>
 </span><span id="__span-0-424"><a id="__codelineno-0-424" name="__codelineno-0-424"></a>            <span class="n">generations</span><span class="p">,</span>
@@ -29935,14 +29935,14 @@ the <code>SamplingParams</code> class from <code>vllm</code>.</p>
 <div class="doc doc-object doc-function">
 
 
-<h5 id="distilabel.models.llms.vLLM._prepare_sorted_resuts" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">_prepare_sorted_resuts</span><span class="p">(</span><span class="n">batched_outputs</span><span class="p">,</span> <span class="n">sorted_indices</span><span class="p">,</span> <span class="n">generations</span><span class="p">,</span> <span class="n">num_generations</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+<h5 id="distilabel.models.llms.vLLM._prepare_sorted_results" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">_prepare_sorted_results</span><span class="p">(</span><span class="n">batched_outputs</span><span class="p">,</span> <span class="n">sorted_indices</span><span class="p">,</span> <span class="n">generations</span><span class="p">,</span> <span class="n">num_generations</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
-<a href="#distilabel.models.llms.vLLM._prepare_sorted_resuts" class="headerlink" title="Permanent link">&para;</a></h5>
+<a href="#distilabel.models.llms.vLLM._prepare_sorted_results" class="headerlink" title="Permanent link">&para;</a></h5>
 
 
     <div class="doc doc-contents ">
@@ -30102,7 +30102,7 @@ from which the statistics will be extracted and sorted.</p>
 <span class="normal"><a href="#__codelineno-0-504">504</a></span>
 <span class="normal"><a href="#__codelineno-0-505">505</a></span>
 <span class="normal"><a href="#__codelineno-0-506">506</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-459"><a id="__codelineno-0-459" name="__codelineno-0-459"></a><span class="nd">@staticmethod</span>
-</span><span id="__span-0-460"><a id="__codelineno-0-460" name="__codelineno-0-460"></a><span class="k">def</span> <span class="nf">_prepare_sorted_resuts</span><span class="p">(</span>
+</span><span id="__span-0-460"><a id="__codelineno-0-460" name="__codelineno-0-460"></a><span class="k">def</span> <span class="nf">_prepare_sorted_results</span><span class="p">(</span>
 </span><span id="__span-0-461"><a id="__codelineno-0-461" name="__codelineno-0-461"></a>    <span class="n">batched_outputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">FormattedInput</span><span class="p">]],</span>
 </span><span id="__span-0-462"><a id="__codelineno-0-462" name="__codelineno-0-462"></a>    <span class="n">sorted_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 </span><span id="__span-0-463"><a id="__codelineno-0-463" name="__codelineno-0-463"></a>    <span class="n">generations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">GenerateOutput</span><span class="p">],</span>
@@ -30138,7 +30138,7 @@ from which the statistics will be extracted and sorted.</p>
 </span><span id="__span-0-493"><a id="__codelineno-0-493" name="__codelineno-0-493"></a>        <span class="p">)</span>
 </span><span id="__span-0-494"><a id="__codelineno-0-494" name="__codelineno-0-494"></a>        <span class="n">statistics</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">batched_field</span>
 </span><span id="__span-0-495"><a id="__codelineno-0-495" name="__codelineno-0-495"></a>
-</span><span id="__span-0-496"><a id="__codelineno-0-496" name="__codelineno-0-496"></a>    <span class="c1"># Regenerates the outputs as they are returned buy `preare_output`</span>
+</span><span id="__span-0-496"><a id="__codelineno-0-496" name="__codelineno-0-496"></a>    <span class="c1"># Regenerates the outputs as they are returned buy `prepare_output`</span>
 </span><span id="__span-0-497"><a id="__codelineno-0-497" name="__codelineno-0-497"></a>    <span class="n">sorted_results</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="__span-0-498"><a id="__codelineno-0-498" name="__codelineno-0-498"></a>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batched_output</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batched_outputs</span><span class="p">):</span>
 </span><span id="__span-0-499"><a id="__codelineno-0-499" name="__codelineno-0-499"></a>        <span class="n">generation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">batched_output</span><span class="p">}</span>
