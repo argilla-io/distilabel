@@ -12,7 +12,7 @@ Image generation with a Vision Language Model (VLM) given a prompt.
     It works with any of the `vlms` defined under `distilabel.models.vlms`, the models
     implemented models that allow image generation.
     By default, the images are saved as JPEG files, but this can be changed using the
-    `save_images` and `image_format` attributes.
+    `save_artifacts` and `image_format` attributes.
 
 
 
@@ -20,7 +20,7 @@ Image generation with a Vision Language Model (VLM) given a prompt.
 
 ### Attributes
 
-- **save_images**: Bool value to save the image artifacts on its folder.  Otherwise, the base64 representation of the image will be saved as  a string. Defaults to True.
+- **save_artifacts**: Bool value to save the image artifacts on its folder.  Otherwise, the base64 representation of the image will be saved as  a string. Defaults to True.
 
 - **image_format**: Any of the formats supported by PIL. Defaults to `JPEG`.
 
@@ -81,13 +81,13 @@ graph TD
 ```python
 from distilabel.steps.tasks import ImageGeneration
 # Select the Image Generation model to use
-from distilabel.models.ilms import OpenAIImageLM
-from distilabel.models.ilms import InferenceEndpointsImageLM
+from distilabel.models.image_generation import OpenAIImageGeneration
+from distilabel.models.image_generation import InferenceEndpointsImageGeneration
 
-ilm = InferenceEndpointsImageLM(
+ilm = InferenceEndpointsImageGeneration(
     model_id="black-forest-labs/FLUX.1-schnell"
 )
-ilm = OpenAIImageLM(
+ilm = OpenAIImageGeneration(
     model="dall-e-3",
     api_key="api.key",
     generation_kwargs={
@@ -97,10 +97,10 @@ ilm = OpenAIImageLM(
     }
 )
 
-# save_images=True by default in JPEG format, if set to False, the image will be saved as a string.
+# save_artifacts=True by default in JPEG format, if set to False, the image will be saved as a string.
 image_gen = ImageGeneration(
     llm=ilm,
-    save_images=True,
+    save_artifacts=True,
     image_format="JPEG"
 )
 

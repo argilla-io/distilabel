@@ -3040,7 +3040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/llms/openaiimagelm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/openaiimagegeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3124,7 +3124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/llms/inferenceendpointsimagelm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/inferenceendpointsimagegeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3250,6 +3250,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../components-gallery/llms/inferenceendpointsimagegeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../components-gallery/llms/openaiimagegeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../components-gallery/llms/transformersllm/" class="md-nav__link">
         
   
@@ -3306,6 +3348,48 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../components-gallery/llms/inferenceendpointsimagegeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../components-gallery/llms/openaiimagegeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3338,11 +3422,11 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../components-gallery/ilms/" class="md-nav__link ">
+            <a href="../../../../components-gallery/image_generation/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
-    ILMs
+    ImageGenerationModels
   </span>
   
 
@@ -3358,7 +3442,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_4">
             <span class="md-nav__icon md-icon"></span>
-            ILMs
+            ImageGenerationModels
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -3369,7 +3453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/ilms/" class="md-nav__link">
+      <a href="../../../../components-gallery/image_generation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3390,7 +3474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/ilms/openaiimagelm/" class="md-nav__link">
+      <a href="../../../../components-gallery/image_generation/inferenceendpointsimagegeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3411,7 +3495,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/ilms/inferenceendpointsimagelm/" class="md-nav__link">
+      <a href="../../../../components-gallery/image_generation/openaiimagegeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5070,13 +5154,13 @@
 
 <h1 id="image-generation-with-distilabel">Image generation with <code>distilabel</code><a class="headerlink" href="#image-generation-with-distilabel" title="Permanent link">&para;</a></h1>
 <p>Create synthetic images using <code>distilabel</code>.</p>
-<p>This example shows how distilabel can be used to generate image data, either using <a href="https://distilabel.argilla.io/dev/components-gallery/ilms/inferenceendpointsimagelm/"><code>InferenceEndpointsImageLM</code></a> or <a href="https://distilabel.argilla.io/dev/components-gallery/ilms/openaiimagelm/"><code>OpenAIImageLM</code></a>.</p>
+<p>This example shows how distilabel can be used to generate image data, either using <a href="https://distilabel.argilla.io/dev/components-gallery/image_generation/inferenceendpointsimagegeneration/"><code>InferenceEndpointsImageGeneration</code></a> or <a href="https://distilabel.argilla.io/dev/components-gallery/image_generation/openaiimagegeneration/"><code>OpenAIImageGeneration</code></a>.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Inference Endpoints - black-forest-labs/FLUX.1-schnell</label><label for="__tabbed_1_2">OpenAI - dall-e-3</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">KeepColumns</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.models.ilms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsImageLM</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.models.image_generation</span> <span class="kn">import</span> <span class="n">InferenceEndpointsImageGeneration</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">ImageGeneration</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
@@ -5084,7 +5168,7 @@
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;dvilasuero/finepersonas-v0.1-tiny&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;image_generation_pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">ilm</span> <span class="o">=</span> <span class="n">InferenceEndpointsImageLM</span><span class="p">(</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">ilm</span> <span class="o">=</span> <span class="n">InferenceEndpointsImageGeneration</span><span class="p">(</span>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;black-forest-labs/FLUX.1-schnell&quot;</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="p">)</span>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
@@ -5107,7 +5191,7 @@
 <div class="tabbed-block">
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">KeepColumns</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">distilabel.models.ilms</span> <span class="kn">import</span> <span class="n">OpenAIImageLM</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">distilabel.models.image_generation</span> <span class="kn">import</span> <span class="n">OpenAIImageGeneration</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">ImageGeneration</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
@@ -5115,7 +5199,7 @@
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;dvilasuero/finepersonas-v0.1-tiny&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;image_generation_pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">ilm</span> <span class="o">=</span> <span class="n">OpenAIImageLM</span><span class="p">(</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">ilm</span> <span class="o">=</span> <span class="n">OpenAIImageGeneration</span><span class="p">(</span>
 </span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;dall-e-3&quot;</span><span class="p">,</span>
 </span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span>
 </span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>            <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="s2">&quot;1024x1024&quot;</span><span class="p">,</span>
@@ -5164,7 +5248,7 @@
 </span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
 </span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
 </span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="kn">from</span> <span class="nn">distilabel.models.ilms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsImageLM</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="kn">from</span> <span class="nn">distilabel.models.image_generation</span> <span class="kn">import</span> <span class="n">InferenceEndpointsImageLM</span>
 </span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">KeepColumns</span>
 </span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">ImageGeneration</span>

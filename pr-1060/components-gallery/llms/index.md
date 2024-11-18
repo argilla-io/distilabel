@@ -58,13 +58,13 @@ hide:
 
     [:octicons-arrow-right-24: ClientvLLM](clientvllm.md){ .bottom }
 
--   :simple-openai:{ .lg .middle } __OpenAIImageLM__
+-   :simple-openai:{ .lg .middle } __OpenAIImageGeneration__
 
     ---
 
     OpenAI image generation implementation running the async API client.
 
-    [:octicons-arrow-right-24: OpenAIImageLM](openaiimagelm.md){ .bottom }
+    [:octicons-arrow-right-24: OpenAIImageGeneration](openaiimagegeneration.md){ .bottom }
 
 -   :material-brain:{ .lg .middle } __CohereLLM__
 
@@ -90,13 +90,13 @@ hide:
 
     [:octicons-arrow-right-24: InferenceEndpointsLLM](inferenceendpointsllm.md){ .bottom }
 
--   :hugging:{ .lg .middle } __InferenceEndpointsImageLM__
+-   :hugging:{ .lg .middle } __InferenceEndpointsImageGeneration__
 
     ---
 
     OpenAI image generation implementation running the async API client.
 
-    [:octicons-arrow-right-24: InferenceEndpointsImageLM](inferenceendpointsimagelm.md){ .bottom }
+    [:octicons-arrow-right-24: InferenceEndpointsImageGeneration](inferenceendpointsimagegeneration.md){ .bottom }
 
 -   :material-brain:{ .lg .middle } __LiteLLM__
 
@@ -138,6 +138,22 @@ hide:
 
     [:octicons-arrow-right-24: VertexAILLM](vertexaillm.md){ .bottom }
 
+-   :hugging:{ .lg .middle } __InferenceEndpointsImageGeneration__
+
+    ---
+
+    OpenAI image generation implementation running the async API client.
+
+    [:octicons-arrow-right-24: InferenceEndpointsImageGeneration](inferenceendpointsimagegeneration.md){ .bottom }
+
+-   :simple-openai:{ .lg .middle } __OpenAIImageGeneration__
+
+    ---
+
+    OpenAI image generation implementation running the async API client.
+
+    [:octicons-arrow-right-24: OpenAIImageGeneration](openaiimagegeneration.md){ .bottom }
+
 -   :hugging:{ .lg .middle } __TransformersLLM__
 
     ---
@@ -161,6 +177,22 @@ hide:
     `vLLM` library LLM implementation.
 
     [:octicons-arrow-right-24: vLLM](vllm.md){ .bottom }
+
+-   :hugging:{ .lg .middle } __InferenceEndpointsImageGeneration__
+
+    ---
+
+    OpenAI image generation implementation running the async API client.
+
+    [:octicons-arrow-right-24: InferenceEndpointsImageGeneration](inferenceendpointsimagegeneration.md){ .bottom }
+
+-   :simple-openai:{ .lg .middle } __OpenAIImageGeneration__
+
+    ---
+
+    OpenAI image generation implementation running the async API client.
+
+    [:octicons-arrow-right-24: OpenAIImageGeneration](openaiimagegeneration.md){ .bottom }
 
 
 </div>

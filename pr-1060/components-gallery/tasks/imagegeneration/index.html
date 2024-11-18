@@ -3034,7 +3034,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/openaiimagelm/" class="md-nav__link">
+      <a href="../../llms/openaiimagegeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3118,7 +3118,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/inferenceendpointsimagelm/" class="md-nav__link">
+      <a href="../../llms/inferenceendpointsimagegeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3244,6 +3244,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../llms/inferenceendpointsimagegeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llms/openaiimagegeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../llms/transformersllm/" class="md-nav__link">
         
   
@@ -3300,6 +3342,48 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llms/inferenceendpointsimagegeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llms/openaiimagegeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3332,11 +3416,11 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../ilms/" class="md-nav__link ">
+            <a href="../../image_generation/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
-    ILMs
+    ImageGenerationModels
   </span>
   
 
@@ -3352,7 +3436,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_4">
             <span class="md-nav__icon md-icon"></span>
-            ILMs
+            ImageGenerationModels
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -3363,7 +3447,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ilms/" class="md-nav__link">
+      <a href="../../image_generation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3384,7 +3468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ilms/openaiimagelm/" class="md-nav__link">
+      <a href="../../image_generation/inferenceendpointsimagegeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3405,7 +3489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ilms/inferenceendpointsimagelm/" class="md-nav__link">
+      <a href="../../image_generation/openaiimagegeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5108,11 +5192,11 @@
     It works with any of the <code>vlms</code> defined under <code>distilabel.models.vlms</code>, the models
     implemented models that allow image generation.
     By default, the images are saved as JPEG files, but this can be changed using the
-    <code>save_images</code> and <code>image_format</code> attributes.</p>
+    <code>save_artifacts</code> and <code>image_format</code> attributes.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p><strong>save_images</strong>: Bool value to save the image artifacts on its folder.  Otherwise, the base64 representation of the image will be saved as  a string. Defaults to True.</p>
+<p><strong>save_artifacts</strong>: Bool value to save the image artifacts on its folder.  Otherwise, the base64 representation of the image will be saved as  a string. Defaults to True.</p>
 </li>
 <li>
 <p><strong>image_format</strong>: Any of the formats supported by PIL. Defaults to <code>JPEG</code>.</p>
@@ -5157,13 +5241,13 @@
 <h4 id="generate-an-image-from-a-prompt">Generate an image from a prompt<a class="headerlink" href="#generate-an-image-from-a-prompt" title="Permanent link">&para;</a></h4>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">ImageGeneration</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># Select the Image Generation model to use</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.models.ilms</span> <span class="kn">import</span> <span class="n">OpenAIImageLM</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">distilabel.models.ilms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsImageLM</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.models.image_generation</span> <span class="kn">import</span> <span class="n">OpenAIImageGeneration</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">distilabel.models.image_generation</span> <span class="kn">import</span> <span class="n">InferenceEndpointsImageGeneration</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">ilm</span> <span class="o">=</span> <span class="n">InferenceEndpointsImageLM</span><span class="p">(</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">ilm</span> <span class="o">=</span> <span class="n">InferenceEndpointsImageGeneration</span><span class="p">(</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;black-forest-labs/FLUX.1-schnell&quot;</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">ilm</span> <span class="o">=</span> <span class="n">OpenAIImageLM</span><span class="p">(</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">ilm</span> <span class="o">=</span> <span class="n">OpenAIImageGeneration</span><span class="p">(</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;dall-e-3&quot;</span><span class="p">,</span>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api.key&quot;</span><span class="p">,</span>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span>
@@ -5173,10 +5257,10 @@
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="p">}</span>
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="p">)</span>
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># save_images=True by default in JPEG format, if set to False, the image will be saved as a string.</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># save_artifacts=True by default in JPEG format, if set to False, the image will be saved as a string.</span>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="n">image_gen</span> <span class="o">=</span> <span class="n">ImageGeneration</span><span class="p">(</span>
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">ilm</span><span class="p">,</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">save_images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">save_artifacts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">image_format</span><span class="o">=</span><span class="s2">&quot;JPEG&quot;</span>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="p">)</span>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
