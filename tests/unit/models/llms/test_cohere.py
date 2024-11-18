@@ -67,7 +67,7 @@ class TestCohereLLM:
         )
         assert result == {
             "generations": ["Aenean hendrerit aliquam velit..."],
-            "statistics": {"input_tokens": [23], "output_tokens": [16]},
+            "statistics": {"input_tokens": [25], "output_tokens": [16]},
         }
 
     @pytest.mark.skipif(
@@ -103,7 +103,7 @@ class TestCohereLLM:
         )
         assert generation == {
             "generations": [sample_user.model_dump_json()],
-            "statistics": {"input_tokens": [23], "output_tokens": [26]},
+            "statistics": {"input_tokens": [25], "output_tokens": [26]},
         }
 
     @pytest.mark.asyncio
@@ -131,7 +131,7 @@ class TestCohereLLM:
         assert result == [
             {
                 "generations": ["Aenean hendrerit aliquam velit..."],
-                "statistics": {"input_tokens": [23], "output_tokens": [16]},
+                "statistics": {"input_tokens": [25], "output_tokens": [16]},
             }
         ]
 

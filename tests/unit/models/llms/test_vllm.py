@@ -133,7 +133,7 @@ class TestvLLM:
                 [
                     {
                         "generations": ["I'm fine thank you"],
-                        "statistics": {"input_tokens": [5], "output_tokens": [6]},
+                        "statistics": {"input_tokens": [10], "output_tokens": [6]},
                     }
                 ],
             ),
@@ -142,7 +142,10 @@ class TestvLLM:
                 [
                     {
                         "generations": ["I'm fine thank you"] * 2,
-                        "statistics": {"input_tokens": [5, 5], "output_tokens": [6, 6]},
+                        "statistics": {
+                            "input_tokens": [10, 10],
+                            "output_tokens": [6, 6],
+                        },
                     }
                 ],
             ),

@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Union
 from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import GenerateOutput, LLMOutput
+    from distilabel.models.llms.typing import GenerateOutput, LLMOutput
 
 
 def compute_tokens(
@@ -33,12 +33,9 @@ def compute_tokens(
         The number of tokens.
     """
     if isinstance(text_or_messages, list):
-        # If it's a list of messages, concatenate the content of each message
-        text = " ".join([message["content"] for message in text_or_messages])
+        return sum([len(tokenizer(message["content"])) for message in text_or_messages])
     else:
-        text = text_or_messages
-
-    return len(tokenizer(text))
+        return len(tokenizer(text_or_messages))
 
 
 def prepare_output(
