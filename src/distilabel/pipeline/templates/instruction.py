@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from typing import Optional
 
 from distilabel.distiset import Distiset
@@ -20,7 +19,7 @@ from distilabel.llms.base import LLM
 from distilabel.llms.huggingface import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import KeepColumns
-from distilabel.steps.tasks import MagpieGenerator, TextGeneration
+from distilabel.steps.tasks import MagpieGenerator
 
 MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
@@ -76,7 +75,6 @@ class InstructionResponsePipeline:
         num_rows: int = 10,
         batch_size: int = 1,
     ) -> None:
-
         if llm is None:
             self.llm: LLM = InferenceEndpointsLLM(
                 model_id=MODEL,
