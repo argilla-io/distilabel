@@ -493,7 +493,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             )
             statistics[field] = batched_field
 
-        # Regenerates the outputs as they are returned buy `prepare_output`
+        # Regenerates the outputs as they are returned by `prepare_output`
         sorted_results = []
         for i, batched_output in enumerate(batched_outputs):
             generation = {"generations": batched_output}
