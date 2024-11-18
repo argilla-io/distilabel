@@ -457,7 +457,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         }
 
     @staticmethod
-    def _prepare_sorted_resuts(
+    def _prepare_sorted_results(
         batched_outputs: List[List[FormattedInput]],
         sorted_indices: List[int],
         generations: List[GenerateOutput],
