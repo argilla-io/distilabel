@@ -5121,26 +5121,36 @@
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="nb">next</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">process</span><span class="p">([{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">}]))</span>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># [</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1">#     {</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1">#         &#39;instruction&#39;: &quot;What&#39;s the capital of Spain?&quot;,</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1">#         &#39;generation&#39;: &#39;The capital of Spain is Madrid.&#39;,</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1">#         &#39;distilabel_metadata&#39;: {</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1">#               &#39;raw_output_text-generation&#39;: &#39;The capital of Spain is Madrid.&#39;,</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1">#               &#39;raw_input_text-generation&#39;: [</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c1">#                   {&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: &quot;What&#39;s the capital of Spain?&quot;}</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1">#               ]</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1">#         },</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="c1">#         &#39;model_name&#39;: &#39;meta-llama/Meta-Llama-3-70B-Instruct&#39;</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1">#     }</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="c1"># ]</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1">#   {</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1">#     &quot;instruction&quot;: &quot;What&#39;s the capital of Spain?&quot;,</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1">#     &quot;generation&quot;: &quot;The capital of Spain is Madrid.&quot;,</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1">#     &quot;distilabel_metadata&quot;: {</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1">#       &quot;raw_output_text-generation&quot;: &quot;The capital of Spain is Madrid.&quot;,</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1">#       &quot;raw_input_text-generation&quot;: [</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c1">#         {</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1">#           &quot;role&quot;: &quot;user&quot;,</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1">#           &quot;content&quot;: &quot;What&#39;s the capital of Spain?&quot;</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="c1">#         }</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1">#       ],</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="c1">#       &quot;statistics_text-generation&quot;: {  # (1)</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="c1">#         &quot;input_tokens&quot;: 18,</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1">#         &quot;output_tokens&quot;: 8</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1">#       }</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="c1">#     },</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="c1">#     &quot;model_name&quot;: &quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="c1">#   }</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="c1"># ]</span>
 </span></code></pre></div>
+<ol>
+<li>The <code>LLMs</code> will not only return the text but also a <code>statistics_{STEP_NAME}</code> field that will contain statistics related to the generation. If available, at least the input and output tokens will be returned.</li>
+</ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code>Step.load()</code> always needs to be executed when being used as a standalone. Within a pipeline, this will be done automatically during pipeline execution.</p>
 </div>
 <p>As shown above, the <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task adds a <code>generation</code> based on the <code>instruction</code>.</p>
 <div class="admonition tip">
-<p class="admonition-title">Tip</p>
+<p class="admonition-title">New in version 1.2.0</p>
 <p>Since version <code>1.2.0</code>, we provide some metadata about the LLM call through <code>distilabel_metadata</code>. This can be disabled by setting the <code>add_raw_output</code> attribute to <code>False</code> when creating the task.</p>
 <p>Additionally, since version <code>1.4.0</code>, the formatted input can also be included, which can be helpful when testing
 custom templates (testing the pipeline using the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.base.BasePipeline.dry_run"><code>dry_run</code></a> method).</p>
@@ -5154,9 +5164,13 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">)</span>
 </span></code></pre></div>
 </div>
+<div class="admonition tip">
+<p class="admonition-title">New in version 1.5.0</p>
+<p>Since version <code>1.5.0</code> <code>distilabel_metadata</code> includes a new <code>statistics</code> field out of the box. The generation from the LLM will not only contain the text, but also statistics associated with the text if available, like the input and output tokens. This field will be generated with <code>statistic_{STEP_NAME}</code> to avoid collisions between different steps in the pipeline, similar to how <code>raw_output_{STEP_NAME}</code> works.</p>
+</div>
 <h3 id="taskprint">Task.print<a class="headerlink" href="#taskprint" title="Permanent link">&para;</a></h3>
 <div class="admonition info">
-<p class="admonition-title">Info</p>
+<p class="admonition-title">New in version 1.4.0</p>
 <p>New since version <code>1.4.0</code>, <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base._Task.print"><code>Task.print</code></a> <code>Task.print</code> method.</p>
 </div>
 <p>The <code>Tasks</code> include a handy method to show what the prompt formatted for an <code>LLM</code> would look like, let's see an example with <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.UltraFeedback"><code>UltraFeedback</code></a>, but it applies to any other <code>Task</code>.</p>
@@ -5350,6 +5364,10 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 </span></code></pre></div>
 </div>
 </div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Most <code>Tasks</code> reuse the <code>Task.process</code> method to process the generations, but if a new <code>Task</code> defines a custom <code>process</code> method, like happens for example with <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.Magpie"><code>Magpie</code></a>, one hast to deal with the <code>statistics</code> returned by the <code>LLM</code>.</p>
 </div>
 
 
