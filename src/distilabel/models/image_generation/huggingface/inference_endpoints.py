@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import base64
-import io
 from typing import TYPE_CHECKING, Optional
 
 from pydantic import validate_call
@@ -93,7 +91,8 @@ class InferenceEndpointsImageGeneration(
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
         )
-        buffered = io.BytesIO()
-        image.save(buffered, format="JPEG")
-        img_str = base64.b64encode(buffered.getvalue()).decode()
+        from distilabel.models.image_generation.utils import image_to_str
+
+        img_str = image_to_str(image, image_format="JPEG")
+
         return [{"images": [img_str]}]

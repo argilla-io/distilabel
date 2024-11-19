@@ -12,14 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import base64
 import hashlib
-import io
 from typing import TYPE_CHECKING
 
-from PIL import Image
-
-from distilabel.models.image_generation.utils import image_to_str
+from distilabel.models.image_generation.utils import image_from_str, image_to_str
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import ImageTask
 
@@ -122,8 +118,7 @@ class ImageGeneration(ImageTask):
         image = None
         if img_str := output.get("images"):
             img_str = img_str[0]  # Grab only the first image
-            image_bytes = base64.b64decode(img_str)
-            image = Image.open(io.BytesIO(image_bytes))
+            image = image_from_str(img_str)
 
         return {"image": image, "model_name": self.llm.model_name}
 
