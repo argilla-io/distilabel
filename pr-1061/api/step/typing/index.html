@@ -5048,7 +5048,7 @@
 
 
 <h4 id="distilabel.steps.typing.StepOutput" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">StepOutput</span> <span class="o">=</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">StepOutput</span> <span class="o">=</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">StepData</span><span class="p">,</span> <span class="n">StepStatistics</span><span class="p">]]]</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5059,7 +5059,20 @@
 
     <div class="doc doc-contents ">
 
-        <p><code>StepOutput</code> is an alias of the typing <code>Iterator[List[Dict[str, Any]]]</code></p>
+        <p><code>StepOutput</code> is an alias of the typing.
+A step output is a dict of the form:
+{
+                "outputs": [
+            {"col1": "val1", "col2": "val2"},
+            {"col1": "val1", "col2": "val2"},
+            {"col1": "val1", "col2": "val2"},
+                ],
+                "statistics": {
+            "llm": {},
+            "time": 12341234,
+            ...
+                }
+}</p>
     </div>
 
 </div>
