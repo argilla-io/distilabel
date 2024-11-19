@@ -39,10 +39,10 @@ pipeline = InstructionResponsePipeline()
 dataset = pipeline.run()
 ```
 
-The `InstructionResponsePipeline` class will use the `InferenceEndpointsLLM` class with the model `meta-llama/Meta-Llama-3.1-8B-Instruct` to generate data based on the input data. The input data can be provided via the `pipeline.run` method or via the `pipeline.run_from_file` method. The output data will be a dataset with the columns `instruction` and `response`. The class uses a generic system prompt, but you can customize it by passing the `system_prompt` parameter to the class.
+The `InstructionResponsePipeline` class will use the `InferenceEndpointsLLM` class with the model `meta-llama/Meta-Llama-3.1-8B-Instruct` to generate data based on the system prompt. The output data will be a dataset with the columns `instruction` and `response`. The class uses a generic system prompt, but you can customize it by passing the `system_prompt` parameter to the class.
 
 !!! note
-    We're actively working on building more pipelines for different tasks. If you have any suggestions or requests, please let us know! We're currently working on pipelines for classification, Direct Preference Optimizatio, and Information Retrieval tasks.
+    We're actively working on building more pipelines for different tasks. If you have any suggestions or requests, please let us know! We're currently working on pipelines for classification, Direct Preference Optimization, and Information Retrieval tasks.
 
 ## Define a Custom pipeline
 
