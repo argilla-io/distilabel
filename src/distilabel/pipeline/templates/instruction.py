@@ -18,7 +18,6 @@ from distilabel.distiset import Distiset
 from distilabel.llms.base import LLM
 from distilabel.llms.huggingface import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import KeepColumns
 from distilabel.steps.tasks import MagpieGenerator
 
 MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
