@@ -12,20 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.ray import RayPipeline
-from distilabel.pipeline.routing_batch_function import (
-    routing_batch_function,
-    sample_n_steps,
-)
-from distilabel.pipeline.templates import (
-    InstructionResponsePipeline,
-)
-
-__all__ = [
-    "Pipeline",
-    "RayPipeline",
-    "InstructionResponsePipeline",
-    "routing_batch_function",
-    "sample_n_steps",
-]
+from .instruction import InstructionResponsePipeline  # noqa: F401
