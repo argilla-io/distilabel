@@ -145,6 +145,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/fine_personas_social_network.md)
 
+-   __Create questions and answers for a exam__
+
+    ---
+
+    Learn how to generate questions and answers for a exam, using a raw wikipedia page and structured generation.
+
+    [:octicons-arrow-right-24: Example](examples/exam_questions.md)
+
 -   __Image generation with distilabel__
 
     ---
