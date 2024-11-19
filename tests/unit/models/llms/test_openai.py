@@ -15,7 +15,7 @@
 import os
 import sys
 from textwrap import dedent
-from typing import Any, Dict
+from typing import Any, Dict, List
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
@@ -65,11 +65,14 @@ class TestOpenAILLM:
         llm._aclient = async_openai_mock
 
         mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            choices=[
+                Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))
+            ],
+            usage=Mock(prompt_tokens=100, completion_tokens=100),
         )
         llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
-        await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {"role": "system", "content": ""},
                 {
@@ -78,6 +81,10 @@ class TestOpenAILLM:
                 },
             ]
         )
+        assert result == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
+        }
 
     @pytest.mark.asyncio
     async def test_agenerate_structured(
@@ -93,8 +100,16 @@ class TestOpenAILLM:
             },
         )  # type: ignore
         llm._aclient = async_openai_mock
+        import tiktoken
 
-        sample_user = DummyUserDetail(name="John Doe", age=30)
+        llm._tokenizer = tiktoken.encoding_for_model(self.model_id)
+
+        mocked_usage = MagicMock(
+            usage=MagicMock(prompt_tokens=100, completion_tokens=100),
+        )
+        sample_user = DummyUserDetail(
+            name="John Doe", age=30, _raw_response=mocked_usage
+        )
 
         llm._aclient.chat.completions.create = AsyncMock(return_value=sample_user)
 
@@ -107,26 +122,58 @@ class TestOpenAILLM:
                 },
             ]
         )
-        assert generation[0] == sample_user.model_dump_json()
+        assert generation == {
+            "generations": [sample_user.model_dump_json()],
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
+        }
 
     @pytest.mark.skipif(
         sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
     )
+    @pytest.mark.parametrize(
+        "num_generations, expected_result",
+        [
+            (
+                1,
+                [
+                    {
+                        "generations": [" Aenean hendrerit aliquam velit. ..."],
+                        "statistics": {"input_tokens": [100], "output_tokens": [100]},
+                    }
+                ],
+            ),
+            (
+                2,
+                [
+                    {
+                        "generations": [" Aenean hendrerit aliquam velit. ..."] * 2,
+                        "statistics": {"input_tokens": [100], "output_tokens": [100]},
+                    }
+                ],
+            ),
+        ],
+    )
     @pytest.mark.asyncio
     async def test_generate(
-        self, async_openai_mock: MagicMock, _openai_mock: MagicMock
+        self,
+        async_openai_mock: MagicMock,
+        _openai_mock: MagicMock,
+        num_generations: int,
+        expected_result: List[Dict[str, Any]],
     ) -> None:
         llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
         llm._aclient = async_openai_mock
 
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            * num_generations,
+            usage=Mock(prompt_tokens=100, completion_tokens=100),
         )
         llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
 
-        llm.generate(
+        result = llm.generate(
             inputs=[
                 [
                     {"role": "system", "content": ""},
@@ -137,6 +184,7 @@ class TestOpenAILLM:
                 ]
             ]
         )
+        assert result == expected_result
 
         with pytest.raises(ValueError):
             llm.generate(
@@ -206,6 +254,11 @@ class TestOpenAILLM:
                                     },
                                 }
                             ],
+                            "usage": {
+                                "prompt_tokens": 100,
+                                "completion_tokens": 100,
+                                "total_tokens": 200,
+                            },
                         },
                     },
                 },
@@ -228,6 +281,11 @@ class TestOpenAILLM:
                                     },
                                 }
                             ],
+                            "usage": {
+                                "prompt_tokens": 100,
+                                "completion_tokens": 100,
+                                "total_tokens": 200,
+                            },
                         },
                     },
                 },
@@ -236,7 +294,23 @@ class TestOpenAILLM:
         llm.load()
 
         outputs = llm._check_and_get_batch_results()
-        assert outputs == [["output 1"], ["output 2"]]
+
+        assert outputs == [
+            {
+                "generations": ["output 1"],
+                "statistics": {
+                    "input_tokens": [100],
+                    "output_tokens": [100],
+                },
+            },
+            {
+                "generations": ["output 2"],
+                "statistics": {
+                    "input_tokens": [100],
+                    "output_tokens": [100],
+                },
+            },
+        ]
 
     def test_check_and_get_batch_results_raises_valueerror(
         self, _async_openai_mock: MagicMock, _openai_mock: MagicMock
@@ -322,12 +396,23 @@ class TestOpenAILLM:
                                 },
                             }
                         ],
+                        "usage": {
+                            "prompt_tokens": 100,
+                            "completion_tokens": 100,
+                            "total_tokens": 200,
+                        },
                     },
                 }
             }
         )
 
-        assert result == [" Aenean hendrerit aliquam velit. ..."]
+        assert result == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {
+                "input_tokens": [100],
+                "output_tokens": [100],
+            },
+        }
 
     def test_retrieve_batch_results(
         self, _async_openai_mock: MagicMock, openai_mock: MagicMock

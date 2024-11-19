@@ -20,6 +20,7 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import prepare_output
 from distilabel.steps.tasks.typing import (
     FormattedInput,
     InstructorStructuredOutputType,
@@ -27,6 +28,9 @@ from distilabel.steps.tasks.typing import (
 
 if TYPE_CHECKING:
     from mistralai import Mistral
+    from mistralai.models.chatcompletionresponse import ChatCompletionResponse
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
@@ -221,8 +225,10 @@ class MistralLLM(AsyncLLM):
             completion = await self._aclient.chat.complete_async(**kwargs)  # type: ignore
 
         if structured_output:
-            generations.append(completion.model_dump_json())
-            return generations
+            return prepare_output(
+                [completion.model_dump_json()],
+                **self._get_llm_statistics(completion._raw_response),
+            )
 
         for choice in completion.choices:
             if (content := choice.message.content) is None:
@@ -231,4 +237,12 @@ class MistralLLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
-        return generations
+
+        return prepare_output(generations, **self._get_llm_statistics(completion))
+
+    @staticmethod
+    def _get_llm_statistics(completion: "ChatCompletionResponse") -> "LLMStatistics":
+        return {
+            "input_tokens": [completion.usage.prompt_tokens],
+            "output_tokens": [completion.usage.completion_tokens],
+        }
