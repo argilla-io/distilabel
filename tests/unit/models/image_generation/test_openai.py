@@ -52,17 +52,20 @@ class TestOpenAIImageGeneration:
         igm = OpenAIImageGeneration(model=self.model_id, api_key="api.key")  # type: ignore
         igm._aclient = async_openai_mock
 
-        if response_format == "url":
-            mocked_response = Mock(b64_json=None, url="https://example.com")
-        else:
-            mocked_response = Mock(b64_json="iVBORw0KGgoAAAANSUhEUgA...", url=None)
+        with patch("requests.get") as mock_get:
+            # Mock the download of the image
+            mock_get.return_value = Mock(content=b"iVBORw0KGgoAAAANSUhEUgA...")
+            if response_format == "url":
+                mocked_response = Mock(b64_json=None, url="https://example.com")
+            else:
+                mocked_response = Mock(b64_json="iVBORw0KGgoAAAANSUhEUgA...", url=None)
 
-        mocked_generation = Mock(data=[mocked_response])
-        igm._aclient.images.generate = AsyncMock(return_value=mocked_generation)
+            mocked_generation = Mock(data=[mocked_response])
+            igm._aclient.images.generate = AsyncMock(return_value=mocked_generation)
 
-        await igm.agenerate(
-            input="a white siamese cat", response_format=response_format
-        )
+            await igm.agenerate(
+                input="a white siamese cat", response_format=response_format
+            )
 
     @pytest.mark.parametrize("response_format", ["url", "b64_json"])
     @pytest.mark.asyncio
@@ -75,17 +78,23 @@ class TestOpenAIImageGeneration:
         igm = OpenAIImageGeneration(model=self.model_id, api_key="api.key")  # type: ignore
         igm._aclient = async_openai_mock
 
-        if response_format == "url":
-            mocked_response = Mock(b64_json=None, url="https://example.com")
-        else:
-            mocked_response = Mock(b64_json="iVBORw0KGgoAAAANSUhEUgA...", url=None)
+        with patch("requests.get") as mock_get:
+            # Mock the download of the image
+            mock_get.return_value = Mock(content=b"iVBORw0KGgoAAAANSUhEUgA...")
 
-        mocked_generation = Mock(data=[mocked_response])
-        igm._aclient.images.generate = AsyncMock(return_value=mocked_generation)
+            if response_format == "url":
+                mocked_response = Mock(b64_json=None, url="https://example.com")
+            else:
+                mocked_response = Mock(b64_json="iVBORw0KGgoAAAANSUhEUgA...", url=None)
 
-        nest_asyncio.apply()
+            mocked_generation = Mock(data=[mocked_response])
+            igm._aclient.images.generate = AsyncMock(return_value=mocked_generation)
 
-        igm.generate(inputs=["a white siamese cat"], response_format=response_format)
+            nest_asyncio.apply()
+
+            igm.generate(
+                inputs=["a white siamese cat"], response_format=response_format
+            )
 
         with pytest.raises(ValueError):
             igm.generate(
