@@ -23,18 +23,24 @@ from typing import (
     Union,
 )
 
+import orjson
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.steps.tasks.typing import (
     FormattedInput,
     InstructorStructuredOutputType,
 )
 
 if TYPE_CHECKING:
-    from cohere import AsyncClient, ChatMessage
+    from cohere import AsyncClient, ChatMessage, Message
+    from pydantic import BaseModel
+    from tokenizers import Tokenizer
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 _COHERE_API_KEY_ENV_VAR_NAME = "COHERE_API_KEY"
@@ -135,6 +141,7 @@ class CohereLLM(AsyncLLM):
 
     _ChatMessage: Type["ChatMessage"] = PrivateAttr(...)
     _aclient: "AsyncClient" = PrivateAttr(...)
+    _tokenizer: "Tokenizer" = PrivateAttr(...)
 
     @property
     def model_name(self) -> str:
@@ -171,6 +178,10 @@ class CohereLLM(AsyncLLM):
             self._aclient = result.get("client")  # type: ignore
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
+
+        from cohere.manually_maintained.tokenizers import get_hf_tokenizer
+
+        self._tokenizer: "Tokenizer" = get_hf_tokenizer(self._aclient, self.model)
 
     def _format_chat_to_cohere(
         self, input: "FormattedInput"
@@ -278,16 +289,35 @@ class CohereLLM(AsyncLLM):
         if structured_output:
             kwargs = self._prepare_kwargs(kwargs, structured_output)  # type: ignore
 
-        response = await self._aclient.chat(**kwargs)  # type: ignore
+        response: Union["Message", "BaseModel"] = await self._aclient.chat(**kwargs)  # type: ignore
 
         if structured_output:
-            return [response.model_dump_json()]
+            return prepare_output(
+                [response.model_dump_json()],
+                **self._get_llm_statistics(
+                    input, orjson.dumps(response.model_dump_json()).decode("utf-8")
+                ),  # type: ignore
+            )
 
         if (text := response.text) == "":
             self._logger.warning(  # type: ignore
                 f"Received no response using Cohere client (model: '{self.model}')."
                 f" Finish reason was: {response.finish_reason}"
             )
-            return [None]
+            return prepare_output(
+                [None],
+                **self._get_llm_statistics(input, ""),
+            )
 
-        return [text]
+        return prepare_output(
+            [text],
+            **self._get_llm_statistics(input, text),
+        )
+
+    def _get_llm_statistics(
+        self, input: FormattedInput, output: str
+    ) -> "LLMStatistics":
+        return {
+            "input_tokens": [compute_tokens(input, self._tokenizer.encode)],
+            "output_tokens": [compute_tokens(output, self._tokenizer.encode)],
+        }

@@ -27,13 +27,16 @@ from distilabel.models.llms.base import LLM
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
+from distilabel.utils.dicts import merge_dicts
 
 if TYPE_CHECKING:
+    from distilabel.models.llms.typing import LLMStatistics
     from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import StepColumns, StepOutput
 
+
 MAGPIE_MULTI_TURN_SYSTEM_PROMPT = (
-    "You are a helpful Al assistant. The user will engage in a multi−round conversation"
+    "You are a helpful Al assistant. The user will engage in a multi-round conversation"
     " with you, asking initial questions and following up with additional related questions."
     " Your goal is to provide thorough, relevant and insightful responses to help the user"
     " with their queries."
@@ -192,15 +195,25 @@ class MagpieBase(RuntimeParametersMixin):
             num_generations=1,
             **self.llm.generation_kwargs,  # type: ignore
         )
+        stats = []
         rows = []
         for output, system_prompt_key in zip_longest(
             outputs, system_prompt_keys, fillvalue=None
         ):
-            row = {"instruction": output[0]}  # type: ignore
+            row = {
+                "instruction": output["generations"][0],
+                "distilabel_metadata": {
+                    f"statistics_{self.name}": output["statistics"]
+                },
+            }  # type: ignore
             if system_prompt_key is not None:
                 row["system_prompt_key"] = system_prompt_key
             rows.append(row)
-        return rows
+            stats.append(
+                {}
+            )  # Mimics the stats to keep _generate_with_pre_query_template
+
+        return rows, stats
 
     def _prepare_conversation_outputs(
         self, conversations: List["ChatType"], system_prompt_keys: List[str]
@@ -245,18 +258,22 @@ class MagpieBase(RuntimeParametersMixin):
 
     def _generate_conversation_turn(
         self, role: str, conversations: List["ChatType"], active_indices: List[int]
-    ) -> Tuple[List["ChatType"], List[int]]:
+    ) -> Tuple[List["ChatType"], List[int], "LLMStatistics"]:
         # Generate an output for the conversations that are still active (no previous `None`s)
         outputs = self.llm.generate(
             inputs=[conversations[idx] for idx in active_indices],
             num_generations=1,
             **self.llm.generation_kwargs,  # type: ignore
         )
+        # Extract the single message from the conversation and the statistics in separate lists
+        messages, statistics = zip(
+            *[(output["generations"][0], output["statistics"]) for output in outputs]
+        )
 
         active_conversations = [conversations[idx] for idx in active_indices]
         updated_conversations = self._append_messages_to_conversations(
             role=role,
-            messages=[output[0] for output in outputs],
+            messages=messages,
             conversations=active_conversations,
         )
 
@@ -264,10 +281,10 @@ class MagpieBase(RuntimeParametersMixin):
             conversations[idx] = conv
 
         new_active_indices = [
-            idx for idx, output in zip(active_indices, outputs) if output[0] is not None
+            idx for idx, output in zip(active_indices, outputs) if output is not None
         ]
 
-        return conversations, new_active_indices
+        return conversations, new_active_indices, statistics
 
     def _generate_multi_turn_conversation(
         self, inputs: List[Dict[str, Any]]
@@ -278,30 +295,45 @@ class MagpieBase(RuntimeParametersMixin):
         # Keep track of the active conversations, as it could happen that for some conversation
         # we can't generate the next turn because the `LLM` returned `None`.
         active_indices = list(range(len(conversations)))
-
+        stats = []
         for i in range(self.n_turns):  # type: ignore
             if not active_indices:
                 break
 
             # Generate user message
-            conversations, active_indices = self._generate_conversation_turn(
-                role="user", conversations=conversations, active_indices=active_indices
+            conversations, active_indices, statistics_user = (
+                self._generate_conversation_turn(
+                    role="user",
+                    conversations=conversations,
+                    active_indices=active_indices,
+                )
             )
 
             if i == self.n_turns - 1 and self.end_with_user:  # type: ignore
+                statistics = merge_dicts(*[statistics_user])
+                stats.append(statistics)
                 break
 
             if not active_indices:
                 break
 
             # Generate assistant message
-            conversations, active_indices = self._generate_conversation_turn(
-                role="assistant",
-                conversations=conversations,
-                active_indices=active_indices,
+            conversations, active_indices, statistics_assistant = (
+                self._generate_conversation_turn(
+                    role="assistant",
+                    conversations=conversations,
+                    active_indices=active_indices,
+                )
             )
+            # Merge the statistics of the user and assistant messages to have the same shape as the conversations
+            statistics = merge_dicts(*[statistics_user, statistics_assistant])
+            stats.append(statistics)
 
-        return self._prepare_conversation_outputs(conversations, system_prompt_keys)
+        # Merge the dicts again at the conversation level
+        stats = merge_dicts(*stats)
+        return self._prepare_conversation_outputs(
+            conversations, system_prompt_keys
+        ), stats
 
     def _generate_with_pre_query_template(
         self, inputs: List[Dict[str, Any]]
@@ -314,16 +346,22 @@ class MagpieBase(RuntimeParametersMixin):
         Returns:
             The list of generated conversations.
         """
-        outputs = (
+        outputs, statistics = (
             self._generate_instruction(inputs)
             if self.only_instruction
             else self._generate_multi_turn_conversation(inputs)
         )
-
-        return [
-            {**input, **output, "model_name": self.llm.model_name}
-            for input, output in zip(inputs, outputs)
-        ]
+        generations = []
+        for input, output, stats in zip(inputs, outputs, statistics):
+            generation = {
+                **input,
+                **output,
+                "model_name": self.llm.model_name,
+            }
+            if not self.only_instruction:
+                generation["distilabel_metadata"] = {f"statistics_{self.name}": stats}
+            generations.append(generation)
+        return generations
 
 
 class Magpie(Task, MagpieBase):

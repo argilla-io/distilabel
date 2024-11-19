@@ -49,9 +49,16 @@ class DummyAPIGenLLM(DummyLLM):
         if self.use_structured_output:
             query_answers = {"pairs": query_answers}
         return [
-            [json.dumps(query_answers) for _ in range(num_generations)]
-            for _ in range(len(inputs))
-        ]
+            {
+                "generations": [
+                    json.dumps(query_answers) for _ in range(num_generations)
+                ],
+                "statistics": {
+                    "input_tokens": [12] * num_generations,
+                    "output_tokens": [12] * num_generations,
+                },
+            }
+        ] * len(inputs)
 
 
 # Example of 3 rows from Salesforce/xlam-function-calling-60k

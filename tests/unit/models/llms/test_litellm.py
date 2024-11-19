@@ -42,7 +42,7 @@ class TestLiteLLM:
         )
         llm._aclient = AsyncMock(return_value=mocked_completion)
 
-        await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {"role": "system", "content": ""},
                 {
@@ -51,6 +51,10 @@ class TestLiteLLM:
                 },
             ]
         )
+        assert result == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {"input_tokens": [21], "output_tokens": [11]},
+        }
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_litellm: MagicMock, model: str) -> None:
@@ -64,7 +68,7 @@ class TestLiteLLM:
 
         nest_asyncio.apply()
 
-        llm.generate(
+        result = llm.generate(
             inputs=[
                 [
                     {"role": "system", "content": ""},
@@ -75,6 +79,12 @@ class TestLiteLLM:
                 ]
             ]
         )
+        assert result == [
+            {
+                "generations": [" Aenean hendrerit aliquam velit. ..."],
+                "statistics": {"input_tokens": [21], "output_tokens": [11]},
+            }
+        ]
 
     def test_serialization(self, _: MagicMock, model: str) -> None:
         llm = LiteLLM(model=model)  # type: ignore
