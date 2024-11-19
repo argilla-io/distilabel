@@ -138,7 +138,7 @@ with Pipeline(name="ExamGenerator") as pipeline:
 
 1. Download a single page for the demo. We could donwnload first the pages, or apply the same procedure to any type of data we want. In a real world use case, we would want to make a dataset from these documents first.
 
-2. Define the structure required for the answer using Pydantic. In this case we want for each page, a list with questions and answers (additionally we've added distractors, but can be ignored for this case). So our output will be a `ExamQuestions` model, which is a list of `ExamQuestion`, where each one consists in the `question` and `answer` fields as string fields.
+2. Define the structure required for the answer using Pydantic. In this case we want for each page, a list with questions and answers (additionally we've added distractors, but can be ignored for this case). So our output will be a `ExamQuestions` model, which is a list of `ExamQuestion`, where each one consists in the `question` and `answer` fields as string fields. The language model will use the field descriptions to generate the values.
 
 3. Use the system prompt to guide the model towards the behaviour we want from it. Independently from the structured output we are forcing the model to have, it helps if we pass the format expected in our prompt.
 
