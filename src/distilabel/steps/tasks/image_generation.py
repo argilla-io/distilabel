@@ -19,14 +19,15 @@ from typing import TYPE_CHECKING
 
 from PIL import Image
 
+from distilabel.models.image_generation.utils import image_to_str
 from distilabel.steps.base import StepInput
-from distilabel.steps.tasks.base import Task
+from distilabel.steps.tasks.base import ImageTask
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepColumns, StepOutput
 
 
-class ImageGeneration(Task):
+class ImageGeneration(ImageTask):
     """Image generation with an image to text model given a prompt.
 
     `ImageGeneration` is a pre-defined task that allows generating images from a prompt.
@@ -112,7 +113,7 @@ class ImageGeneration(Task):
             "model_name": True,
         }
 
-    def format_input(self, input: dict[str, any]) -> dict[str, str]:
+    def format_input(self, input: dict[str, any]) -> str:
         return input["prompt"]
 
     def format_output(
@@ -145,12 +146,9 @@ class ImageGeneration(Task):
         for input, input_outputs in zip(inputs, outputs):
             formatted_outputs = self._format_outputs(input_outputs, input)
             for formatted_output in formatted_outputs:
-                buffered = io.BytesIO()
-                formatted_output["image"].save(buffered, format=self.image_format)
-
-                formatted_output["image"] = base64.b64encode(
-                    buffered.getvalue()
-                ).decode()
+                formatted_output["image"] = image_to_str(
+                    formatted_output["image"], image_format=self.image_format
+                )
 
                 if self.save_artifacts and (
                     image := formatted_output.get("image", None)
