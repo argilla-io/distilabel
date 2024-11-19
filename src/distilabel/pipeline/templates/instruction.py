@@ -102,9 +102,9 @@ class InstructionResponsePipeline:
             batch_size=batch_size,
         )
 
-    def run(self) -> Distiset:
+    def run(self, **kwargs) -> Distiset:
         """Runs the pipeline and returns a Distiset."""
-        return self.pipeline.run()
+        return self.pipeline.run(**kwargs)
 
     def _get_magpie_pipeline(
         self, system_prompt: str, n_turns: int, num_rows: int, batch_size: int
