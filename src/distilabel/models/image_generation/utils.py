@@ -18,10 +18,10 @@ import io
 from PIL import Image
 
 
-def image_to_str(image: Image.Image) -> str:
+def image_to_str(image: Image.Image, image_format: str = "JPEG") -> str:
     """Converts a PIL Image to a base64 encoded string."""
     buffered = io.BytesIO()
-    image.save(buffered, format="JPEG")
+    image.save(buffered, format=image_format)
     return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
 
