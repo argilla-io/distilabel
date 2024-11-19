@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Optional
 from pydantic import validate_call
 
 from distilabel.models.image_generation.base import AsyncImageGenerationModel
+from distilabel.models.image_generation.utils import image_to_str
 from distilabel.models.llms.huggingface import InferenceEndpointsLLM
 
 if TYPE_CHECKING:
@@ -91,8 +92,6 @@ class InferenceEndpointsImageGeneration(
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
         )
-        from distilabel.models.image_generation.utils import image_to_str
-
         img_str = image_to_str(image, image_format="JPEG")
 
         return [{"images": [img_str]}]
