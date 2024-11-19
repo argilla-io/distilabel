@@ -25,7 +25,9 @@ with Pipeline(name="image_generation_pipeline") as pipeline:
     igm = InferenceEndpointsImageGeneration(model_id="black-forest-labs/FLUX.1-schnell")
 
     img_generation = ImageGeneration(
-        name="flux_schnell", llm=igm, input_mappings={"prompt": "persona"}
+        name="flux_schnell",
+        image_generation_model=igm,
+        input_mappings={"prompt": "persona"},
     )
 
     keep_columns = KeepColumns(columns=["persona", "model_name", "image"])
