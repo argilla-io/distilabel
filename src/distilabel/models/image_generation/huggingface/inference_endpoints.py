@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class InferenceEndpointsImageGeneration(
-    InferenceEndpointsLLM, AsyncImageGenerationModel
+    AsyncImageGenerationModel, InferenceEndpointsLLM
 ):
     """Inference Endpoint image generation implementation running the async API client.
 
@@ -56,6 +56,13 @@ class InferenceEndpointsImageGeneration(
         # [{"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}]
         ```
     """
+
+    @property
+    def model_name(self) -> str:
+        return InferenceEndpointsLLM.model_name.fget(self)
+
+    def load(self) -> None:
+        InferenceEndpointsLLM.load(self)
 
     @validate_call
     async def agenerate(

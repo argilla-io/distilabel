@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from openai.types import ImagesResponse
 
 
-class OpenAIImageGeneration(OpenAILLM, AsyncImageGenerationModel):
+class OpenAIImageGeneration(AsyncImageGenerationModel, OpenAILLM):
     """OpenAI image generation implementation running the async API client.
 
     Attributes:
@@ -64,6 +64,16 @@ class OpenAIImageGeneration(OpenAILLM, AsyncImageGenerationModel):
         # [{"images": ["iVBORw0KGgoAAAANSUhEUgA..."]}]
         ```
     """
+
+    @property
+    def model_name(self) -> str:
+        return OpenAILLM.model_name.fget(self)
+
+    def load(self) -> None:
+        OpenAILLM.load(self)
+
+    def unload(self) -> None:
+        OpenAILLM.unload(self)
 
     @validate_call
     async def agenerate(  # type: ignore
