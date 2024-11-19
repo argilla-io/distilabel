@@ -6,7 +6,7 @@ hide: toc
 
 This example will showcase how to generate exams questions and answers from a text page. In this case, we will use a wikipedia page as an example, and show how to leverage the prompt to help the model generate the data in the appropriate format.
 
-We are going to use a `meta-llama/Meta-Llama-3.1-8B-Instruct` to generate questions and answers for a mock exam from a wikipedia page. In this case, we are going to use the *Transfer Learning* entry for it. With the help of structured generation we will guide the model to create structured data for us that is easy to parse.
+We are going to use a `meta-llama/Meta-Llama-3.1-8B-Instruct` to generate questions and answers for a mock exam from a wikipedia page. In this case, we are going to use the *Transfer Learning* entry for it. With the help of structured generation we will guide the model to create structured data for us that is easy to parse. The structure will be question, answer, and distractors (wrong answers).
 
 ??? "Click to see the sample results"
 
