@@ -5085,10 +5085,10 @@
 </span></code></pre></div>
 <ol>
 <li>
-<p>Download a single page for the demo. We could donwnload first the pages, or apply the same procedure to any type of data we want.</p>
+<p>Download a single page for the demo. We could donwnload first the pages, or apply the same procedure to any type of data we want. In a real world use case, we would want to make a dataset from these documents first.</p>
 </li>
 <li>
-<p>Define the structure required for the answer using Pydantic. In this case we want for each page, a list with questions and answers (additionally we've added distractors, but can be ignored for this case). So our output will be a <code>ExamQuestions</code> model, which is a list of <code>ExamQuestion</code>, where each one consists in the <code>question</code> and <code>answer</code> fields as string fields.</p>
+<p>Define the structure required for the answer using Pydantic. In this case we want for each page, a list with questions and answers (additionally we've added distractors, but can be ignored for this case). So our output will be a <code>ExamQuestions</code> model, which is a list of <code>ExamQuestion</code>, where each one consists in the <code>question</code> and <code>answer</code> fields as string fields. The language model will use the field descriptions to generate the values.</p>
 </li>
 <li>
 <p>Use the system prompt to guide the model towards the behaviour we want from it. Independently from the structured output we are forcing the model to have, it helps if we pass the format expected in our prompt.</p>
