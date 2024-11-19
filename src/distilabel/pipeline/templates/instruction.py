@@ -111,7 +111,7 @@ class InstructionResponsePipeline:
     ) -> Pipeline:
         """Returns a pipeline that generates instructions and responses for a given system prompt."""
         with Pipeline(name="sft") as pipeline:
-            magpie = MagpieGenerator(
+            MagpieGenerator(
                 llm=self.llm,
                 n_turns=n_turns,
                 num_rows=num_rows,
