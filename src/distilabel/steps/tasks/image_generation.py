@@ -15,7 +15,7 @@
 import hashlib
 from typing import TYPE_CHECKING
 
-from distilabel.models.image_generation.utils import image_from_str, image_to_str
+from distilabel.models.image_generation.utils import image_from_str
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import ImageTask
 
@@ -47,7 +47,9 @@ class ImageGeneration(ImageTask):
 
     Output columns:
         - image (`str`): The generated image. Initially is a base64 string, for simplicity
-            during the .
+            during the pipeline run, but this can be transformed to an Image object after
+            distiset is returned at the end of a pipeline by calling
+            `distiset.transform_columns_to_image(<IMAGE_COLUMN>)`.
         - image_path (`str`): The path where the image is saved. Only available if `save_artifacts`
             is True.
         - model_name (`str`): The name of the model used to generate the image.
@@ -60,14 +62,32 @@ class ImageGeneration(ImageTask):
 
         ```python
         from distilabel.steps.tasks import ImageGeneration
-        # Select the Image Generation model to use
-        from distilabel.models.image_generation import OpenAIImageGeneration
         from distilabel.models.image_generation import InferenceEndpointsImageGeneration
 
-        ilm = InferenceEndpointsImageGeneration(
+        igm = InferenceEndpointsImageGeneration(
             model_id="black-forest-labs/FLUX.1-schnell"
         )
-        ilm = OpenAIImageGeneration(
+
+        # save_artifacts=True by default in JPEG format, if set to False, the image will be saved as a string.
+        image_gen = ImageGeneration(image_generation_model=igm)
+
+        image_gen.load()
+
+        result = next(
+            image_gen.process(
+                [{"prompt": "a white siamese cat"}]
+            )
+        )
+        ```
+
+        Generate an image and save them as artifacts in a Hugging Face Hub repository:
+
+        ```python
+        from distilabel.steps.tasks import ImageGeneration
+        # Select the Image Generation model to use
+        from distilabel.models.image_generation import OpenAIImageGeneration
+
+        igm = OpenAIImageGeneration(
             model="dall-e-3",
             api_key="api.key",
             generation_kwargs={
@@ -79,9 +99,9 @@ class ImageGeneration(ImageTask):
 
         # save_artifacts=True by default in JPEG format, if set to False, the image will be saved as a string.
         image_gen = ImageGeneration(
-            llm=ilm,
+            image_generation_model=igm,
             save_artifacts=True,
-            image_format="JPEG"
+            image_format="JPEG"  # By default will use JPEG, the options available can be seen in PIL documentation.
         )
 
         image_gen.load()
@@ -117,8 +137,7 @@ class ImageGeneration(ImageTask):
     ) -> dict[str, any]:
         image = None
         if img_str := output.get("images"):
-            img_str = img_str[0]  # Grab only the first image
-            image = image_from_str(img_str)
+            image = img_str[0]  # Grab only the first image
 
         return {"image": image, "model_name": self.llm.model_name}
 
@@ -141,18 +160,19 @@ class ImageGeneration(ImageTask):
         for input, input_outputs in zip(inputs, outputs):
             formatted_outputs = self._format_outputs(input_outputs, input)
             for formatted_output in formatted_outputs:
-                formatted_output["image"] = image_to_str(
-                    formatted_output["image"], image_format=self.image_format
-                )
-
                 if self.save_artifacts and (
                     image := formatted_output.get("image", None)
                 ):
                     # use prompt as filename
                     prompt_hash = hashlib.md5(input["prompt"].encode()).hexdigest()
+                    # Build PIL image to save it
+                    image = image_from_str(image)
+
                     self.save_artifact(
                         name="images",
-                        write_function=lambda path, prompt_hash=prompt_hash: image.save(
+                        write_function=lambda path,
+                        prompt_hash=prompt_hash,
+                        img=image: img.save(
                             path / f"{prompt_hash}.{self.image_format.lower()}",
                             format=self.image_format,
                         ),
