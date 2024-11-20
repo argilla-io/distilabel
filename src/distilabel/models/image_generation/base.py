@@ -154,12 +154,12 @@ class ImageGenerationModel(RuntimeParametersMixin, BaseModel, _Serializable, ABC
         return runtime_parameters
 
     def get_runtime_parameters_info(self) -> list["RuntimeParameterInfo"]:
-        """Gets the information of the runtime parameters of the `LLM` such as the name
+        """Gets the information of the runtime parameters of the `ImageGenerationModel` such as the name
         and the description. This function is meant to include the information of the runtime
-        parameters in the serialized data of the `LLM`.
+        parameters in the serialized data of the `ImageGenerationModel`.
 
         Returns:
-            A list containing the information for each runtime parameter of the `LLM`.
+            A list containing the information for each runtime parameter of the `ImageGenerationModel`.
         """
         runtime_parameters_info = super().get_runtime_parameters_info()
 
@@ -176,8 +176,14 @@ class ImageGenerationModel(RuntimeParametersMixin, BaseModel, _Serializable, ABC
         # method arguments as the information for this attribute.
         if generation_kwargs_info:
             generate_docstring_args = self.generate_parsed_docstring["args"]
-
             generation_kwargs_info["keys"] = []
+            # TODO: This doesn't happen with LLM, but with ImageGenerationModel the optional key is not found
+            # in a pipeline, due to some bug. For the moment this does the job. It may be
+            # related to the InferenceEndpointsImageGeneration for example being both
+            # ImageGenerationModel and InferenceEdnpointsLLM, but cannot find the point that makes the
+            # error appear.
+            if "optional" not in generation_kwargs_info:
+                return runtime_parameters_info
             for key, value in generation_kwargs_info["optional"].items():
                 info = {"name": key, "optional": value}
                 if description := generate_docstring_args.get(key):
