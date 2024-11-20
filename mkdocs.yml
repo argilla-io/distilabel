@@ -182,6 +182,7 @@ nav:
           - Tasks for generating and judging with LLMs:
               - "sections/how_to_guides/basic/task/index.md"
               - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
+              - ImageTask: "sections/how_to_guides/basic/task/image_task.md"
           - Executing Tasks with LLMs: "sections/how_to_guides/basic/llm/index.md"
           - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
       - Advanced:
@@ -243,6 +244,9 @@ nav:
       - Embedding:
           - "api/models/embedding/index.md"
           - Embedding Gallery: "api/models/embedding/embedding_gallery.md"
+      - ImageGenerationModels:
+          - "api/models/image_generation/index.md"
+          - Image Generation Gallery: "api/models/image_generation/image_generation_gallery.md"
       - Pipeline:
           - "api/pipeline/index.md"
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
