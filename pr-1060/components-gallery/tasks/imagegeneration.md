@@ -72,7 +72,7 @@ graph TD
 #### Outputs
 
 
-- **image** (`str`): The generated image. Initially is a base64 string, for simplicity  during the .
+- **image** (`str`): The generated image. Initially is a base64 string, for simplicity  during the pipeline run, but this can be transformed to an Image object after  distiset is returned at the end of a pipeline by calling  `distiset.transform_columns_to_image(<IMAGE_COLUMN>)`.
 
 - **image_path** (`str`): The path where the image is saved. Only available if `save_artifacts`  is True.
 
@@ -88,14 +88,31 @@ graph TD
 #### Generate an image from a prompt
 ```python
 from distilabel.steps.tasks import ImageGeneration
-# Select the Image Generation model to use
-from distilabel.models.image_generation import OpenAIImageGeneration
 from distilabel.models.image_generation import InferenceEndpointsImageGeneration
 
-ilm = InferenceEndpointsImageGeneration(
+igm = InferenceEndpointsImageGeneration(
     model_id="black-forest-labs/FLUX.1-schnell"
 )
-ilm = OpenAIImageGeneration(
+
+# save_artifacts=True by default in JPEG format, if set to False, the image will be saved as a string.
+image_gen = ImageGeneration(image_generation_model=igm)
+
+image_gen.load()
+
+result = next(
+    image_gen.process(
+        [{"prompt": "a white siamese cat"}]
+    )
+)
+```
+
+#### Generate an image and save them as artifacts in a Hugging Face Hub repository
+```python
+from distilabel.steps.tasks import ImageGeneration
+# Select the Image Generation model to use
+from distilabel.models.image_generation import OpenAIImageGeneration
+
+igm = OpenAIImageGeneration(
     model="dall-e-3",
     api_key="api.key",
     generation_kwargs={
@@ -107,9 +124,9 @@ ilm = OpenAIImageGeneration(
 
 # save_artifacts=True by default in JPEG format, if set to False, the image will be saved as a string.
 image_gen = ImageGeneration(
-    llm=ilm,
+    image_generation_model=igm,
     save_artifacts=True,
-    image_format="JPEG"
+    image_format="JPEG"  # By default will use JPEG, the options available can be seen in PIL documentation.
 )
 
 image_gen.load()

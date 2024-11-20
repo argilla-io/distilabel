@@ -37,6 +37,14 @@
          <lastmod>2024-11-20</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1060/api/models/image_generation/</loc>
+         <lastmod>2024-11-20</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1060/api/models/image_generation/image_generation_gallery/</loc>
+         <lastmod>2024-11-20</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-1060/api/models/llm/</loc>
          <lastmod>2024-11-20</lastmod>
     </url>
@@ -106,6 +114,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-1060/api/task/generator_task/</loc>
+         <lastmod>2024-11-20</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1060/api/task/image_task/</loc>
          <lastmod>2024-11-20</lastmod>
     </url>
     <url>
@@ -222,6 +234,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-1060/sections/how_to_guides/basic/task/generator_task/</loc>
+         <lastmod>2024-11-20</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1060/sections/how_to_guides/basic/task/image_task/</loc>
          <lastmod>2024-11-20</lastmod>
     </url>
     <url>
