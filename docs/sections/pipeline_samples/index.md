@@ -153,6 +153,13 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/exam_questions.md)
 
+-   __Vision generation with distilabel__
+
+    ---
+
+    Ask questions about images using distilabel.
+
+    [:octicons-arrow-right-24: Example](examples/vision_generation.md)
 
 </div>
 
