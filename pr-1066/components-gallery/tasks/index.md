@@ -247,6 +247,14 @@ hide:
 
     [:octicons-arrow-right-24: APIGenSemanticChecker](apigensemanticchecker.md){ .bottom }
 
+-   :eyes:{ .lg .middle } __VisionGeneration__
+
+    ---
+
+    Vision generation with an `LLM` given a prompt.
+
+    [:octicons-arrow-right-24: VisionGeneration](visiongeneration.md){ .bottom }
+
 -   :material-check-outline:{ .lg .middle } __GenerateTextRetrievalData__
 
     ---
