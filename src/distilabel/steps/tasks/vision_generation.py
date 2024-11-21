@@ -62,42 +62,54 @@ class VisionGeneration(TextGeneration):
 
     References:
         - [Jinja2 Template Designer Documentation](https://jinja.palletsprojects.com/en/3.1.x/templates/)
+        - [Image-Text-to-Text](https://huggingface.co/tasks/image-text-to-text)
+        - [OpenAI Vision](https://platform.openai.com/docs/guides/vision)
 
     Examples:
         Generate text from an instruction:
 
         ```python
-        from distilabel.steps.tasks import TextGeneration
-        from distilabel.models import InferenceEndpointsLLM
+        from distilabel.steps.tasks import VisionGeneration
+        from distilabel.models.llms import InferenceEndpointsLLM
 
-        # Consider this as a placeholder for your actual LLM.
-        text_gen = TextGeneration(
+        vision = VisionGeneration(
+            name="vision_gen",
             llm=InferenceEndpointsLLM(
-                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
-            )
+                model_id="meta-llama/Llama-3.2-11B-Vision-Instruct",
+            ),
+            image_type="url"
         )
 
-        text_gen.load()
+        vision.load()
 
         result = next(
-            text_gen.process(
-                [{"instruction": "your instruction"}]
+            vision.process(
+                [
+                    {
+                        "instruction": "What’s in this image?",
+                        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+                    }
+                ]
             )
         )
         # result
         # [
         #     {
-        #         'instruction': 'your instruction',
-        #         'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct',
-        #         'generation': 'generation',
+        #         "instruction": "What\u2019s in this image?",
+        #         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
+        #         "generation": "Based on the visual cues in the image...",
+        #         "model_name": "meta-llama/Llama-3.2-11B-Vision-Instruct"
+        #         ... # distilabel_metadata would be here
         #     }
         # ]
+        # result[0]["generation"]
+        # "Based on the visual cues in the image, here are some possible story points:\n\n* The image features a wooden boardwalk leading through a lush grass field, possibly in a park or nature reserve.\n\nAnalysis and Ideas:\n* The abundance of green grass and trees suggests a healthy ecosystem or habitat.\n* The presence of wildlife, such as birds or deer, is possible based on the surroundings.\n* A footbridge or a pathway might be a common feature in this area, providing access to nearby attractions or points of interest.\n\nAdditional Questions to Ask:\n* Why is a footbridge present in this area?\n* What kind of wildlife inhabits this region"
         ```
 
     """
 
     image_type: Literal["url", "base64", "PIL"] = Field(
-        default=...,
+        default="url",
         description="The type of the image provided, this will be used to preprocess if necessary.",
     )
 
