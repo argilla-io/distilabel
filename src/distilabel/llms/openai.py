@@ -301,7 +301,7 @@ class OpenAILLM(AsyncLLM):
             if response_format == "json":
                 response_format = "json_object"
 
-            kwargs["response_format"] = response_format
+            kwargs["response_format"] = {"type": response_format}
 
         if structured_output:
             kwargs = self._prepare_kwargs(kwargs, structured_output)  # type: ignore
@@ -395,6 +395,18 @@ class OpenAILLM(AsyncLLM):
             return self._check_and_get_batch_results()
 
         if inputs:
+            if response_format is not None:
+                if response_format not in ["text", "json", "json_object"]:
+                    raise ValueError(
+                        f"Invalid response format '{response_format}'. Must be either 'text'"
+                        " or 'json'."
+                    )
+
+                if response_format == "json":
+                    response_format = "json_object"
+
+                response_format = {"type": response_format}
+
             self.jobs_ids = self._create_jobs(
                 inputs=inputs,
                 **{
