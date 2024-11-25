@@ -59,7 +59,17 @@ Step 4: Calculate the total number of books borrowed in the entire week:
 The answer is: 216 books."""
         if self.M:
             response = "---".join([response for _ in range(self.M)])
-        return [[response for _ in range(num_generations)]]
+        return [
+            {
+                "generations": [response] * num_generations,
+                "statistics": {
+                    "input_tokens": [12] * num_generations,
+                    "output_tokens": [12] * num_generations,
+                },
+            }
+            for _ in range(len(inputs))
+        ]
+        # return [[response for _ in range(num_generations)]]
 
 
 class TestMathShepherdGenerator:
