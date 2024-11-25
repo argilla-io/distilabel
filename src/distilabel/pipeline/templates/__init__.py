@@ -13,3 +13,4 @@
 # limitations under the License.
 
 from .instruction import InstructionResponsePipeline  # noqa: F401
+from .dataset_instruction import DatasetInstructionResponsePipeline  # noqa: F401
