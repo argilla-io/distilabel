@@ -7,7 +7,10 @@ LLM subclasses are designed to be used within a [Task][distilabel.steps.tasks.Ta
 ```python
 from distilabel.models import InferenceEndpointsLLM
 
-llm = InferenceEndpointsLLM(model="meta-llama/Meta-Llama-3.1-70B-Instruct")
+llm = InferenceEndpointsLLM(
+    model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+    tokenizer_id="meta-llama/Meta-Llama-3.1-70B-Instruct"
+)
 llm.load()
 
 llm.generate_outputs(
@@ -15,11 +18,33 @@ llm.generate_outputs(
         [{"role": "user", "content": "What's the capital of Spain?"}],
     ],
 )
-# "The capital of Spain is Madrid."
+# [
+#   {
+#     "generations": [
+#       "The capital of Spain is Madrid."
+#     ],
+#     "statistics": {
+#       "input_tokens": [
+#         43
+#       ],
+#       "output_tokens": [
+#         8
+#       ]
+#     }
+#   }
+# ]
 ```
 
-!!! NOTE
+!!! Note
     Always call the `LLM.load` or `Task.load` method when using LLMs standalone or as part of a `Task`. If using a `Pipeline`, this is done automatically in `Pipeline.run()`.
+
+!!! Tip "New in version 1.5.0"
+    Since version `1.5.0` the LLM output is a list of dictionaries (one per item in the `inputs`),
+    each containing `generations`, that reports the text returned by the `LLM`, and a `statistics` field that will store statistics related to the `LLM` generation. Initially, this will include
+    `input_tokens` and `output_tokens` when available, which will be obtained via the API when available, or if a tokenizer is available for the model used, using the tokenizer for the model.
+    This data will be moved by the corresponding `Task` during the pipeline processing and moved to `distilabel_metadata` so we can operate on this data if we want, like for example computing the number of tokens per dataset.
+
+    To access to the previous result one just has to access to the generations in the resulting dictionary: `result[0]["generations"]`.
 
 ### Offline Batch Generation
 
@@ -56,7 +81,8 @@ llm.generate_outputs(  # (4)
         [{"role": "user", "content": "What's the capital of Spain?"}],
     ],
 )
-# "The capital of Spain is Madrid."
+# [{'generations': ['The capital of Spain is Madrid.'],
+#   'statistics': {'input_tokens': [13], 'output_tokens': [7]}}]
 ```
 
 1. At first the `jobs_ids` attribute is `None`.
@@ -81,7 +107,8 @@ llm.generate_outputs(
         [{"role": "user", "content": "What's the capital of Spain?"}],
     ],
 )
-# "The capital of Spain is Madrid."
+# [{'generations': ['The capital of Spain is Madrid.'],
+#   'statistics': {'input_tokens': [13], 'output_tokens': [7]}}]
 ```
 
 ### Within a Task
@@ -92,20 +119,30 @@ Pass the LLM as an argument to the [`Task`][distilabel.steps.tasks.Task], and th
 from distilabel.models import OpenAILLM
 from distilabel.steps.tasks import TextGeneration
 
-llm = OpenAILLM(model="gpt-4")
+llm = OpenAILLM(model="gpt-4o-mini")
 task = TextGeneration(name="text_generation", llm=llm)
 
 task.load()
 
 next(task.process(inputs=[{"instruction": "What's the capital of Spain?"}]))
-# [{'instruction': "What's the capital of Spain?", "generation": "The capital of Spain is Madrid."}]
+# [{'instruction': "What's the capital of Spain?",
+#   'generation': 'The capital of Spain is Madrid.',
+#   'distilabel_metadata': {'raw_output_text_generation': 'The capital of Spain is Madrid.',
+#    'raw_input_text_generation': [{'role': 'user',
+#      'content': "What's the capital of Spain?"}],
+#    'statistics_text_generation': {'input_tokens': 13, 'output_tokens': 7}},
+#   'model_name': 'gpt-4o-mini'}]
 ```
+
+!!! Note
+    As mentioned in *Working with LLMs* section, the generation of an LLM is automatically moved to `distilabel_metadata` to avoid interference with the common workflow, so the addition of the `statistics` it's an extra component available for the user, but nothing has to be changed in the
+    defined pipelines.
 
 ### Runtime Parameters
 
 LLMs can have runtime parameters, such as `generation_kwargs`, provided via the `Pipeline.run()` method using the `params` argument.
 
-!!! NOTE
+!!! Note
     Runtime parameters can differ between LLM subclasses, caused by the different functionalities offered by the LLM providers.
 
 ```python
@@ -122,7 +159,7 @@ with Pipeline(name="text-generation-pipeline") as pipeline:
 
     text_generation = TextGeneration(
         name="text_generation",
-        llm=OpenAILLM(model="gpt-4"),
+        llm=OpenAILLM(model="gpt-4o-mini"),
     )
 
     load_dataset >> text_generation
@@ -200,8 +237,11 @@ To create custom LLMs, subclass either [`LLM`][distilabel.models.llms.LLM] for s
 
 `generate` and `agenerate` keyword arguments (but `input` and `num_generations`) are considered as `RuntimeParameter`s, so a value can be passed to them via the `parameters` argument of the `Pipeline.run` method.
 
-!!! NOTE
+!!! Note
     To have the arguments of the `generate` and `agenerate` coerced to the expected types, the `validate_call` decorator is used, which will automatically coerce the arguments to the expected types, and raise an error if the types are not correct. This is specially useful when providing a value for an argument of `generate` or `agenerate` from the CLI, since the CLI will always provide the arguments as strings.
+
+!!! Warning
+    Additional LLMs created in `distilabel` will have to take into account how the `statistics` are generated to properly include them in the LLM output.
 
 ## Available LLMs
 

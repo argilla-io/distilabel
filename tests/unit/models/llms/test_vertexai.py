@@ -41,9 +41,10 @@ class TestVertexAILLM:
         llm._generation_config_class = GenerationConfig
 
         mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            candidates=[Mock(text=" Aenean hendrerit aliquam velit. ...")],
+            usage_metadata=Mock(prompt_token_count=10, candidates_token_count=10),
         )
-        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
+        llm._aclient.generate_content_async = AsyncMock(return_value=mocked_completion)
 
         with pytest.raises(
             ValueError, match="`VertexAILLM only supports the roles 'user' or 'model'."
@@ -58,7 +59,7 @@ class TestVertexAILLM:
                 ]
             )
 
-        await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {"role": "model", "content": ""},
                 {
@@ -67,6 +68,10 @@ class TestVertexAILLM:
                 },
             ]
         )
+        assert result == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {"input_tokens": [10], "output_tokens": [10]},
+        }
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_generative_model: MagicMock) -> None:
@@ -77,9 +82,10 @@ class TestVertexAILLM:
         llm._generation_config_class = GenerationConfig
 
         mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            candidates=[Mock(text=" Aenean hendrerit aliquam velit. ...")],
+            usage_metadata=Mock(prompt_token_count=10, candidates_token_count=10),
         )
-        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
+        llm._aclient.generate_content_async = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
 
@@ -98,7 +104,7 @@ class TestVertexAILLM:
                 ]
             )
 
-        llm.generate(
+        result = llm.generate(
             inputs=[
                 [
                     {"role": "model", "content": "I am a model."},
@@ -109,6 +115,12 @@ class TestVertexAILLM:
                 ]
             ]
         )
+        assert result == [
+            {
+                "generations": [" Aenean hendrerit aliquam velit. ..."],
+                "statistics": {"input_tokens": [10], "output_tokens": [10]},
+            }
+        ]
 
     def test_serialization(self, _: MagicMock) -> None:
         llm = VertexAILLM(model="gemini-1.0-pro")

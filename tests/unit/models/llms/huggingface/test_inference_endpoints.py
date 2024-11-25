@@ -14,7 +14,7 @@
 
 import os
 import random
-from typing import Generator
+from typing import Any, Dict, Generator, List
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -130,17 +130,29 @@ class TestInferenceEndpointsLLM:
         llm.load()
 
         llm._aclient.text_generation = AsyncMock(
-            return_value=" Aenean hendrerit aliquam velit. ..."
+            return_value=MagicMock(
+                generated_text="Aenean hendrerit aliquam velit...",
+                details=MagicMock(
+                    generated_tokens=66,
+                ),
+            )
         )
 
-        assert await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {
                     "role": "user",
                     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 },
             ]
-        ) == [" Aenean hendrerit aliquam velit. ..."]
+        )
+        assert result == {
+            "generations": ["Aenean hendrerit aliquam velit..."],
+            "statistics": {
+                "input_tokens": [31],
+                "output_tokens": [66],
+            },
+        }
 
     @pytest.mark.asyncio
     async def test_agenerate_with_chat_completion(
@@ -173,14 +185,21 @@ class TestInferenceEndpointsLLM:
             )
         )
 
-        assert await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {
                     "role": "user",
                     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 },
             ]
-        ) == [" Aenean hendrerit aliquam velit. ..."]
+        )
+        assert result == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {
+                "input_tokens": [18],
+                "output_tokens": [66],
+            },
+        }
 
     @pytest.mark.asyncio
     async def test_agenerate_with_chat_completion_fails(
@@ -213,30 +232,85 @@ class TestInferenceEndpointsLLM:
             )
         )
 
-        assert await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {
                     "role": "user",
                     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 },
             ]
-        ) == [None]
+        )
+        assert result == {
+            "generations": [None],
+            "statistics": {
+                "input_tokens": [18],
+                "output_tokens": [66],
+            },
+        }
 
+    @pytest.mark.parametrize(
+        "num_generations, expected_result",
+        [
+            (
+                1,
+                [
+                    {
+                        "generations": ["text"],
+                        "statistics": {"input_tokens": [18], "output_tokens": [66]},
+                    }
+                ],
+            ),
+            (
+                2,
+                [
+                    {
+                        "generations": ["text"] * 2,
+                        "statistics": {
+                            "input_tokens": [18, 18],
+                            "output_tokens": [66, 66],
+                        },
+                    }
+                ],
+            ),
+        ],
+    )
     @pytest.mark.asyncio
-    async def test_generate(self, mock_inference_client: MagicMock) -> None:
+    async def test_generate(
+        self,
+        mock_inference_client: MagicMock,
+        num_generations: int,
+        expected_result: List[Dict[str, Any]],
+    ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
-            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
         )
         llm.load()
 
-        llm._aclient.text_generation = AsyncMock(
-            return_value=" Aenean hendrerit aliquam velit. ..."
+        llm._aclient.chat_completion = AsyncMock(  # type: ignore
+            return_value=ChatCompletionOutput(  # type: ignore
+                choices=[
+                    ChatCompletionOutputComplete(
+                        finish_reason="eos_token",
+                        index=0,
+                        message=ChatCompletionOutputMessage(
+                            role="assistant",
+                            content="text",
+                        ),
+                    )
+                ]
+                * num_generations,
+                created=1721045246,
+                id="",
+                model="meta-llama/Meta-Llama-3-70B-Instruct",
+                system_fingerprint="2.1.1-dev0-sha-4327210",
+                usage=ChatCompletionOutputUsage(
+                    completion_tokens=66, prompt_tokens=18, total_tokens=84
+                ),
+            )
         )
 
         nest_asyncio.apply()
-
-        assert llm.generate(
+        result = llm.generate(
             inputs=[
                 [
                     {"role": "system", "content": ""},
@@ -245,8 +319,10 @@ class TestInferenceEndpointsLLM:
                         "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                     },
                 ]
-            ]
-        ) == [[" Aenean hendrerit aliquam velit. ..."]]
+            ],
+            num_generations=num_generations,
+        )
+        assert result == expected_result
 
     @pytest.mark.asyncio
     async def test_agenerate_with_structured_output(
@@ -260,39 +336,32 @@ class TestInferenceEndpointsLLM:
         llm.load()
 
         llm._aclient.text_generation = AsyncMock(
-            return_value=" Aenean hendrerit aliquam velit. ..."
+            return_value=MagicMock(
+                generated_text="Aenean hendrerit aliquam velit...",
+                details=MagicMock(
+                    generated_tokens=66,
+                ),
+            )
         )
-
         # Since there's a pseudo-random number within the generation kwargs, we set the seed
         # here first to ensure reproducibility within the tests
         random.seed(42)
 
-        assert await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {
                     "role": "user",
                     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 },
             ]
-        ) == [" Aenean hendrerit aliquam velit. ..."]
-
-        kwargs = {
-            "prompt": "<s> [INST] Lorem ipsum dolor sit amet, consectetur adipiscing elit. [/INST]",
-            "max_new_tokens": 128,
-            "do_sample": False,
-            "typical_p": None,
-            "repetition_penalty": None,
-            "frequency_penalty": None,
-            "temperature": 1.0,
-            "top_p": None,
-            "top_k": None,
-            "stop_sequences": None,
-            "return_full_text": False,
-            "seed": 2053695854357871005,  # pre-computed random value with `random.seed(42)`
-            "watermark": False,
-            "grammar": {"type": "regex", "value": "\\b[A-Z][a-z]*\\b"},
+        )
+        assert result == {
+            "generations": ["Aenean hendrerit aliquam velit..."],
+            "statistics": {
+                "input_tokens": [31],
+                "output_tokens": [66],
+            },
         }
-        llm._aclient.text_generation.assert_called_with(**kwargs)  # type: ignore
 
     def test_serialization(self, mock_inference_client: MagicMock) -> None:
         llm = InferenceEndpointsLLM(

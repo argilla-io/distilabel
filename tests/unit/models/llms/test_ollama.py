@@ -33,11 +33,13 @@ class TestOllamaLLM:
         llm._aclient = mock_ollama
 
         mocked_completion = {
-            "message": {"content": " Aenean hendrerit aliquam velit. ..."}
+            "message": {"content": "Aenean hendrerit aliquam velit..."},
+            "prompt_eval_count": 10,
+            "eval_count": 10,
         }
         llm._aclient.chat = AsyncMock(return_value=mocked_completion)
 
-        await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {"role": "system", "content": ""},
                 {
@@ -46,6 +48,10 @@ class TestOllamaLLM:
                 },
             ]
         )
+        assert result == {
+            "generations": ["Aenean hendrerit aliquam velit..."],
+            "statistics": {"input_tokens": [10], "output_tokens": [10]},
+        }
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_ollama: MagicMock) -> None:
@@ -53,14 +59,16 @@ class TestOllamaLLM:
         llm._aclient = mock_ollama
 
         mocked_completion = {
-            "message": {"content": " Aenean hendrerit aliquam velit. ..."}
+            "message": {"content": "Aenean hendrerit aliquam velit..."},
+            "prompt_eval_count": 10,
+            "eval_count": 10,
         }
 
         llm._aclient.chat = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
 
-        llm.generate(
+        result = llm.generate(
             inputs=[
                 [
                     {"role": "system", "content": ""},
@@ -71,6 +79,12 @@ class TestOllamaLLM:
                 ]
             ]
         )
+        assert result == [
+            {
+                "generations": ["Aenean hendrerit aliquam velit..."],
+                "statistics": {"input_tokens": [10], "output_tokens": [10]},
+            }
+        ]
 
     def test_serialization(self, _: MagicMock) -> None:
         llm = OllamaLLM(model="notus")  # type: ignore

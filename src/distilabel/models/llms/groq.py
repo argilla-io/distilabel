@@ -19,6 +19,7 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import prepare_output
 from distilabel.steps.base import RuntimeParameter
 from distilabel.steps.tasks.typing import (
     FormattedInput,
@@ -27,6 +28,9 @@ from distilabel.steps.tasks.typing import (
 
 if TYPE_CHECKING:
     from groq import AsyncGroq
+    from groq.types.chat.chat_completion import ChatCompletion
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 _GROQ_API_BASE_URL_ENV_VAR_NAME = "GROQ_BASE_URL"
@@ -225,12 +229,14 @@ class GroqLLM(AsyncLLM):
         if structured_output:
             kwargs = self._prepare_kwargs(kwargs, structured_output)
 
-        generations = []
         completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
         if structured_output:
-            generations.append(completion.model_dump_json())
-            return generations
+            return prepare_output(
+                [completion.model_dump_json()],
+                **self._get_llm_statistics(completion._raw_response),
+            )
 
+        generations = []
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(  # type: ignore
@@ -238,4 +244,11 @@ class GroqLLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
-        return generations
+        return prepare_output(generations, **self._get_llm_statistics(completion))
+
+    @staticmethod
+    def _get_llm_statistics(completion: "ChatCompletion") -> "LLMStatistics":
+        return {
+            "input_tokens": [completion.usage.prompt_tokens if completion else 0],
+            "output_tokens": [completion.usage.completion_tokens if completion else 0],
+        }

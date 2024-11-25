@@ -28,7 +28,23 @@ To install the latest release with `hf-inference-endpoints` extra of the package
 pip install distilabel[hf-inference-endpoints] --upgrade
 ```
 
-## Define a pipeline
+## Use a generic pipeline
+
+To use a generic pipeline for an ML task, you can use the `InstructionResponsePipeline` class. This class is a generic pipeline that can be used to generate data for supervised fine-tuning tasks. It uses the `InferenceEndpointsLLM` class to generate data based on the input data and the model.
+
+```python
+from distilabel.pipeline import InstructionResponsePipeline
+
+pipeline = InstructionResponsePipeline()
+dataset = pipeline.run()
+```
+
+The `InstructionResponsePipeline` class will use the `InferenceEndpointsLLM` class with the model `meta-llama/Meta-Llama-3.1-8B-Instruct` to generate data based on the system prompt. The output data will be a dataset with the columns `instruction` and `response`. The class uses a generic system prompt, but you can customize it by passing the `system_prompt` parameter to the class.
+
+!!! note
+    We're actively working on building more pipelines for different tasks. If you have any suggestions or requests, please let us know! We're currently working on pipelines for classification, Direct Preference Optimization, and Information Retrieval tasks.
+
+## Define a Custom pipeline
 
 In this guide we will walk you through the process of creating a simple pipeline that uses the [`InferenceEndpointsLLM`][distilabel.models.llms.InferenceEndpointsLLM] class to generate text. The [`Pipeline`][distilabel.pipeline.Pipeline] will load a dataset that contains a column named `prompt` from the Hugging Face Hub via the step [`LoadDataFromHub`][distilabel.steps.LoadDataFromHub] and then use the [`InferenceEndpointsLLM`][distilabel.models.llms.InferenceEndpointsLLM] class to generate text based on the dataset using the [`TextGeneration`](https://distilabel.argilla.io/dev/components-gallery/tasks/textgeneration/) task.
 

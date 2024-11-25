@@ -19,6 +19,7 @@ from pydantic import Field, FilePath, PrivateAttr, validate_call
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import prepare_output
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
@@ -219,6 +220,7 @@ class LlamaCppLLM(LLM):
                 structured_output = self.structured_output
 
             outputs = []
+            output_tokens = []
             for _ in range(num_generations):
                 # NOTE(plaguss): There seems to be a bug in how the logits processor
                 # is used. Basically it consumes the FSM internally, and it isn't reinitialized
@@ -241,7 +243,16 @@ class LlamaCppLLM(LLM):
                     )
                 )
                 outputs.append(chat_completions["choices"][0]["message"]["content"])
-            batch_outputs.append(outputs)
+                output_tokens.append(chat_completions["usage"]["completion_tokens"])
+            batch_outputs.append(
+                prepare_output(
+                    outputs,
+                    input_tokens=[chat_completions["usage"]["prompt_tokens"]]
+                    * num_generations,
+                    output_tokens=output_tokens,
+                )
+            )
+
         return batch_outputs
 
     def _prepare_structured_output(

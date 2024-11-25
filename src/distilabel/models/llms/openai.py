@@ -24,6 +24,7 @@ from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedExc
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import prepare_output
 from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
 
 if TYPE_CHECKING:
@@ -31,7 +32,8 @@ if TYPE_CHECKING:
     from openai.types import Batch as OpenAIBatch
     from openai.types import FileObject as OpenAIFileObject
     from openai.types.chat import ChatCompletion as OpenAIChatCompletion
-    from pydantic import BaseModel
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
@@ -236,7 +238,7 @@ class OpenAILLM(AsyncLLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
         stop: Optional[Union[str, List[str]]] = None,
-        response_format: Optional[str] = None,
+        response_format: Optional[Dict[str, str]] = None,
     ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
         client.
@@ -257,7 +259,8 @@ class OpenAILLM(AsyncLLM):
                 Defaults to `None`.
             response_format: the format of the response to return. Must be one of
                 "text" or "json". Read the documentation [here](https://platform.openai.com/docs/guides/text-generation/json-mode)
-                for more information on how to use the JSON model from OpenAI. Defaults to `text`.
+                for more information on how to use the JSON model from OpenAI. Defaults to None
+                which returns text. To return JSON, use {"type": "json_object"}.
 
         Note:
             If response_format
@@ -292,40 +295,19 @@ class OpenAILLM(AsyncLLM):
         }
 
         if response_format is not None:
-            if response_format not in ["text", "json", "json_object"]:
-                raise ValueError(
-                    f"Invalid response format '{response_format}'. Must be either 'text'"
-                    " or 'json'."
-                )
-
-            if response_format == "json":
-                response_format = "json_object"
-
             kwargs["response_format"] = response_format
 
         if structured_output:
             kwargs = self._prepare_kwargs(kwargs, structured_output)  # type: ignore
 
         completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
-
         if structured_output:
-            return self._generations_from_structured_output(completion)
+            return prepare_output(
+                [completion.model_dump_json()],
+                **self._get_llm_statistics(completion._raw_response),
+            )
 
         return self._generations_from_openai_completion(completion)
-
-    def _generations_from_structured_output(
-        self, completion: "BaseModel"
-    ) -> "GenerateOutput":
-        """Get the generations from the structured output object.
-
-        Args:
-            completion: an instance of `pydantic.BaseModel` with the content of the structuted
-                output.
-
-        Returns:
-            A list with the content of the structured output.
-        """
-        return [completion.model_dump_json()]
 
     def _generations_from_openai_completion(
         self, completion: "OpenAIChatCompletion"
@@ -346,7 +328,8 @@ class OpenAILLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
-        return generations
+
+        return prepare_output(generations, **self._get_llm_statistics(completion))
 
     def offline_batch_generate(
         self,
@@ -693,3 +676,10 @@ class OpenAILLM(AsyncLLM):
             return f"distilabel-pipeline-fileno-{file_no}.jsonl"
 
         return f"distilabel-pipeline-{envs.DISTILABEL_PIPELINE_NAME}-{envs.DISTILABEL_PIPELINE_CACHE_ID}-fileno-{file_no}.jsonl"
+
+    @staticmethod
+    def _get_llm_statistics(completion: "OpenAIChatCompletion") -> "LLMStatistics":
+        return {
+            "input_tokens": [completion.usage.prompt_tokens if completion else 0],
+            "output_tokens": [completion.usage.completion_tokens if completion else 0],
+        }

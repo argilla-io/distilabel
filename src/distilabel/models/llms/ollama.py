@@ -20,10 +20,13 @@ from typing_extensions import TypedDict
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import prepare_output
 from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
 
 if TYPE_CHECKING:
     from ollama import AsyncClient
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 # Copied from `ollama._types.Options`
@@ -175,4 +178,11 @@ class OllamaLLM(AsyncLLM):
                 f" Finish reason was: {e}"
             )
 
-        return [text]
+        return prepare_output([text], **self._get_llm_statistics(completion))
+
+    @staticmethod
+    def _get_llm_statistics(completion: Dict[str, Any]) -> "LLMStatistics":
+        return {
+            "input_tokens": [completion["prompt_eval_count"]],
+            "output_tokens": [completion["eval_count"]],
+        }

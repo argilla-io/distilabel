@@ -103,6 +103,7 @@ class TestTextGeneration:
                 "model_name": "test",
                 "distilabel_metadata": {
                     "raw_output_task": "output",
+                    "statistics_task": {"input_tokens": 12, "output_tokens": 12},
                 },
             }
         ]
@@ -230,6 +231,9 @@ class TestChatGeneration:
                 "messages": [{"role": "user", "content": "Tell me a joke."}],
                 "generation": "output",
                 "model_name": "test",
-                "distilabel_metadata": {"raw_output_task": "output"},
+                "distilabel_metadata": {
+                    "raw_output_task": "output",
+                    "statistics_task": {"input_tokens": 12, "output_tokens": 12},
+                },
             }
         ]

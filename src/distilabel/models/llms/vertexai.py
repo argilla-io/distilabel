@@ -18,10 +18,13 @@ from pydantic import PrivateAttr, validate_call
 
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import prepare_output
 from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
     from vertexai.generative_models import Content, GenerationResponse, GenerativeModel
+
+    from distilabel.llms.typing import LLMStatistics
 
 
 class VertexAILLM(AsyncLLM):
@@ -167,8 +170,14 @@ class VertexAILLM(AsyncLLM):
                 f"Received no response using VertexAI client (model: '{self.model}')."
                 f" Finish reason was: '{content.candidates[0].finish_reason}'."
             )
+        return prepare_output([text], **self._get_llm_statistics(content))
 
-        return [text]
+    @staticmethod
+    def _get_llm_statistics(content: "GenerationResponse") -> "LLMStatistics":
+        return {
+            "input_tokens": [content.usage_metadata.prompt_token_count],
+            "output_tokens": [content.usage_metadata.candidates_token_count],
+        }
 
 
 def _is_gemini_model(model: str) -> bool:
