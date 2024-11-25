@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import pytest
@@ -69,7 +68,6 @@ The answer is: 216 books."""
             }
             for _ in range(len(inputs))
         ]
-        # return [[response for _ in range(num_generations)]]
 
 
 class TestMathShepherdGenerator:
@@ -143,7 +141,6 @@ class TestMathShepherdGenerator:
         task.load()
 
         result = next(task.process([{"instruction": ""}]))[0][output_name]
-        result = json.loads(result)
         if M:
             assert len(result) == 3
             assert all(len(r) == 5 for r in result)

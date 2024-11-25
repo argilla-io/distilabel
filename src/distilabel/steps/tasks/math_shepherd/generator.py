@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 from typing import TYPE_CHECKING, Any, Dict, Final, Optional, Union
 
 from jinja2 import Template
@@ -272,5 +271,5 @@ class MathShepherdGenerator(Task):
         else:
             solutions = split_solution_steps(output)
 
-        input.update(**{output_name: json.dumps(solutions)})
+        input.update(**{output_name: solutions})
         return input
