@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional
 
 from pydantic import PrivateAttr, validate_call
+from typing_extensions import TypedDict
 
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
@@ -25,6 +26,15 @@ if TYPE_CHECKING:
     from vertexai.generative_models import Content, GenerationResponse, GenerativeModel
 
     from distilabel.llms.typing import LLMStatistics
+
+
+class VertexChatItem(TypedDict):
+    role: Literal["user", "model"]
+    content: str
+
+
+VertexChatType = List[VertexChatItem]
+"""VertexChatType is a type alias for a `list` of `dict`s following the VertexAI conversational format."""
 
 
 class VertexAILLM(AsyncLLM):
@@ -121,7 +131,7 @@ class VertexAILLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: StandardInput,
+        input: VertexChatType,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,
         top_k: Optional[int] = None,
