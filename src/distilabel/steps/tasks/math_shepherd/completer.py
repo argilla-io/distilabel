@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 from typing import TYPE_CHECKING, Any, Dict, Final, List, Optional, Union
 
 from jinja2 import Template
@@ -24,6 +23,7 @@ from distilabel.steps.tasks.math_shepherd.utils import split_solution_steps
 from distilabel.utils.itertools import batched
 
 if TYPE_CHECKING:
+    from distilabel.models.llms.typing import LLMStatistics
     from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import StepColumns, StepOutput
 
@@ -156,20 +156,18 @@ class MathShepherdCompleter(Task):
                 [
                     {
                         "instruction": "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
-                        "golden_solution": json.dumps(["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer’s market.", "The answer is: 18"]),
-                        "solutions": json.dumps(
-                            [
-                                ["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer’s market.", "The answer is: 18"],
-                                ['Step 1: Janets ducks lay 16 eggs per day, and she uses 3 + 4 = <<3+4=7>>7 for eating and baking.', 'Step 2: So she sells 16 - 7 = <<16-7=9>>9 duck eggs every day.', 'Step 3: Those 9 eggs are worth 9 * $2 = $<<9*2=18>>18.', 'The answer is: 18'],
-                            ]
-                        )
+                        "golden_solution": ["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer’s market.", "The answer is: 18"],
+                        "solutions": [
+                            ["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer’s market.", "The answer is: 18"],
+                            ['Step 1: Janets ducks lay 16 eggs per day, and she uses 3 + 4 = <<3+4=7>>7 for eating and baking.', 'Step 2: So she sells 16 - 7 = <<16-7=9>>9 duck eggs every day.', 'Step 3: Those 9 eggs are worth 9 * $2 = $<<9*2=18>>18.', 'The answer is: 18'],
+                        ]
                     },
                 ]
             )
         )
         # [[{'instruction': "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
-        # 'golden_solution': '["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer\\u2019s market.", "The answer is: 18"]',
-        # 'solutions': '[["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day. -", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer\\u2019s market.", "The answer is: 18"], ["Step 1: Janets ducks lay 16 eggs per day, and she uses 3 + 4 = <<3+4=7>>7 for eating and baking. +", "Step 2: So she sells 16 - 7 = <<16-7=9>>9 duck eggs every day. +", "Step 3: Those 9 eggs are worth 9 * $2 = $<<9*2=18>>18.", "The answer is: 18"]]'}]]
+        # 'golden_solution': ["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer\\u2019s market.", "The answer is: 18"],
+        # 'solutions': [["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day. -", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer\\u2019s market.", "The answer is: 18"], ["Step 1: Janets ducks lay 16 eggs per day, and she uses 3 + 4 = <<3+4=7>>7 for eating and baking. +", "Step 2: So she sells 16 - 7 = <<16-7=9>>9 duck eggs every day. +", "Step 3: Those 9 eggs are worth 9 * $2 = $<<9*2=18>>18.", "The answer is: 18"]]}]]
         ```
 
     Citations:
@@ -281,11 +279,10 @@ class MathShepherdCompleter(Task):
         golden_answers = []
         for i, input in enumerate(inputs):
             instruction = input["instruction"]
-            # This is a single solution
-            golden_solution = json.loads(input["golden_solution"])
+            golden_solution = input["golden_solution"]  # This is a single solution
             golden_answers.append(golden_solution[-1])
-            # This contains a list of solutions  (that should later be flattened?)
-            solutions = json.loads(input["solutions"])
+            # This contains a list of solutions
+            solutions = input["solutions"]
             for j, solution in enumerate(solutions):
                 # For each solution, that has K steps, we have to generate N completions
                 # for the first K-2 steps (-2 because the last 2 steps are the last step, and
@@ -298,6 +295,8 @@ class MathShepherdCompleter(Task):
 
         # Send the elements in batches to the LLM to speed up the process
         final_outputs = []
+        # Added here to simplify testing in case we don't have anything to process
+        statistics = []
         for i, inner_batch in enumerate(
             batched(prepared_inputs, self.input_batch_size)
         ):
@@ -307,11 +306,18 @@ class MathShepherdCompleter(Task):
                 num_generations=1,
                 **self.llm.get_generation_kwargs(),  # type: ignore
             )
-            formatted_outputs = [self._parse_output(output[0]) for output in outputs]
+
+            formatted_outputs = []
+            statistics = []
+            for output in outputs:
+                formatted_outputs.append(self._parse_output(output["generations"][0]))
+                statistics.append(output["statistics"])
 
             final_outputs.extend(formatted_outputs)
 
-        yield self._auto_label(inputs, final_outputs, input_positions, golden_answers)
+        yield self._auto_label(
+            inputs, final_outputs, input_positions, golden_answers, statistics
+        )
 
     def _prepare_completions(
         self, instruction: str, steps: List[str]
@@ -343,6 +349,7 @@ class MathShepherdCompleter(Task):
         final_outputs: list[Completions],
         input_positions: list[tuple[int, int, int]],
         golden_answers: list[str],
+        statistics: list["LLMStatistics"],
     ) -> StepInput:
         """Labels the steps inplace (in the inputs), and returns the inputs.
 
@@ -362,10 +369,8 @@ class MathShepherdCompleter(Task):
         """
         for i, (instruction_i, solution_i, step_i) in enumerate(input_positions):
             input = inputs[instruction_i]
-            solutions = json.loads(input["solutions"])
-
+            solutions = input["solutions"]
             n_completions = final_outputs[i]
-
             label = f" {self.tags[1]}"
             for completion in n_completions:
                 if len(completion) == 0:
@@ -379,10 +384,10 @@ class MathShepherdCompleter(Task):
                     continue
 
             solutions[solution_i][step_i] += label
-            inputs[instruction_i]["solutions"] = json.dumps(solutions)
+            inputs[instruction_i]["solutions"] = solutions
 
         for i, input in enumerate(inputs):
-            solutions = json.loads(input["solutions"])
+            solutions = input["solutions"]
             new_solutions = []
             for solution in solutions:
                 answer = solution.pop()
@@ -393,7 +398,11 @@ class MathShepherdCompleter(Task):
                 )
                 solution[-1] += " " + answer + label
                 new_solutions.append(solution)
-            input["solutions"] = json.dumps(new_solutions)
+
+            input["solutions"] = new_solutions
             input["model_name"] = self.llm.model_name
+            # If the solutions are splitted afterwards, the statistics should be splitted
+            # to to avoid counting extra tokens
+            input["distilabel_metadata"] = {f"statistics_{self.name}": statistics[i]}
 
         return inputs
