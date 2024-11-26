@@ -297,10 +297,7 @@ class MathShepherdCompleter(Task):
         final_outputs = []
         # Added here to simplify testing in case we don't have anything to process
         statistics = []
-        for i, inner_batch in enumerate(
-            batched(prepared_inputs, self.input_batch_size)
-        ):
-            self._logger.info(f"📦 Processing internal batch of completions {i}...")
+        for inner_batch in batched(prepared_inputs, self.input_batch_size):
             outputs = self.llm.generate_outputs(
                 inputs=inner_batch,
                 num_generations=1,
@@ -390,6 +387,12 @@ class MathShepherdCompleter(Task):
             solutions = input["solutions"]
             new_solutions = []
             for solution in solutions:
+                if not solution:
+                    # The generation may fail to generate the expected
+                    # completions, or just added an extra empty completion,
+                    # we skip it
+                    new_solutions.append(solution)
+                    continue
                 answer = solution.pop()
                 label = (
                     f" {self.tags[0]}"

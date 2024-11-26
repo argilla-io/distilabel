@@ -97,7 +97,7 @@ Step 3: Add the results: $32 + 27 = 59$.
 Step 4: Therefore, the answer is $\boxed{59}$. The answer is: 59
 """
 
-TEMPLATE = """{% if M %}Generate {{ M }} example solutions to the following problem, separated by a single `---`:{% endif %}
+TEMPLATE = """{% if M %}Generate {{ M }} example solutions to the following problem, separated by a single `---`. This is your problem:{% endif %}
 {{ instruction }}"""
 
 
