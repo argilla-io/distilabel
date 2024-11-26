@@ -63,7 +63,7 @@ with Pipeline(name="Math-Shepherd") as pipe:
     expand = ExpandColumns(
         name="expand_columns",
         columns=["solutions"],
-        encoded=True,
+        split_statistics=True,
     )
     formatter = FormatPRM(name="format_prm")
     [generator_golden, generator] >> combine >> completer >> expand >> formatter

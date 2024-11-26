@@ -77,7 +77,7 @@ with Pipeline(name="Math-Shepherd") as pipe:
     expand = ExpandColumns(
         name="expand_columns",
         columns=["solutions"],
-        encoded=True,
+        split_statistics=True,
     )  # (6)
     formatter = FormatPRM(name="format_prm")  # (7)
 
@@ -94,7 +94,7 @@ with Pipeline(name="Math-Shepherd") as pipe:
 
 5. Now the [`MathShepherdCompleter`](https://distilabel.argilla.io/dev/components-gallery/task/mathshepherdcompleter/) task will generate `n=4` *completions* for each step of each candidate solution in the `solutions` column, and label them using the `golden_solution` as shown in Figure 2 in the paper. This step will add the label (it uses [+ and -] tags following the implementation in the paper, but these values can be modified) to the `solutions` column in place, instead of generating an additional column, but the intermediate completions won't be shown at the end.
 
-6. The [`ExpandColumns`](https://distilabel.argilla.io/latest/components-gallery/steps/expandcolumns/) step expands the solution to match the instruction, so if we had set M=5, we would now have 5x instruction-pair solutions. One can omit both this and the following step and process the data for training as preferred.
+6. The [`ExpandColumns`](https://distilabel.argilla.io/latest/components-gallery/steps/expandcolumns/) step expands the solution to match the instruction, so if we had set M=5, we would now have 5x instruction-pair solutions. We set the `split_statistics` to True to ensure the `distilabel_metadata` is split accordingly, othwerwise the number of tokens for each solution would count as the tokens needed for the whole list of solutions generated. One can omit both this and the following step and process the data for training as preferred.
 
 7. And finally, the [`FormatPRM`](https://distilabel.argilla.io/dev/components-gallery/task/formatprm/) generates two columns: `input` and `label` which prepare the data for training as presented in the original Math-Shepherd dataset.
 
