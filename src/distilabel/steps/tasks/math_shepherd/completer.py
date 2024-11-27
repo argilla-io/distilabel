@@ -406,6 +406,8 @@ class MathShepherdCompleter(Task):
             input["model_name"] = self.llm.model_name
             # If the solutions are splitted afterwards, the statistics should be splitted
             # to to avoid counting extra tokens
-            input["distilabel_metadata"] = {f"statistics_{self.name}": statistics[i]}
+            input["distilabel_metadata"].update(
+                **{f"statistics_{self.name}": statistics[i]}
+            )
 
         return inputs
