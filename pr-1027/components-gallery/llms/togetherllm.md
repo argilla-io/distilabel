@@ -34,7 +34,7 @@ TogetherLLM LLM implementation running the async API client of OpenAI.
 
 #### Generate text
 ```python
-from distilabel.llms import AnyscaleLLM
+from distilabel.models.llms import AnyscaleLLM
 
 llm = TogetherLLM(model="mistralai/Mixtral-8x7B-Instruct-v0.1", api_key="api.key")
 

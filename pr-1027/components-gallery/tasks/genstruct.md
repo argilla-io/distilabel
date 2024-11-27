@@ -90,7 +90,7 @@ graph TD
 #### Generate instructions from raw documents using the title and content
 ```python
 from distilabel.steps.tasks import Genstruct
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 genstruct = Genstruct(

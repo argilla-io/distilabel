@@ -100,7 +100,7 @@ graph TD
 
 #### Generating embeddings and getting the nearest neighbours
 ```python
-from distilabel.embeddings.sentence_transformers import SentenceTransformerEmbeddings
+from distilabel.models import SentenceTransformerEmbeddings
 from distilabel.pipeline import Pipeline
 from distilabel.steps import EmbeddingGeneration, FaissNearestNeighbour, LoadDataFromHub
 

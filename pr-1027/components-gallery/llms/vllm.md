@@ -65,7 +65,7 @@ hide:
 
 #### Generate text
 ```python
-from distilabel.llms import vLLM
+from distilabel.models.llms import vLLM
 
 # You can pass a custom chat_template to the model
 llm = vLLM(
@@ -82,7 +82,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 #### Generate structured data
 ```python
 from pathlib import Path
-from distilabel.llms import vLLM
+from distilabel.models.llms import vLLM
 
 class User(BaseModel):
     name: str

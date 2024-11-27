@@ -88,7 +88,7 @@ graph TD
 #### Paraphrasing
 ```python
 from distilabel.steps.tasks import GenerateSentencePair
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 generate_sentence_pair = GenerateSentencePair(
     triplet=True, # `False` to generate only positive
@@ -107,7 +107,7 @@ result = generate_sentence_pair.process([{"anchor": "What Game of Thrones villai
 
 #### Generating semantically similar sentences
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.steps.tasks import GenerateSentencePair
 
 generate_sentence_pair = GenerateSentencePair(
@@ -128,7 +128,7 @@ result = generate_sentence_pair.process([{"anchor": "How does 3D printing work?"
 #### Generating queries
 ```python
 from distilabel.steps.tasks import GenerateSentencePair
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 generate_sentence_pair = GenerateSentencePair(
     triplet=True, # `False` to generate only positive
@@ -148,7 +148,7 @@ result = generate_sentence_pair.process([{"anchor": "Argilla is an open-source d
 #### Generating answers
 ```python
 from distilabel.steps.tasks import GenerateSentencePair
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 generate_sentence_pair = GenerateSentencePair(
     triplet=True, # `False` to generate only positive
@@ -168,7 +168,7 @@ result = generate_sentence_pair.process([{"anchor": "What Game of Thrones villai
 #### )
 ```python
 from distilabel.steps.tasks import GenerateSentencePair
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 generate_sentence_pair = GenerateSentencePair(
     triplet=True, # `False` to generate only positive

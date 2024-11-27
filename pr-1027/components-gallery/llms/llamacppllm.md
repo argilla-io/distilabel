@@ -60,7 +60,7 @@ llama.cpp LLM implementation running the Python bindings for the C++ code.
 #### Generate text
 ```python
 from pathlib import Path
-from distilabel.llms import LlamaCppLLM
+from distilabel.models.llms import LlamaCppLLM
 
 # You can follow along this example downloading the following model running the following
 # command in the terminal, that will download the model to the `Downloads` folder:
@@ -83,7 +83,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 #### Generate structured data
 ```python
 from pathlib import Path
-from distilabel.llms import LlamaCppLLM
+from distilabel.models.llms import LlamaCppLLM
 
 model_path = "Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf"
 

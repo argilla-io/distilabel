@@ -44,7 +44,7 @@ hide:
 
 #### Generating sentence embeddings
 ```python
-from distilabel.embeddings import vLLMEmbeddings
+from distilabel.models import vLLMEmbeddings
 
 embeddings = vLLMEmbeddings(model="intfloat/e5-mistral-7b-instruct")
 

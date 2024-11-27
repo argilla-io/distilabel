@@ -55,7 +55,7 @@ Mistral LLM implementation running the async API client.
 
 #### Generate text
 ```python
-from distilabel.llms import MistralLLM
+from distilabel.models.llms import MistralLLM
 
 llm = MistralLLM(model="open-mixtral-8x22b")
 

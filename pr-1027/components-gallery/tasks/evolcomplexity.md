@@ -99,7 +99,7 @@ graph TD
 #### Evolve an instruction using an LLM
 ```python
 from distilabel.steps.tasks import EvolComplexity
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 evol_complexity = EvolComplexity(
