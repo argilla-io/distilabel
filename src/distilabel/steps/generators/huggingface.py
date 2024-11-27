@@ -388,7 +388,12 @@ class LoadDataFromFileSystem(LoadDataFromHub):
             else:
                 self.num_examples = len(self._dataset)
 
-        self.outputs = self._dataset.column_names
+        if self.streaming:
+            # If streaming, `column_names` will return `None` most of the times. The only
+            # reliable way to determine the column names is fetching the first row
+            self.outputs = list(next(iter(self._dataset)).keys())
+        else:
+            self.outputs = self._dataset.column_names
 
     @staticmethod
     def _prepare_data_files(  # noqa: C901
