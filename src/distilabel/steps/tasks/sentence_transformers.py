@@ -109,7 +109,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -129,7 +129,7 @@ class GenerateSentencePair(Task):
         Generating semantically similar sentences:
 
         ```python
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
         from distilabel.steps.tasks import GenerateSentencePair
 
         generate_sentence_pair = GenerateSentencePair(
@@ -151,7 +151,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -172,7 +172,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -193,7 +193,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -215,7 +215,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -238,7 +238,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive

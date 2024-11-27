@@ -18,8 +18,8 @@ from pydantic import Field
 from typing_extensions import override
 
 from distilabel.errors import DistilabelUserError
-from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.magpie.base import MagpieBase
 
@@ -98,7 +98,7 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         Generating instructions with Llama 3 8B Instruct and TransformersLLM:
 
         ```python
-        from distilabel.llms import TransformersLLM
+        from distilabel.models import TransformersLLM
         from distilabel.steps.tasks import MagpieGenerator
 
         generator = MagpieGenerator(
@@ -130,7 +130,7 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         Generating a conversation with Llama 3 8B Instruct and TransformersLLM:
 
         ```python
-        from distilabel.llms import TransformersLLM
+        from distilabel.models import TransformersLLM
         from distilabel.steps.tasks import MagpieGenerator
 
         generator = MagpieGenerator(
@@ -210,7 +210,7 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         Generating with system prompts with probabilities:
 
         ```python
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
         from distilabel.steps.tasks import MagpieGenerator
 
         magpie = MagpieGenerator(

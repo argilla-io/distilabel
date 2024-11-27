@@ -139,7 +139,7 @@ class PrometheusEval(Task):
 
         ```python
         from distilabel.steps.tasks import PrometheusEval
-        from distilabel.llms import vLLM
+        from distilabel.models import vLLM
 
         # Consider this as a placeholder for your actual LLM.
         prometheus = PrometheusEval(
@@ -176,7 +176,7 @@ class PrometheusEval(Task):
 
         ```python
         from distilabel.steps.tasks import PrometheusEval
-        from distilabel.llms import vLLM
+        from distilabel.models import vLLM
 
         # Consider this as a placeholder for your actual LLM.
         prometheus = PrometheusEval(
@@ -213,7 +213,7 @@ class PrometheusEval(Task):
 
         ```python
         from distilabel.steps.tasks import PrometheusEval
-        from distilabel.llms import vLLM
+        from distilabel.models import vLLM
 
         # Consider this as a placeholder for your actual LLM.
         prometheus = PrometheusEval(
@@ -253,7 +253,7 @@ class PrometheusEval(Task):
 
         ```python
         from distilabel.steps.tasks import PrometheusEval
-        from distilabel.llms import vLLM
+        from distilabel.models import vLLM
 
         # Consider this as a placeholder for your actual LLM.
         prometheus = PrometheusEval(

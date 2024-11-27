@@ -169,7 +169,7 @@ class _Step(
 
         class StepWithSeveralPreviousStep(Step):
             # mind the * to indicate that the argument is a list of StepInput
-            def process(self, inputs: *StepInput) -> StepOutput:
+            def process(self, *inputs: StepInput) -> StepOutput:
                 yield [...]
         ```
 

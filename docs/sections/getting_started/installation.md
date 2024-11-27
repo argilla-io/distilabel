@@ -75,7 +75,7 @@ Additionally, as part of `distilabel` some extra dependencies are available, mai
 
 ## Recommendations / Notes
 
-The [`mistralai`](https://github.com/mistralai/client-python) dependency requires Python 3.9 or higher, so if you're willing to use the `distilabel.llms.MistralLLM` implementation, you will need to have Python 3.9 or higher.
+The [`mistralai`](https://github.com/mistralai/client-python) dependency requires Python 3.9 or higher, so if you're willing to use the `distilabel.models.llms.MistralLLM` implementation, you will need to have Python 3.9 or higher.
 
 In some cases like [`transformers`](https://github.com/huggingface/transformers) and [`vllm`](https://github.com/vllm-project/vllm), the installation of [`flash-attn`](https://github.com/Dao-AILab/flash-attention) is recommended if you are using a GPU accelerator since it will speed up the inference process, but the installation needs to be done separately, as it's not included in the `distilabel` dependencies.
 

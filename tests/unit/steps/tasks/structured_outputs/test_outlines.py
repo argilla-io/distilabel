@@ -17,9 +17,8 @@ from typing import Any, Dict, Literal, Type, Union
 import pytest
 from pydantic import BaseModel
 
-from distilabel.llms.huggingface.transformers import TransformersLLM
+from distilabel.models.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
-    # StructuredOutputType,
     model_to_schema,
 )
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
@@ -65,7 +64,7 @@ DUMP_JSON = {
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {
-        "module": "distilabel.llms.huggingface.transformers",
+        "module": "distilabel.models.llms.huggingface.transformers",
         "name": "TransformersLLM",
     },
 }
@@ -95,7 +94,7 @@ DUMP_REGEX = {
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {
-        "module": "distilabel.llms.huggingface.transformers",
+        "module": "distilabel.models.llms.huggingface.transformers",
         "name": "TransformersLLM",
     },
 }
@@ -138,8 +137,8 @@ class TestOutlinesIntegration:
         ]
         result = llm.generate(prompt, max_new_tokens=30)
         assert isinstance(result, list)
-        assert isinstance(result[0], list)
-        assert isinstance(result[0][0], str)
+        assert isinstance(result[0], dict)
+        assert "generations" in result[0] and "statistics" in result[0]
 
     @pytest.mark.parametrize(
         "format, schema, dump",

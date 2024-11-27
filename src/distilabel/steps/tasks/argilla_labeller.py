@@ -82,7 +82,7 @@ class ArgillaLabeller(Task):
         import argilla as rg
         from argilla import Suggestion
         from distilabel.steps.tasks import ArgillaLabeller
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Get information from Argilla dataset definition
         dataset = rg.Dataset("my_dataset")
@@ -139,7 +139,7 @@ class ArgillaLabeller(Task):
         ```python
         import argilla as rg
         from distilabel.steps.tasks import ArgillaLabeller
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Get information from Argilla dataset definition
         dataset = rg.Dataset("my_dataset")
@@ -187,7 +187,7 @@ class ArgillaLabeller(Task):
         ```python
         import argilla as rg
         from distilabel.steps.tasks import ArgillaLabeller
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Overwrite default prompts and instructions
         labeller = ArgillaLabeller(
@@ -209,17 +209,13 @@ class ArgillaLabeller(Task):
     system_prompt: str = (
         "You are an expert annotator and labelling assistant that understands complex domains and natural language processing. "
         "You are given input fields and a question. "
-        "You should create a valid JSON object as an answer to the question based on the input fields. "
-        "1. Understand the input fields and optional guidelines. "
-        "2. Understand the question type and the question settings. "
-        "3. Reason through your response step-by-step. "
-        "4. Provide a valid JSON object as an answer to the question."
+        "You should create a valid JSON object as an response to the question based on the input fields. "
     )
     question_to_label_instruction: Dict[str, str] = {
-        "label_selection": "Select the appropriate label from the list of provided labels.",
-        "multi_label_selection": "Select none, one or multiple labels from the list of provided labels.",
-        "text": "Provide a text response to the question.",
-        "rating": "Provide a rating for the question.",
+        "label_selection": "Select the appropriate label for the fields from the list of optional labels.",
+        "multi_label_selection": "Select none, one or multiple labels for the fields from the list of optional labels.",
+        "text": "Provide a response to the question based on the fields.",
+        "rating": "Provide a rating for the question based on the fields.",
     }
     example_records: Optional[
         RuntimeParameter[Union[List[Union[Dict[str, Any], BaseModel]], None]]
@@ -289,12 +285,8 @@ class ArgillaLabeller(Task):
         """
         output = []
         for field in fields:
-            if title := field.get("title"):
-                output.append(f"title: {title}")
-            if description := field.get("description"):
-                output.append(f"description: {description}")
             output.append(record.get("fields", {}).get(field.get("name", "")))
-        return "\n".join(output)
+        return "fields: " + "\n".join(output)
 
     def _get_label_instruction(self, question: Dict[str, Any]) -> str:
         """Get the label instruction for the question.
@@ -317,15 +309,11 @@ class ArgillaLabeller(Task):
         Returns:
             str: The formatted question.
         """
-        output = [
-            f"title: {question.get('title', '')}",
-            f"description: {question.get('description', '')}",
-            f"label_instruction: {self._get_label_instruction(question)}",
-        ]
-        settings = question.get("settings", {})
-        if "options" in settings:
+        output = []
+        output.append(f"question: {self._get_label_instruction(question)}")
+        if "options" in question.get("settings", {}):
             output.append(
-                f"labels: {[option['value'] for option in settings.get('options', [])]}"
+                f"optional labels: {[option['value'] for option in question.get('settings', {}).get('options', [])]}"
             )
         return "\n".join(output)
 
@@ -354,7 +342,7 @@ class ArgillaLabeller(Task):
                 formatted_value = self._assign_value_to_question_value_model(
                     value, question
                 )
-                base.append(f"Response: {formatted_value}")
+                base.append(f"response: {formatted_value}")
                 base.append("")
             else:
                 warnings.warn(

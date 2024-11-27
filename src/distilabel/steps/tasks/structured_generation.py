@@ -53,7 +53,7 @@ class StructuredGeneration(Task):
 
         ```python
         from distilabel.steps.tasks import StructuredGeneration
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         structured_gen = StructuredGeneration(
             llm=InferenceEndpointsLLM(
@@ -110,7 +110,7 @@ class StructuredGeneration(Task):
 
         ```python
         from distilabel.steps.tasks import StructuredGeneration
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         structured_gen = StructuredGeneration(
             llm=InferenceEndpointsLLM(

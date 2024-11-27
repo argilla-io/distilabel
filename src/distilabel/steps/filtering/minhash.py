@@ -93,12 +93,11 @@ class MinHashDedup(Step):
 
     Attributes:
         num_perm: the number of permutations to use. Defaults to `128`.
-        seed: the seed to use for the MinHash. This seed must be the same
-            used for `MinHash`, keep in mind when both steps are created. Defaults to `1`.
+        seed: the seed to use for the MinHash. Defaults to `1`.
         tokenizer: the tokenizer to use. Available ones are `words` or `ngrams`.
-            If `words` is selected, it tokenize the text into words using nltk's
+            If `words` is selected, it tokenizes the text into words using nltk's
             word tokenizer. `ngram` estimates the ngrams (together with the size
-            `n`) using. Defaults to `words`.
+            `n`). Defaults to `words`.
         n: the size of the ngrams to use. Only relevant if `tokenizer="ngrams"`. Defaults to `5`.
         threshold: the threshold to consider two MinHashes as duplicates.
             Values closer to 0 detect more duplicates. Defaults to `0.9`.
@@ -107,8 +106,6 @@ class MinHashDedup(Step):
             not defined in `datasketch`, that is based on DiskCache's `Index` class.
             It should work as a `dict`, but backed by disk, but depending on the system
             it can be slower. Defaults to `dict`.
-            which uses a custom `shelve` backend. Note the `disk`
-            is an experimetal feature that may cause issues. Defaults to `dict`.
 
     Input columns:
         - text (`str`): the texts to be filtered.

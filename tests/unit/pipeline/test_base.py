@@ -21,10 +21,12 @@ from typing import Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
+from datasets import Dataset
 from fsspec.implementations.local import LocalFileSystem
 from pydantic import Field
 from upath import UPath
 
+from distilabel import constants
 from distilabel.constants import (
     INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
@@ -125,6 +127,19 @@ class TestBasePipeline:
             assert _GlobalPipelineManager.get_pipeline() == pipeline
 
         assert _GlobalPipelineManager.get_pipeline() is None
+
+    def test_add_dataset_generator_step(self) -> None:
+        with DummyPipeline() as pipeline:
+            step_1 = DummyStep1()
+
+        dataset = Dataset.from_list(
+            [{"instruction": "Hello"}, {"instruction": "Hello again"}]
+        )
+        pipeline._add_dataset_generator_step(dataset, 123)
+        step = pipeline.dag.get_step("load_data_from_hub_0")[constants.STEP_ATTR_NAME]
+
+        assert step.name in pipeline.dag.get_step_predecessors(step_1.name)  # type: ignore
+        assert step.batch_size == 123  # type: ignore
 
     @pytest.mark.parametrize("use_cache", [False, True])
     def test_load_batch_manager(self, use_cache: bool) -> None:

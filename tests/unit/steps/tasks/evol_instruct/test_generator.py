@@ -15,7 +15,7 @@
 import pytest
 from pydantic import ValidationError
 
-from distilabel.llms.base import LLM
+from distilabel.models.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.evol_instruct.generator import (
     EvolInstructGenerator,
@@ -64,19 +64,36 @@ class TestEvolInstructGenerator:
         task = EvolInstructGenerator(
             name="task",
             llm=dummy_llm,
-            num_instructions=1,
+            num_instructions=2,
             min_length=1,
             max_length=10,
             pipeline=pipeline,
         )
         task.load()
+
         assert list(task.process()) == [
             (
                 [
                     {
                         "instruction": "output",
                         "model_name": "test",
-                    }
+                        "distilabel_metadata": {
+                            "statistics_instruction_task": {
+                                "input_tokens": [12, 12],
+                                "output_tokens": [12, 12],
+                            }
+                        },
+                    },
+                    {
+                        "instruction": "output",
+                        "model_name": "test",
+                        "distilabel_metadata": {
+                            "statistics_instruction_task": {
+                                "input_tokens": [12, 12],
+                                "output_tokens": [12, 12],
+                            }
+                        },
+                    },
                 ],
                 True,
             )
@@ -101,6 +118,12 @@ class TestEvolInstructGenerator:
                         "instruction": "output",
                         "answer": "output",
                         "model_name": "test",
+                        "distilabel_metadata": {
+                            "statistics_answer_task": {
+                                "input_tokens": [12],
+                                "output_tokens": [12],
+                            }
+                        },
                     }
                 ],
                 True,
@@ -122,6 +145,7 @@ class TestEvolInstructGenerator:
                 "jobs_ids": None,
                 "offline_batch_generation_block_until_done": None,
                 "use_offline_batch_generation": False,
+                "n_generations_supported": True,
                 "type_info": {
                     "module": task.llm.__class__.__module__,
                     "name": task.llm.__class__.__name__,

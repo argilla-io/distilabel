@@ -80,7 +80,7 @@ class APIGenSemanticChecker(Task):
 
         ```python
         from distilabel.steps.tasks import APIGenSemanticChecker
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         llm=InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
@@ -125,7 +125,7 @@ class APIGenSemanticChecker(Task):
 
         ```python
         from distilabel.steps.tasks import APIGenSemanticChecker
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         llm=InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",

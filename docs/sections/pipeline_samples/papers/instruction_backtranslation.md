@@ -28,22 +28,22 @@ To replicate Self Alignment with Instruction Backtranslation one will need to in
 pip install "distilabel[hf-inference-endpoints,openai]>=1.0.0"
 ```
 
-And since we will be using [`InferenceEndpointsLLM`][distilabel.llms.InferenceEndpointsLLM] (installed via the extra `hf-inference-endpoints`) we will need deploy those in advance either locally or in the Hugging Face Hub (alternatively also the serverless endpoints can be used, but most of the times the inference times are slower, and there's a limited quota to use those as those are free) and set both the `HF_TOKEN` (to use the [`InferenceEndpointsLLM`][distilabel.llms.InferenceEndpointsLLM]) and the `OPENAI_API_KEY` environment variable value (to use the [`OpenAILLM`][distilabel.llms.OpenAILLM]).
+And since we will be using [`InferenceEndpointsLLM`][distilabel.models.InferenceEndpointsLLM] (installed via the extra `hf-inference-endpoints`) we will need deploy those in advance either locally or in the Hugging Face Hub (alternatively also the serverless endpoints can be used, but most of the times the inference times are slower, and there's a limited quota to use those as those are free) and set both the `HF_TOKEN` (to use the [`InferenceEndpointsLLM`][distilabel.models.InferenceEndpointsLLM]) and the `OPENAI_API_KEY` environment variable value (to use the [`OpenAILLM`][distilabel.models.OpenAILLM]).
 
 #### Building blocks
 
 - [`LoadDataFromHub`][distilabel.steps.LoadDataFromHub]: Generator Step to load a dataset from the Hugging Face Hub.
 - [`TextGeneration`][distilabel.steps.tasks.TextGeneration]: Task to generate responses for a given instruction using an LLM.
-    - [`InferenceEndpointsLLM`][distilabel.llms.InferenceEndpointsLLM]: LLM that runs a model from an Inference Endpoint in the Hugging Face Hub.
+    - [`InferenceEndpointsLLM`][distilabel.models.InferenceEndpointsLLM]: LLM that runs a model from an Inference Endpoint in the Hugging Face Hub.
 - [`InstructionBacktranslation`][distilabel.steps.tasks.InstructionBacktranslation]: Task that generates a score and a reason for a response for a given instruction using the Self Alignment with Instruction Backtranslation prompt.
-    - [`OpenAILLM`][distilabel.llms.OpenAILLM]: LLM that loads a model from OpenAI.
+    - [`OpenAILLM`][distilabel.models.OpenAILLM]: LLM that loads a model from OpenAI.
 
 #### Code
 
 As mentioned before, we will put the previously mentioned building blocks together to replicate Self Alignment with Instruction Backtranslation.
 
 ```python
-from distilabel.llms import InferenceEndpointsLLM, OpenAILLM
+from distilabel.models import InferenceEndpointsLLM, OpenAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub, KeepColumns
 from distilabel.steps.tasks import InstructionBacktranslation, TextGeneration

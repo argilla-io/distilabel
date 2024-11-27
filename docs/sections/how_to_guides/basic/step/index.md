@@ -67,7 +67,7 @@ There are two special types of [`Step`][distilabel.steps.Step] in `distilabel`:
 
 * [`GlobalStep`][distilabel.steps.GlobalStep]: is a step with the standard interface i.e. receives inputs and generates outputs, but it processes all the data at once, and often is the final step in the [`Pipeline`][distilabel.pipeline.Pipeline]. The fact that a [`GlobalStep`][distilabel.steps.GlobalStep] requires the previous steps  to finish before being able to start. More information: [Components - Step - GlobalStep](global_step.md).
 
-* [`Task`][distilabel.steps.tasks.Task], is essentially the same as a default [`Step`][distilabel.steps.Step], but it relies on an [`LLM`][distilabel.llms.LLM] as an attribute, and the `process` method will be in charge of calling that LLM. More information: [Components - Task](../task/index.md).
+* [`Task`][distilabel.steps.tasks.Task], is essentially the same as a default [`Step`][distilabel.steps.Step], but it relies on an [`LLM`][distilabel.models.llms.LLM] as an attribute, and the `process` method will be in charge of calling that LLM. More information: [Components - Task](../task/index.md).
 
 ## Defining custom Steps
 

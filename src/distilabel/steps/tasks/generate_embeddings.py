@@ -15,7 +15,7 @@
 from typing import TYPE_CHECKING, Any, Dict
 
 from distilabel.errors import DistilabelUserError
-from distilabel.llms.base import LLM
+from distilabel.models.llms.base import LLM
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.typing import StepColumns
 from distilabel.utils.chat import is_openai_format
@@ -55,7 +55,7 @@ class GenerateEmbeddings(Step):
 
         ```python
         from distilabel.steps.tasks import GenerateEmbeddings
-        from distilabel.llms.huggingface import TransformersLLM
+        from distilabel.models.llms.huggingface import TransformersLLM
 
         # Consider this as a placeholder for your actual LLM.
         embedder = GenerateEmbeddings(
