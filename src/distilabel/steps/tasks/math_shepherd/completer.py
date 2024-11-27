@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, Final, List, Optional, Union
 from jinja2 import Template
 from pydantic import PositiveInt
 
+from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.math_shepherd.utils import split_solution_steps
@@ -76,7 +77,21 @@ Step 2: On Friday, he borrows 40 + 40/100 * 40 = <<40+40/100*40=56>>56 books.
 Step 3: In a week, he borrows 5.7 * 7 = <<5.7*7=40>>40 books. The answer is: 40"""
 
 
-TEMPLATE: str = """Generate {{ N }} example solutions to the same problem, separated by a single `---` and nothing else
+TEMPLATE: str = """Generate {{ N }} example solutions to the same problem, separated by a single `---` and nothing else.
+Response format:
+```
+Step i: step i explanation.
+Step i+1: step i+1 explanation.
+The answer is: X
+
+---
+
+Step 2: step i explanation.
+Step 3: step i+1 explanation.
+The answer is: Y
+```
+
+This is the problem:
 {{ instruction }}
 """
 
@@ -297,6 +312,8 @@ class MathShepherdCompleter(Task):
         final_outputs = []
         # Added here to simplify testing in case we don't have anything to process
         statistics = []
+        total_raw_outputs = []
+        total_raw_inputs = []
         for inner_batch in batched(prepared_inputs, self.input_batch_size):
             outputs = self.llm.generate_outputs(
                 inputs=inner_batch,
@@ -306,14 +323,27 @@ class MathShepherdCompleter(Task):
 
             formatted_outputs = []
             statistics = []
-            for output in outputs:
-                formatted_outputs.append(self._parse_output(output["generations"][0]))
+            raw_outputs = []
+            raw_inputs = []
+            for i, output in enumerate(outputs):
+                generation = output["generations"][0]
+                raw_inputs.append(inner_batch[i])
+                raw_outputs.append(generation)
+                formatted_outputs.append(self._parse_output(generation))
                 statistics.append(output["statistics"])
 
             final_outputs.extend(formatted_outputs)
+            total_raw_outputs.extend(raw_outputs)
+            total_raw_inputs.extend(raw_inputs)
 
         yield self._auto_label(
-            inputs, final_outputs, input_positions, golden_answers, statistics
+            inputs,
+            final_outputs,
+            input_positions,
+            golden_answers,
+            statistics,
+            total_raw_outputs,
+            total_raw_inputs,
         )
 
     def _prepare_completions(
@@ -347,6 +377,8 @@ class MathShepherdCompleter(Task):
         input_positions: list[tuple[int, int, int]],
         golden_answers: list[str],
         statistics: list["LLMStatistics"],
+        raw_outputs: list[str],
+        raw_inputs: list[str],
     ) -> StepInput:
         """Labels the steps inplace (in the inputs), and returns the inputs.
 
@@ -360,6 +392,9 @@ class MathShepherdCompleter(Task):
                 that contains (i, j, k) where i is the index of the input, j is the
                 index of the solution, and k is the index of the completion.
             golden_answers: List of golden answers for each input.
+            statistics: List of statistics from the LLM.
+            raw_outputs: List of raw outputs from the LLM.
+            raw_inputs: List of raw inputs to the LLM.
 
         Returns:
             Inputs annotated.
@@ -402,12 +437,39 @@ class MathShepherdCompleter(Task):
                 solution[-1] += " " + answer + label
                 new_solutions.append(solution)
 
-            input["solutions"] = new_solutions
-            input["model_name"] = self.llm.model_name
-            # If the solutions are splitted afterwards, the statistics should be splitted
-            # to to avoid counting extra tokens
-            input["distilabel_metadata"].update(
-                **{f"statistics_{self.name}": statistics[i]}
+            # Only add the solutions if the data was properly parsed, it can happen that
+            input["solutions"] = new_solutions if new_solutions else input["solutions"]
+            input = self._add_metadata(
+                input, statistics[i], raw_outputs[i], raw_inputs[i]
             )
 
         return inputs
+
+    def _add_metadata(self, input, statistics, raw_output, raw_input):
+        """Adds the `distilabel_metadata` to the input.
+
+        This method comes for free in the general Tasks, but as we have reimplemented the `process`,
+        we have to repeat it here.
+
+        Args:
+            input: The input to add the metadata to.
+            statistics: The statistics from the LLM.
+            raw_output: The raw output from the LLM.
+            raw_input: The raw input to the LLM.
+
+        Returns:
+            The input with the metadata added if applies.
+        """
+        input["model_name"] = self.llm.model_name
+
+        if DISTILABEL_METADATA_KEY not in input:
+            input[DISTILABEL_METADATA_KEY] = {}
+        # If the solutions are splitted afterwards, the statistics should be splitted
+        # to to avoid counting extra tokens
+        input[DISTILABEL_METADATA_KEY][f"statistics_{self.name}"] = statistics
+
+        if self.add_raw_input:
+            input[DISTILABEL_METADATA_KEY][f"raw_input_{self.name}"] = raw_input
+        if self.add_raw_output:
+            input[DISTILABEL_METADATA_KEY][f"raw_output_{self.name}"] = raw_output
+        return input
