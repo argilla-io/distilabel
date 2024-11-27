@@ -87,5 +87,6 @@ def make_generator_step(
     super(loader.__class__, loader).load()  # Ensure the logger is loaded
     loader._dataset = dataset
     loader.num_examples = len(dataset)
+    loader.outputs = dataset.column_names
     loader._dataset_info = {"default": dataset.info}
     return loader
