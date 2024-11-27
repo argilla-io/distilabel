@@ -538,7 +538,9 @@ class TestTask:
                 "add_raw_output": True,
                 "add_raw_input": True,
                 "input_mappings": {},
+                "inputs": ["instruction", "additional_info"],
                 "output_mappings": {},
+                "outputs": ["output", "info_from_input"],
                 "resources": {
                     "cpus": None,
                     "gpus": None,
