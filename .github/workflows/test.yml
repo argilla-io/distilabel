@@ -50,6 +50,12 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: ./scripts/install_dependencies.sh
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.tmate_session }}
+        with:
+          limit-access-to-actor: true
+
       - name: Lint
         run: make lint
 
