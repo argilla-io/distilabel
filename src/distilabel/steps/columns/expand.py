@@ -257,12 +257,25 @@ class ExpandColumns(Step):
             and not metadata_visited
         ):
             for k, v in metadata.items():
+                if (
+                    not v
+                ):  # In case it wasn't found in the metadata for some error, skip it
+                    continue
                 if k.startswith("statistics_") and (
                     "input_tokens" in v and "output_tokens" in v
                 ):
                     # For num_generations>1 we assume all the tokens should be divided by n
-                    input_tokens = [value // n for value in v["input_tokens"]]
-                    output_tokens = [value // n for value in v["output_tokens"]]
+                    # TODO: The tokens should always come as a list, but there can
+                    # be differences
+                    if isinstance(v["input_tokens"], list):
+                        input_tokens = [value // n for value in v["input_tokens"]]
+                    else:
+                        input_tokens = [v["input_tokens"] // n]
+                    if isinstance(v["input_tokens"], list):
+                        output_tokens = [value // n for value in v["output_tokens"]]
+                    else:
+                        output_tokens = [v["output_tokens"] // n]
+
                     input["distilabel_metadata"][k] = {
                         "input_tokens": input_tokens,
                         "output_tokens": output_tokens,
