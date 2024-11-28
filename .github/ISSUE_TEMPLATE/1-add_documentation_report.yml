@@ -1,0 +1,26 @@
+name: "\U0001F4DA Add a documentation report"
+description: "Have you spotted a typo or mistake in our docs?"
+title: "[DOCS]"
+labels: ["documentation"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for reporting a documentation mistake! Before you get started, please [search to see](https://github.com/argilla-io/distilabel/issues) if an issue already exists for the bug you encountered."
+
+  - type: textarea
+    id: doc_report
+    attributes:
+      label: "Which page or section is this issue related to?"
+      description: "Please include the URL and/or source."
+    validations:
+          required: false
+
+  - type: textarea
+    id: doc_review
+    attributes:
+      label: "What are you documenting, or what change are you making in the documentation?"
+      description: "If a documentation needs to be created, please specify its coverage.\n If there's a typo or something needs revisiting, please indicate it and show code/text/screenshots."
+    validations:
+          required: false
