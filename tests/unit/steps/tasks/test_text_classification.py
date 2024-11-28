@@ -47,7 +47,6 @@ class TextClassificationLLM(DummyAsyncLLM):
 
 
 class TestTextClassification:
-
     @pytest.mark.parametrize(
         "is_multilabel, context, examples, available_labels, default_label, query_title",
         [
@@ -102,12 +101,10 @@ class TestTextClassification:
             assert '```\n{\n    "labels": "label"\n}\n```' in content
         else:
             assert (
-                "Provide the label(s) that best describe the text. Do not include any labels that do not apply." in content
-            )
-            assert (
-                '```\n{\n    "labels": ['
+                "Provide the label(s) that best describe the text. Do not include any labels that do not apply."
                 in content
             )
+            assert '```\n{\n    "labels": [' in content
         if available_labels:
             if isinstance(available_labels, list):
                 assert 'Use the available labels to classify the user query:\navailable_labels = [\n    "label1",\n    "label2"\n]'
@@ -143,14 +140,24 @@ class TestTextClassification:
     )
     def test_process(self, is_multilabel: bool, expected: str) -> None:
         task = TextClassification(
-            llm=TextClassificationLLM(is_multilabel=is_multilabel), is_multilabel=is_multilabel, use_default_structured_output=True
+            llm=TextClassificationLLM(is_multilabel=is_multilabel),
+            is_multilabel=is_multilabel,
+            use_default_structured_output=True,
         )
         task.load()
         result = next(task.process([{"text": "SAMPLE_TEXT"}]))
         assert result[0]["text"] == "SAMPLE_TEXT"
         if is_multilabel:
-            assert result[0]["labels"] in [json.loads(opt)["labels"] for opt in expected]
-            assert result[0]["distilabel_metadata"]["raw_output_text_classification_0"] in expected
+            assert result[0]["labels"] in [
+                json.loads(opt)["labels"] for opt in expected
+            ]
+            assert (
+                result[0]["distilabel_metadata"]["raw_output_text_classification_0"]
+                in expected
+            )
         else:
             assert result[0]["labels"] == json.loads(expected)["labels"]
-            assert result[0]["distilabel_metadata"]["raw_output_text_classification_0"] == expected
+            assert (
+                result[0]["distilabel_metadata"]["raw_output_text_classification_0"]
+                == expected
+            )

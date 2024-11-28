@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import orjson
-import random
 from jinja2 import Template
-from pydantic import BaseModel, Field, PositiveInt, PrivateAttr
+from pydantic import BaseModel, Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.tasks import Task
