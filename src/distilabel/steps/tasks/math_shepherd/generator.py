@@ -14,8 +14,10 @@
 
 from typing import TYPE_CHECKING, Any, Dict, Final, Optional, Union
 
+import orjson
 from jinja2 import Template
 from pydantic import PositiveInt
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.math_shepherd.utils import split_solution_steps
@@ -39,7 +41,32 @@ You are a math tutor that helps students solve math problems by breaking them do
 - The final step should clearly state "The answer is: [result]"
 - Keep explanations clear and concise
 
-{{ extra_rules }}{{ few_shots }}"""
+{{ extra_rules }}{{ few_shots }}{{ structured_prompt }}"""
+
+SYSTEM_PROMPT_STRUCTURED_OLD: Final[str] = """
+Your answer must adhere to the following format:
+```
+{
+    "solutions": [
+        "Step 1: Your first step\nStep 2: Your second step\n...\nThe answer is: [Your final answer]",
+        ... (more solutions as required)
+    ]
+}
+```
+"""
+
+SYSTEM_PROMPT_STRUCTURED: Final[str] = """
+Your answer must adhere to the following format:
+```
+[
+    {
+        "solution": "Step 1: Your first step\nStep 2: Your second step\n...\nThe answer is: [Your final answer]",
+    },
+    ... (more solutions as required)
+]
+```
+"""
+
 
 RULES_GSM8K: Final[str] = """\
 # Rules:
@@ -97,7 +124,10 @@ Step 3: Add the results: $32 + 27 = 59$.
 Step 4: Therefore, the answer is $\boxed{59}$. The answer is: 59
 """
 
-TEMPLATE = """{% if M %}Generate {{ M }} example solutions to the following problem, separated by a single `---`. This is your problem:{% endif %}
+TEMPLATE: str = """{% if M %}Generate {{ M }} example solutions to the following problem, separated by a single `---`. This is your problem:{% endif %}
+{{ instruction }}"""
+
+TEMPLATE_STRUCTURED: str = """{% if M %}Generate {{ M }} different example solutions to the following problem:{% endif %}
 {{ instruction }}"""
 
 
@@ -137,7 +167,7 @@ class MathShepherdGenerator(Task):
     Output columns:
         - golden_solution (`str`): The step by step solution to the instruction.
             It will be generated if M is equal to 1.
-        - solutions (`str`): A JSON formatted list of possible solutions to the instruction.
+        - solutions (`List[List[str]]`): A list of possible solutions to the instruction.
             It will be generated if M is greater than 1.
         - model_name (`str`): The name of the model used to generate the revision.
 
@@ -229,8 +259,14 @@ class MathShepherdGenerator(Task):
             self.system_prompt = Template(self.system_prompt).render(
                 extra_rules=self.extra_rules or "",
                 few_shots=self.few_shots or "",
+                structured_prompt=SYSTEM_PROMPT_STRUCTURED
+                if self.use_default_structured_output
+                else "",
             )
-        self._template = Template(TEMPLATE)
+        if self.use_default_structured_output:
+            self._template = Template(TEMPLATE_STRUCTURED)
+        else:
+            self._template = Template(TEMPLATE)
 
     @property
     def inputs(self) -> "StepColumns":
@@ -267,9 +303,74 @@ class MathShepherdGenerator(Task):
             return input
 
         if self.M:
-            solutions = [split_solution_steps(o) for o in output.split("---")]
+            output = (
+                self._format_structured_output(output)
+                if self.use_default_structured_output
+                else output.split("---")
+            )
+            solutions = [split_solution_steps(o) for o in output]
         else:
+            output = (
+                self._format_structured_output(output)[0]
+                if self.use_default_structured_output
+                else output
+            )
             solutions = split_solution_steps(output)
 
         input.update(**{output_name: solutions})
         return input
+
+    @override
+    def get_structured_output(self) -> dict[str, any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        The schema corresponds to the following:
+
+        ```python
+        from pydantic import BaseModel
+
+        class MathShepherdGenerator(BaseModel):
+            solutions: list[str]
+
+        MathShepherdGenerator.model_json_schema()
+        ```
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        return {
+            "$defs": {
+                "Solution": {
+                    "properties": {
+                        "solution": {
+                            "description": "Step by step solution",
+                            "title": "Solution",
+                            "type": "string",
+                        }
+                    },
+                    "required": ["solution"],
+                    "title": "Solution",
+                    "type": "object",
+                }
+            },
+            "properties": {
+                "solutions": {
+                    "description": "List of solutions",
+                    "items": {"$ref": "#/$defs/Solution"},
+                    "title": "Solutions",
+                    "type": "array",
+                }
+            },
+            "required": ["solutions"],
+            "title": "MathShepherdGenerator",
+            "type": "object",
+        }
+
+    def _format_structured_output(self, output: dict[str, any]) -> str:
+        try:
+            output = orjson.loads(output)["solutions"]
+            output = [o["solution"] for o in output]
+        except orjson.JSONDecodeError:
+            output = [""] * self.M if self.M else [""]
+        return output
