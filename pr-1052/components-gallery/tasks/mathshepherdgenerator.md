@@ -76,7 +76,7 @@ graph TD
 
 - **golden_solution** (`str`): The step by step solution to the instruction.  It will be generated if M is equal to 1.
 
-- **solutions** (`str`): A JSON formatted list of possible solutions to the instruction.  It will be generated if M is greater than 1.
+- **solutions** (`List[List[str]]`): A list of possible solutions to the instruction.  It will be generated if M is greater than 1.
 
 - **model_name** (`str`): The name of the model used to generate the revision.
 
