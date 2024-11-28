@@ -16,6 +16,7 @@ from textwrap import indent
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import orjson
+import random
 from jinja2 import Template
 from pydantic import BaseModel, Field, PositiveInt, PrivateAttr
 from typing_extensions import override
@@ -41,7 +42,7 @@ If the text is ambiguous or lacks sufficient information for classification, res
 ```
 
 ## Output Format
-Now, please give me the labels in JSON format, do not include any other text in your response:
+Now, please give me the relevant labels in JSON format, do not include any other text in your response:
 ```
 {
     "labels": {{ labels_format }}
@@ -74,9 +75,7 @@ class TextClassification(Task):
     Attributes:
         system_prompt: A prompt to display to the user before the task starts. Contains a default
             message to make the model behave like a classifier specialist.
-        n: Number of labels to generate If only 1 is required, corresponds to a label
-            classification problem, if >1 it will intend return the "n" labels most representative
-            for the text. Defaults to 1.
+        is_multilabel: Indicates whether the task allows multiple labels or a single label.
         context: Context to use when generating the labels. By default contains a generic message,
             but can be used to customize the context for the task.
         examples: List of examples to help the model understand the task, few shots.
@@ -84,6 +83,7 @@ class TextClassification(Task):
             a dictionary with the labels and their descriptions.
         default_label: Default label to use when the text is ambiguous or lacks sufficient information for
             classification. Can be a list in case of multiple labels (n>1).
+        query_title: Title of the query used to show the example/s to classify.
 
     Examples:
         Assigning a sentiment to a text:
@@ -128,7 +128,7 @@ class TextClassification(Task):
 
         text_classification = TextClassification(
             llm=llm,
-            n=1,
+            is_multilabel=False,
             context="Determine the intent of the text.",
             available_labels={
                 "complaint": "A statement expressing dissatisfaction or annoyance about a product, service, or experience. It's a negative expression of discontent, often with the intention of seeking a resolution or compensation.",
@@ -164,7 +164,7 @@ class TextClassification(Task):
 
         text_classification = TextClassification(
             llm=llm,
-            n=3,
+            is_multilabel=True,
             context=(
                 "Describe the main themes, topics, or categories that could describe the "
                 "following type of persona."
@@ -197,9 +197,9 @@ class TextClassification(Task):
         "You are an AI system specialized in generating labels to classify pieces of text. "
         "Your sole purpose is to analyze the given text and provide appropriate classification labels."
     )
-    n: PositiveInt = Field(
-        default=1,
-        description="Number of labels to generate. Defaults to 1.",
+    is_multilabel: bool = Field(
+        default=False,
+        description="Indicates whether the task allows multiple labels or a single label.",
     )
     context: Optional[str] = Field(
         default="Generate concise, relevant labels that accurately represent the text's main themes, topics, or categories.",
@@ -235,14 +235,14 @@ class TextClassification(Task):
         super().load()
         self._template = Template(TEXT_CLASSIFICATION_TEMPLATE)
         self._labels_format: str = (
-            '"label"'
-            if self.n == 1
-            else "[" + ", ".join([f'"label_{i}"' for i in range(self.n)]) + "]"
+            "[" + ", ".join([f'"label_{i}"' for i in range(random.randint(1, 3))]) + "]"
+            if self.is_multilabel
+            else '"label"'
         )
         self._labels_message: str = (
-            "Provide the label that best describes the text."
-            if self.n == 1
-            else f"Provide a list of {self.n} labels that best describe the text."
+            "Provide the label(s) that best describe the text. Do not include any labels that do not apply."
+            if self.is_multilabel
+            else "Provide the label that best describes the text."
         )
         self._available_labels_message: str = self._get_available_labels_message()
         self._examples: str = self._get_examples_message()
@@ -346,7 +346,7 @@ class TextClassification(Task):
         Returns:
             JSON Schema of the response to enforce.
         """
-        if self.n > 1:
+        if self.is_multilabel:
 
             class MultiLabelSchema(BaseModel):
                 labels: List[str]
@@ -373,6 +373,6 @@ class TextClassification(Task):
         try:
             return orjson.loads(output)
         except orjson.JSONDecodeError:
-            if self.n > 1:
-                return {"labels": [None for _ in range(self.n)]}
+            if self.is_multilabel:
+                return {"labels": [None]}
             return {"labels": None}
