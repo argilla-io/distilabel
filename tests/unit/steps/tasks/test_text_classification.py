@@ -26,15 +26,15 @@ if TYPE_CHECKING:
 
 
 class TextClassificationLLM(DummyAsyncLLM):
-    n: int = 1
+    is_multilabel: bool = False
 
     async def agenerate(  # type: ignore
         self, input: "FormattedInput", num_generations: int = 1
     ) -> "GenerateOutput":
-        if self.n == 1:
-            labels = "label"
-        else:
+        if self.is_multilabel:
             labels = ["label_0", "label_1", "label_2"]
+        else:
+            labels = "label"
         return {
             "generations": [
                 json.dumps({"labels": labels}) for _ in range(num_generations)
@@ -47,13 +47,14 @@ class TextClassificationLLM(DummyAsyncLLM):
 
 
 class TestTextClassification:
+
     @pytest.mark.parametrize(
-        "n, context, examples, available_labels, default_label, query_title",
+        "is_multilabel, context, examples, available_labels, default_label, query_title",
         [
-            (1, "context", None, None, "Unclassified", "User Query"),
-            (1, "", ["example"], ["label1", "label2"], "default", "User Query"),
+            (False, "context", None, None, "Unclassified", "User Query"),
+            (False, "", ["example"], ["label1", "label2"], "default", "User Query"),
             (
-                1,
+                False,
                 "",
                 ["example"],
                 {"label1": "explanation 1", "label2": "explanation 2"},
@@ -61,7 +62,7 @@ class TestTextClassification:
                 "User Query",
             ),
             (
-                3,
+                True,
                 "",
                 ["example", "other example"],
                 None,
@@ -72,7 +73,7 @@ class TestTextClassification:
     )
     def test_format_input(
         self,
-        n: int,
+        is_multilabel: bool,
         context: str,
         examples: Optional[List[str]],
         available_labels: Optional[Union[List[str], Dict[str, str]]],
@@ -81,7 +82,7 @@ class TestTextClassification:
     ) -> None:
         task = TextClassification(
             llm=DummyAsyncLLM(),
-            n=n,
+            is_multilabel=is_multilabel,
             context=context,
             examples=examples,
             available_labels=available_labels,
@@ -96,15 +97,15 @@ class TestTextClassification:
         assert f'respond with "{default_label}"' in content
         assert "## User Query\n```\nSAMPLE_TEXT\n```" in content
         assert f'respond with "{default_label}"' in content
-        if n == 1:
+        if not is_multilabel:
             assert "Provide the label that best describes the text." in content
             assert '```\n{\n    "labels": "label"\n}\n```' in content
         else:
             assert (
-                f"Provide a list of {n} labels that best describe the text." in content
+                "Provide the label(s) that best describe the text. Do not include any labels that do not apply." in content
             )
             assert (
-                '```\n{\n    "labels": ["label_0", "label_1", "label_2"]\n}\n```'
+                '```\n{\n    "labels": ['
                 in content
             )
         if available_labels:
@@ -127,21 +128,29 @@ class TestTextClassification:
         assert f"## {query_title}" in content
 
     @pytest.mark.parametrize(
-        "n, expected",
+        "is_multilabel, expected",
         [
-            (1, json.dumps({"labels": "label"})),
-            (3, json.dumps({"labels": ["label_0", "label_1", "label_2"]})),
+            (False, json.dumps({"labels": "label"})),
+            (
+                True,
+                [
+                    json.dumps({"labels": ["label_0"]}),
+                    json.dumps({"labels": ["label_0", "label_1"]}),
+                    json.dumps({"labels": ["label_0", "label_1", "label_2"]}),
+                ],
+            ),
         ],
     )
-    def test_process(self, n: int, expected: str) -> None:
+    def test_process(self, is_multilabel: bool, expected: str) -> None:
         task = TextClassification(
-            llm=TextClassificationLLM(n=n), n=n, use_default_structured_output=True
+            llm=TextClassificationLLM(is_multilabel=is_multilabel), is_multilabel=is_multilabel, use_default_structured_output=True
         )
         task.load()
         result = next(task.process([{"text": "SAMPLE_TEXT"}]))
         assert result[0]["text"] == "SAMPLE_TEXT"
-        assert result[0]["labels"] == json.loads(expected)["labels"]
-        assert (
-            result[0]["distilabel_metadata"]["raw_output_text_classification_0"]
-            == expected
-        )
+        if is_multilabel:
+            assert result[0]["labels"] in [json.loads(opt)["labels"] for opt in expected]
+            assert result[0]["distilabel_metadata"]["raw_output_text_classification_0"] in expected
+        else:
+            assert result[0]["labels"] == json.loads(expected)["labels"]
+            assert result[0]["distilabel_metadata"]["raw_output_text_classification_0"] == expected
