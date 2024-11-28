@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import pytest
@@ -30,6 +31,8 @@ if TYPE_CHECKING:
 
 class MathShepherdGeneratorLLM(DummyLLM):
     M: Optional[int] = None
+    structured: bool = False
+    with_error: bool = False
 
     def load(self) -> None:
         pass
@@ -41,7 +44,23 @@ class MathShepherdGeneratorLLM(DummyLLM):
     def generate(
         self, inputs: Dict[str, Any], num_generations: int = 1
     ) -> List["GenerateOutput"]:
-        response = """
+        if self.structured:
+            if self.M:
+                solutions = [
+                    {
+                        "solution": "Step 1: Calculate the number of eggs Janet lays per day: 16 eggs/day. She eats 3 for breakfast and bakes 4 for muffins, so she uses a total of 3 + 4 = 7 eggs per day. Calculate the number of eggs she has left: 16 - 7 = <<16-7=9>>9 eggs/day. Step 2: Calculate the amount of money Janet makes from selling eggs at the farmers' market: 9 eggs/day * $2/egg = <<9*2=18>>$18/day. Step 3: Calculate the total number of books borrowed from Monday to Thursday: 40 * 4 = <<40*4=160>>160 books. Step 4: Calculate the total number of books borrowed in the entire week: 160 + 56 = <<160+56=216>>216 books The answer is: 18"
+                    }
+                    for _ in range(self.M)
+                ]
+            else:
+                solutions = [
+                    {
+                        "solution": "Step 1: Calculate the number of eggs Janet lays per day: 16 eggs/day. She eats 3 for breakfast and bakes 4 for muffins, so she uses a total of 3 + 4 = 7 eggs per day. Calculate the number of eggs she has left: 16 - 7 = <<16-7=9>>9 eggs/day. Step 2: Calculate the amount of money Janet makes from selling eggs at the farmers' market: 9 eggs/day * $2/egg = <<9*2=18>>$18/day. Step 3: Calculate the total number of books borrowed from Monday to Thursday: 40 * 4 = <<40*4=160>>160 books. Step 4: Calculate the total number of books borrowed in the entire week: 160 + 56 = <<160+56=216>>216 books The answer is: 18"
+                    }
+                ]
+            response = json.dumps({"solutions": solutions})
+        else:
+            response = """
 Step 1: Calculate the number of books borrowed on a regular day (Monday to Thursday):
 40 books per day
 
@@ -56,8 +75,8 @@ Step 4: Calculate the total number of books borrowed in the entire week:
 160 + 56 = <<160+56=216>>216 books
 
 The answer is: 216 books."""
-        if self.M:
-            response = "---".join([response for _ in range(self.M)])
+            if self.M:
+                response = "---".join([response for _ in range(self.M)])
         return [
             {
                 "generations": [response] * num_generations,
@@ -143,6 +162,32 @@ class TestMathShepherdGenerator:
         result = next(task.process([{"instruction": ""}]))[0][output_name]
         if M:
             assert len(result) == 3
+            assert all(len(r) == 5 for r in result)
+        else:
+            assert len(result) == 5
+
+    @pytest.mark.parametrize(
+        "M, output_name",
+        [
+            (None, "golden_solution"),
+            (1, "solutions"),
+            (3, "solutions"),
+        ],
+    )
+    def test_process_structured_output(
+        self, M: Optional[int], output_name: str
+    ) -> None:
+        task = MathShepherdGenerator(
+            llm=MathShepherdGeneratorLLM(M=M, structured=True),
+            use_default_structured_output=True,
+            M=M,
+        )
+        task.load()
+
+        result = next(task.process([{"instruction": ""}]))[0][output_name]
+        print(result)
+        if M:
+            assert len(result) == M
             assert all(len(r) == 5 for r in result)
         else:
             assert len(result) == 5
