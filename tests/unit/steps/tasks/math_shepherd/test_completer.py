@@ -345,3 +345,129 @@ The answer is: 18""",
                 },
             }
         ]
+
+    def test_auto_label_with_errors(self):
+        inputs = [
+            {
+                "instruction": "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
+                "golden_solution": [
+                    "Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.",
+                    "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer’s market.",
+                    "The answer is: 18",
+                ],
+                "solutions": [[], [], []],
+            },
+        ]
+        N = 3
+        task = MathShepherdCompleter(
+            llm=MathShepherdCompleterLLM(N=N),
+            N=N,
+            add_raw_input=False,
+            add_raw_output=False,
+        )
+        task.load()
+        final_outputs = [
+            [
+                [
+                    "Step 2: Janet sells 9 duck eggs at the farmers' market, so she makes 9 * $1 = $<<9*1=9>>9 from selling the eggs.",
+                    "The answer is: $9",
+                ],
+                [
+                    "Step 1: Janet lays 16 eggs per day, eats 3 for breakfast, uses 4 for baking, so she has 16 - 3 - 4 = 9 eggs left.",
+                    "Step 2: Since Janet sells 9 eggs a day, and each egg is sold for $1, she makes 9 * $1 = $<<9*1=9>>9.",
+                    "The answer is: $9",
+                ],
+                [
+                    "Step 1: Janet lays 16 eggs per day, eats 3, uses 4 for baking which leaves her with 16 - 3 - 4 = 9 eggs.",
+                    "Step 2: Since she sells the eggs for $1 each, she makes 9 * $1 = $<<9*1=9>>9.",
+                    "The answer is: $9",
+                ],
+            ],
+            [
+                [
+                    "Step 3: To determine how many eggs Jan's sells at the market, we need to subtract the eggs she uses (7) from the total number of eggs laid (16), which is 16 - 7 = <<16-7=9>>9.",
+                    "Step 4: Since she sells 9 eggs for $2 each, we multiply 9 * 2 = <<9*2=18>>18 to find out her daily earnings.",
+                    "The answer is: 18",
+                ],
+                [
+                    "Step 2: Jan's ducks lay 16 eggs per day, and she uses 3 + 4 = <<3+4=7>>7 for eating and baking.",
+                    "Step 3: To find the number of eggs Jan's sells at the market, we subtract the eggs she uses (7) from the total number of eggs laid (16), which is 16 - 7 = <<16-7=9>>9.",
+                    "Step 4: Since she sells 9 eggs for $2 each, we multiply 9 * 2 = <<9*2=18>>18 to find out her daily earnings.",
+                    "The answer is: 18",
+                ],
+                [
+                    "Step 2: Jan's ducks lay 16 eggs per day, and she uses 7 for eating and baking.",
+                    "Step 3: To find the number of eggs Jan's sells at the market, we calculate 16 - 7 = <<16-7=9>>9.",
+                    "Step 4: Since she sells 9 eggs for $2 each, we multiply 9 * 2 = <<9*2=18>>18 to find out her daily earnings.",
+                    "The answer is: 18",
+                ],
+            ],
+            [
+                [
+                    "Step 1: Janet's ducks lay 16 eggs per day. She eats 3 eggs and bakes 4 eggs.",
+                    "Step 2: So, she uses 3 + 4 = <<3+4=7>>7 eggs for eating and baking.",
+                    "Step 3: She sells the remaining eggs, which is 16 - 7 = <<16-7=9>>9 duck eggs every day.",
+                    "Step 4: She sells each egg for $2, so the total amount she makes is 9 * 2 = <<9*2=18>>18 dollars every day.",
+                    "The answer is: 18",
+                ],
+                [
+                    "Step 1: Janet's ducks lay 16 eggs per day.",
+                    "Step 2: She eats 3 eggs and bakes 4 eggs, which is a total of 3 + 4 = <<3+4=7>>7 eggs.",
+                    "Step 3: She sells the remaining eggs, which is 16 - 7 = <<16-7=9>>9 duck eggs every day.",
+                    "Step 4: Since she sells each egg for $2, she makes 9 * 2 = <<9*2=18>>18 dollars every day.",
+                    "The answer is: 18",
+                ],
+                [
+                    "Step 1: Janet's ducks lay 16 eggs per day.",
+                    "Step 2: She consumes 7 eggs for eating and baking, which means she has 16 - 7 = <<16-7=9>>9 eggs left.",
+                    "Step 3: She sells each egg for $2, so she makes 9 * 2 = <<9*2=18>>18 dollars every day.",
+                    "The answer is: 18",
+                ],
+            ],
+        ]
+
+        golden_answers = ["The answer is: 18", "The answer is: 18"]
+        input_positions = [(0, 0, 0), (0, 1, 0), (0, 1, 1)]
+        statistics = [
+            {"input_tokens": [12], "output_tokens": [12]},
+            {"input_tokens": [12], "output_tokens": [12]},
+            {"input_tokens": [12], "output_tokens": [12]},
+        ]
+        raw_outputs = [[], []]
+        raw_inputs = [
+            {
+                "role": "system",
+                "content": 'You are a math teacher who helps students by breaking down word problems into clear, logical steps.\nWhen given a problem statement and any number of initial step, generate the remaining steps needed to reach the final answer.\nEach step should:\n\n- Build logically on previous steps\n- Explain the reasoning in natural language\n- Lead to the final answer\n- Multiple solution paths are acceptable\n- Steps should be concise but clear\n- Each calculation should be shown explicitly\n- The final answer must be clearly stated\n- The number of steps may vary based on the solution approach\n\n# Format requirements:\n- Each step should be numbered sequentially, continuing from the last given step\n- The final step should clearly state "The answer is: [result]"\n- Each step can use different approaches but must be mathematically valid\n\n# Rules:\n- All calculations must be shown within <<>> brackets\n- Basic operations: use * for multiplication, / for division, + for addition, - for subtraction\n- Write the full calculation and result, e.g., <<5*10=50>>50\n\n# Examples:\n## Input\nKrystian works in the library. He borrows an average of 40 books every day. Every Friday, his number of borrowed books is about 40% higher than the daily average. How many books does he borrow in a week if the library is open from Monday to Friday?\nStep 1: On Friday, Krystian borrows 40 * 0.4 = <<40*0.4=16>>16 more books than on a regular day.\n\n## Output 1\nStep 2: On Friday, Krystian borrows 40 + 16 = <<40+16=56>>56 books in total.\nStep 3: For the other 4 days (Monday to Thursday), he borrows 40 * 4 = <<40*4=160>>160 books.\nStep 4: The total books for the week is 160 + 56 = <<160+56=216>>216. The answer is: 216\n\n## Output 2\nStep 2: In total, he borrows 40 + 16 = <<40+16=56>>56 books on Friday.\nStep 3: For the whole week (4 regular days plus Friday), the total is (40 * 4) + 56 = <<(40*4)+56=216>>216. The answer is: 216\n\n## Output 3\nStep 2: On Friday, he borrows 40 + 40/100 * 40 = <<40+40/100*40=56>>56 books.\nStep 3: In a week, he borrows 5.7 * 7 = <<5.7*7=40>>40 books. The answer is: 40',
+            },
+            {
+                "role": "user",
+                "content": "Generate 3 example solutions to the same problem, separated by a single `---` and nothing else.\nResponse format:\n```\nStep i: step i explanation.\nStep i+1: step i+1 explanation.\nThe answer is: X\n\n---\n\nStep 2: step i explanation.\nStep 3: step i+1 explanation.\nThe answer is: Y\n```\n\nThis is the problem:\nJanet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market? Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.",
+            },
+        ]
+        results = task._auto_label(
+            inputs,
+            final_outputs,
+            input_positions,
+            golden_answers,
+            statistics,
+            raw_outputs,
+            raw_inputs,
+        )
+        assert results == [
+            {
+                "instruction": "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
+                "golden_solution": [
+                    "Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.",
+                    "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer’s market.",
+                    "The answer is: 18",
+                ],
+                "solutions": [[], [], []],
+                "model_name": "math-shepherd-completer",
+                "distilabel_metadata": {
+                    "statistics_math_shepherd_completer_0": {
+                        "input_tokens": [12],
+                        "output_tokens": [12],
+                    }
+                },
+            }
+        ]

@@ -414,7 +414,10 @@ class MathShepherdCompleter(Task):
                     label = f" { self.tags[0]}"
                     # If we found one, it's enough as we are doing Hard Estimation
                     continue
-
+            # In case we had no solutions from the previous step, otherwise we would have
+            # an IndexError
+            if not solutions[solution_i]:
+                continue
             solutions[solution_i][step_i] += label
             inputs[instruction_i]["solutions"] = solutions
 
