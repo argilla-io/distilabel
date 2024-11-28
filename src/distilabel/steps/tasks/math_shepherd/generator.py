@@ -263,11 +263,9 @@ class MathShepherdGenerator(Task):
 
     @property
     def outputs(self) -> "StepColumns":
-        return {
-            "solutions": False,
-            "golden_solution": False,
-            "model_name": True,
-        }
+        if self.M:
+            return ["solutions", "model_name"]
+        return ["golden_solution", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         messages = [

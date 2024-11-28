@@ -222,7 +222,7 @@ class MathShepherdCompleter(Task):
 
     @property
     def outputs(self) -> "StepColumns":
-        return ["completions", "model_name"]
+        return ["model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         messages = [
