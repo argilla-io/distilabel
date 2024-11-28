@@ -425,12 +425,16 @@ class MathShepherdCompleter(Task):
             solutions = input["solutions"]
             new_solutions = []
             for solution in solutions:
-                if not solution:
+                if not solution or (len(solution) == 1):
                     # The generation may fail to generate the expected
                     # completions, or just added an extra empty completion,
-                    # we skip it
+                    # we skip it.
+                    # Other possible error is having a list of solutions
+                    # with a single item, so when we call .pop, we are left
+                    # with an empty list, so we skip it too.
                     new_solutions.append(solution)
                     continue
+
                 answer = solution.pop()
                 label = (
                     f" {self.tags[0]}"

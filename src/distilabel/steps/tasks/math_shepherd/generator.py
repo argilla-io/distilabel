@@ -43,20 +43,9 @@ You are a math tutor that helps students solve math problems by breaking them do
 
 {{ extra_rules }}{{ few_shots }}{{ structured_prompt }}"""
 
-SYSTEM_PROMPT_STRUCTURED_OLD: Final[str] = """
-Your answer must adhere to the following format:
-```
-{
-    "solutions": [
-        "Step 1: Your first step\nStep 2: Your second step\n...\nThe answer is: [Your final answer]",
-        ... (more solutions as required)
-    ]
-}
-```
-"""
 
 SYSTEM_PROMPT_STRUCTURED: Final[str] = """
-Your answer must adhere to the following format:
+Your answer must adhere to the following format, with each step by step solution in a separate object:
 ```
 [
     {
@@ -77,18 +66,18 @@ RULES_GSM8K: Final[str] = """\
 
 FEW_SHOTS_GSM8K: Final[str] = """
 # Examples:
-## Input
+## Instruction
 A store sells notebooks for $3 each. If you buy 5 or more, you get a 20% discount. How much would you pay for 6 notebooks?
 
-## Output
+## Solution
 Step 1: Calculate the regular price for 6 notebooks: 6 * $3 = <<63=18>>18 dollars
 Step 2: Calculate the 20% discount amount: 18 * 20/100 = <<1820/100=3.6>>3.6 dollars
 Step 3: Subtract the discount from the regular price: 18 - 3.6 = <<18-3.6=14.4>>14.4 dollars. The answer is: 14.4
 
-## Input
+## Instruction
 A recipe calls for 2.5 cups of flour to make 12 cookies. How many cups of flour are needed to make 30 cookies?
 
-## Output
+## Solution
 Step 1: Find out how many cups of flour are needed per cookie: 2.5 ÷ 12 = <<2.5/12=0.208333>>0.208333 cups
 Step 2: Calculate the flour needed for 30 cookies: 0.208333 * 30 = <<0.208333*30=6.25>>6.25 cups. The answer is: 6.25
 """
@@ -127,7 +116,7 @@ Step 4: Therefore, the answer is $\boxed{59}$. The answer is: 59
 TEMPLATE: str = """{% if M %}Generate {{ M }} example solutions to the following problem, separated by a single `---`. This is your problem:{% endif %}
 {{ instruction }}"""
 
-TEMPLATE_STRUCTURED: str = """{% if M %}Generate {{ M }} different example solutions to the following problem:{% endif %}
+TEMPLATE_STRUCTURED: str = """{% if M %}Generate {{ M }} diverse solutions, even if they are incorrect. This is the problem:{% endif %}
 {{ instruction }}"""
 
 
@@ -328,10 +317,13 @@ class MathShepherdGenerator(Task):
         The schema corresponds to the following:
 
         ```python
-        from pydantic import BaseModel
+        from pydantic import BaseModel, Field
+
+        class Solution(BaseModel):
+            solution: str = Field(..., description="Step by step solution leading to the final answer")
 
         class MathShepherdGenerator(BaseModel):
-            solutions: list[str]
+            solutions: list[Solution] = Field(..., description="List of solutions")
 
         MathShepherdGenerator.model_json_schema()
         ```
@@ -344,7 +336,7 @@ class MathShepherdGenerator(Task):
                 "Solution": {
                     "properties": {
                         "solution": {
-                            "description": "Step by step solution",
+                            "description": "Step by step solution leading to the final answer",
                             "title": "Solution",
                             "type": "string",
                         }
@@ -368,9 +360,14 @@ class MathShepherdGenerator(Task):
         }
 
     def _format_structured_output(self, output: dict[str, any]) -> str:
+        default_output = [[""] * self.M] if self.M else [""]
         try:
             output = orjson.loads(output)["solutions"]
             output = [o["solution"] for o in output]
+            # If the number is not the same as the expected, it's possibly an error,
+            # it's safer to just assume we didn't generated as expected.
+            if len(output) != self.M:
+                output = default_output
         except orjson.JSONDecodeError:
-            output = [""] * self.M if self.M else [""]
+            output = default_output
         return output
