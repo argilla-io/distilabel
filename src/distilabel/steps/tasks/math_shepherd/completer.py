@@ -16,11 +16,15 @@ from typing import TYPE_CHECKING, Any, Dict, Final, List, Optional, Union
 
 from jinja2 import Template
 from pydantic import PositiveInt
+from typing_extensions import override
 
 from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.math_shepherd.utils import split_solution_steps
+from distilabel.steps.tasks.math_shepherd.utils import (
+    parse_json_response,
+    split_solution_steps,
+)
 from distilabel.utils.itertools import batched
 
 if TYPE_CHECKING:
@@ -48,7 +52,19 @@ Each step should:
 - The final step should clearly state "The answer is: [result]"
 - Each step can use different approaches but must be mathematically valid
 
-{{ extra_rules }}{{ few_shots }}{{ errors }}"""
+{{ extra_rules }}{{ few_shots }}{{ structured_prompt }}"""
+
+SYSTEM_PROMPT_STRUCTURED: Final[str] = """
+Your answer must adhere to the following format, with each step by step solution in a separate object:
+```
+[
+    {
+        "solution": "Step i: The step i\nStep i+1: The step i+1\n...\nThe answer is: [Your final answer]",
+    },
+    ... (more solutions as required)
+]
+```
+"""
 
 RULES_GSM8K: Final[str] = """\
 # Rules:
@@ -86,14 +102,17 @@ The answer is: X
 
 ---
 
-Step 2: step i explanation.
-Step 3: step i+1 explanation.
+Step i: step i explanation.
+Step i+1: step i+1 explanation.
 The answer is: Y
 ```
 
 This is the problem:
 {{ instruction }}
 """
+
+
+TEMPLATE_STRUCTURED: str = """Generate {{ N }} example solutions for the following problem:\n{{ instruction }}"""
 
 
 # Type aliases
@@ -213,8 +232,14 @@ class MathShepherdCompleter(Task):
             self.system_prompt = Template(self.system_prompt).render(
                 extra_rules=self.extra_rules or "",
                 few_shots=self.few_shots or "",
+                structured_prompt=SYSTEM_PROMPT_STRUCTURED
+                if self.use_default_structured_output
+                else "",
             )
-        self._template = Template(TEMPLATE)
+        if self.use_default_structured_output:
+            self._template = Template(TEMPLATE_STRUCTURED)
+        else:
+            self._template = Template(TEMPLATE)
 
     @property
     def inputs(self) -> "StepColumns":
@@ -238,23 +263,16 @@ class MathShepherdCompleter(Task):
         return messages
 
     def _parse_output(self, output: Union[str, None]) -> List[Union[str, None]]:
-        """Parses the output from the LLM, and returns a list of completions.
-
-        It does some extra checking in the case of N>1, to ensure that the completions
-        are in the expected number, adding "" if there are less completions than expected,
-        or shortening the list if there are more completions than expected.
-
-        Args:
-            output: The output from the LLM.
-
-        Returns:
-            List of examples
-        """
         if output is None:
             return [None]
 
         if self.N > 1:
-            examples = [split_solution_steps(o) for o in output.split("---")]
+            output = (
+                self._format_structured_output(output)
+                if self.use_default_structured_output
+                else output.split("---")
+            )
+            examples = [split_solution_steps(o) for o in output]
             # In case there aren't the expected number of completions, we fill it with "", or short the list.
             # This shoulnd't happen if the LLM works as expected, but it's a safety measure as it can be
             # difficult to debug if the completions don't match the solutions.
@@ -263,8 +281,23 @@ class MathShepherdCompleter(Task):
             elif len(examples) > self.N:
                 examples = examples[: self.N]
         else:
+            output = (
+                self._format_structured_output(output)[0]
+                if self.use_default_structured_output
+                else output
+            )
             examples = [split_solution_steps(output)]
         return examples
+
+    def _format_structured_output(self, output: dict[str, any]) -> str:
+        default_output = [""] * self.N if self.N else [""]
+        if output := parse_json_response(output):
+            output = output["solutions"]
+            output = [o["solution"] for o in output]
+            if len(output) != self.N:
+                output = default_output
+            return output
+        return default_output
 
     def format_output(
         self,
@@ -328,7 +361,7 @@ class MathShepherdCompleter(Task):
             for i, output in enumerate(outputs):
                 generation = output["generations"][0]
                 raw_inputs.append(inner_batch[i])
-                raw_outputs.append(generation)
+                raw_outputs.append(generation or "")
                 formatted_outputs.append(self._parse_output(generation))
                 statistics.append(output["statistics"])
 
@@ -480,3 +513,53 @@ class MathShepherdCompleter(Task):
         if self.add_raw_output:
             input[DISTILABEL_METADATA_KEY][f"raw_output_{self.name}"] = raw_output
         return input
+
+    @override
+    def get_structured_output(self) -> dict[str, any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        The schema corresponds to the following:
+
+        ```python
+        from pydantic import BaseModel, Field
+
+        class Solution(BaseModel):
+            solution: str = Field(..., description="Step by step solution leading to the final answer")
+
+        class MathShepherdCompleter(BaseModel):
+            solutions: list[Solution] = Field(..., description="List of solutions")
+
+        MathShepherdCompleter.model_json_schema()
+        ```
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        return {
+            "$defs": {
+                "Solution": {
+                    "properties": {
+                        "solution": {
+                            "description": "Step by step solution leading to the final answer",
+                            "title": "Solution",
+                            "type": "string",
+                        }
+                    },
+                    "required": ["solution"],
+                    "title": "Solution",
+                    "type": "object",
+                }
+            },
+            "properties": {
+                "solutions": {
+                    "description": "List of solutions",
+                    "items": {"$ref": "#/$defs/Solution"},
+                    "title": "Solutions",
+                    "type": "array",
+                }
+            },
+            "required": ["solutions"],
+            "title": "MathShepherdGenerator",
+            "type": "object",
+        }
