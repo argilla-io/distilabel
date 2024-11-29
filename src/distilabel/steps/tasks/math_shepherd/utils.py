@@ -219,8 +219,14 @@ class FormatPRM(Step):
         self, input: dict[str, str]
     ) -> dict[str, Union[str, list[str]]]:
         instruction = input["instruction"]
+        replaced = []
+        # At this stage, the "solutions" column can only contain a single solution,
+        # and the last item of each solution is the tag.
         solution = input["solutions"]
-        replaced = [step[:-1] + self.step_token for step in solution]
+        for step in solution:
+            # Check there's a string, because the step that generated
+            # the solutions could have failed, and we would have an empty list.
+            replaced.append(step[:-1] + self.step_token if len(step) > 1 else step)
 
         input["input"] = instruction + " " + "\n".join(replaced)
         input["label"] = instruction + " " + "\n".join(solution)
