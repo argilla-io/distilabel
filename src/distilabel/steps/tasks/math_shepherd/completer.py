@@ -344,6 +344,7 @@ class MathShepherdCompleter(Task):
         # Send the elements in batches to the LLM to speed up the process
         final_outputs = []
         # Added here to simplify testing in case we don't have anything to process
+        # TODO: Ensure the statistics has the same shape as all the outputs, raw_outputs, and raw_inputs
         statistics = []
         total_raw_outputs = []
         total_raw_inputs = []
@@ -355,7 +356,7 @@ class MathShepherdCompleter(Task):
             )
 
             formatted_outputs = []
-            statistics = []
+            stats = []
             raw_outputs = []
             raw_inputs = []
             for i, output in enumerate(outputs):
@@ -363,9 +364,10 @@ class MathShepherdCompleter(Task):
                 raw_inputs.append(inner_batch[i])
                 raw_outputs.append(generation or "")
                 formatted_outputs.append(self._parse_output(generation))
-                statistics.append(output["statistics"])
+                stats.append(output["statistics"])
 
             final_outputs.extend(formatted_outputs)
+            statistics.extend(stats)
             total_raw_outputs.extend(raw_outputs)
             total_raw_inputs.extend(raw_inputs)
 
