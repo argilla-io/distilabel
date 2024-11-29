@@ -63,7 +63,7 @@ class DAG(_Serializable):
 
     def __init__(self) -> None:
         self.G = nx.DiGraph()
-        self._load_groups = None
+        self._load_groups = []
 
     def __iter__(self) -> Generator[str, None, None]:
         yield from self.G
@@ -292,12 +292,17 @@ class DAG(_Serializable):
         """
         return sum([self.get_step_replica_count(step_name) for step_name in self.G])
 
-    def get_steps_load_stages(self) -> Tuple[List[List[str]], List[List[str]]]:
+    def get_steps_load_stages(self) -> Tuple[List[List[str]], List[List[str]]]:  # noqa: C901
         """Gets the stages in which the `Step`s of the `Pipeline` should be loaded. Stages
-        are determined by `GlobalStep`s as they receive all the data at once, which means
+        are determined by:
+
+        - `GlobalStep`s as they receive all the data at once and the provided which means
         that a `GlobalStep` is not required to be loaded until all their previous steps
         have finished their execution, and the successors of the global step are not required
         to be loaded until the global has finished.
+
+        - `load_groups` which determine which steps has to be loaded together and in isolation
+        with respect to the rest.
 
         Returns:
             A tuple with the first element containing asorted list by stage containing
@@ -311,30 +316,44 @@ class DAG(_Serializable):
                 [node for node in subgraph.nodes() if subgraph.out_degree(node) == 0]
             )
 
-        stages = []
-        current_stage = []
-        stages_last_steps = []
-
-        steps_sorted = list(nx.topological_sort(self.G))
-        for i, step_name in enumerate(steps_sorted):
+        # Create a load group for each global step
+        load_groups = self._load_groups
+        for step_name in self.G:
             step: "_Step" = self.get_step(step_name)[STEP_ATTR_NAME]
-            if not step.is_global:
-                current_stage.append(step_name)
-            else:
-                previous_step = None
-                if i > 0:
-                    previous_step_name = steps_sorted[i - 1]
-                    previous_step = self.get_step(previous_step_name)[STEP_ATTR_NAME]
-                if not previous_step or not previous_step.is_global:
-                    stages.append(current_stage)
-                    stages_last_steps.append(_get_stage_last_steps(current_stage))
-                stages.append([step_name])
-                stages_last_steps.append([step_name])
-                current_stage = []
+            if step.is_global:
+                load_groups.append([step_name])
 
-        if current_stage:
-            stages.append(current_stage)
-            stages_last_steps.append(_get_stage_last_steps(current_stage))
+        # Sort load groups by steps position in the DAG
+        topological_sort = list(nx.topological_sort(self.G))
+        load_groups = sorted(load_groups, key=lambda x: topological_sort.index(x[0]))
+
+        # Create load groups for the rest of the steps that don't belong to any load group
+        stages: List[List[str]] = []
+        current_stage: List[str] = []
+        grouped_steps: List[str] = [step for group in load_groups for step in group]
+        for step_name in topological_sort:
+            if step_name in grouped_steps:
+                # If a stage was being created, finish it as we've reached a step belonging
+                # to another load stage
+                if current_stage:
+                    stages.append(current_stage)
+                    current_stage = []
+
+                # Append the load group of this step
+                for group in load_groups:
+                    if step_name in group and group not in stages:
+                        stages.append(group)
+                        break
+            else:
+                current_stage.append(step_name)
+
+        # No stage was created, so we have a single stage with all the steps of the pipeline
+        if not stages:
+            stages.append(topological_sort)
+
+        stages_last_steps = []
+        for stage in stages:
+            stages_last_steps.append(_get_stage_last_steps(stage))
 
         return stages, stages_last_steps
 
