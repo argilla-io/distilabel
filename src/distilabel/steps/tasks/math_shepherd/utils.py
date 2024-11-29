@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, Union
+
+import orjson
 
 from distilabel.steps.base import Step, StepInput
 
@@ -40,14 +42,25 @@ def split_solution_steps(text: str) -> list[str]:
 class FormatPRM(Step):
     """Helper step to transform the data into the format expected by the PRM model.
 
-    Following the format presented in [peiyi9979/Math-Shepherd](https://huggingface.co/datasets/peiyi9979/Math-Shepherd?row=0),
-    this step creates the columns input and label, where the input is the instruction
+    This step can be used to format the data in one of 2 formats:
+    Following the format presented
+    in [peiyi9979/Math-Shepherd](https://huggingface.co/datasets/peiyi9979/Math-Shepherd?row=0),
+    in which case this step creates the columns input and label, where the input is the instruction
     with the solution (and the tag replaced by a token), and the label is the instruction
     with the solution, both separated by a newline.
+    Following TRL's format for training, which generates the columns prompt, completions, and labels.
+    The labels correspond to the original tags replaced by boolean values, where True represents
+    correct steps.
 
     Attributes:
+        format (Literal["math-shepherd", "trl"]): The format to use for the PRM model.
+            "math-shepherd" corresponds to the original paper, while "trl" is a format
+            prepared to train the model using TRL.
         step_token (str): String that serves as a unique token denoting the position
             for predicting the step score.
+        tags (list[str]): List of tags that represent the correct and incorrect steps.
+            This only needs to be informed if it's different than the default in
+            `MathShepherdCompleter`.
 
     Input columns:
         - instruction (`str`): The task or instruction.
@@ -57,6 +70,11 @@ class FormatPRM(Step):
         - input (`str`): The instruction with the solutions, where the label tags
             are replaced by a token.
         - label (`str`): The instruction with the solutions.
+        - prompt (`str`): The instruction with the solutions, where the label tags
+            are replaced by a token.
+        - completions (`List[str]`): The solution represented as a list of steps.
+        - labels (`List[bool]`): The labels, as a list of booleans, where True represents
+            a good response.
 
     Categories:
         - text-manipulation
@@ -67,16 +85,13 @@ class FormatPRM(Step):
         - [peiyi9979/Math-Shepherd](https://huggingface.co/datasets/peiyi9979/Math-Shepherd?row=0)
 
     Examples:
-        Prepare your data to train a PRM model:
+        Prepare your data to train a PRM model with the Math-Shepherd format:
 
         ```python
         from distilabel.steps.tasks import FormatPRM
         from distilabel.steps import ExpandColumns
 
-        expand_columns = ExpandColumns(
-            columns=["solutions"],
-            encoded=True,
-        )
+        expand_columns = ExpandColumns(columns=["solutions"])
         expand_columns.load()
 
         # Define our PRM formatter
@@ -101,6 +116,53 @@ class FormatPRM(Step):
         # "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market? Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +\nStep 2: Calculate the amount of white fiber needed: Since it's half that much, we can divide 2 by 2: 2 / 2 = <<2/2=1>>1 bolt of white fiber. +\nStep 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 +"
         ```
 
+        Prepare your data to train a PRM model with the TRL format:
+
+        ```python
+        from distilabel.steps.tasks import FormatPRM
+        from distilabel.steps import ExpandColumns
+
+        expand_columns = ExpandColumns(columns=["solutions"])
+        expand_columns.load()
+
+        # Define our PRM formatter
+        formatter = FormatPRM(format="trl")
+        formatter.load()
+
+        # Expand the solutions column as it comes from the MathShepherdCompleter
+        result = next(
+            expand_columns.process(
+                [
+                    {
+                        "instruction": "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
+                        "solutions": [["Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +", "Step 2: Calculate the amount of white fiber needed: Since it\'s half that much, we can divide 2 by 2: 2 / 2 = <<2/2=1>>1 bolt of white fiber. +", "Step 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 +"], ["Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +", "Step 2: Calculate the amount of white fiber needed: Since it\'s half that much, we can multiply 2 by 0.5 (which is the same as dividing by 2): 2 * 0.5 = <<2*0.5=1>>1 bolt of white fiber. +", "Step 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 +"], ["Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +", "Step 2: Calculate the amount of white fiber needed: Since it\'s half that much, we can multiply 2 by 0.5 (which is the same as dividing by 2): 2 * 0.5 = <<2*0.5=1>>1 bolt of white fiber. +", "Step 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 +"], ["Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +", "Step 2: Calculate the amount of white fiber needed: Since it\'s half that much, we can multiply 2 by 0.5 (which is the same as dividing by 2): 2 * 0.5 = <<2*0.5=1>>1 bolt of white fiber. +", "Step 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 +"], ["Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +", "Step 2: Calculate the amount of white fiber needed: Since it\'s half that much, we can divide 2 by 2: 2 / 2 = <<2/2=1>>1 bolt of white fiber. +", "Step 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 +"]]
+                    },
+                ]
+            )
+        )
+
+        result = next(formatter.process(result))
+        # {
+        #     "instruction": "Janet\u2019s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
+        #     "solutions": [
+        #         "Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +",
+        #         "Step 2: Calculate the amount of white fiber needed: Since it's half that much, we can divide 2 by 2: 2 / 2 = <<2/2=1>>1 bolt of white fiber. +",
+        #         "Step 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 +"
+        #     ],
+        #     "prompt": "Janet\u2019s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
+        #     "completions": [
+        #         "Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required.",
+        #         "Step 2: Calculate the amount of white fiber needed: Since it's half that much, we can divide 2 by 2: 2 / 2 = <<2/2=1>>1 bolt of white fiber.",
+        #         "Step 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3"
+        #     ],
+        #     "labels": [
+        #         true,
+        #         true,
+        #         true
+        #     ]
+        # }
+        ```
+
     Citations:
 
         ```
@@ -116,7 +178,16 @@ class FormatPRM(Step):
         ```
     """
 
+    format: Literal["math-shepherd", "trl"] = "math-shepherd"
     step_token: str = "ки"
+    tags: list[str] = ["+", "-"]
+
+    def model_post_init(self, __context: any) -> None:
+        super().model_post_init(__context)
+        if self.format == "math-shepherd":
+            self._formatter = self._format_math_shepherd
+        else:
+            self._formatter = self._format_trl
 
     @property
     def inputs(self) -> "StepColumns":
@@ -124,7 +195,9 @@ class FormatPRM(Step):
 
     @property
     def outputs(self) -> "StepColumns":
-        return ["input", "label"]
+        if self.format == "math-shepherd":
+            return ["input", "label"]
+        return ["prompt", "completions", "labels"]
 
     def process(self, inputs: StepInput) -> "StepOutput":
         """The process prepares the data for the `APIGenGenerator` task.
@@ -138,11 +211,100 @@ class FormatPRM(Step):
             A list of dictionaries with the output data.
         """
         for input in inputs:
-            instruction = input["instruction"]
-            solution = input["solutions"]
-            replaced = [step[:-1] + self.step_token for step in solution]
-
-            input["input"] = instruction + " " + "\n".join(replaced)
-            input["label"] = instruction + " " + "\n".join(solution)
+            self._formatter(input)
 
         yield inputs
+
+    def _format_math_shepherd(
+        self, input: dict[str, str]
+    ) -> dict[str, Union[str, list[str]]]:
+        instruction = input["instruction"]
+        solution = input["solutions"]
+        replaced = [step[:-1] + self.step_token for step in solution]
+
+        input["input"] = instruction + " " + "\n".join(replaced)
+        input["label"] = instruction + " " + "\n".join(solution)
+
+        return input
+
+    def _format_trl(self, input: dict[str, str]) -> dict[str, Union[str, list[str]]]:
+        input["prompt"] = input["instruction"]
+        completions = []
+        labels = []
+        for step in input["solutions"]:
+            token = step[-1]
+            completions.append(step[:-1].strip())
+            labels.append(True if token == self.tags[0] else False)
+
+        input["completions"] = completions
+        input["labels"] = labels
+
+        return input
+
+
+def parse_json_response(json_str: str) -> Union[str, None]:
+    """Helper function to clean and parse JSON strings generated by LLMs.
+    Some common errors may appear (see the REPLACEMENTS dictionary) that need to be fixed before parsing,
+    but the JSON is valid otherwise.
+    """
+
+    try:
+        # First try parsing as-is
+        return orjson.loads(json_str)
+    except orjson.JSONDecodeError:
+        # Apply all replacements
+        for old, new in REPLACEMENTS.items():
+            json_str = json_str.replace(old, new)
+
+        try:
+            # Try parsing after replacements
+            return orjson.loads(json_str)
+        except orjson.JSONDecodeError:
+            # If still failing, try more aggressive cleaning
+
+            # Remove any non-ASCII characters
+            json_str = re.sub(r"[^\x00-\x7F]+", "", json_str)
+
+            # Remove any remaining escape sequences except valid ones
+            json_str = re.sub(r'\\([^"\\\/bfnrt])', r"\1", json_str)
+
+            try:
+                return orjson.loads(json_str)
+            except orjson.JSONDecodeError:
+                # Failed to parse JSON after all cleaning attempts
+                return None
+
+
+# Dictionary of common LLM JSON artifacts and their replacements
+REPLACEMENTS: dict[str, str] = {
+    # Escape sequence issues
+    "\\)": ")",  # Incorrectly escaped parentheses
+    "\\]": "]",  # Incorrectly escaped brackets
+    "\\}": "}",  # Incorrectly escaped braces
+    "\\`": "`",  # Incorrectly escaped backticks
+    "\\'": "'",  # Incorrectly escaped single quotes
+    '\\\\"': '\\"',
+    '\\"': '"',  # Incorrectly escaped double quotes
+    "\\\\n": "\\n",  # Double escaped newlines
+    "\\\\t": "\\t",  # Double escaped tabs
+    "\\\\r": "\\r",  # Double escaped carriage returns
+    # # Markdown artifacts
+    # '```json\n': '',     # Markdown code block start
+    # '\n```': '',         # Markdown code block end
+    # '`': '',             # Inline code markers
+    # Common mathematical symbols that might be escaped
+    "\\<": "<",  # Less than
+    "\\>": ">",  # Greater than
+    "\\=": "=",  # Equals
+    "\\+": "+",  # Plus
+    "\\-": "-",  # Minus
+    "\\*": "*",  # Asterisk
+    "\\|": "|",  # Pipe
+    # Unicode escaping issues
+    "\\u0022": '"',  # Double quote
+    "\\u0027": "'",  # Single quote
+    "\\u005C": "\\",  # Backslash
+    # # Other common issues
+    # '\n\n': '\n',       # Multiple newlines
+    # '\t\t': '\t',       # Multiple tabs
+}

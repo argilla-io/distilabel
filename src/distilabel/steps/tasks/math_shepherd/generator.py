@@ -14,13 +14,15 @@
 
 from typing import TYPE_CHECKING, Any, Dict, Final, Optional, Union
 
-import orjson
 from jinja2 import Template
 from pydantic import PositiveInt
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.math_shepherd.utils import split_solution_steps
+from distilabel.steps.tasks.math_shepherd.utils import (
+    parse_json_response,
+    split_solution_steps,
+)
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
@@ -359,13 +361,10 @@ class MathShepherdGenerator(Task):
 
     def _format_structured_output(self, output: dict[str, any]) -> str:
         default_output = [""] * self.M if self.M else [""]
-        try:
-            output = orjson.loads(output)["solutions"]
+        if output := parse_json_response(output):
+            output = output["solutions"]
             output = [o["solution"] for o in output]
-            # If the number is not the same as the expected, it's possibly an error,
-            # it's safer to just assume we didn't generated as expected.
             if len(output) != self.M:
                 output = default_output
-        except orjson.JSONDecodeError:
-            output = default_output
-        return output
+            return output
+        return default_output
