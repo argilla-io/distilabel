@@ -735,6 +735,53 @@ class TestDAG:
         ):
             pipeline.dag.validate()
 
+    def test_validate_load_groups_step_not_in_pipeline(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        with pytest.raises(
+            ValueError,
+            match="Step with name 'random' included in group 0 of the `load_groups` is not an step included in the pipeline.",
+        ):
+            pipeline.dag.validate(load_groups=[["random"]])
+
+    def test_validate_load_groups_including_global_step(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        step = DummyGlobalStep(pipeline=pipeline)
+        with pytest.raises(
+            ValueError,
+            match=f"Global step '{step.name}' has been included in a load group.",
+        ):
+            pipeline.dag.validate(load_groups=[[step.name]])
+
+    def test_validate_load_groups_duplicate_step(self, pipeline: "Pipeline") -> None:
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+
+        with pytest.raises(
+            ValueError,
+            match=f"Step with name '{dummy_step_1.name}' in load group 1 has been already included in a previous load group.",
+        ):
+            pipeline.dag.validate(
+                load_groups=[[dummy_step_1.name], [dummy_step_1.name]]
+            )
+
+    def test_validate_load_groups_non_immediate_predecessor(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        generator_step_1 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+        dummy_step_2 = DummyStep1(name="demon", pipeline=pipeline, input_batch_size=7)
+
+        generator_step_1 >> dummy_step_1 >> dummy_step_2
+
+        with pytest.raises(
+            ValueError,
+            match=f"Step with name '{dummy_step_2.name}' cannot be in the same load group as the step with name '{generator_step_1.name}'.",
+        ):
+            pipeline.dag.validate(
+                load_groups=[[generator_step_1.name, dummy_step_2.name]]
+            )
+
 
 class TestDagSerialization:
     def test_dag_dump(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:

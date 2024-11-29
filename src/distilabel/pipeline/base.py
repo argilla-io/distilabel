@@ -277,6 +277,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def run(
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        load_groups: Optional[List[List[Any]]] = None,
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
@@ -293,6 +294,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
                 the runtime parameters for the step as the value. Defaults to `None`.
+            load_groups: A list containing list of steps that has to be loaded together
+                and in isolation with respect to the rest of the steps of the pipeline.
+                Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
                 `True`.
             storage_parameters: A dictionary with the storage parameters (`fsspec` and path)
@@ -345,8 +349,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._set_pipeline_name()
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
-        # no missing runtime parameters, batch sizes are correct, etc.
-        self.dag.validate()
+        # no missing runtime parameters, batch sizes are correct, load groups are valid,
+        # etc.
+        self.dag.validate(load_groups)
 
         self._set_pipeline_artifacts_path_in_steps()
 

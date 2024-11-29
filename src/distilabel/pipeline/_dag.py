@@ -22,6 +22,7 @@ from typing import (
     Generator,
     Iterable,
     List,
+    Optional,
     Set,
     Tuple,
     Type,
@@ -62,6 +63,7 @@ class DAG(_Serializable):
 
     def __init__(self) -> None:
         self.G = nx.DiGraph()
+        self._load_groups = None
 
     def __iter__(self) -> Generator[str, None, None]:
         yield from self.G
@@ -336,8 +338,86 @@ class DAG(_Serializable):
 
         return stages, stages_last_steps
 
-    def validate(self) -> None:
-        """Validates that the `Step`s included in the pipeline are correctly connected and
+    def _validate_load_groups(self, load_groups: List[List[str]]) -> None:  # noqa: C901
+        """Checks that the provided load groups are valid and that the steps can be scheduled
+        to be loaded in different stages without any issue.
+
+        Args:
+            load_groups: the load groups to be checked.
+
+        Raises:
+            DistilabelUserError: if something is not OK when checking the load groups.
+        """
+
+        def check_predecessor_in_load_group(
+            step_name: str, load_group: List[str], first: bool
+        ) -> Union[str, None]:
+            if not first and step_name in load_group:
+                return step_name
+
+            for predecessor_step_name in self.get_step_predecessors(step_name):
+                # Immediate predecessor is in the same load group. This is OK.
+                if first and predecessor_step_name in load_group:
+                    continue
+
+                # Case: A -> B -> C, load_group=[A, C]
+                # If a non-immediate predecessor is in the same load group and an immediate
+                # predecessor is not , then it's not OK because we cannot load `step_name`
+                # before one immediate predecessor.
+                if step_name_in_load_group := check_predecessor_in_load_group(
+                    predecessor_step_name, load_group, False
+                ):
+                    return step_name_in_load_group
+
+            return None
+
+        steps_included_in_load_group = []
+        for load_group_num, steps_load_group in enumerate(load_groups):
+            for step_name in steps_load_group:
+                if step_name not in self.G:
+                    raise DistilabelUserError(
+                        f"Step with name '{step_name}' included in group {load_group_num} of"
+                        " the `load_groups` is not an step included in the pipeline. Please,"
+                        " check that you're passing the correct step name and run again.",
+                        page="",
+                    )
+
+                node = self.get_step(step_name)
+                step: "_Step" = node[STEP_ATTR_NAME]
+
+                if step_name_in_load_group := check_predecessor_in_load_group(
+                    step_name, steps_load_group, True
+                ):
+                    # Improve this user error message
+                    raise DistilabelUserError(
+                        f"Step with name '{step_name}' cannot be in the same load group"
+                        f" as the step with name '{step_name_in_load_group}'. '{step_name_in_load_group}'"
+                        f" is not an immediate predecessor of '{step_name}' and there are"
+                        " immediate predecessors that has not been included.",
+                        page="",
+                    )
+
+                if step.is_global:
+                    raise DistilabelUserError(
+                        f"Global step '{step_name}' has been included in a load group. Global"
+                        " steps cannot be included in a load group as they will be loaded"
+                        " in a different stage to the rest of the steps in the pipeline"
+                        " by default.",
+                        page="",
+                    )
+
+                if step_name in steps_included_in_load_group:
+                    raise DistilabelUserError(
+                        f"Step with name '{step_name}' in load group {load_group_num} has been"
+                        " already included in a previous load group. A step cannot be in more"
+                        " than one load group.",
+                        page="",
+                    )
+
+                steps_included_in_load_group.append(step_name)
+
+    def validate(self, load_groups: Optional[List[List[Any]]] = None) -> None:
+        """Validates that the `Step`s included in the pipeline are correctly connected, and
         have the correct inputs and outputs.
 
         Raises:
@@ -345,6 +425,10 @@ class DAG(_Serializable):
         """
 
         steps_receiving_routed_batches = []
+
+        if load_groups is not None:
+            self._validate_load_groups(load_groups)
+            self._load_groups = load_groups
 
         for trophic_level, steps in enumerate(
             self.iter_based_on_trophic_levels(), start=1
