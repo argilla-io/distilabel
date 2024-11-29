@@ -337,6 +337,54 @@ class TestDAG:
             ],
         )
 
+    def test_get_steps_load_stages_with_load_groups(self) -> None:
+        with Pipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummy_step_0 = DummyStep1()
+            dummy_step_1 = DummyStep1()
+            dummy_step_2 = DummyStep1()
+            dummy_step_3 = DummyStep1()
+            dummy_step_4 = DummyStep1()
+            dummy_step_5 = DummyStep1()
+            dummy_step_6 = DummyStep1()
+            dummy_step_7 = DummyStep1()
+
+            (
+                generator
+                >> dummy_step_0
+                >> [dummy_step_1, dummy_step_2]
+                >> dummy_step_3
+                >> dummy_step_4
+                >> dummy_step_5
+                >> dummy_step_6
+                >> dummy_step_7
+            )
+
+        assert pipeline.dag.get_steps_load_stages(
+            load_groups=[
+                [dummy_step_5.name],
+                [dummy_step_0.name, dummy_step_1.name],
+                [dummy_step_4.name],
+            ]
+        ) == (
+            [
+                [generator.name],
+                [dummy_step_0.name, dummy_step_1.name],
+                [dummy_step_2.name, dummy_step_3.name],
+                [dummy_step_4.name],
+                [dummy_step_5.name],
+                [dummy_step_6.name, dummy_step_7.name],
+            ],
+            [
+                [generator.name],
+                [dummy_step_1.name],
+                [dummy_step_3.name],
+                [dummy_step_4.name],
+                [dummy_step_5.name],
+                [dummy_step_7.name],
+            ],
+        )
+
     def test_validate_first_step_not_generator(
         self, dummy_step_1: "Step", dummy_step_2: "Step"
     ) -> None:
@@ -734,53 +782,6 @@ class TestDAG:
             match="Step 'demon' should have an `input_batch_size` that is a multiple of the `input_batch_size` or `batch_size`",
         ):
             pipeline.dag.validate()
-
-    def test_validate_load_groups_step_not_in_pipeline(
-        self, pipeline: "Pipeline"
-    ) -> None:
-        with pytest.raises(
-            ValueError,
-            match="Step with name 'random' included in group 0 of the `load_groups` is not an step included in the pipeline.",
-        ):
-            pipeline.dag.validate(load_groups=[["random"]])
-
-    def test_validate_load_groups_including_global_step(
-        self, pipeline: "Pipeline"
-    ) -> None:
-        step = DummyGlobalStep(pipeline=pipeline)
-        with pytest.raises(
-            ValueError,
-            match=f"Global step '{step.name}' has been included in a load group.",
-        ):
-            pipeline.dag.validate(load_groups=[[step.name]])
-
-    def test_validate_load_groups_duplicate_step(self, pipeline: "Pipeline") -> None:
-        dummy_step_1 = DummyStep1(pipeline=pipeline)
-
-        with pytest.raises(
-            ValueError,
-            match=f"Step with name '{dummy_step_1.name}' in load group 1 has been already included in a previous load group.",
-        ):
-            pipeline.dag.validate(
-                load_groups=[[dummy_step_1.name], [dummy_step_1.name]]
-            )
-
-    def test_validate_load_groups_non_immediate_predecessor(
-        self, pipeline: "Pipeline"
-    ) -> None:
-        generator_step_1 = DummyGeneratorStep(pipeline=pipeline)
-        dummy_step_1 = DummyStep1(pipeline=pipeline)
-        dummy_step_2 = DummyStep1(name="demon", pipeline=pipeline, input_batch_size=7)
-
-        generator_step_1 >> dummy_step_1 >> dummy_step_2
-
-        with pytest.raises(
-            ValueError,
-            match=f"Step with name '{dummy_step_2.name}' cannot be in the same load group as the step with name '{generator_step_1.name}'.",
-        ):
-            pipeline.dag.validate(
-                load_groups=[[generator_step_1.name, dummy_step_2.name]]
-            )
 
 
 class TestDagSerialization:

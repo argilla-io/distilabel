@@ -354,6 +354,9 @@ class DAG(_Serializable):
             else:
                 current_stage.append(step_name)
 
+        if current_stage:
+            stages.append(current_stage)
+
         # No stage was created, so we have a single stage with all the steps of the pipeline
         if not stages:
             stages.append(topological_sort)
