@@ -169,7 +169,7 @@ class TestMathShepherdGenerator:
     @pytest.mark.parametrize(
         "M, output_name",
         [
-            (None, "golden_solution"),
+            # (None, "golden_solution"),  # golden solution doesn't need structured output
             (1, "solutions"),
             (3, "solutions"),
         ],
@@ -185,9 +185,68 @@ class TestMathShepherdGenerator:
         task.load()
 
         result = next(task.process([{"instruction": ""}]))[0][output_name]
-        print(result)
         if M:
             assert len(result) == M
             assert all(len(r) == 5 for r in result)
         else:
             assert len(result) == 5
+
+    @pytest.mark.parametrize(
+        "M, output_name, expected",
+        [
+            # (None, "golden_solution"),
+            (
+                2,
+                "solutions",
+                {
+                    "instruction": "",
+                    "solutions": [
+                        [
+                            "Step 1: Calculate the number of eggs Janet lays per day: 16 eggs/day. She eats 3 for breakfast and bakes 4 for muffins, so she uses a total of 3 + 4 = 7 eggs per day. Calculate the number of eggs she has left: 16 - 7 = <<16-7=9>>9 eggs/day.",
+                            "Step 2: Calculate the amount of money Janet makes from selling eggs at the farmers' market: 9 eggs/day * $2/egg = <<9*2=18>>$18/day.",
+                            "Step 3: Calculate the total number of books borrowed from Monday to Thursday: 40 * 4 = <<40*4=160>>160 books.",
+                            "Step 4: Calculate the total number of books borrowed in the entire week: 160 + 56 = <<160+56=216>>216 books",
+                            "The answer is: 18",
+                        ],
+                        [
+                            "Step 1: Calculate the number of eggs Janet lays per day: 16 eggs/day. She eats 3 for breakfast and bakes 4 for muffins, so she uses a total of 3 + 4 = 7 eggs per day. Calculate the number of eggs she has left: 16 - 7 = <<16-7=9>>9 eggs/day.",
+                            "Step 2: Calculate the amount of money Janet makes from selling eggs at the farmers' market: 9 eggs/day * $2/egg = <<9*2=18>>$18/day.",
+                            "Step 3: Calculate the total number of books borrowed from Monday to Thursday: 40 * 4 = <<40*4=160>>160 books.",
+                            "Step 4: Calculate the total number of books borrowed in the entire week: 160 + 56 = <<160+56=216>>216 books",
+                            "The answer is: 18",
+                        ],
+                    ],
+                },
+            ),
+            (
+                3,
+                "solutions",
+                {
+                    "instruction": "",
+                    "solutions": [[], [], []],
+                },
+            ),
+        ],
+    )
+    def test_format_output(self, M: Optional[int], output_name: str, expected) -> None:
+        task = MathShepherdGenerator(
+            llm=MathShepherdGeneratorLLM(M=M),
+            M=M,
+            use_default_structured_output=True,
+        )
+        task.load()
+
+        # This is just to force an error in the generation so that the default is
+        # returned and we can test it easily
+        if M == 3:
+            M += 1
+
+        solutions = [
+            {
+                "solution": "Step 1: Calculate the number of eggs Janet lays per day: 16 eggs/day. She eats 3 for breakfast and bakes 4 for muffins, so she uses a total of 3 + 4 = 7 eggs per day. Calculate the number of eggs she has left: 16 - 7 = <<16-7=9>>9 eggs/day. Step 2: Calculate the amount of money Janet makes from selling eggs at the farmers' market: 9 eggs/day * $2/egg = <<9*2=18>>$18/day. Step 3: Calculate the total number of books borrowed from Monday to Thursday: 40 * 4 = <<40*4=160>>160 books. Step 4: Calculate the total number of books borrowed in the entire week: 160 + 56 = <<160+56=216>>216 books The answer is: 18"
+            }
+            for _ in range(M)
+        ]
+        solutions = json.dumps({"solutions": solutions})
+        result = task.format_output(solutions, {"instruction": ""})
+        assert result == expected
