@@ -351,7 +351,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, load groups are valid,
         # etc.
-        self.dag.validate(load_groups)
+        self._validate(load_groups)
 
         self._set_pipeline_artifacts_path_in_steps()
 
@@ -477,6 +477,97 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             step: "_Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
             runtime_parameters[step_name] = step.get_runtime_parameters_info()
         return runtime_parameters
+
+    def _validate(self, load_groups: Optional[List[List[str]]] = None) -> None:
+        """Validates the pipeline DAG to check that all the steps are chainable, there are
+        no missing runtime parameters, batch sizes are correct and that load groups are
+        valid (if any).
+
+        Args:
+            load_groups: a list containing list of steps that have to be loaded together
+                in a separate load stage. Defaults to `None`.
+        """
+        self.dag.validate()
+        if load_groups is not None:
+            self._validate_load_groups(load_groups)
+
+    def _validate_load_groups(self, load_groups: List[List[Any]]) -> None:  # noqa: C901
+        """Checks that the provided load groups are valid and that the steps can be scheduled
+        to be loaded in different stages without any issue.
+
+        Args:
+            load_groups: the load groups to be checked.
+
+        Raises:
+            DistilabelUserError: if something is not OK when checking the load groups.
+        """
+
+        def check_predecessor_in_load_group(
+            step_name: str, load_group: List[str], first: bool
+        ) -> Union[str, None]:
+            if not first and step_name in load_group:
+                return step_name
+
+            for predecessor_step_name in self.dag.get_step_predecessors(step_name):
+                # Immediate predecessor is in the same load group. This is OK.
+                if first and predecessor_step_name in load_group:
+                    continue
+
+                # Case: A -> B -> C, load_group=[A, C]
+                # If a non-immediate predecessor is in the same load group and an immediate
+                # predecessor is not , then it's not OK because we cannot load `step_name`
+                # before one immediate predecessor.
+                if step_name_in_load_group := check_predecessor_in_load_group(
+                    predecessor_step_name, load_group, False
+                ):
+                    return step_name_in_load_group
+
+            return None
+
+        steps_included_in_load_group = []
+        for load_group_num, steps_load_group in enumerate(load_groups):
+            for step_name in steps_load_group:
+                if step_name not in self.dag.G:
+                    raise DistilabelUserError(
+                        f"Step with name '{step_name}' included in group {load_group_num} of"
+                        " the `load_groups` is not an step included in the pipeline. Please,"
+                        " check that you're passing the correct step name and run again.",
+                        page="",
+                    )
+
+                node = self.dag.get_step(step_name)
+                step: "_Step" = node[constants.STEP_ATTR_NAME]
+
+                if step_name_in_load_group := check_predecessor_in_load_group(
+                    step_name, steps_load_group, True
+                ):
+                    # Improve this user error message
+                    raise DistilabelUserError(
+                        f"Step with name '{step_name}' cannot be in the same load group"
+                        f" as the step with name '{step_name_in_load_group}'. '{step_name_in_load_group}'"
+                        f" is not an immediate predecessor of '{step_name}' and there are"
+                        " immediate predecessors that has not been included.",
+                        page="",
+                    )
+
+                if step.is_global:
+                    raise DistilabelUserError(
+                        f"Global step '{step_name}' has been included in a load group. Global"
+                        " steps cannot be included in a load group as they will be loaded"
+                        " in a different stage to the rest of the steps in the pipeline"
+                        " by default.",
+                        page="",
+                    )
+
+                if step_name in steps_included_in_load_group:
+                    raise DistilabelUserError(
+                        f"Step with name '{step_name}' in load group {load_group_num} has been"
+                        " already included in a previous load group. A step cannot be in more"
+                        " than one load group.",
+                        page="",
+                    )
+
+                steps_included_in_load_group.append(step_name)
 
     def _init_steps_load_status(self) -> None:
         """Initialize the `_steps_load_status` dictionary assigning 0 to every step of
