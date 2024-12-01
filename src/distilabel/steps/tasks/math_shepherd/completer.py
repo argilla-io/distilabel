@@ -479,7 +479,7 @@ class MathShepherdCompleter(Task):
                 solution[-1] += " " + answer + label
                 new_solutions.append(solution)
 
-            # Only add the solutions if the data was properly parsed, it can happen that
+            # Only add the solutions if the data was properly parsed
             input["solutions"] = new_solutions if new_solutions else input["solutions"]
             input = self._add_metadata(
                 input, statistics[i], raw_outputs[i], raw_inputs[i]
