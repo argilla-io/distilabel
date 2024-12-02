@@ -37,43 +37,34 @@ from distilabel.models import InferenceEndpointsLLM
 
 
 class DatasetInstructionResponsePipeline:
-    """Generates instructions and responses for a given system prompt.
+    """Generates instructions and responses for a dataset with input documents.
 
     This example pipeline can be used for a Supervised Fine-Tuning dataset which you
     could use to train or evaluate a model. The pipeline generates instructions using the
-    MagpieGenerator and responses for a given system prompt. The pipeline then keeps only
-    the instruction, response, and model_name columns.
+    SelfInstruct step and TextGeneration step.
 
     References:
-        - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
+        - [Self-Instruct: Aligning Language Models with Self-Generated Instructions](https://arxiv.org/abs/2212.10560)
 
     Example:
 
         Generate instructions and responses for a given system prompt:
 
         ```python
-        from distilabel.pipeline import InstructionResponsePipeline
+        from datasets import Dataset
+        from distilabel.pipeline import DatasetInstructionResponsePipeline
 
-        pipeline = InstructionResponsePipeline()
+        pipeline = DatasetInstructionResponsePipeline(num_instructions=5)
 
-        distiset = pipeline.run()
-        ```
-
-        Customizing the pipeline further:
-
-        ```python
-        from distilabel.pipeline import InstructionResponsePipeline
-
-        pipeline = InstructionResponsePipeline(
-            system_prompt="You are a creative AI Assistant for writing science fiction.",
-            llm=InferenceEndpointsLLM(
-                model_id="meta-llama/Meta-Llama-3.2-3B-Instruct",
-                tokenizer_id="meta-llama/Meta-Llama-3.2-3B-Instruct",
-                generation_kwargs={"max_new_tokens": 512, "temperature": 0.7},
+        distiset = pipeline.pipeline.run(
+            use_cache=False,
+            dataset=Dataset.from_list(
+                mapping=[
+                    {
+                        "input": "<document>",
+                    }
+                ]
             ),
-            num_rows=500,
-            batch_size=2,
-            n_turns=2,
         )
         ```
     """
