@@ -4,7 +4,7 @@ hide: toc
 
 # Create datasets to train a Process Reward Model using Math-Shepherd
 
-This example will introduce [Math-Shepherd: Verify and Reinforce LLMs Step-by-step without Human Annotations](https://arxiv.org/abs/2312.08935), an innovative math process reward model (PRM) which assigns reward scores to each step of math problem solutions. Specifically, we will present a recipe to create datasets to train such models.
+This example will introduce [Math-Shepherd: Verify and Reinforce LLMs Step-by-step without Human Annotations](https://arxiv.org/abs/2312.08935), an innovative math process reward model (PRM) which assigns reward scores to each step of math problem solutions. Specifically, we will present a recipe to create datasets to train such models. The final sections contain 2 pipeline examples to run the pipeline depending with more or less resources.
 
 ## Replica
 
@@ -117,3 +117,179 @@ To see all the pieces in place, take a look at the full pipeline:
     ```
 
     The resulting dataset can be seen at: [plaguss/test_math_shepherd_prm](https://huggingface.co/datasets/plaguss/test_math_shepherd_prm).
+
+### Pipeline with vLLM and ray
+
+This section contains an alternative way of running the pipeline with a bigger outcome. To showcase how to scale the pipeline, we are using for the 3 generating tasks [Qwen/Qwen2.5-72B-Instruct](https://huggingface.co/Qwen/Qwen2.5-72B-Instruct), highly improving the final quality as it follows much closer the prompt given. Also, we are using `vLLM` and 3 nodes (one per task in this case), to scale up the generation process.
+
+??? Tip "Math-Shepherd's bigger pipeline"
+
+    ````python
+    from datasets import load_dataset
+
+    from distilabel.models import vLLM
+    from distilabel.steps import StepResources
+    from distilabel.pipeline import Pipeline
+    from distilabel.steps import CombineOutputs, ExpandColumns
+    from distilabel.steps.tasks import (
+        FormatPRM,
+        MathShepherdCompleter,
+        MathShepherdGenerator,
+    )
+
+    ds_name = "openai/gsm8k"
+
+    ds = (
+        load_dataset(ds_name, "main", split="test")
+        .rename_column("question", "instruction")
+    )
+
+
+    with Pipeline(name="Math-Shepherd").ray() as pipe:  # (1)
+
+        model_id_72B = "Qwen/Qwen2.5-72B-Instruct"
+
+        llm_72B = vLLM(
+            model=model_id_72B,
+            tokenizer=model_id_72B,
+            extra_kwargs={
+                "tensor_parallel_size": 8,               # Number of GPUs per node
+                "max_model_len": 2048,
+            },
+            generation_kwargs={
+                "temperature": 0.5,
+                "max_new_tokens": 4096,
+            },
+        )
+
+        generator_golden = MathShepherdGenerator(
+            name="golden_generator",
+            llm=llm_72B,
+            input_batch_size=50,
+            output_mappings={"model_name": "model_name_golden_generator"},
+            resources=StepResources(replicas=1, gpus=8)  # (2)
+        )
+        generator = MathShepherdGenerator(
+            name="generator",
+            llm=llm_72B,
+            input_batch_size=50,
+            M=5,
+            use_default_structured_output=True,
+            output_mappings={"model_name": "model_name_generator"},
+            resources=StepResources(replicas=1, gpus=8)
+        )
+        completer = MathShepherdCompleter(
+            name="completer", 
+            llm=llm_72B,
+            N=8,
+            use_default_structured_output=True,
+            output_mappings={"model_name": "model_name_completer"},
+            resources=StepResources(replicas=1, gpus=8)
+        )
+
+        combine = CombineOutputs()
+
+        expand = ExpandColumns(
+            name="expand_columns",
+            columns=["solutions"],
+            split_statistics=True,
+
+        )
+        formatter = FormatPRM(name="format_prm", format="trl")  # (3)
+
+        [generator_golden, generator] >> combine >> completer >> expand >> formatter
+
+
+    if __name__ == "__main__":
+        distiset = pipe.run(use_cache=False, dataset=ds, dataset_batch_size=50)
+        if distiset:
+            distiset.push_to_hub("plaguss/test_math_shepherd_prm_ray")
+
+    ````
+
+    1. Transform the pipeline to run using `ray` backend.
+
+    2. Assign the resources: number of replicas 1 as we want a single instance of the task in a node, and number of GPUs equals to 8, using a whole node. Given that we defined the script in the slurm file to use 3 nodes, this will use all the 3 available nodes, with 8 GPUs for each of these tasks.
+
+    3. Prepare the columns in the format expected by `TRL` for training.
+
+Click to see the slurm file used to run the previous pipeline. It's our go to `slurm` file, using 3 8xH100 nodes.
+
+??? Tip "Slurm file"
+
+    ```bash
+    #!/bin/bash
+    #SBATCH --job-name=math-shepherd-test-ray
+    #SBATCH --partition=hopper-prod
+    #SBATCH --qos=normal
+    #SBATCH --nodes=3
+    #SBATCH --exclusive
+    #SBATCH --ntasks-per-node=1
+    #SBATCH --gpus-per-node=8
+    #SBATCH --output=./logs/%x-%j.out
+    #SBATCH --err=./logs/%x-%j.err
+    #SBATCH --time=48:00:00
+
+    set -ex
+
+    module load cuda/12.1
+
+    echo "SLURM_JOB_ID: $SLURM_JOB_ID"
+    echo "SLURM_JOB_NODELIST: $SLURM_JOB_NODELIST"
+
+    source .venv/bin/activate
+
+    # Getting the node names
+    nodes=$(scontrol show hostnames "$SLURM_JOB_NODELIST")
+    nodes_array=($nodes)
+
+    # Get the IP address of the head node
+    head_node=${nodes_array[0]}
+    head_node_ip=$(srun --nodes=1 --ntasks=1 -w "$head_node" hostname --ip-address)
+
+    # Start Ray head node
+    port=6379
+    ip_head=$head_node_ip:$port
+    export ip_head
+    echo "IP Head: $ip_head"
+
+    # Generate a unique Ray tmp dir for the head node
+    head_tmp_dir="/tmp/ray_tmp_${SLURM_JOB_ID}_head"
+
+    echo "Starting HEAD at $head_node"
+    srun --nodes=1 --ntasks=1 -w "$head_node" \
+        ray start --head --node-ip-address="$head_node_ip" --port=$port \
+        --dashboard-host=0.0.0.0 \
+        --dashboard-port=8265 \
+        --temp-dir="$head_tmp_dir" \
+        --block &
+
+    # Give some time to head node to start...
+    sleep 10
+
+    # Start Ray worker nodes
+    worker_num=$((SLURM_JOB_NUM_NODES - 1))
+
+    # Start from 1 (0 is head node)
+    for ((i = 1; i <= worker_num; i++)); do
+        node_i=${nodes_array[$i]}
+        worker_tmp_dir="/tmp/ray_tmp_${SLURM_JOB_ID}_worker_$i"
+        echo "Starting WORKER $i at $node_i"
+        srun --nodes=1 --ntasks=1 -w "$node_i" \
+            ray start --address "$ip_head" \
+            --temp-dir="$worker_tmp_dir" \
+            --block &
+        sleep 5
+    done
+
+    # Give some time to the Ray cluster to gather info
+    sleep 60
+
+    # Finally submit the job to the cluster
+    RAY_ADDRESS="http://$head_node_ip:8265" ray job submit --working-dir pipeline -- python -u pipeline_math_shepherd_ray.py
+    ```
+
+??? Tip "Final dataset"
+
+    The resulting dataset can be seen at: [plaguss/test_math_shepherd_prm_ray](https://huggingface.co/datasets/plaguss/test_math_shepherd_prm_ray).
+
