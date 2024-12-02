@@ -352,6 +352,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # no missing runtime parameters, batch sizes are correct, load groups are valid,
         # etc.
         self._validate(load_groups)
+        self._load_groups = load_groups
 
         self._set_pipeline_artifacts_path_in_steps()
 
@@ -848,6 +849,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             },
         )
 
+    def _get_steps_load_stages(self) -> Tuple[List[List[str]], List[List[str]]]:
+        return self.dag.get_steps_load_stages(self._load_groups)
+
     def _load_stages_status(self, use_cache: bool = True) -> None:
         """Try to load the stages status from cache, or initialize it if cache file doesn't
         exist or cache is not going to be used."""
@@ -858,7 +862,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         else:
             self._current_stage = 0
             self._stages_last_batch = [
-                [] for _ in range(len(self.dag.get_steps_load_stages()[0]))
+                [] for _ in range(len(self._get_steps_load_stages()[0]))
             ]
 
     def _refresh_pipeline_from_cache(self) -> None:
@@ -983,7 +987,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
     def _print_load_stages_info(self) -> None:
         """Prints the information about the load stages."""
-        stages, _ = self.dag.get_steps_load_stages()
+        stages, _ = self._get_steps_load_stages()
         msg = ""
         for stage, steps in enumerate(stages):
             steps_to_be_loaded = self._steps_to_be_loaded_in_stage(stage)
@@ -1142,7 +1146,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             batch: The last batch received from a step.
         """
-        _, stages_last_steps = self.dag.get_steps_load_stages()
+        _, stages_last_steps = self._get_steps_load_stages()
         stage_last_steps = stages_last_steps[self._current_stage]
         if batch.step_name in stage_last_steps:
             self._stages_last_batch[self._current_stage].append(batch.step_name)
@@ -1168,7 +1172,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Returns:
             `True` if the next stage should be loaded, `False` otherwise.
         """
-        _, stage_last_steps = self.dag.get_steps_load_stages()
+        _, stage_last_steps = self._get_steps_load_stages()
         there_is_next_stage = self._current_stage + 1 < len(stage_last_steps)
         stage_last_batches_received = (
             self._stages_last_batch[self._current_stage]
@@ -1260,7 +1264,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        steps_stages, _ = self.dag.get_steps_load_stages()
+        steps_stages, _ = self._get_steps_load_stages()
 
         return [
             step
@@ -1426,6 +1430,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         for step_name in steps:
             step: "Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
+            # TODO: move input queue creation as we need to create all queues before even
+            # the step has been created
             input_queue = self._create_step_input_queue(step_name=step_name)
 
             # Set `pipeline` to `None` as in some Python environments the pipeline is not
