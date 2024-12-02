@@ -64,11 +64,13 @@ with Pipeline(name="Math-Shepherd") as pipe:
     generator = MathShepherdGenerator(
         name="generator",
         llm=llm_8B,
+        use_default_structured_output=True,  # (9)
         M=5
     )  # (4)
     completer = MathShepherdCompleter(
         name="completer",
         llm=llm_8B,
+        use_default_structured_output=True,
         N=4
     )  # (5)
 
@@ -99,6 +101,8 @@ with Pipeline(name="Math-Shepherd") as pipe:
 7. And finally, the [`FormatPRM`](https://distilabel.argilla.io/dev/components-gallery/task/formatprm/) generates two columns: `input` and `label` which prepare the data for training as presented in the original Math-Shepherd dataset.
 
 8. Both the `generator_golden` and `generator` can be run in parallel as there's no dependency between them, and after that we combine the results and pass them to the `completer`. Finally, we use the `expand` and `formatter` prepare the data in the expected format to train the Process Reward Model as defined in the original paper.
+
+9. Generate structured outputs to ensure it's easier to parse them, otherwise the models can fail a lot of times with an easy to parse list.
 
 ## Script and final dataset
 

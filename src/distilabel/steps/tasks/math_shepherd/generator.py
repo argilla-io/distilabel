@@ -203,7 +203,7 @@ class MathShepherdGenerator(Task):
         # 'golden_solution': '["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer\\u2019s market.", "The answer is: 18"]'}]]
         ```
 
-        Generate M completions for a given instruction (a less strong model is more helpful here):
+        Generate M completions for a given instruction (using structured output generation):
 
         ```python
         from distilabel.steps.tasks import MathShepherdGenerator
@@ -220,7 +220,8 @@ class MathShepherdGenerator(Task):
         task = MathShepherdGenerator(
             name="solution_generator",
             llm=llm,
-            M=2
+            M=2,
+            use_default_structured_output=True,
         )
 
         task.load()
@@ -292,19 +293,19 @@ class MathShepherdGenerator(Task):
             return input
 
         if self.M:
-            output = (
+            output_parsed = (
                 self._format_structured_output(output)
                 if self.use_default_structured_output
                 else output.split("---")
             )
-            solutions = [split_solution_steps(o) for o in output]
+            solutions = [split_solution_steps(o) for o in output_parsed]
         else:
-            output = (
+            output_parsed = (
                 self._format_structured_output(output)[0]
                 if self.use_default_structured_output
                 else output
             )
-            solutions = split_solution_steps(output)
+            solutions = split_solution_steps(output_parsed)
 
         input.update(**{output_name: solutions})
         return input
@@ -359,12 +360,12 @@ class MathShepherdGenerator(Task):
             "type": "object",
         }
 
-    def _format_structured_output(self, output: dict[str, any]) -> str:
+    def _format_structured_output(self, output: str) -> list[str]:
         default_output = [""] * self.M if self.M else [""]
-        if output := parse_json_response(output):
-            output = output["solutions"]
-            output = [o["solution"] for o in output]
+        if parsed_output := parse_json_response(output):
+            solutions = parsed_output["solutions"]
+            extracted_solutions = [o["solution"] for o in solutions]
             if len(output) != self.M:
-                output = default_output
-            return output
+                extracted_solutions = default_output
+            return extracted_solutions
         return default_output
