@@ -125,6 +125,7 @@ class _GlobalPipelineManager:
 
 _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
+_STEP_UNLOADED_CODE = -1000
 
 _PIPELINE_DEFAULT_NAME = "__default_pipeline_name__"
 
@@ -201,6 +202,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._batch_manager: Optional["_BatchManager"] = None
         self._write_buffer: Optional["_WriteBuffer"] = None
+        self._steps_input_queues: Dict[str, "Queue"] = {}
 
         self._steps_load_status: Dict[str, int] = {}
         self._steps_load_status_lock = threading.Lock()
@@ -1011,6 +1013,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
+        self._create_steps_input_queues()
+
         if not self._initialize_pipeline_execution():
             return
 
@@ -1045,6 +1049,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             self._manage_batch_flow(batch)
 
         self._finalize_pipeline_execution()
+
+    def _create_steps_input_queues(self) -> None:
+        """Creates the input queue for all the steps in the pipeline."""
+        for step_name in self.dag:
+            self._logger.debug(f"Creating input queue for '{step_name}' step...")
+            input_queue = self._create_step_input_queue(step_name)
+            self._steps_input_queues[step_name] = input_queue
 
     def _initialize_pipeline_execution(self) -> bool:
         """Load the steps of the required stage to initialize the pipeline execution,
@@ -1232,6 +1243,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         self._steps_load_status[step_name] += 1
                 elif status == "unloaded":
                     self._steps_load_status[step_name] -= 1
+                    if self._steps_load_status[step_name] == 0:
+                        self._steps_load_status[step_name] = _STEP_UNLOADED_CODE
                 else:
                     # load failed
                     self._steps_load_status[step_name] = _STEP_LOAD_FAILED_CODE
@@ -1317,7 +1330,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     replicas_message = ""
                     for step_name, replicas in filtered_steps_load_status.items():
                         step_replica_count = self.dag.get_step_replica_count(step_name)
-                        if replicas == step_replica_count:
+                        # It can happen that the step is very fast and it has done all the
+                        # work and have finished its execution before checking if it has
+                        # been loaded, that's why we also considered the step to be loaded
+                        # if `_STEP_UNLOADED_CODE`.
+                        if (
+                            replicas == step_replica_count
+                            or replicas == _STEP_UNLOADED_CODE
+                        ):
                             num_steps_loaded += 1
                         replicas_message += f"\n * '{step_name}' replicas: {max(0, replicas)}/{step_replica_count}"
 
@@ -1430,9 +1450,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         for step_name in steps:
             step: "Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
-            # TODO: move input queue creation as we need to create all queues before even
-            # the step has been created
-            input_queue = self._create_step_input_queue(step_name=step_name)
+            input_queue = self._steps_input_queues[step.name]  # type: ignore
 
             # Set `pipeline` to `None` as in some Python environments the pipeline is not
             # picklable and it will raise an error when trying to send the step to the process.
@@ -1544,12 +1562,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # Step ("this", the one from which the batch was received) has enough data on its
             # buffers to create a new batch
             while new_batch := self._batch_manager.get_batch(step.name):  # type: ignore
-                # if new_batch := self._batch_manager.get_batch(step.name):  # type: ignore
                 self._send_batch_to_step(new_batch)
-
             else:
                 self._request_more_batches_if_needed(step)
         else:
+            # Case in which the pipeline only contains a `GeneratorStep` so we constanly keep
+            # requesting batch after batch as there is no downstream step to consume it
             if len(self.dag) == 1:
                 self._request_batch_from_generator(step.name)  # type: ignore
 
