@@ -91,6 +91,9 @@ class TestMathShepherdCompleter:
             # This would be the same case as having the problem already solved in a single step,
             # there's nothing else we have to do
             (DUMMY_STEPS[-2:], 0),
+            # Check there aren't errors if no solutions were provided
+            ([DUMMY_STEPS[0]], 0),
+            ([], 0),
         ],
     )
     def test_prepare_completions(self, steps: List[str], num_completions: int) -> None:

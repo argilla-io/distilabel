@@ -382,7 +382,7 @@ class MathShepherdCompleter(Task):
         )
 
     def _prepare_completions(
-        self, instruction: str, steps: List[str]
+        self, instruction: str, steps: list[str]
     ) -> List["ChatType"]:
         """Helper method to create, given a solution (a list of steps), and a instruction, the
         texts to be completed by the LLM.
@@ -507,13 +507,18 @@ class MathShepherdCompleter(Task):
         if DISTILABEL_METADATA_KEY not in input:
             input[DISTILABEL_METADATA_KEY] = {}
         # If the solutions are splitted afterwards, the statistics should be splitted
-        # to to avoid counting extra tokens
+        # to avoid counting extra tokens
         input[DISTILABEL_METADATA_KEY][f"statistics_{self.name}"] = statistics
 
+        # Let some defaults in case something failed and we had None, otherwise when reading
+        # the parquet files using pyarrow, the following error will appear:
+        # ArrowInvalid: Schema
         if self.add_raw_input:
-            input[DISTILABEL_METADATA_KEY][f"raw_input_{self.name}"] = raw_input
+            input[DISTILABEL_METADATA_KEY][f"raw_input_{self.name}"] = raw_input or [
+                {"content": "", "role": ""}
+            ]
         if self.add_raw_output:
-            input[DISTILABEL_METADATA_KEY][f"raw_output_{self.name}"] = raw_output
+            input[DISTILABEL_METADATA_KEY][f"raw_output_{self.name}"] = raw_output or ""
         return input
 
     @override
