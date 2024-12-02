@@ -260,43 +260,43 @@ class MathShepherdCompleter(Task):
         ]
         if self.system_prompt:
             messages.insert(0, {"role": "system", "content": self.system_prompt})
-        return messages
+        return messages  # type: ignore
 
-    def _parse_output(self, output: Union[str, None]) -> List[Union[str, None]]:
+    def _parse_output(self, output: Union[str, None]) -> list[list[str]]:
         if output is None:
-            return [None]
+            return [[""]] * self.N
 
         if self.N > 1:
-            output = (
+            output_transformed = (  # type: ignore
                 self._format_structured_output(output)
                 if self.use_default_structured_output
                 else output.split("---")
             )
-            examples = [split_solution_steps(o) for o in output]
+            examples = [split_solution_steps(o) for o in output_transformed]
             # In case there aren't the expected number of completions, we fill it with "", or short the list.
             # This shoulnd't happen if the LLM works as expected, but it's a safety measure as it can be
             # difficult to debug if the completions don't match the solutions.
             if len(examples) < self.N:
-                examples.extend([""] * (self.N - len(examples)))
+                examples.extend([""] * (self.N - len(examples)))  # type: ignore
             elif len(examples) > self.N:
                 examples = examples[: self.N]
         else:
-            output = (
+            output_transformed = (
                 self._format_structured_output(output)[0]
                 if self.use_default_structured_output
                 else output
             )
-            examples = [split_solution_steps(output)]
+            examples = [split_solution_steps(output_transformed)]
         return examples
 
-    def _format_structured_output(self, output: dict[str, any]) -> str:
+    def _format_structured_output(self, output: str) -> list[str]:
         default_output = [""] * self.N if self.N else [""]
-        if output := parse_json_response(output):
-            output = output["solutions"]
-            output = [o["solution"] for o in output]
+        if parsed_output := parse_json_response(output):
+            solutions = parsed_output["solutions"]
+            extracted_solutions = [solution["solution"] for solution in solutions]
             if len(output) != self.N:
-                output = default_output
-            return output
+                extracted_solutions = default_output
+            return extracted_solutions
         return default_output
 
     def format_output(
@@ -348,7 +348,7 @@ class MathShepherdCompleter(Task):
         statistics = []
         total_raw_outputs = []
         total_raw_inputs = []
-        for inner_batch in batched(prepared_inputs, self.input_batch_size):
+        for inner_batch in batched(prepared_inputs, self.input_batch_size):  # type: ignore
             outputs = self.llm.generate_outputs(
                 inputs=inner_batch,
                 num_generations=1,
@@ -371,7 +371,7 @@ class MathShepherdCompleter(Task):
             total_raw_outputs.extend(raw_outputs)
             total_raw_inputs.extend(raw_inputs)
 
-        yield self._auto_label(
+        yield self._auto_label(  # type: ignore
             inputs,
             final_outputs,
             input_positions,
@@ -522,7 +522,7 @@ class MathShepherdCompleter(Task):
         return input
 
     @override
-    def get_structured_output(self) -> dict[str, any]:
+    def get_structured_output(self) -> dict[str, Any]:
         """Creates the json schema to be passed to the LLM, to enforce generating
         a dictionary with the output which can be directly parsed as a python dictionary.
 

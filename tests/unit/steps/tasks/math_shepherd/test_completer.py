@@ -34,7 +34,7 @@ class MathShepherdCompleterLLM(DummyLLM):
     def model_name(self) -> str:
         return "math-shepherd-completer"
 
-    def generate(
+    def generate(  # type: ignore
         self, inputs: Dict[str, Any], num_generations: int = 1
     ) -> List["GenerateOutput"]:
         if self.N == 1:
