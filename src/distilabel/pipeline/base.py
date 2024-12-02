@@ -222,6 +222,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._current_stage = 0
         self._stages_last_batch: List[List[str]] = []
+        self._load_groups = []
 
         self.requirements = requirements or []
 

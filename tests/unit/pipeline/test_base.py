@@ -372,6 +372,7 @@ class TestBasePipeline:
             generator >> [step, step2] >> step3 >> step4
 
         pipeline._load_batch_manager()
+        pipeline._create_steps_input_queues()
         pipeline._steps_load_status = {  # type: ignore
             generator.name: 1,
             step.name: 1,
@@ -396,6 +397,7 @@ class TestBasePipeline:
 
         pipeline._init_steps_load_status()
         pipeline._load_batch_manager()
+        pipeline._create_steps_input_queues()
         pipeline._steps_load_status[generator.name] = _STEP_LOAD_FAILED_CODE  # type: ignore
         caplog.set_level(logging.INFO)
 
@@ -414,6 +416,7 @@ class TestBasePipeline:
 
         pipeline._init_steps_load_status()
         pipeline._load_batch_manager()
+        pipeline._create_steps_input_queues()
         pipeline._stop_called = True
 
         assert pipeline._run_stage_steps_and_wait(stage=0) is False
@@ -489,6 +492,16 @@ class TestBasePipeline:
             pipeline.dag.get_step(generator_name)[INPUT_QUEUE_ATTR_NAME], Queue
         )
 
+    def test_create_steps_input_queues(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            steps = [DummyStep1() for _ in range(5)]
+
+            generator >> steps
+
+        pipeline._create_steps_input_queues()
+        assert len(pipeline._steps_input_queues) == 6
+
     def test_run_steps(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
@@ -497,17 +510,9 @@ class TestBasePipeline:
 
             generator >> step >> global_step
 
-        pipeline._create_step_input_queue = mock.MagicMock()
         pipeline._run_step = mock.MagicMock()
+        pipeline._create_steps_input_queues()
         pipeline._run_steps(steps=[generator.name, step.name])  # type: ignore
-
-        pipeline._create_step_input_queue.assert_has_calls(
-            [
-                mock.call(step_name=step.name),
-                mock.call(step_name=generator.name),
-            ],
-            any_order=True,
-        )
 
         pipeline._run_step.assert_has_calls(
             [
