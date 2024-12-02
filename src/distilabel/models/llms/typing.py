@@ -12,9 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, List, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, TypedDict, TypeVar, Union
 
-GenerateOutput = List[Union[str, None]]
+LLMOutput = List[Union[str, None]]
+
+
+class TokenCount(TypedDict):
+    input_tokens: List[int]
+    output_tokens: List[int]
+
+
+LLMStatistics = Union[TokenCount, Dict[str, Any]]
+"""Initially the LLMStatistics will contain the token count, but can have more variables.
+They can be added once we have them defined for every LLM.
+"""
+
+
+class GenerateOutput(TypedDict):
+    generations: LLMOutput
+    statistics: LLMStatistics
+
 
 if TYPE_CHECKING:
     from numpy import floating

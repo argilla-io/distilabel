@@ -40,15 +40,18 @@ class TestMistralLLM:
 
     @pytest.mark.asyncio
     async def test_agenerate(self, mock_mistral: MagicMock) -> None:
-        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
+        llm = MistralLLM(model="mistral-small", api_key="api.key")  # type: ignore
         llm._aclient = mock_mistral
 
         mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            choices=[
+                Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))
+            ],
+            usage=Mock(prompt_tokens=10, completion_tokens=10, total_tokens=20),
         )
-        llm._aclient.chat = AsyncMock(return_value=mocked_completion)
+        llm._aclient.chat.complete_async = AsyncMock(return_value=mocked_completion)
 
-        await llm.agenerate(
+        result = await llm.agenerate(
             input=[
                 {"role": "system", "content": ""},
                 {
@@ -57,11 +60,15 @@ class TestMistralLLM:
                 },
             ]
         )
+        assert result == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {"input_tokens": [10], "output_tokens": [10]},
+        }
 
     @pytest.mark.asyncio
     async def test_agenerate_structured(self, mock_mistral: MagicMock) -> None:
         llm = MistralLLM(
-            model="mistral-tiny",
+            model="mistral-small",
             api_key="api.key",
             structured_output={
                 "schema": DummyUserDetail,
@@ -71,12 +78,16 @@ class TestMistralLLM:
         )  # type: ignore
         llm._aclient = mock_mistral
 
-        sample_user = DummyUserDetail(name="John Doe", age=30)
-
+        mocked_usage = MagicMock(
+            usage=MagicMock(prompt_tokens=100, completion_tokens=100),
+        )
+        sample_user = DummyUserDetail(
+            name="John Doe", age=30, _raw_response=mocked_usage
+        )
+        # llm._aclient.chat.completions.create = AsyncMock(return_value=Mock(messages=sample_user))
         llm._aclient.chat.completions.create = AsyncMock(return_value=sample_user)
         # This should work just with the _aclient.chat method once it's fixed in instructor, and
         # then in our code.
-        # llm._aclient.chat = AsyncMock(return_value=sample_user)
 
         generation = await llm.agenerate(
             input=[
@@ -87,7 +98,13 @@ class TestMistralLLM:
                 },
             ]
         )
-        assert generation[0] == sample_user.model_dump_json()
+        assert generation == {
+            "generations": [sample_user.model_dump_json()],
+            "statistics": {
+                "input_tokens": [100],
+                "output_tokens": [100],
+            },
+        }
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_mistral: MagicMock) -> None:
@@ -95,7 +112,10 @@ class TestMistralLLM:
         llm._aclient = mock_mistral
 
         mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            choices=[
+                Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))
+            ],
+            usage=Mock(prompt_tokens=10, completion_tokens=10, total_tokens=20),
         )
         llm._aclient.chat = Mock(
             complete_async=AsyncMock(return_value=mocked_completion)
@@ -103,7 +123,7 @@ class TestMistralLLM:
 
         nest_asyncio.apply()
 
-        llm.generate(
+        result = llm.generate(
             inputs=[
                 [
                     {"role": "system", "content": ""},
@@ -114,6 +134,12 @@ class TestMistralLLM:
                 ]
             ]
         )
+        assert result == [
+            {
+                "generations": [" Aenean hendrerit aliquam velit. ..."],
+                "statistics": {"input_tokens": [10], "output_tokens": [10]},
+            }
+        ]
 
     @pytest.mark.parametrize(
         "structured_output, dump",

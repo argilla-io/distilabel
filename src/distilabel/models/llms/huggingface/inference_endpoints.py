@@ -32,6 +32,7 @@ from typing_extensions import Annotated, override
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
 from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.typing import (
     FormattedInput,
@@ -42,6 +43,12 @@ from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR, get_hf_token
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
+    from huggingface_hub.inference._generated.types.chat_completion import (
+        ChatCompletionOutput,
+    )
+    from huggingface_hub.inference._generated.types.text_generation import (
+        TextGenerationOutput,
+    )
     from transformers import PreTrainedTokenizer
 
 
@@ -387,12 +394,12 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         return_full_text: bool = False,
         seed: Optional[int] = None,
         watermark: bool = False,
-    ) -> Union[str, None]:
+    ) -> GenerateOutput:
         structured_output = self._get_structured_output(input)
 
         completion = None
         try:
-            completion = await self._aclient.text_generation(  # type: ignore
+            completion: "TextGenerationOutput" = await self._aclient.text_generation(  # type: ignore
                 prompt=self.prepare_input(input),  # type: ignore
                 max_new_tokens=max_new_tokens,
                 do_sample=do_sample,
@@ -409,13 +416,25 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 seed=seed or random.randint(0, sys.maxsize),
                 watermark=watermark,
                 grammar=structured_output,  # type: ignore
+                details=True,
             )
         except Exception as e:
             self._logger.warning(  # type: ignore
                 f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
-        return completion
+
+        return prepare_output(
+            [completion.generated_text],
+            input_tokens=[
+                compute_tokens(self.prepare_input(input), self._tokenizer.encode)
+                if self._tokenizer
+                else 0
+            ],
+            output_tokens=[
+                completion.details.generated_tokens if completion.details else 0
+            ],
+        )
 
     async def _generate_with_chat_completion(
         self,
@@ -431,10 +450,10 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         tool_prompt: Optional[str] = None,
         tools: Optional[List[Dict[str, Any]]] = None,
         top_p: Optional[float] = None,
-    ) -> Union[str, None]:
+    ) -> GenerateOutput:
         message = None
         try:
-            completion = await self._aclient.chat_completion(  # type: ignore
+            completion: "ChatCompletionOutput" = await self._aclient.chat_completion(  # type: ignore
                 messages=input,  # type: ignore
                 max_tokens=max_new_tokens,
                 frequency_penalty=frequency_penalty,
@@ -461,7 +480,11 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
-        return message
+        return prepare_output(
+            [message],
+            input_tokens=[completion.usage.prompt_tokens],
+            output_tokens=[completion.usage.completion_tokens],
+        )
 
     def _check_stop_sequences(
         self,
@@ -574,37 +597,33 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         stop_sequences = self._check_stop_sequences(stop_sequences)
 
         if self.tokenizer_id is None:
-            return [
-                await self._generate_with_chat_completion(
-                    input=input,  # type: ignore
-                    max_new_tokens=max_new_tokens,
-                    frequency_penalty=frequency_penalty,
-                    logit_bias=logit_bias,
-                    presence_penalty=presence_penalty,
-                    seed=seed,
-                    stop_sequences=stop_sequences,
-                    temperature=temperature,
-                    tool_choice=tool_choice,
-                    tool_prompt=tool_prompt,
-                    tools=tools,
-                    top_p=top_p,
-                )
-            ]
-
-        return [
-            await self._generate_with_text_generation(
-                input=input,
+            return await self._generate_with_chat_completion(
+                input=input,  # type: ignore
                 max_new_tokens=max_new_tokens,
-                do_sample=do_sample,
-                typical_p=typical_p,
-                repetition_penalty=repetition_penalty,
                 frequency_penalty=frequency_penalty,
-                temperature=temperature,
-                top_p=top_p,
-                top_k=top_k,
-                stop_sequences=stop_sequences,
-                return_full_text=return_full_text,
+                logit_bias=logit_bias,
+                presence_penalty=presence_penalty,
                 seed=seed,
-                watermark=watermark,
+                stop_sequences=stop_sequences,
+                temperature=temperature,
+                tool_choice=tool_choice,
+                tool_prompt=tool_prompt,
+                tools=tools,
+                top_p=top_p,
             )
-        ]
+
+        return await self._generate_with_text_generation(
+            input=input,
+            max_new_tokens=max_new_tokens,
+            do_sample=do_sample,
+            typical_p=typical_p,
+            repetition_penalty=repetition_penalty,
+            frequency_penalty=frequency_penalty,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+            stop_sequences=stop_sequences,
+            return_full_text=return_full_text,
+            seed=seed,
+            watermark=watermark,
+        )

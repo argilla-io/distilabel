@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from collections import defaultdict
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 import numpy as np
 from pydantic import Field
@@ -200,7 +201,9 @@ class EvolQuality(Task):
             .replace("<RESPONSE>", response)
         )
 
-    def _evolve_reponses(self, inputs: "StepInput") -> List[List[str]]:
+    def _evolve_reponses(
+        self, inputs: "StepInput"
+    ) -> Tuple[List[List[str]], Dict[str, Any]]:
         """Evolves the instructions provided as part of the inputs of the task.
 
         Args:
@@ -213,6 +216,7 @@ class EvolQuality(Task):
         np.random.seed(self.seed)
         instructions: List[List[str]] = [[input["instruction"]] for input in inputs]
         responses: List[List[str]] = [[input["response"]] for input in inputs]
+        statistics: Dict[str, Any] = defaultdict(list)
 
         for iter_no in range(self.num_evolutions):
             formatted_prompts = []
@@ -229,24 +233,28 @@ class EvolQuality(Task):
                 formatted_prompts,
                 **self.llm.generation_kwargs,  # type: ignore
             )
+            for response in generated_responses:
+                for k, v in response["statistics"].items():
+                    statistics[k].append(v[0])
 
             if self.store_evolutions:
                 responses = [
-                    response + [evolved_response[0]]
+                    response + [evolved_response["generations"][0]]
                     for response, evolved_response in zip(
                         responses, generated_responses
                     )
                 ]
             else:
                 responses = [
-                    [evolved_response[0]] for evolved_response in generated_responses
+                    [evolved_response["generations"][0]]
+                    for evolved_response in generated_responses
                 ]
 
             self._logger.info(
                 f"🔄 Ran iteration {iter_no} evolving {len(responses)} responses!"
             )
 
-        return responses
+        return responses, dict(statistics)
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
@@ -259,7 +267,7 @@ class EvolQuality(Task):
             A list of Python dictionaries with the outputs of the task.
         """
 
-        responses = self._evolve_reponses(inputs)
+        responses, statistics = self._evolve_reponses(inputs)
 
         if self.store_evolutions:
             # Remove the input instruction from the `evolved_responses` list
@@ -268,6 +276,9 @@ class EvolQuality(Task):
 
         for input, response in zip(inputs, responses):
             input.update(self.format_output(response))
+            input.update(
+                {"distilabel_metadata": {f"statistics_{self.name}": statistics}}
+            )
         yield inputs
 
         self._logger.info(f"🎉 Finished evolving {len(responses)} instructions!")
