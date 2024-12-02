@@ -71,7 +71,7 @@ graph TD
 
 - **instruction** (`str`): The task or instruction.
 
-- **solutions** (`str`): JSON formatted list of solutions to the task.
+- **solutions** (`List[str]`): List of solutions to the task.
 
 - **golden_solution** (`str`): The reference solution to the task, will be used  to annotate the candidate solutions.
 
@@ -81,7 +81,7 @@ graph TD
 #### Outputs
 
 
-- **solutions** (`str`): The same columns that were used as input, the "solutions" is modified.
+- **solutions** (`List[str]`): The same columns that were used as input, the "solutions" is modified.
 
 - **model_name** (`str`): The name of the model used to generate the revision.
 
@@ -91,6 +91,46 @@ graph TD
 
 ### Examples
 
+
+#### Annotate your steps with the Math Shepherd Completer using the structured outputs (the preferred way)
+```python
+from distilabel.steps.tasks import MathShepherdCompleter
+from distilabel.models import InferenceEndpointsLLM
+
+llm=InferenceEndpointsLLM(
+    model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+    tokenizer_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+    generation_kwargs={
+        "temperature": 0.6,
+        "max_new_tokens": 1024,
+    },
+)
+task = MathShepherdCompleter(
+    llm=llm,
+    N=3,
+    use_default_structured_output=True
+)
+
+task.load()
+
+result = next(
+    task.process(
+        [
+            {
+                "instruction": "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
+                "golden_solution": ["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer’s market.", "The answer is: 18"],
+                "solutions": [
+                    ["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer’s market.", "The answer is: 18"],
+                    ['Step 1: Janets ducks lay 16 eggs per day, and she uses 3 + 4 = <<3+4=7>>7 for eating and baking.', 'Step 2: So she sells 16 - 7 = <<16-7=9>>9 duck eggs every day.', 'Step 3: Those 9 eggs are worth 9 * $2 = $<<9*2=18>>18.', 'The answer is: 18'],
+                ]
+            },
+        ]
+    )
+)
+# [[{'instruction': "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
+# 'golden_solution': ["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer\u2019s market.", "The answer is: 18"],
+# 'solutions': [["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day. -", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer\u2019s market.", "The answer is: 18"], ["Step 1: Janets ducks lay 16 eggs per day, and she uses 3 + 4 = <<3+4=7>>7 for eating and baking. +", "Step 2: So she sells 16 - 7 = <<16-7=9>>9 duck eggs every day. +", "Step 3: Those 9 eggs are worth 9 * $2 = $<<9*2=18>>18.", "The answer is: 18"]]}]]
+```
 
 #### Annotate your steps with the Math Shepherd Completer
 ```python

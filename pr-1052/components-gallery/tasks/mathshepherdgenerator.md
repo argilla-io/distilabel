@@ -120,7 +120,7 @@ result = next(
 # 'golden_solution': '["Step 1: Janet sells 16 - 3 - 4 = <<16-3-4=9>>9 duck eggs a day.", "Step 2: She makes 9 * 2 = $<<9*2=18>>18 every day at the farmer\u2019s market.", "The answer is: 18"]'}]]
 ```
 
-#### Generate M completions for a given instruction (a less strong model is more helpful here)
+#### Generate M completions for a given instruction (using structured output generation)
 ```python
 from distilabel.steps.tasks import MathShepherdGenerator
 from distilabel.models import InferenceEndpointsLLM
@@ -136,7 +136,8 @@ llm=InferenceEndpointsLLM(
 task = MathShepherdGenerator(
     name="solution_generator",
     llm=llm,
-    M=2
+    M=2,
+    use_default_structured_output=True,
 )
 
 task.load()
