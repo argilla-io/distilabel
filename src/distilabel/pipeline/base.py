@@ -1044,6 +1044,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # If there is another load stage and all the `last_batch`es from the stage
             # have been received, then load the next stage.
             if self._should_load_next_stage():
+                self._wait_current_stage_to_finish()
                 if not self._update_stage():
                     break
 
@@ -1286,6 +1287,36 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             if not self._batch_manager.step_has_finished(step)
         ]
 
+    def _get_steps_load_status(self, steps: List[str]) -> Dict[str, int]:
+        """Gets the a dictionary containing the load status of the provided steps.
+
+        Args:
+            steps: a list containing the names of the steps to get their load status.
+
+        Returns:
+            A dictionary containing the load status of the provided steps.
+        """
+        return {
+            step_name: replicas
+            for step_name, replicas in self._steps_load_status.items()
+            if step_name in steps
+        }
+
+    def _wait_current_stage_to_finish(self) -> None:
+        """Waits for the current stage to finish."""
+        stage = self._current_stage
+        steps = self._steps_to_be_loaded_in_stage(stage)
+        self._logger.info(f"⏳ Waiting for stage {stage} to finish...")
+        with self._stop_called_lock:
+            while not self._stop_called:
+                filtered_steps_load_status = self._get_steps_load_status(steps)
+                if all(
+                    replicas == _STEP_UNLOADED_CODE
+                    for replicas in filtered_steps_load_status.values()
+                ):
+                    self._logger.info(f"✅ Stage {stage} have finished!")
+                    break
+
     def _run_stage_steps_and_wait(self, stage: int) -> bool:
         """Runs the steps of the specified stage and waits for them to be ready.
 
@@ -1309,11 +1340,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         with self._stop_called_lock:
             while not self._stop_called:
                 with self._steps_load_status_lock:
-                    filtered_steps_load_status = {
-                        step_name: replicas
-                        for step_name, replicas in self._steps_load_status.items()
-                        if step_name in steps
-                    }
+                    filtered_steps_load_status = self._get_steps_load_status(steps)
                     self._logger.debug(
                         f"Steps from stage {stage} loaded: {filtered_steps_load_status}"
                     )
