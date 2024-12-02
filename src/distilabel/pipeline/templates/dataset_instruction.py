@@ -1,14 +1,5 @@
-from typing import List
-from pathlib import Path
-
-from pydantic import BaseModel, Field
-
-from distilabel.llms import InferenceEndpointsLLM
-from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadDataFromDicts
-from distilabel.steps.clustering import text_clustering
-from distilabel.steps.tasks import TextGeneration, ChatGeneration
-
+# TODO: This license is not consistent with the license used in the project.
+#       Delete the inconsistent license and above line and rerun pre-commit to insert a good license.
 # Copyright 2023-present, Argilla, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,18 +13,17 @@ from distilabel.steps.tasks import TextGeneration, ChatGeneration
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from typing import Optional
 
 from distilabel.distiset import Distiset
 from distilabel.llms import LLM, InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps.tasks import MagpieGenerator
 from distilabel.steps import ExpandColumns, KeepColumns
+from distilabel.steps.tasks import TextGeneration
 
 MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-from distilabel.steps.tasks import SelfInstruct
 from distilabel.models import InferenceEndpointsLLM
+from distilabel.steps.tasks import SelfInstruct
 
 
 class DatasetInstructionResponsePipeline:
@@ -113,7 +103,6 @@ class DatasetInstructionResponsePipeline:
     ) -> Pipeline:
         """Returns a pipeline that generates instructions and responses for a given system prompt."""
         with Pipeline(name="dataset_chat") as pipeline:
-
             self_instruct = SelfInstruct(
                 llm=self.llm,
                 num_instructions=num_instructions,  # This is the default value
