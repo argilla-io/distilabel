@@ -1539,7 +1539,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     self._logger.debug(
                         f"Adding batch back to the batch manager: {batch}"
                     )
-                input_queue.put(None)
+                if self._check_step_not_loaded_or_finished(step_name):
+                    # Notify the step to stop
+                    input_queue.put(None)
+        self._logger.debug("Finished adding batches back to the batch manager.")
 
     def _consume_output_queue(self) -> None:
         """Consumes the `Batch`es from the output queue until it's empty. This method should
