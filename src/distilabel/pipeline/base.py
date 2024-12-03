@@ -1058,7 +1058,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             self._manage_batch_flow(batch)
 
         self._finalize_pipeline_execution()
-        self._wait_current_stage_to_finish()
 
     def _create_steps_input_queues(self) -> None:
         """Creates the input queue for all the steps in the pipeline."""
@@ -1402,13 +1401,18 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         # Wait for the input queue to be empty, which means that all the steps finished
         # processing the batches that were sent before the stop flag.
-        for step_name in self.dag:
-            self._wait_step_input_queue_empty(step_name)
+        self._wait_steps_input_queues_empty()
 
         self._consume_output_queue()
 
         if self._should_load_next_stage():
             self._current_stage += 1
+
+    def _wait_steps_input_queues_empty(self) -> None:
+        self._logger.debug("Waiting for steps input queues to be empty...")
+        for step_name in self.dag:
+            self._wait_step_input_queue_empty(step_name)
+        self._logger.debug("Steps input queues are empty!")
 
     def _wait_step_input_queue_empty(self, step_name: str) -> Union["Queue[Any]", None]:
         """Waits for the input queue of a step to be empty.
