@@ -18,6 +18,14 @@ from distilabel.models.embeddings.sentence_transformers import (
     SentenceTransformerEmbeddings,
 )
 from distilabel.models.embeddings.vllm import vLLMEmbeddings
+from distilabel.models.image_generation.base import (
+    AsyncImageGenerationModel,
+    ImageGenerationModel,
+)
+from distilabel.models.image_generation.huggingface.inference_endpoints import (
+    InferenceEndpointsImageGeneration,
+)
+from distilabel.models.image_generation.openai import OpenAIImageGeneration
 from distilabel.models.llms.anthropic import AnthropicLLM
 from distilabel.models.llms.anyscale import AnyscaleLLM
 from distilabel.models.llms.azure import AzureOpenAILLM
@@ -46,6 +54,9 @@ __all__ = [
     "CohereLLM",
     "GroqLLM",
     "InferenceEndpointsLLM",
+    "ImageGenerationModel",
+    "AsyncImageGenerationModel",
+    "InferenceEndpointsImageGeneration",
     "LiteLLM",
     "LlamaCppLLM",
     "MistralLLM",
@@ -53,6 +64,7 @@ __all__ = [
     "MixtureOfAgentsLLM",
     "OllamaLLM",
     "OpenAILLM",
+    "OpenAIImageGeneration",
     "TogetherLLM",
     "TransformersLLM",
     "GenerateOutput",

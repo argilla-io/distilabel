@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Union
 
 import fsspec
 import yaml
-from datasets import Dataset, load_dataset, load_from_disk
+from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
 from datasets.filesystems import is_remote_filesystem
 from huggingface_hub import DatasetCardData, HfApi, upload_file, upload_folder
 from huggingface_hub.file_download import hf_hub_download
@@ -184,9 +184,17 @@ class Distiset(dict):
         """
         sample_records = {}
         for name, dataset in self.items():
-            sample_records[name] = (
+            sample_record = (
                 dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
             )
+            from PIL import ImageFile
+
+            for k, v in sample_record.items():
+                if isinstance(v, ImageFile.ImageFile):
+                    v = ""
+                sample_record[k] = v
+
+            sample_records[name] = sample_record
 
         readme_metadata = {}
         if repo_id and token:
@@ -573,6 +581,51 @@ class Distiset(dict):
         repr = "\n".join([f"{k}: {v}" for k, v in self.items()])
         repr = re.sub(r"^", " " * 4, repr, count=0, flags=re.M)
         return f"Distiset({{\n{repr}\n}})"
+
+    def transform_columns_to_image(self, columns: Union[str, list[str]]) -> Self:
+        """Transforms the columns of the dataset to `PIL.Image` objects.
+
+        Args:
+            columns: Column or list of columns to transform.
+
+        Returns:
+            Transforms the columns of the dataset to `PIL.Image` objects before pushing,
+            so the Hub treats them as Image objects and can be rendered in the dataset
+            viewer, and cast them to be automatically transformed when downloading
+            the dataset back.
+        """
+        from datasets import Image
+
+        from distilabel.models.image_generation.utils import image_from_str
+
+        columns = [columns] if isinstance(columns, str) else columns
+
+        def cast_to_image(row: dict) -> dict:
+            for column in columns:
+                row[column] = image_from_str(row[column])
+            return row
+
+        for name, dataset in self.items():
+            # In case train_test_split was called
+            if isinstance(dataset, DatasetDict):
+                for split, dataset_split in dataset.items():
+                    dataset_split = dataset_split.map(cast_to_image)
+                    for column in columns:
+                        if column in dataset_split.column_names:
+                            dataset_split = dataset_split.cast_column(
+                                column, Image(decode=True)
+                            )
+                    self[name][split] = dataset_split
+            else:
+                dataset = dataset.map(cast_to_image)
+
+                for column in columns:
+                    if column in dataset.column_names:
+                        dataset = dataset.cast_column(column, Image(decode=True))
+
+                self[name] = dataset
+
+        return self
 
 
 def create_distiset(  # noqa: C901

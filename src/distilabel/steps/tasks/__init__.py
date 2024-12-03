@@ -16,7 +16,7 @@ from distilabel.steps.tasks.apigen.execution_checker import APIGenExecutionCheck
 from distilabel.steps.tasks.apigen.generator import APIGenGenerator
 from distilabel.steps.tasks.apigen.semantic_checker import APIGenSemanticChecker
 from distilabel.steps.tasks.argilla_labeller import ArgillaLabeller
-from distilabel.steps.tasks.base import GeneratorTask, Task
+from distilabel.steps.tasks.base import GeneratorTask, ImageTask, Task
 from distilabel.steps.tasks.clair import CLAIR
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.decorator import task
@@ -29,6 +29,7 @@ from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
 from distilabel.steps.tasks.evol_quality.base import EvolQuality
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
 from distilabel.steps.tasks.genstruct import Genstruct
+from distilabel.steps.tasks.image_generation import ImageGeneration
 from distilabel.steps.tasks.improving_text_embeddings import (
     BitextRetrievalGenerator,
     EmbeddingTaskGenerator,
@@ -57,6 +58,7 @@ from distilabel.steps.tasks.urial import URIAL
 
 __all__ = [
     "GeneratorTask",
+    "ImageTask",
     "Task",
     "ArgillaLabeller",
     "APIGenExecutionChecker",
@@ -78,6 +80,7 @@ __all__ = [
     "GenerateTextClassificationData",
     "GenerateTextRetrievalData",
     "MonolingualTripletGenerator",
+    "ImageGeneration",
     "InstructionBacktranslation",
     "Magpie",
     "MagpieGenerator",
