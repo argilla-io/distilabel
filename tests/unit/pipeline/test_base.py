@@ -533,6 +533,7 @@ class TestBasePipeline:
         step_name: str = step.name  # type: ignore
 
         pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
+        pipeline._init_steps_load_status()
         generator_queue = Queue()
         pipeline.dag.set_step_attr(
             generator_name, INPUT_QUEUE_ATTR_NAME, generator_queue
