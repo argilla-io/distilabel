@@ -995,9 +995,16 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         for stage, steps in enumerate(stages):
             steps_to_be_loaded = self._steps_to_be_loaded_in_stage(stage)
             msg += f"\n * Stage {stage}:"
-            for step in steps:
-                msg += f"\n   - '{step}'"
-                if step not in steps_to_be_loaded:
+            for step_name in steps:
+                step: "Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
+                if step.is_global:
+                    emoji = "🌐"
+                elif step.is_generator:
+                    emoji = "🚰"
+                else:
+                    emoji = "🔄"
+                msg += f"\n   - {emoji} '{step_name}'"
+                if step_name not in steps_to_be_loaded:
                     msg += " (results cached, won't be loaded and executed)"
         self._logger.info(
             f"⌛ The steps of the pipeline will be loaded in stages:{msg}"
@@ -1051,6 +1058,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             self._manage_batch_flow(batch)
 
         self._finalize_pipeline_execution()
+        self._wait_current_stage_to_finish()
 
     def _create_steps_input_queues(self) -> None:
         """Creates the input queue for all the steps in the pipeline."""
@@ -1314,7 +1322,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     replicas == _STEP_UNLOADED_CODE
                     for replicas in filtered_steps_load_status.values()
                 ):
-                    self._logger.info(f"✅ Stage {stage} have finished!")
+                    self._logger.info(f"✅ Stage {stage} has finished!")
                     break
 
     def _run_stage_steps_and_wait(self, stage: int) -> bool:
@@ -1434,7 +1442,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             num_replicas = self._steps_load_status[step_name]
 
             # The step has finished (replicas = 0) or it has failed to load
-            if num_replicas in [0, _STEP_LOAD_FAILED_CODE]:
+            if num_replicas in [0, _STEP_LOAD_FAILED_CODE, _STEP_UNLOADED_CODE]:
                 return True
 
         return False
@@ -1506,6 +1514,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _add_batches_back_to_batch_manager(self) -> None:
         """Add the `Batch`es that were sent to a `Step` back to the `_BatchManager`. This
         method should be used when the pipeline has been stopped prematurely."""
+        self._logger.debug(
+            "Adding batches from step input queues back to the batch manager..."
+        )
         for step_name in self.dag:
             node = self.dag.get_step(step_name)
             step: "_Step" = node[constants.STEP_ATTR_NAME]
