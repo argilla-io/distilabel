@@ -114,3 +114,9 @@ Some key points about load groups:
 
 1. Load groups are specified as a list of lists, where each inner list represents a group of steps that should be loaded together.
 2. Same as `GlobalSteps`s, the load groups creates a new load stage dividing the pipeline in 3 stages: one for the upstream steps, one for the steps in the load group, and one for the downstream steps.
+
+### Load groups modes
+
+In addition, `distilabel` allows passing some modes to the `load_groups` argument that will handle the creation of the load groups:
+
+- `"sequential_step_execution"`: when passed, it will create a load group for each step i.e. the execution of the steps of the pipeline will be sequential.
