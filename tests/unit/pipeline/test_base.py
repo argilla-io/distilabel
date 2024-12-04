@@ -148,6 +148,19 @@ class TestBasePipeline:
 
         assert pipeline._built_load_groups(load_groups) == expected
 
+    def test_built_load_groups_with_step_class(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+
+            generator >> [step, step2]
+
+        assert pipeline._built_load_groups([[generator], [step, step2]]) == [
+            [generator.name],
+            [step.name, step2.name],
+        ]
+
     def test_aggregated_steps_signature(self) -> None:
         with DummyPipeline(name="dummy") as pipeline_0:
             generator = DummyGeneratorStep()
@@ -1328,11 +1341,12 @@ class TestBasePipeline:
     def test_validate_load_groups_including_global_step(self) -> None:
         pipeline = DummyPipeline()
         step = DummyGlobalStep(pipeline=pipeline)
+        step_0 = DummyStep1()
         with pytest.raises(
             ValueError,
             match=f"Global step '{step.name}' has been included in a load group.",
         ):
-            pipeline._validate_load_groups(load_groups=[[step.name]])
+            pipeline._validate_load_groups(load_groups=[[step.name, step_0.name]])
 
     def test_validate_load_groups_duplicate_step(self) -> None:
         pipeline = DummyPipeline()

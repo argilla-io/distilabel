@@ -47,7 +47,7 @@ from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.write_buffer import _WriteBuffer
-from distilabel.steps.base import GeneratorStep
+from distilabel.steps.base import GeneratorStep, _Step
 from distilabel.steps.generators.utils import make_generator_step
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.notebook import in_notebook
@@ -74,7 +74,7 @@ if TYPE_CHECKING:
         PipelineRuntimeParametersInfo,
         StepLoadStatus,
     )
-    from distilabel.steps.base import Step, _Step
+    from distilabel.steps.base import Step
 
     class _CacheLocation(TypedDict):
         """Dictionary to store the filenames and directories of a cached pipeline.
@@ -360,7 +360,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, load groups are valid,
         # etc.
-        self._load_groups = self._built_load_groups()
+        self._load_groups = self._built_load_groups(load_groups)
         self._validate()
 
         self._set_pipeline_artifacts_path_in_steps()
@@ -515,7 +515,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         if load_groups == "sequential_step_execution":
             return [[step_name] for step_name in self.dag]
 
-        return load_groups
+        return [
+            [
+                step.name if isinstance(step, _Step) else step
+                for step in steps_load_group
+            ]  # type: ignore
+            for steps_load_group in load_groups
+        ]
 
     def _validate(self) -> None:
         """Validates the pipeline DAG to check that all the steps are chainable, there are
@@ -524,7 +530,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self.dag.validate()
         self._validate_load_groups(self._load_groups)
 
-    def _validate_load_groups(self, load_groups: List[List[str]]) -> None:  # noqa: C901
+    def _validate_load_groups(self, load_groups: List[List[Any]]) -> None:  # noqa: C901
         """Checks that the provided load groups are valid and that the steps can be scheduled
         to be loaded in different stages without any issue.
 
@@ -565,7 +571,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         f"Step with name '{step_name}' included in group {load_group_num} of"
                         " the `load_groups` is not an step included in the pipeline. Please,"
                         " check that you're passing the correct step name and run again.",
-                        page="",
+                        page="sections/how_to_guides/advanced/load_groups_and_execution_stages",
                     )
 
                 node = self.dag.get_step(step_name)
@@ -580,16 +586,16 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         f" as the step with name '{step_name_in_load_group}'. '{step_name_in_load_group}'"
                         f" is not an immediate predecessor of '{step_name}' and there are"
                         " immediate predecessors that have not been included.",
-                        page="",
+                        page="sections/how_to_guides/advanced/load_groups_and_execution_stages",
                     )
 
-                if step.is_global:
+                if step.is_global and len(steps_load_group) > 1:
                     raise DistilabelUserError(
-                        f"Global step '{step_name}' has been included in a load group. Global"
-                        " steps cannot be included in a load group as they will be loaded"
-                        " in a different stage to the rest of the steps in the pipeline"
-                        " by default.",
-                        page="",
+                        f"Global step '{step_name}' has been included in a load group along"
+                        " more steps. Global steps cannot be included in a load group with"
+                        " more steps as they will be loaded in a different stage to the"
+                        " rest of the steps in the pipeline by default.",
+                        page="sections/how_to_guides/advanced/load_groups_and_execution_stages",
                     )
 
                 if step_name in steps_included_in_load_group:
@@ -597,7 +603,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         f"Step with name '{step_name}' in load group {load_group_num} has"
                         " already been included in a previous load group. A step cannot be in more"
                         " than one load group.",
-                        page="",
+                        page="sections/how_to_guides/advanced/load_groups_and_execution_stages",
                     )
 
                 steps_included_in_load_group.append(step_name)
