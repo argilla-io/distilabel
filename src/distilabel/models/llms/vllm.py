@@ -223,7 +223,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         super().unload()
 
     def _cleanup_vllm_model(self) -> None:
-        import torch
+        import torch  # noqa
         from vllm.distributed.parallel_state import (
             destroy_distributed_environment,
             destroy_model_parallel,

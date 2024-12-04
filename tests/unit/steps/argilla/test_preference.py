@@ -83,6 +83,7 @@ class TestPreferenceToArgilla:
         )
         with patch.object(PreferenceToArgilla, "load"):
             step.load()
+
         step._instruction = "instruction"
         step._generations = "generations"
         step._ratings = "ratings"

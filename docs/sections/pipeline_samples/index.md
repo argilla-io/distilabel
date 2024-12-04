@@ -107,6 +107,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Paper](papers/clair.md)
 
+-   __Math Shepherd__
+
+    ---
+
+    Learn about Math-Shepherd, a framework to generate datasets to train process reward models (PRMs) which assign reward scores to each step of math problem solutions.
+
+    [:octicons-arrow-right-24: Paper](papers/math_shepherd.md)
+
 </div>
 
 ## Examples
