@@ -5156,6 +5156,11 @@
 </span></code></pre></div>
 <p>In this example, we're working with a machine that has a single GPU, but the pipeline includes two instances of <a href="">TextGeneration</a> tasks both using <a href="">vLLM</a> and requesting 1 GPU. We cannot execute both steps in parallel. To fix that,
 we specify in the <code>run</code> method using the <code>load_groups</code> argument that the <code>text_generation_0</code> step has to be executed in isolation in a stage. This way, we can run the pipeline on a single GPU machine by executing the steps in different stages (sequentially) instead of in parallel.</p>
+<p>Some key points about load groups:</p>
+<ol>
+<li>Load groups are specified as a list of lists, where each inner list represents a group of steps that should be loaded together.</li>
+<li>Same as <code>GlobalSteps</code>s, the load groups creates a new load stage dividing the pipeline in 3 stages: one for the upstream steps, one for the steps in the load group, and one for the downstream steps.</li>
+</ol>
 
 
 
