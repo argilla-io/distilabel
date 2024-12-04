@@ -74,3 +74,32 @@ def test_load_groups() -> None:
         pipeline.run(load_groups=[[dummy_step_0.name], [dummy_step_3.name]])
 
     assert run_stage_mock.call_count == 6
+
+
+def test_load_groups_sequential_step_execution() -> None:
+    with Pipeline() as pipeline:
+        generator = LoadDataFromDicts(data=[{"instruction": "Hi"}] * 50)
+        dummy_step_0 = DummyStep()
+        dummy_step_1 = DummyStep()
+        dummy_step_2 = DummyStep2()
+        global_dummy_step = GlobalDummyStep()
+        dummy_step_3 = DummyStep()
+        dummy_step_4 = DummyStep()
+        dummy_step_5 = DummyStep()
+
+        (
+            generator
+            >> [dummy_step_0, dummy_step_1]
+            >> dummy_step_2
+            >> global_dummy_step
+            >> dummy_step_3
+            >> [dummy_step_4, dummy_step_5]
+        )
+
+    with mock.patch.object(
+        pipeline, "_run_stage_steps_and_wait", wraps=pipeline._run_stage_steps_and_wait
+    ) as run_stage_mock:
+        # `dummy_step_0` should be executed in isolation
+        pipeline.run(load_groups="sequential_step_execution")
+
+    assert run_stage_mock.call_count == 8

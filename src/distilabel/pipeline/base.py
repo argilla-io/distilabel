@@ -500,7 +500,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             runtime_parameters[step_name] = step.get_runtime_parameters_info()
         return runtime_parameters
 
-    def _validate(self, load_groups: Optional[List[List[str]]] = None) -> None:
+    def _validate(self, load_groups: Optional["LoadGroups"] = None) -> None:
         """Validates the pipeline DAG to check that all the steps are chainable, there are
         no missing runtime parameters, batch sizes are correct and that load groups are
         valid (if any).
@@ -510,7 +510,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 in a separate load stage. Defaults to `None`.
         """
         self.dag.validate()
-        if load_groups is not None:
+        if load_groups is not None and isinstance(load_groups, list):
             self._validate_load_groups(load_groups)
 
     def _validate_load_groups(self, load_groups: List[List[Any]]) -> None:  # noqa: C901
