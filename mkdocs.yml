@@ -191,6 +191,7 @@ nav:
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
           - Offline Batch Generation: "sections/how_to_guides/advanced/offline_batch_generation.md"
           - Specifying requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
+          - Load groups and execution stages: "sections/how_to_guides/advanced/load_groups_and_execution_stages.md"
           - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
           - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
           - Assigning resources to a step: "sections/how_to_guides/advanced/assigning_resources_to_step.md"
