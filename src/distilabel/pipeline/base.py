@@ -583,7 +583,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
                 if step_name in steps_included_in_load_group:
                     raise DistilabelUserError(
-                        f"Step with name '{step_name}' in load group {load_group_num} has been"
+                        f"Step with name '{step_name}' in load group {load_group_num} has"
                         " already been included in a previous load group. A step cannot be in more"
                         " than one load group.",
                         page="",

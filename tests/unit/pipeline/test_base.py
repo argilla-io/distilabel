@@ -1305,7 +1305,7 @@ class TestBasePipeline:
 
         with pytest.raises(
             ValueError,
-            match=f"Step with name '{dummy_step_1.name}' in load group 1 has been already included in a previous load group.",
+            match=f"Step with name '{dummy_step_1.name}' in load group 1 has already been included in a previous load group.",
         ):
             pipeline._validate_load_groups(
                 load_groups=[[dummy_step_1.name], [dummy_step_1.name]]
