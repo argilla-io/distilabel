@@ -18,7 +18,12 @@ import pytest
 
 from distilabel.errors import DistilabelUserError
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
+from distilabel.steps.tasks.text_generation import (
+    COT_REFLECTION_SYSTEM_PROMPT,
+    ChatGeneration,
+    TextGeneration,
+    TextGenerationWithCotReflection,
+)
 from tests.unit.conftest import DummyAsyncLLM
 
 
@@ -174,6 +179,72 @@ class TestTextGeneration:
         )
         with pytest.raises(DistilabelUserError):
             task.load()
+
+
+class TestTextGenerationWithCotReflection:
+    def test_format_input(self) -> None:
+        llm = DummyAsyncLLM()
+        task = TextGenerationWithCotReflection(name="task", llm=llm)
+        task.load()
+
+        assert task.format_input({"instruction": "test"}) == [
+            {"role": "system", "content": COT_REFLECTION_SYSTEM_PROMPT},
+            {"role": "user", "content": "test"},
+        ]
+
+    def test_format_input_with_system_prompt(self) -> None:
+        llm = DummyAsyncLLM()
+        task = TextGenerationWithCotReflection(
+            name="task", llm=llm, system_prompt="test"
+        )
+        task.load()
+
+        assert task.format_input({"instruction": "test"}) == [
+            {"role": "system", "content": "test\n\n" + COT_REFLECTION_SYSTEM_PROMPT},
+            {"role": "user", "content": "test"},
+        ]
+
+    def test_format_input_with_row_system_prompt(self) -> None:
+        llm = DummyAsyncLLM()
+        task = TextGenerationWithCotReflection(name="task", llm=llm)
+        task.load()
+
+        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
+            {"role": "system", "content": "test\n\n" + COT_REFLECTION_SYSTEM_PROMPT},
+            {"role": "user", "content": "test"},
+        ]
+
+    def test_format_input_with_row_system_prompt_and_system_prompt(self) -> None:
+        llm = DummyAsyncLLM()
+        task = TextGenerationWithCotReflection(
+            name="task", llm=llm, system_prompt="i won't be used"
+        )
+        task.load()
+
+        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
+            {"role": "system", "content": "test\n\n" + COT_REFLECTION_SYSTEM_PROMPT},
+            {"role": "user", "content": "test"},
+        ]
+
+    def test_format_ouptut(self) -> None:
+        llm = DummyAsyncLLM()
+        task = TextGenerationWithCotReflection(
+            name="task", llm=llm, system_prompt="i won't be used"
+        )
+        task.load()
+
+        assert task.format_output(None) == {"thinking": None, "output": None}
+        assert task.format_output("i'm not following the output format") == {
+            "thinking": None,
+            "output": None,
+        }
+
+        assert task.format_output(
+            output="<thinking>\ni'm thinking\n<reflection>\nI'm having a reflection\n</reflection>\n</thinking>\n<output>\ni'm the output\n</output>"
+        ) == {
+            "thinking": "i'm thinking\n<reflection>\nI'm having a reflection\n</reflection>",
+            "output": "i'm the output",
+        }
 
 
 class TestChatGeneration:
