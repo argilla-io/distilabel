@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import contextlib
+import gc
 import json
 from functools import cached_property
 from typing import (
@@ -214,10 +216,29 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     def unload(self) -> None:
         """Unloads the `vLLM` model."""
+        self._cleanup_vllm_model()
         self._model = None  # type: ignore
         self._tokenizer = None  # type: ignore
         CudaDevicePlacementMixin.unload(self)
         super().unload()
+
+    def _cleanup_vllm_model(self) -> None:
+        import torch
+        from vllm.distributed.parallel_state import (
+            destroy_distributed_environment,
+            destroy_model_parallel,
+        )
+
+        destroy_model_parallel()
+        destroy_distributed_environment()
+        del self._model.llm_engine.model_executor
+        del self._model
+        with contextlib.suppress(AssertionError):
+            torch.distributed.destroy_process_group()
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
 
     @property
     def model_name(self) -> str:
