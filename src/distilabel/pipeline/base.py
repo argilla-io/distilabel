@@ -298,7 +298,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
                 the runtime parameters for the step as the value. Defaults to `None`.
-            load_groups: A list containing list of steps that has to be loaded together
+            load_groups: A list containing lists of steps' names that have to be loaded together
                 and in isolation with respect to the rest of the steps of the pipeline.
                 Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
@@ -568,7 +568,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         f"Step with name '{step_name}' cannot be in the same load group"
                         f" as the step with name '{step_name_in_load_group}'. '{step_name_in_load_group}'"
                         f" is not an immediate predecessor of '{step_name}' and there are"
-                        " immediate predecessors that has not been included.",
+                        " immediate predecessors that have not been included.",
                         page="",
                     )
 
@@ -584,7 +584,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 if step_name in steps_included_in_load_group:
                     raise DistilabelUserError(
                         f"Step with name '{step_name}' in load group {load_group_num} has been"
-                        " already included in a previous load group. A step cannot be in more"
+                        " already been included in a previous load group. A step cannot be in more"
                         " than one load group.",
                         page="",
                     )

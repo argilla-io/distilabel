@@ -160,7 +160,7 @@ class Pipeline(BasePipeline):
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
                 the runtime parameters for the step as the value. Defaults to `None`.
-            load_groups: A list containing list of steps that has to be loaded together
+            load_groups: A list containing lists of steps' names that have to be loaded together
                 and in isolation with respect to the rest of the steps of the pipeline.
                 Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
