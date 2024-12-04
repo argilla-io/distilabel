@@ -288,6 +288,7 @@ class MathShepherdGenerator(Task):
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         output_name = "solutions" if self.M else "golden_solution"
+
         if output is None:
             input.update(**{output_name: None})
             return input
@@ -311,7 +312,7 @@ class MathShepherdGenerator(Task):
         return input
 
     @override
-    def get_structured_output(self) -> dict[str, any]:
+    def get_structured_output(self) -> dict[str, Any]:
         """Creates the json schema to be passed to the LLM, to enforce generating
         a dictionary with the output which can be directly parsed as a python dictionary.
 
@@ -365,7 +366,7 @@ class MathShepherdGenerator(Task):
         if parsed_output := parse_json_response(output):
             solutions = parsed_output["solutions"]
             extracted_solutions = [o["solution"] for o in solutions]
-            if len(output) != self.M:
+            if len(extracted_solutions) != self.M:
                 extracted_solutions = default_output
             return extracted_solutions
         return default_output

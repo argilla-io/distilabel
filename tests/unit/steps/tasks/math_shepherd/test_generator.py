@@ -228,7 +228,7 @@ class TestMathShepherdGenerator:
             ),
         ],
     )
-    def test_format_output(self, M: Optional[int], output_name: str, expected) -> None:
+    def test_format_output(self, M: int, output_name: str, expected) -> None:
         task = MathShepherdGenerator(
             llm=MathShepherdGeneratorLLM(M=M),
             M=M,
