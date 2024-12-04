@@ -28621,7 +28621,7 @@ to <code>None</code>.</p>
 </span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">unload</span><span class="p">()</span>
 </span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a>
 </span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>    <span class="k">def</span> <span class="nf">_cleanup_vllm_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>        <span class="kn">import</span> <span class="nn">torch</span>
+</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>        <span class="kn">import</span> <span class="nn">torch</span>  <span class="c1"># noqa</span>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>        <span class="kn">from</span> <span class="nn">vllm.distributed.parallel_state</span> <span class="kn">import</span> <span class="p">(</span>
 </span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>            <span class="n">destroy_distributed_environment</span><span class="p">,</span>
 </span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a>            <span class="n">destroy_model_parallel</span><span class="p">,</span>
