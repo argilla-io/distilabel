@@ -49,7 +49,6 @@ from distilabel.utils.serialization import (
 
 if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
-    from distilabel.pipeline.typing import LoadGroups
     from distilabel.steps.base import GeneratorStep, Step, _Step
 
 _MERMAID_URL = "https://mermaid.ink/img/"
@@ -292,26 +291,8 @@ class DAG(_Serializable):
         """
         return sum([self.get_step_replica_count(step_name) for step_name in self.G])
 
-    def _get_load_stages_sequential_step_execution(
-        self,
-    ) -> Tuple[List[List[str]], List[List[str]]]:
-        """Returns stages with just one step in each stage, so the pipeline gets executed
-        sequentially.
-
-        Returns:
-            A tuple with the first element containing asorted list by stage containing
-            lists with the names of the steps of the stage, and the second element a list
-            sorted by stage containing lists with the names of the last steps of the stage.
-        """
-        stages = []
-        steps_last_stages = []
-        for step_name in nx.topological_sort(self.G):
-            stages.append([step_name])
-            steps_last_stages.append([step_name])
-        return stages, steps_last_stages
-
     def get_steps_load_stages(  # noqa: C901
-        self, load_groups: Optional["LoadGroups"] = None
+        self, load_groups: Optional[List[List[str]]] = None
     ) -> Tuple[List[List[str]], List[List[str]]]:
         """Gets the stages in which the `Step`s of the `Pipeline` should be loaded. Stages
         are determined by:
@@ -342,9 +323,6 @@ class DAG(_Serializable):
 
         if load_groups is None:
             load_groups = []
-
-        if load_groups == "sequential_step_execution":
-            return self._get_load_stages_sequential_step_execution()
 
         # Create a load group for each global step
         for step_name in self.G:

@@ -385,43 +385,6 @@ class TestDAG:
             ],
         )
 
-    def test_get_steps_load_stages_sequential_step_execution(self) -> None:
-        with Pipeline(name="dummy") as pipeline:
-            generator = DummyGeneratorStep(name="dummy_generator_step")
-            dummies_0 = [DummyStep1(name=f"dummy_step_0_{i}") for i in range(3)]
-            global_0 = DummyGlobalStep(name="global_0")
-            dummies_1 = [DummyStep1(name=f"dummy_step_1_{i}") for i in range(3)]
-            global_1 = DummyGlobalStep(name="global_1")
-
-            generator >> dummies_0 >> global_0 >> dummies_1 >> global_1
-
-        assert pipeline.dag.get_steps_load_stages(
-            load_groups="sequential_step_execution"
-        ) == (
-            [
-                [generator.name],
-                [dummies_0[0].name],
-                [dummies_0[1].name],
-                [dummies_0[2].name],
-                [global_0.name],
-                [dummies_1[0].name],
-                [dummies_1[1].name],
-                [dummies_1[2].name],
-                [global_1.name],
-            ],
-            [
-                [generator.name],
-                [dummies_0[0].name],
-                [dummies_0[1].name],
-                [dummies_0[2].name],
-                [global_0.name],
-                [dummies_1[0].name],
-                [dummies_1[1].name],
-                [dummies_1[2].name],
-                [global_1.name],
-            ],
-        )
-
     def test_validate_first_step_not_generator(
         self, dummy_step_1: "Step", dummy_step_2: "Step"
     ) -> None:

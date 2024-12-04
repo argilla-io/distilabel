@@ -97,7 +97,7 @@ class TestGlobalPipelineManager:
 
 
 class TestBasePipeline:
-    def test_load_stages(self) -> None:
+    def test_get_load_stages(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1()
@@ -112,6 +112,41 @@ class TestBasePipeline:
             [[generator.name, step.name], [step2.name], [step3.name]],
             [[step.name], [step2.name], [step3.name]],
         )
+
+    def test_get_load_stages_sequential_step_execution(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        load_stages = pipeline.get_load_stages(load_groups="sequential_step_execution")
+
+        assert load_stages == (
+            [[generator.name], [step.name], [step2.name], [step3.name]],
+            [[generator.name], [step.name], [step2.name], [step3.name]],
+        )
+
+    @pytest.mark.parametrize(
+        "load_groups, expected",
+        [
+            ([["step_0", "step_1"], ["step_2"]], [["step_0", "step_1"], ["step_2"]]),
+            ("sequential_step_execution", [["step_0"], ["step_1"], ["step_2"]]),
+        ],
+    )
+    def test_built_load_groups(
+        self, load_groups: Any, expected: List[List[str]]
+    ) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep(name="step_0")
+            step = DummyStep1(name="step_1")
+            step2 = DummyStep1(name="step_2")
+
+            generator >> [step, step2]
+
+        assert pipeline._built_load_groups(load_groups) == expected
 
     def test_aggregated_steps_signature(self) -> None:
         with DummyPipeline(name="dummy") as pipeline_0:

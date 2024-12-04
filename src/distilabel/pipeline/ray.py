@@ -92,8 +92,13 @@ class RayPipeline(BasePipeline):
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
                 the runtime parameters for the step as the value. Defaults to `None`.
-            load_groups: A list containing lists of steps' names that have to be loaded together
+            load_groups: A list containing lists of steps that have to be loaded together
                 and in isolation with respect to the rest of the steps of the pipeline.
+                This argument also allows passing the following modes:
+
+                - "sequential_step_execution": each step will be executed in a stage i.e.
+                    the execution of the steps will be sequential.
+
                 Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
                 `True`.

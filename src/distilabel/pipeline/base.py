@@ -298,8 +298,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
                 the runtime parameters for the step as the value. Defaults to `None`.
-            load_groups: A list containing lists of steps' names that have to be loaded together
+            load_groups: A list containing lists of steps that have to be loaded together
                 and in isolation with respect to the rest of the steps of the pipeline.
+                This argument also allows passing the following modes:
+
+                - "sequential_step_execution": each step will be executed in a stage i.e.
+                    the execution of the steps will be sequential.
+
                 Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
                 `True`.
@@ -355,8 +360,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, load groups are valid,
         # etc.
-        self._validate(load_groups)
-        self._load_groups = load_groups
+        self._load_groups = self._built_load_groups()
+        self._validate()
 
         self._set_pipeline_artifacts_path_in_steps()
 
@@ -455,6 +460,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             lists with the names of the steps of the stage, and the second element a list
             sorted by stage containing lists with the names of the last steps of the stage.
         """
+        load_groups = self._built_load_groups(load_groups)
         return self.dag.get_steps_load_stages(load_groups)
 
     def _add_dataset_generator_step(
@@ -500,20 +506,25 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             runtime_parameters[step_name] = step.get_runtime_parameters_info()
         return runtime_parameters
 
-    def _validate(self, load_groups: Optional["LoadGroups"] = None) -> None:
+    def _built_load_groups(
+        self, load_groups: Optional["LoadGroups"] = None
+    ) -> List[List[str]]:
+        if load_groups is None:
+            return []
+
+        if load_groups == "sequential_step_execution":
+            return [[step_name] for step_name in self.dag]
+
+        return load_groups
+
+    def _validate(self) -> None:
         """Validates the pipeline DAG to check that all the steps are chainable, there are
         no missing runtime parameters, batch sizes are correct and that load groups are
-        valid (if any).
-
-        Args:
-            load_groups: a list containing list of steps that have to be loaded together
-                in a separate load stage. Defaults to `None`.
-        """
+        valid (if any)."""
         self.dag.validate()
-        if load_groups is not None and isinstance(load_groups, list):
-            self._validate_load_groups(load_groups)
+        self._validate_load_groups(self._load_groups)
 
-    def _validate_load_groups(self, load_groups: List[List[Any]]) -> None:  # noqa: C901
+    def _validate_load_groups(self, load_groups: List[List[str]]) -> None:  # noqa: C901
         """Checks that the provided load groups are valid and that the steps can be scheduled
         to be loaded in different stages without any issue.
 
