@@ -44,9 +44,8 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
-    from distilabel.pipeline.typing import InputDataset
+    from distilabel.pipeline.typing import InputDataset, LoadGroups
     from distilabel.steps.base import _Step
-
 
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
@@ -148,7 +147,7 @@ class Pipeline(BasePipeline):
     def run(
         self,
         parameters: Optional[Dict[Any, Dict[str, Any]]] = None,
-        load_groups: Optional[List[List[Any]]] = None,
+        load_groups: Optional["LoadGroups"] = None,
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,

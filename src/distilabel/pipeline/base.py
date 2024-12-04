@@ -70,6 +70,7 @@ if TYPE_CHECKING:
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
     from distilabel.pipeline.typing import (
         InputDataset,
+        LoadGroups,
         PipelineRuntimeParametersInfo,
         StepLoadStatus,
     )
@@ -280,7 +281,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def run(
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
-        load_groups: Optional[List[List[Any]]] = None,
+        load_groups: Optional["LoadGroups"] = None,
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
@@ -438,6 +439,23 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._dry_run = False
         return distiset
+
+    def get_load_stages(
+        self, load_groups: Optional["LoadGroups"] = None
+    ) -> Tuple[List[List[str]], List[List[str]]]:
+        """Convenient method to get the load stages of a pipeline.
+
+        Args:
+            load_groups: A list containing list of steps that has to be loaded together
+                and in isolation with respect to the rest of the steps of the pipeline.
+                Defaults to `None`.
+
+        Returns:
+            A tuple with the first element containing asorted list by stage containing
+            lists with the names of the steps of the stage, and the second element a list
+            sorted by stage containing lists with the names of the last steps of the stage.
+        """
+        return self.dag.get_steps_load_stages(load_groups)
 
     def _add_dataset_generator_step(
         self, dataset: "InputDataset", batch_size: int = 50
@@ -997,17 +1015,18 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             msg += f"\n * Stage {stage}:"
             for step_name in steps:
                 step: "Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
-                if step.is_global:
-                    emoji = "🌐"
-                elif step.is_generator:
+                if step.is_generator:
                     emoji = "🚰"
+                elif step.is_global:
+                    emoji = "🌐"
                 else:
                     emoji = "🔄"
                 msg += f"\n   - {emoji} '{step_name}'"
                 if step_name not in steps_to_be_loaded:
                     msg += " (results cached, won't be loaded and executed)"
+        legend = "\n * Legend: 🚰 GeneratorStep 🌐 GlobalStep 🔄 Step"
         self._logger.info(
-            f"⌛ The steps of the pipeline will be loaded in stages:{msg}"
+            f"⌛ The steps of the pipeline will be loaded in stages:{legend}{msg}"
         )
 
     def _run_output_queue_loop_in_thread(self) -> threading.Thread:

@@ -97,6 +97,22 @@ class TestGlobalPipelineManager:
 
 
 class TestBasePipeline:
+    def test_load_stages(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        load_stages = pipeline.get_load_stages(load_groups=[[step2.name]])
+
+        assert load_stages == (
+            [[generator.name, step.name], [step2.name], [step3.name]],
+            [[step.name], [step2.name], [step3.name]],
+        )
+
     def test_aggregated_steps_signature(self) -> None:
         with DummyPipeline(name="dummy") as pipeline_0:
             generator = DummyGeneratorStep()

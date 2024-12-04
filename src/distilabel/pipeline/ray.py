@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from ray.util.scheduling_strategies import PlacementGroupSchedulingStrategy
 
     from distilabel.distiset import Distiset
-    from distilabel.pipeline.typing import InputDataset
+    from distilabel.pipeline.typing import InputDataset, LoadGroups
     from distilabel.steps.base import _Step
 
 
@@ -79,7 +79,7 @@ class RayPipeline(BasePipeline):
     def run(
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
-        load_groups: Optional[List[List[Any]]] = None,
+        load_groups: Optional["LoadGroups"] = None,
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
