@@ -169,6 +169,10 @@
          <lastmod>2024-12-04</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1075/sections/how_to_guides/advanced/load_groups_and_execution_stages/</loc>
+         <lastmod>2024-12-04</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-1075/sections/how_to_guides/advanced/offline_batch_generation/</loc>
          <lastmod>2024-12-04</lastmod>
     </url>
@@ -266,6 +270,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-1075/sections/pipeline_samples/papers/instruction_backtranslation/</loc>
+         <lastmod>2024-12-04</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1075/sections/pipeline_samples/papers/math_shepherd/</loc>
          <lastmod>2024-12-04</lastmod>
     </url>
     <url>
@@ -417,6 +425,10 @@
          <lastmod>2024-12-04</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1075/components-gallery/steps/formatprm/</loc>
+         <lastmod>2024-12-04</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-1075/components-gallery/steps/truncatetextcolumn/</loc>
          <lastmod>2024-12-04</lastmod>
     </url>
@@ -434,6 +446,14 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-1075/components-gallery/tasks/magpie/</loc>
+         <lastmod>2024-12-04</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1075/components-gallery/tasks/mathshepherdcompleter/</loc>
+         <lastmod>2024-12-04</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1075/components-gallery/tasks/mathshepherdgenerator/</loc>
          <lastmod>2024-12-04</lastmod>
     </url>
     <url>
