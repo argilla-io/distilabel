@@ -15,7 +15,7 @@
 from distilabel.models.llms import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts
-from distilabel.steps.tasks.vision_generation import VisionGeneration
+from distilabel.steps.tasks.text_generation_with_image import TextGenerationWithImage
 
 with Pipeline(name="vision_generation_pipeline") as pipeline:
     loader = LoadDataFromDicts(
@@ -31,7 +31,7 @@ with Pipeline(name="vision_generation_pipeline") as pipeline:
         model_id="meta-llama/Llama-3.2-11B-Vision-Instruct",
     )
 
-    vision = VisionGeneration(name="vision_gen", llm=llm, image_type="url")
+    vision = TextGenerationWithImage(name="vision_gen", llm=llm, image_type="url")
 
     loader >> vision
 

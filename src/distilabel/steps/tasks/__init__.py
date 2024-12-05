@@ -54,10 +54,10 @@ from distilabel.steps.tasks.sentence_transformers import GenerateSentencePair
 from distilabel.steps.tasks.structured_generation import StructuredGeneration
 from distilabel.steps.tasks.text_classification import TextClassification
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
+from distilabel.steps.tasks.text_generation_with_image import TextGenerationWithImage
 from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 from distilabel.steps.tasks.urial import URIAL
-from distilabel.steps.tasks.vision_generation import VisionGeneration
 
 __all__ = [
     "GeneratorTask",
@@ -102,5 +102,5 @@ __all__ = [
     "CLAIR",
     "UltraFeedback",
     "URIAL",
-    "VisionGeneration",
+    "TextGenerationWithImage",
 ]

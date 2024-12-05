@@ -33,10 +33,10 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepColumns
 
 
-class VisionGeneration(TextGeneration):
+class TextGenerationWithImage(TextGeneration):
     """Vision generation with an `LLM` given a prompt.
 
-    `VisionGeneration` is a pre-defined task that allows passing a custom prompt using the
+    `TextGenerationWithImage` is a pre-defined task that allows passing a custom prompt using the
     Jinja2 syntax. By default, a `instruction` is expected in the inputs, but the using
     `template` and `columns` attributes one can define a custom prompt and columns expected
     from the text. Additionally, an `image` column is expected containing one of the
@@ -76,10 +76,10 @@ class VisionGeneration(TextGeneration):
         Answer questions from an image:
 
         ```python
-        from distilabel.steps.tasks import VisionGeneration
+        from distilabel.steps.tasks import TextGenerationWithImage
         from distilabel.models.llms import InferenceEndpointsLLM
 
-        vision = VisionGeneration(
+        vision = TextGenerationWithImage(
             name="vision_gen",
             llm=InferenceEndpointsLLM(
                 model_id="meta-llama/Llama-3.2-11B-Vision-Instruct",
@@ -125,10 +125,10 @@ class VisionGeneration(TextGeneration):
         img = requests.get(image_url).content
         base64_image = base64.b64encode(img).decode("utf-8")
 
-        from distilabel.steps.tasks import VisionGeneration
+        from distilabel.steps.tasks import TextGenerationWithImage
         from distilabel.models.llms import InferenceEndpointsLLM
 
-        vision = VisionGeneration(
+        vision = TextGenerationWithImage(
             name="vision_gen",
             llm=InferenceEndpointsLLM(
                 model_id="meta-llama/Llama-3.2-11B-Vision-Instruct",
