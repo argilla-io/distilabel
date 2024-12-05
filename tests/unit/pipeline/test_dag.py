@@ -337,6 +337,54 @@ class TestDAG:
             ],
         )
 
+    def test_get_steps_load_stages_with_load_groups(self) -> None:
+        with Pipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummy_step_0 = DummyStep1()
+            dummy_step_1 = DummyStep1()
+            dummy_step_2 = DummyStep1()
+            dummy_step_3 = DummyStep1()
+            dummy_step_4 = DummyStep1()
+            dummy_step_5 = DummyStep1()
+            dummy_step_6 = DummyStep1()
+            dummy_step_7 = DummyStep1()
+
+            (
+                generator
+                >> dummy_step_0
+                >> [dummy_step_1, dummy_step_2]
+                >> dummy_step_3
+                >> dummy_step_4
+                >> dummy_step_5
+                >> dummy_step_6
+                >> dummy_step_7
+            )
+
+        assert pipeline.dag.get_steps_load_stages(
+            load_groups=[
+                [dummy_step_5.name],
+                [dummy_step_0.name, dummy_step_1.name],
+                [dummy_step_4.name],
+            ]
+        ) == (
+            [
+                [generator.name],
+                [dummy_step_0.name, dummy_step_1.name],
+                [dummy_step_2.name, dummy_step_3.name],
+                [dummy_step_4.name],
+                [dummy_step_5.name],
+                [dummy_step_6.name, dummy_step_7.name],
+            ],
+            [
+                [generator.name],
+                [dummy_step_1.name],
+                [dummy_step_3.name],
+                [dummy_step_4.name],
+                [dummy_step_5.name],
+                [dummy_step_7.name],
+            ],
+        )
+
     def test_validate_first_step_not_generator(
         self, dummy_step_1: "Step", dummy_step_2: "Step"
     ) -> None:

@@ -83,10 +83,11 @@ class TestPreferenceToArgilla:
         )
         with patch.object(PreferenceToArgilla, "load"):
             step.load()
-            step._instruction = "instruction"
-            step._generations = "generations"
-            step._ratings = "ratings"
-            step._rationales = "rationales"
+
+        step._instruction = "instruction"
+        step._generations = "generations"
+        step._ratings = "ratings"
+        step._rationales = "rationales"
         step._dataset = mock_dataset  # type: ignore
 
         step._dataset.records.log = lambda x: x  # type: ignore

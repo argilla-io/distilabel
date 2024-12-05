@@ -40,6 +40,7 @@ class TestPipeline:
         pipeline._manager = mock.MagicMock()
         pipeline._output_queue = mock.MagicMock()
         pipeline._load_queue = mock.MagicMock()
+        pipeline._create_steps_input_queues()
         pipeline._run_steps(
             steps=[dummy_generator.name, dummy_step_1.name, dummy_step_2.name]  # type: ignore
         )

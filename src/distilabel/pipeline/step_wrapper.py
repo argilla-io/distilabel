@@ -177,7 +177,7 @@ class _StepWrapper:
             offset = batch.seq_no * step.batch_size  # type: ignore
 
             self.step._logger.info(
-                f"🧬 Starting yielding batches from generator step '{self.step.name}'."
+                f"🚰 Starting yielding batches from generator step '{self.step.name}'."
                 f" Offset: {offset}"
             )
 
