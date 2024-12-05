@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import base64
-import io
-from typing import TYPE_CHECKING, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 from jinja2 import Template
 from PIL import Image
@@ -25,6 +23,7 @@ from distilabel.steps.tasks.text_generation import (
     TextGeneration,
     check_column_in_template,
 )
+from distilabel.utils.image import image_to_str
 
 if TYPE_CHECKING:
     from PIL.Image import Image
@@ -183,7 +182,7 @@ class TextGenerationWithImage(TextGeneration):
         # Othwerwise, it's a PIL image
         return f"data:image/jpeg;base64,{image_to_str(image)}"
 
-    def _prepare_message_content(self, input: dict[str, any]) -> "ConversationType":
+    def _prepare_message_content(self, input: dict[str, Any]) -> "ConversationType":
         """Prepares the content for the template and returns the formatted messages."""
         fields = {column: input[column] for column in self.columns}
         img_url = self._transform_image(input["image"])
@@ -205,7 +204,7 @@ class TextGenerationWithImage(TextGeneration):
             }
         ]
 
-    def format_input(self, input: dict[str, any]) -> "ConversationType":
+    def format_input(self, input: dict[str, Any]) -> "ConversationType":
         """The input is formatted as a `ConversationType` assuming that the instruction
         is the first interaction from the user within a conversation."""
         messages = self._prepare_message_content(input)
@@ -214,11 +213,3 @@ class TextGenerationWithImage(TextGeneration):
             messages.insert(0, {"role": "system", "content": self.system_prompt})
 
         return messages  # type: ignore
-
-
-# TODO: Once we merge the image generation, this function can be reused
-def image_to_str(image: Image.Image, image_format: str = "JPEG") -> str:
-    """Converts a PIL Image to a base64 encoded string."""
-    buffered = io.BytesIO()
-    image.save(buffered, format=image_format)
-    return base64.b64encode(buffered.getvalue()).decode("utf-8")
