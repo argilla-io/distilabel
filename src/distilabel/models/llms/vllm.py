@@ -711,7 +711,8 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
 
         generations = []
         for choice in completion.choices:
-            if (text := choice.text) == "":
+            text = choice.text
+            if text == "":
                 self._logger.warning(  # type: ignore
                     f"Received no response from vLLM server (model: '{self.model_name}')."
                     f" Finish reason was: {choice.finish_reason}"
