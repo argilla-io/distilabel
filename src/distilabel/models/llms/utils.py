@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 def compute_tokens(
-    text_or_messages: Union[str, ChatType], tokenizer: Callable[[str], List[int]]
+    text_or_messages: Union[str, ChatType], tokenizer: Callable[..., List[int]]
 ) -> int:
     """Helper function to count the number of tokens in a text or list of messages.
 

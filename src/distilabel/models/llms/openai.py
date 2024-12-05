@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from openai.types import Batch as OpenAIBatch
     from openai.types import FileObject as OpenAIFileObject
     from openai.types.chat import ChatCompletion as OpenAIChatCompletion
+    from openai.types.completion import Completion as OpenAICompletion
 
     from distilabel.llms.typing import LLMStatistics
 
@@ -678,8 +679,12 @@ class OpenAILLM(AsyncLLM):
         return f"distilabel-pipeline-{envs.DISTILABEL_PIPELINE_NAME}-{envs.DISTILABEL_PIPELINE_CACHE_ID}-fileno-{file_no}.jsonl"
 
     @staticmethod
-    def _get_llm_statistics(completion: "OpenAIChatCompletion") -> "LLMStatistics":
+    def _get_llm_statistics(
+        completion: Union["OpenAIChatCompletion", "OpenAICompletion"],
+    ) -> "LLMStatistics":
         return {
-            "input_tokens": [completion.usage.prompt_tokens if completion else 0],
-            "output_tokens": [completion.usage.completion_tokens if completion else 0],
+            "output_tokens": [
+                completion.usage.completion_tokens if completion.usage else 0
+            ],
+            "input_tokens": [completion.usage.prompt_tokens if completion.usage else 0],
         }

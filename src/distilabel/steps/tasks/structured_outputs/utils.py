@@ -19,14 +19,16 @@ from pydantic import BaseModel, Field, create_model
 
 
 def schema_as_dict(
-    schema: Union[str, Type[BaseModel], Dict[str, Any]],
+    schema: Union[str, Dict[str, Any], Type[BaseModel]],
 ) -> Dict[str, Any]:
     """Helper function to obtain the schema and simplify serialization."""
-    if type(schema) is type(BaseModel):
-        return schema.model_json_schema()
-    elif isinstance(schema, str):
+    if isinstance(schema, str):
         return json.loads(schema)
-    return schema  # type: ignore
+
+    if isinstance(schema, dict):
+        return schema
+
+    return schema.model_json_schema()
 
 
 # NOTE: The following functions were copied from:
@@ -47,7 +49,7 @@ def json_schema_to_model(json_schema: Dict[str, Any]) -> Type[BaseModel]:
     """
 
     # Extract the model name from the schema title.
-    model_name = json_schema.get("title")
+    model_name = json_schema["title"]
     if defs := json_schema.get("$defs", None):
         # This is done to grab the content of nested classes that need to dereference
         # the objects (those should be in a higher level).

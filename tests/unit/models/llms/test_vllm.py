@@ -102,27 +102,6 @@ SAMPLE_DATA = [
 ]
 
 
-class DummyTokenizer:
-    # chat_template = None
-    chat_template = "template"
-    vocabulary = {"I'm": 1, "fine": 2, "thank": 3, "you": 4, "sir": 5}
-
-    def __init__(self) -> None:
-        pass
-
-    def apply_chat_template(self, input, **kwargs):
-        return input
-
-    def encode(self, text: str):
-        return [1, 2, 3, 4, 5]
-
-    def convert_token_to_string(self, token: str) -> str:
-        return "token"
-
-    def get_vocab(self):
-        return self.vocabulary
-
-
 class TestvLLM:
     @pytest.mark.parametrize("multi_structured_output", (False, True))
     @pytest.mark.parametrize(
@@ -133,7 +112,7 @@ class TestvLLM:
                 [
                     {
                         "generations": ["I'm fine thank you"],
-                        "statistics": {"input_tokens": [10], "output_tokens": [6]},
+                        "statistics": {"input_tokens": [21], "output_tokens": [6]},
                     }
                 ],
             ),
@@ -143,7 +122,7 @@ class TestvLLM:
                     {
                         "generations": ["I'm fine thank you"] * 2,
                         "statistics": {
-                            "input_tokens": [10, 10],
+                            "input_tokens": [21, 21],
                             "output_tokens": [6, 6],
                         },
                     }
@@ -161,7 +140,7 @@ class TestvLLM:
         tokenizer = AutoTokenizer.from_pretrained(
             "distilabel-internal-testing/tiny-random-mistral"
         )
-        llm._tokenizer = DummyTokenizer()
+        llm._tokenizer = tokenizer
         vllm_mock = mock.MagicMock()
         vllm_mock.get_tokenizer = mock.MagicMock(return_value=tokenizer)
         # mock the import by hacking sys.modules

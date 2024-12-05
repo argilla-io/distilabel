@@ -334,7 +334,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         )
 
     def _prepare_structured_output(
-        self, structured_output: Optional["StructuredOutputType"] = None
+        self, structured_output: "StructuredOutputType"
     ) -> Union[Any, None]:
         """Method in charge of preparing the structured output generator.
 
