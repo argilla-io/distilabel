@@ -26,6 +26,7 @@ hide:
     | :material-file-download:        | load                | Load steps are used to load the data.                                                              |
     | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
+    | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
     | :eyes:                          | vision-generation   | Vision generation steps are used to generate text based on an image.                               |
 
 <div class="grid cards" markdown>
@@ -54,6 +55,22 @@ hide:
     Generates conversations using an instruct fine-tuned LLM.
 
     [:octicons-arrow-right-24: Magpie](magpie.md){ .bottom }
+
+-   :material-text-box-edit:{ .lg .middle } __MathShepherdCompleter__
+
+    ---
+
+    Math Shepherd Completer and auto-labeller task.
+
+    [:octicons-arrow-right-24: MathShepherdCompleter](mathshepherdcompleter.md){ .bottom }
+
+-   :material-text-box-edit:{ .lg .middle } __MathShepherdGenerator__
+
+    ---
+
+    Math Shepherd solution generator.
+
+    [:octicons-arrow-right-24: MathShepherdGenerator](mathshepherdgenerator.md){ .bottom }
 
 -   :material-text-box-edit:{ .lg .middle } __SelfInstruct__
 
