@@ -176,10 +176,10 @@ class VisionGeneration(TextGeneration):
         """Transforms the image based on the `image_type` attribute."""
         if self.image_type == "url":
             return image
-            
+
         if self.image_type == "base64":
             return f"data:image/jpeg;base64,{image}"
-            
+
         # Othwerwise, it's a PIL image
         return f"data:image/jpeg;base64,{image_to_str(image)}"
 
