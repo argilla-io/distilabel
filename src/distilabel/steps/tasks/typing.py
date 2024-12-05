@@ -18,16 +18,7 @@ from pydantic import BaseModel
 from typing_extensions import Required, TypedDict
 
 
-class ChatItem(TypedDict):
-    role: Literal["system", "user", "assistant"]
-    content: str
-
-
-ChatType = List[ChatItem]
-"""ChatType is a type alias for a `list` of `dict`s following the OpenAI conversational format."""
-
-
-class ChatCompletionTextPart(TypedDict, total=False):
+class TextContent(TypedDict, total=False):
     type: Required[Literal["text"]]
     text: Required[str]
 
@@ -37,33 +28,23 @@ class ImageUrl(TypedDict):
     """Either a URL of the image or the base64 encoded image data."""
 
 
-class ChatCompletionImagePart(TypedDict, total=False):
+class ImageContent(TypedDict, total=False):
+    """Type alias for the user's message in a conversation that can include text or an image.
+    It's the standard type for vision language models:
+    https://platform.openai.com/docs/guides/vision
+    """
+
     type: Required[Literal["image_url"]]
     image_url: Required[ImageUrl]
 
 
-VisionMessage = Union[ChatCompletionTextPart, ChatCompletionImagePart]
-"""Type alias for the user's message in a conversation that can include text or an image.
-It's the standard type for vision language models:
-https://platform.openai.com/docs/guides/vision
-"""
+class ChatItem(TypedDict):
+    role: Literal["system", "user", "assistant"]
+    content: Union[str, list[Union[TextContent, ImageContent]]]
 
 
-# Note: Follows the definition from vLLM: https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/chat_utils.py#L141
-# TODO: We should merge this with the ChatType to have a single type for the new conversations
-# that may include multimodal images/audio/video... or tool calls for example.
-class ConversationMessage(TypedDict, total=False):
-    role: Required[Literal["system", "user", "assistant"]]
-    """The role of the message's author."""
-
-    content: Union[Optional[str], list[VisionMessage]]
-    """The contents of the message for a model with vision capabilities,
-    meaning the models can take in images and answer questions about them."""
-
-
-ConversationType = list[ConversationMessage]
-"""ConversationType is a type alias for a `list` of `dict`s following the OpenAI conversational format for
-vision models."""
+ChatType = List[ChatItem]
+"""ChatType is a type alias for a `list` of `dict`s following the OpenAI conversational format."""
 
 
 class OutlinesStructuredOutputType(TypedDict, total=False):
@@ -108,6 +89,6 @@ StandardInput = ChatType
 """StandardInput is an alias for ChatType that defines the default / standard input produced by `format_input`."""
 StructuredInput = Tuple[StandardInput, Union[StructuredOutputType, None]]
 """StructuredInput defines a type produced by `format_input` when using either `StructuredGeneration` or a subclass of it."""
-FormattedInput = Union[StandardInput, StructuredInput, ConversationType]
+FormattedInput = Union[StandardInput, StructuredInput, ChatType]
 """FormattedInput is an alias for the union of `StandardInput` and `StructuredInput` as generated
 by `format_input` and expected by the `LLM`s, as well as `ConversationType` for the vision language models."""

@@ -28,12 +28,12 @@ from distilabel.utils.image import image_to_str
 if TYPE_CHECKING:
     from PIL.Image import Image
 
-    from distilabel.steps.tasks.typing import ConversationType
+    from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import StepColumns
 
 
 class TextGenerationWithImage(TextGeneration):
-    """Vision generation with an `LLM` given a prompt.
+    """Text generation with images with an `LLM` given a prompt.
 
     `TextGenerationWithImage` is a pre-defined task that allows passing a custom prompt using the
     Jinja2 syntax. By default, a `instruction` is expected in the inputs, but the using
@@ -182,7 +182,7 @@ class TextGenerationWithImage(TextGeneration):
         # Othwerwise, it's a PIL image
         return f"data:image/jpeg;base64,{image_to_str(image)}"
 
-    def _prepare_message_content(self, input: dict[str, Any]) -> "ConversationType":
+    def _prepare_message_content(self, input: dict[str, Any]) -> "ChatType":
         """Prepares the content for the template and returns the formatted messages."""
         fields = {column: input[column] for column in self.columns}
         img_url = self._transform_image(input["image"])
@@ -204,8 +204,8 @@ class TextGenerationWithImage(TextGeneration):
             }
         ]
 
-    def format_input(self, input: dict[str, Any]) -> "ConversationType":
-        """The input is formatted as a `ConversationType` assuming that the instruction
+    def format_input(self, input: dict[str, Any]) -> "ChatType":
+        """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
         messages = self._prepare_message_content(input)
 
