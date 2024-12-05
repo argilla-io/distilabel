@@ -27,7 +27,6 @@ hide:
     | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
     | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
-    | :eyes:                          | vision-generation   | Vision generation steps are used to generate text based on an image.                               |
 
 <div class="grid cards" markdown>
 
@@ -87,6 +86,14 @@ hide:
     Text generation with an `LLM` given a prompt.
 
     [:octicons-arrow-right-24: TextGeneration](textgeneration.md){ .bottom }
+
+-   :material-text-box-edit:{ .lg .middle } __TextGenerationWithImage__
+
+    ---
+
+    Text generation with images with an `LLM` given a prompt.
+
+    [:octicons-arrow-right-24: TextGenerationWithImage](textgenerationwithimage.md){ .bottom }
 
 -   :material-text-box-edit:{ .lg .middle } __URIAL__
 
@@ -263,14 +270,6 @@ hide:
     Generate queries and answers for the given functions in JSON format.
 
     [:octicons-arrow-right-24: APIGenSemanticChecker](apigensemanticchecker.md){ .bottom }
-
--   :eyes:{ .lg .middle } __VisionGeneration__
-
-    ---
-
-    Vision generation with an `LLM` given a prompt.
-
-    [:octicons-arrow-right-24: VisionGeneration](visiongeneration.md){ .bottom }
 
 -   :material-check-outline:{ .lg .middle } __GenerateTextRetrievalData__
 

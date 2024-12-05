@@ -253,7 +253,7 @@
          <lastmod>2024-12-05</lastmod>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/pr-1066/sections/pipeline_samples/examples/vision_generation/</loc>
+         <loc>https://argilla-io.github.io/distilabel/pr-1066/sections/pipeline_samples/examples/text_generation_with_image/</loc>
          <lastmod>2024-12-05</lastmod>
     </url>
     <url>
@@ -469,6 +469,10 @@
          <lastmod>2024-12-05</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-1066/components-gallery/tasks/textgenerationwithimage/</loc>
+         <lastmod>2024-12-05</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-1066/components-gallery/tasks/urial/</loc>
          <lastmod>2024-12-05</lastmod>
     </url>
@@ -550,10 +554,6 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-1066/components-gallery/tasks/apigensemanticchecker/</loc>
-         <lastmod>2024-12-05</lastmod>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/pr-1066/components-gallery/tasks/visiongeneration/</loc>
          <lastmod>2024-12-05</lastmod>
     </url>
     <url>

@@ -27,7 +27,6 @@ hide:
     | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
     | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
-    | :eyes:                          | vision-generation   | Vision generation steps are used to generate text based on an image.                               |
 
 <div class="grid cards" markdown>
 
