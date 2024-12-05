@@ -65,7 +65,7 @@ class VisionGeneration(TextGeneration):
         - model_name (`str`): The name of the model used to generate the text.
 
     Categories:
-        - vision-generation
+        - text-generation
 
     References:
         - [Jinja2 Template Designer Documentation](https://jinja.palletsprojects.com/en/3.1.x/templates/)

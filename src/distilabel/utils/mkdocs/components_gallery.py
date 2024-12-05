@@ -93,7 +93,6 @@ _STEPS_CATEGORY_TO_ICON = {
     "execution": ":octicons-code-16:",
     "save": ":material-content-save:",
     "labelling": ":label:",
-    "vision-generation": ":eyes:",
 }
 
 _STEP_CATEGORY_TO_DESCRIPTION = {
@@ -114,7 +113,6 @@ _STEP_CATEGORY_TO_DESCRIPTION = {
     "execution": "Executes python functions.",
     "save": "Save steps are used to save the data.",
     "labelling": "Labelling steps are used to label the data.",
-    "vision-generation": "Vision generation steps are used to generate text based on an image.",
 }
 
 
