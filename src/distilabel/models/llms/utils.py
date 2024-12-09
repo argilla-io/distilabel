@@ -61,6 +61,6 @@ def prepare_output(
             "output_tokens": output_tokens or [],
         },
     }
-    if logprobs is not None:
+    if logprobs:
         output["logprobs"] = logprobs
     return output

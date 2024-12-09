@@ -451,9 +451,9 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if sorted_indices is not None:
             # Sort the batched outputs together with the statistics
             generations = self._prepare_sorted_results(
-                batched_outputs,
-                sorted_indices,
-                generations,
+                batched_outputs=batched_outputs,
+                sorted_indices=sorted_indices,
+                generations=generations,
                 num_generations=num_generations,
             )
 
