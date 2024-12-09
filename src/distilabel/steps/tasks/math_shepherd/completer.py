@@ -528,7 +528,13 @@ class MathShepherdCompleter(Task):
 
         return inputs
 
-    def _add_metadata(self, input, statistics, raw_output, raw_input):
+    def _add_metadata(
+        self,
+        input: dict[str, Any],
+        statistics: list["LLMStatistics"],
+        raw_output: Union[str, None],
+        raw_input: Union[list[dict[str, Any]], None],
+    ) -> dict[str, Any]:
         """Adds the `distilabel_metadata` to the input.
 
         This method comes for free in the general Tasks, but as we have reimplemented the `process`,

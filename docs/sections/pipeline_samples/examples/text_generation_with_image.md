@@ -2,7 +2,7 @@
 hide: toc
 ---
 
-# Vision generation with `distilabel`
+# Text generation with images in `distilabel`
 
 Answer questions about images using `distilabel`.
 

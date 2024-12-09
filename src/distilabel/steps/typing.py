@@ -15,7 +15,7 @@
 from typing import Any, Dict, Iterator, List, Tuple, Union
 
 StepOutput = Iterator[List[Dict[str, Any]]]
-
+"""`StepOutput` is an alias of the typing `Iterator[List[Dict[str, Any]]]`"""
 
 GeneratorStepOutput = Iterator[Tuple[List[Dict[str, Any]], bool]]
 """`GeneratorStepOutput` is an alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""

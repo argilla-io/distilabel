@@ -94,6 +94,8 @@ theme:
 watch:
   - src/distilabel
 
+strict: true
+
 # Extensions
 markdown_extensions:
   - attr_list
