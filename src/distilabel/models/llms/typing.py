@@ -14,7 +14,24 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, TypedDict, TypeVar, Union
 
+from typing_extensions import NotRequired
+
 LLMOutput = List[Union[str, None]]
+
+
+class Logprob(TypedDict):
+    token: str
+    logprob: float
+
+
+LLMLogprobs = List[List[List[Logprob]]]
+"""A type alias representing the probability distributions output by an `LLM`.
+
+Structure:
+    - Outermost list: contains multiple generation choices when sampling (`n` sequences)
+    - Middle list: represents each position in the generated sequence
+    - Innermost list: contains the log probabilities for each token in the vocabulary at that position
+"""
 
 
 class TokenCount(TypedDict):
@@ -31,6 +48,7 @@ They can be added once we have them defined for every LLM.
 class GenerateOutput(TypedDict):
     generations: LLMOutput
     statistics: LLMStatistics
+    logprobs: NotRequired[LLMLogprobs]
 
 
 if TYPE_CHECKING:

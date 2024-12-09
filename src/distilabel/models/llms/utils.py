@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Union
 from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput, LLMOutput
+    from distilabel.models.llms.typing import GenerateOutput, LLMLogprobs, LLMOutput
 
 
 def compute_tokens(
@@ -42,6 +42,7 @@ def prepare_output(
     generations: "LLMOutput",
     input_tokens: Optional[List[int]] = None,
     output_tokens: Optional[List[int]] = None,
+    logprobs: Optional["LLMLogprobs"] = None,
 ) -> "GenerateOutput":
     """Helper function to prepare the output of the LLM.
 
@@ -53,10 +54,13 @@ def prepare_output(
     Returns:
         Output generation from an LLM.
     """
-    return {
+    output: "GenerateOutput" = {
         "generations": generations,
         "statistics": {
             "input_tokens": input_tokens or [],
             "output_tokens": output_tokens or [],
         },
     }
+    if logprobs is not None:
+        output["logprobs"] = logprobs
+    return output

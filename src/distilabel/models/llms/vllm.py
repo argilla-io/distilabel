@@ -29,29 +29,27 @@ from typing import (
 )
 
 import numpy as np
-from pydantic import Field, PrivateAttr, SecretStr, validate_call
+from pydantic import Field, PositiveInt, PrivateAttr, SecretStr, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
 from distilabel.models.llms.openai import OpenAILLM
-from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.typing import GenerateOutput, Logprob
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.typing import FormattedInput
+from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
     from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
-    from vllm.outputs import RequestOutput
+    from vllm.outputs import RequestOutput, CompletionOutput
 
     from distilabel.steps.tasks.typing import StandardInput
     from distilabel.models.llms.typing import LLMStatistics
-    from distilabel.steps.tasks.typing import (
-        StructuredInput,
-        OutlinesStructuredOutputType,
-    )
+    from distilabel.steps.tasks.typing import StructuredInput
+    from distilabel.models.llms.typing import LLMLogprobs, LLMOutput
 
 
 LogitsProcessorFn = Union[
@@ -331,6 +329,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         top_p: float = 1.0,
         top_k: int = -1,
         min_p: float = 0.0,
+        logprobs: Optional[PositiveInt] = None,
         stop: Optional[List[str]] = None,
         stop_token_ids: Optional[List[int]] = None,
         include_stop_str_in_output: bool = False,
@@ -355,6 +354,8 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             top_k: the top-k value to use for the generation. Defaults to `0`.
             min_p: the minimum probability to use for the generation. Defaults to `0.0`.
+            logprobs: number of log probabilities to return per output token. If `None`,
+                then no log probability won't be returned. Defaults to `None`.
             stop: a list of strings that will be used to stop the generation when found.
                 Defaults to `None`.
             stop_token_ids: a list of token ids that will be used to stop the generation
@@ -410,6 +411,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 top_k=top_k,
                 min_p=min_p,
                 max_tokens=max_new_tokens,
+                logprobs=logprobs,
                 stop=stop,
                 stop_token_ids=stop_token_ids,
                 include_stop_str_in_output=include_stop_str_in_output,
@@ -429,13 +431,16 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             batched_outputs += [
                 [output.text for output in outputs.outputs] for outputs in batch_outputs
             ]
+
             for input, outputs in zip(prepared_inputs, batch_outputs):
+                texts, outputs_logprobs = self._process_outputs(outputs)
                 statistics = self._get_llm_statistics(input, outputs)
                 generations.append(
                     prepare_output(
-                        generations=[output.text for output in outputs.outputs],
+                        generations=texts,
                         input_tokens=statistics["input_tokens"],
                         output_tokens=statistics["output_tokens"],
+                        logprobs=outputs_logprobs,
                     )
                 )
 
@@ -451,6 +456,17 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             )
 
         return generations
+
+    def _process_outputs(
+        self, outputs: "RequestOutput"
+    ) -> Tuple["LLMOutput", "LLMLogprobs"]:
+        texts = []
+        outputs_logprobs = []
+        for output in outputs.outputs:
+            texts.append(output.text)
+            if output.logprobs is not None:
+                outputs_logprobs.append(self._get_llm_logprobs(output))
+        return texts, outputs_logprobs
 
     def _prepare_structured_output(
         self, structured_output: "OutlinesStructuredOutputType"
@@ -483,6 +499,17 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             * len(output_tokens),
             "output_tokens": output_tokens,
         }
+
+    def _get_llm_logprobs(self, output: "CompletionOutput") -> List[List["Logprob"]]:
+        logprobs = []
+        for token_logprob in output.logprobs:  # type: ignore
+            token_logprobs = []
+            for logprob in token_logprob.values():
+                token_logprobs.append(
+                    {"token": logprob.decoded_token, "logprob": logprob.logprob}
+                )
+            logprobs.append(token_logprobs)
+        return logprobs
 
     @staticmethod
     def _prepare_sorted_results(
