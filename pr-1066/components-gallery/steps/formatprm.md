@@ -22,6 +22,15 @@ This step can be used to format the data in one of 2 formats:
 
 
 
+### Attributes
+
+- **format**: The format to use for the PRM model.  "math-shepherd" corresponds to the original paper, while "trl" is a format  prepared to train the model using TRL.
+
+- **step_token**: String that serves as a unique token denoting the position  for predicting the step score.
+
+- **tags**: List of tags that represent the correct and incorrect steps.  This only needs to be informed if it's different than the default in  `MathShepherdCompleter`.
+
+
 
 
 
@@ -114,14 +123,6 @@ result = next(
     )
 )
 result = next(formatter.process(result))
-# result[0]["input"]
-# "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market? Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. ки
-Step 2: Calculate the amount of white fiber needed: Since it's half that much, we can divide 2 by 2: 2 / 2 = <<2/2=1>>1 bolt of white fiber. ки
-Step 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 ки"
-# result[0]["label"]
-# "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market? Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +
-Step 2: Calculate the amount of white fiber needed: Since it's half that much, we can divide 2 by 2: 2 / 2 = <<2/2=1>>1 bolt of white fiber. +
-Step 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 +"
 ```
 
 #### Prepare your data to train a PRM model with the TRL format

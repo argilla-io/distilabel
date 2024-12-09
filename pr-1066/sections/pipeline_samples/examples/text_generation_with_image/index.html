@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.47">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.48">
     
     
       
@@ -175,7 +175,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#vision-generation-with-distilabel" class="md-skip">
+        <a href="#text-generation-with-images-in-distilabel" class="md-skip">
           Skip to content
         </a>
       
@@ -5033,7 +5033,7 @@
   
 
 
-<h1 id="vision-generation-with-distilabel">Vision generation with <code>distilabel</code><a class="headerlink" href="#vision-generation-with-distilabel" title="Permanent link">&para;</a></h1>
+<h1 id="text-generation-with-images-in-distilabel">Text generation with images in <code>distilabel</code><a class="headerlink" href="#text-generation-with-images-in-distilabel" title="Permanent link">&para;</a></h1>
 <p>Answer questions about images using <code>distilabel</code>.</p>
 <p>Image-text-to-text models take in an image and text prompt and output text. In this example we will use an LLM <a href="https://distilabel.argilla.io/dev/components-gallery/llms/inferenceendpointsllm/"><code>InferenceEndpointsLLM</code></a> with <a href="https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct">meta-llama/Llama-3.2-11B-Vision-Instruct</a> to ask a question about an image, and <a href="https://distilabel.argilla.io/dev/components-gallery/llms/openaillm/"><code>OpenAILLM</code></a> with <code>gpt-4o-mini</code>. We will ask a simple question to showcase how the <a href="https://distilabel.argilla.io/dev/components-gallery/tasks/textgenerationwithimage/"><code>TextGenerationWithImage</code></a> task can be used in a pipeline.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Inference Endpoints - meta-llama/Llama-3.2-11B-Vision-Instruct</label><label for="__tabbed_1_2">OpenAI - gpt-4o-mini</label></div>

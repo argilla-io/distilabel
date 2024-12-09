@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.47">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.48">
     
     
       
@@ -4987,6 +4987,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attributes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#input-output-columns" class="md-nav__link">
     <span class="md-ellipsis">
       Input &amp; Output Columns
@@ -5087,6 +5096,18 @@
     Following TRL's format for training, which generates the columns prompt, completions, and labels.
     The labels correspond to the original tags replaced by boolean values, where True represents
     correct steps.</p>
+<h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>format</strong>: The format to use for the PRM model.  "math-shepherd" corresponds to the original paper, while "trl" is a format  prepared to train the model using TRL.</p>
+</li>
+<li>
+<p><strong>step_token</strong>: String that serves as a unique token denoting the position  for predicting the step score.</p>
+</li>
+<li>
+<p><strong>tags</strong>: List of tags that represent the correct and incorrect steps.  This only needs to be informed if it's different than the default in  <code>MathShepherdCompleter</code>.</p>
+</li>
+</ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>graph TD
     subgraph Dataset
@@ -5168,14 +5189,6 @@
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="p">)</span>
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="p">)</span>
 </span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">formatter</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1"># result[0][&quot;input&quot;]</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="c1"># &quot;Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers&#39; market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers&#39; market? Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. ки</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="n">Step</span> <span class="mi">2</span><span class="p">:</span> <span class="n">Calculate</span> <span class="n">the</span> <span class="n">amount</span> <span class="n">of</span> <span class="n">white</span> <span class="n">fiber</span> <span class="n">needed</span><span class="p">:</span> <span class="n">Since</span> <span class="n">it</span><span class="s1">&#39;s half that much, we can divide 2 by 2: 2 / 2 = &lt;&lt;2/2=1&gt;&gt;1 bolt of white fiber. ки</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="n">Step</span> <span class="mi">3</span><span class="p">:</span> <span class="n">Add</span> <span class="n">the</span> <span class="n">amount</span> <span class="n">of</span> <span class="n">blue</span> <span class="ow">and</span> <span class="n">white</span> <span class="n">fiber</span><span class="p">:</span> <span class="mi">2</span> <span class="p">(</span><span class="n">blue</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">(</span><span class="n">white</span><span class="p">)</span> <span class="o">=</span> <span class="o">&lt;&lt;</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="o">=</span><span class="mi">3</span><span class="o">&gt;&gt;</span><span class="mi">3</span> <span class="n">bolts</span> <span class="n">of</span> <span class="n">fiber</span> <span class="ow">in</span> <span class="n">total</span><span class="o">.</span> <span class="n">The</span> <span class="n">answer</span> <span class="ow">is</span><span class="p">:</span> <span class="mi">3</span> <span class="n">ки</span><span class="s2">&quot;</span>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="c1"># result[0][&quot;label&quot;]</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1"># &quot;Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers&#39; market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers&#39; market? Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="n">Step</span> <span class="mi">2</span><span class="p">:</span> <span class="n">Calculate</span> <span class="n">the</span> <span class="n">amount</span> <span class="n">of</span> <span class="n">white</span> <span class="n">fiber</span> <span class="n">needed</span><span class="p">:</span> <span class="n">Since</span> <span class="n">it</span><span class="s1">&#39;s half that much, we can divide 2 by 2: 2 / 2 = &lt;&lt;2/2=1&gt;&gt;1 bolt of white fiber. +</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="n">Step</span> <span class="mi">3</span><span class="p">:</span> <span class="n">Add</span> <span class="n">the</span> <span class="n">amount</span> <span class="n">of</span> <span class="n">blue</span> <span class="ow">and</span> <span class="n">white</span> <span class="n">fiber</span><span class="p">:</span> <span class="mi">2</span> <span class="p">(</span><span class="n">blue</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">(</span><span class="n">white</span><span class="p">)</span> <span class="o">=</span> <span class="o">&lt;&lt;</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="o">=</span><span class="mi">3</span><span class="o">&gt;&gt;</span><span class="mi">3</span> <span class="n">bolts</span> <span class="n">of</span> <span class="n">fiber</span> <span class="ow">in</span> <span class="n">total</span><span class="o">.</span> <span class="n">The</span> <span class="n">answer</span> <span class="ow">is</span><span class="p">:</span> <span class="mi">3</span> <span class="o">+</span><span class="s2">&quot;</span>
 </span></code></pre></div>
 <h4 id="prepare-your-data-to-train-a-prm-model-with-the-trl-format">Prepare your data to train a PRM model with the TRL format<a class="headerlink" href="#prepare-your-data-to-train-a-prm-model-with-the-trl-format" title="Permanent link">&para;</a></h4>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">FormatPRM</span>
