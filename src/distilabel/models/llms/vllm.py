@@ -317,7 +317,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         ], sorted_indices
 
     @validate_call
-    def generate(  # type: ignore
+    def generate(  # noqa: C901 # type: ignore
         self,
         inputs: List[FormattedInput],
         num_generations: int = 1,
@@ -396,6 +396,10 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         generations = []
 
         for prepared_inputs, structured_output in prepared_batches:
+            if self.structured_output is not None and structured_output is not None:
+                # TODO: warning
+                pass
+
             if structured_output is not None:
                 logits_processors.append(
                     self._prepare_structured_output(structured_output)  # type: ignore
@@ -425,6 +429,11 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 use_tqdm=False,
             )
 
+            # Remove structured output logit processor to avoid stacking structured output
+            # logits processors that leads to non-sense generations
+            if structured_output is not None:
+                logits_processors.pop(-1)
+
             for input, outputs in zip(prepared_inputs, batch_outputs):
                 texts, statistics, outputs_logprobs = self._process_outputs(
                     input, outputs
@@ -439,8 +448,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                     )
                 )
 
-        # If logits_processor is set, we need to sort the outputs back to the original order
-        # (would be needed only if we have multiple structured outputs in the dataset)
         if sorted_indices is not None:
             # Sort the batched outputs together with the statistics
             generations = self._prepare_sorted_results(
@@ -524,18 +531,20 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         # This was the only required sort back with only the generations
         batched_outputs = _sort_batches(
-            batched_outputs, sorted_indices, num_generations=num_generations
+            batches=batched_outputs,  # type: ignore
+            indices=sorted_indices,
+            num_generations=num_generations,
         )
 
         # Prepare the statistics to be sorted
         # Loop over all the variables in the statistics
         # Get the keys from the LLMStatistics
-        statistic_fields = list(generations[0]["statistics"].keys())
+        statistics_fields = list(generations[0]["statistics"].keys())
         statistics = {}
-        for field in statistic_fields:
+        for field in statistics_fields:
             batched_field = _sort_batches(
-                [g["statistics"][field] for g in generations],
-                sorted_indices,
+                batches=[g["statistics"][field] for g in generations],
+                indices=sorted_indices,
                 num_generations=num_generations,
             )
             statistics[field] = batched_field
@@ -543,11 +552,11 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         # Regenerates the outputs as they are returned by `prepare_output`
         sorted_results = []
         for i, batched_output in enumerate(batched_outputs):
-            generation = {"generations": batched_output}
-            statistics = {
+            generation: Dict[str, Any] = {"generations": batched_output}
+            output_statistics = {
                 field: batched_field[i] for field, batched_field in statistics.items()
             }
-            generation.update({"statistics": statistics})
+            generation.update({"statistics": output_statistics})
             sorted_results.append(generation)
 
         return sorted_results
