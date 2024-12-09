@@ -115,6 +115,7 @@ _STEP_CATEGORY_TO_DESCRIPTION = {
     "labelling": "Labelling steps are used to label the data.",
 }
 
+
 assert list(_STEP_CATEGORY_TO_DESCRIPTION.keys()) == list(
     _STEPS_CATEGORY_TO_ICON.keys()
 )

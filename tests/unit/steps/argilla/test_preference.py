@@ -92,7 +92,14 @@ class TestPreferenceToArgilla:
 
         step._dataset.records.log = lambda x: x  # type: ignore
         assert list(
-            step.process([{"instruction": "test", "generations": ["test", "test"]}])
+            step.process(
+                [
+                    {
+                        "instruction": "test",
+                        "generations": ["test", "test"],
+                    }
+                ]
+            )
         ) == [[{"instruction": "test", "generations": ["test", "test"]}]]
         assert step._dataset.records  # type: ignore
 

@@ -95,6 +95,9 @@ if TYPE_CHECKING:
         stages_file: Path
 
 
+LoadStages = tuple[list[list[str]], list[list[str]]]
+
+
 class _GlobalPipelineManager:
     """Class to manage the global pipeline instance that will be used by the steps when
     created within a pipeline context.
@@ -445,9 +448,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._dry_run = False
         return distiset
 
-    def get_load_stages(
-        self, load_groups: Optional["LoadGroups"] = None
-    ) -> Tuple[List[List[str]], List[List[str]]]:
+    def get_load_stages(self, load_groups: Optional["LoadGroups"] = None) -> LoadStages:
         """Convenient method to get the load stages of a pipeline.
 
         Args:
