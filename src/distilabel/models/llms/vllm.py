@@ -392,7 +392,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if self._structured_output_logits_processor:
             logits_processors.append(self._structured_output_logits_processor)
 
-        batched_outputs: List[List[str]] = []
+        batched_outputs: List["LLMOutput"] = []
         generations = []
 
         for prepared_inputs, structured_output in prepared_batches:
@@ -425,16 +425,11 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 use_tqdm=False,
             )
 
-            # TODO: This is repeated in prepare_output, but for simplicity we extract
-            # the batched_outputs as we did when there wasn't statistics and we just
-            # return the str generations
-            batched_outputs += [
-                [output.text for output in outputs.outputs] for outputs in batch_outputs
-            ]
-
             for input, outputs in zip(prepared_inputs, batch_outputs):
-                texts, outputs_logprobs = self._process_outputs(outputs)
-                statistics = self._get_llm_statistics(input, outputs)
+                texts, statistics, outputs_logprobs = self._process_outputs(
+                    input, outputs
+                )
+                batched_outputs.append(texts)
                 generations.append(
                     prepare_output(
                         generations=texts,
@@ -458,15 +453,21 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         return generations
 
     def _process_outputs(
-        self, outputs: "RequestOutput"
-    ) -> Tuple["LLMOutput", "LLMLogprobs"]:
+        self, input: str, outputs: "RequestOutput"
+    ) -> Tuple["LLMOutput", "LLMStatistics", "LLMLogprobs"]:
         texts = []
         outputs_logprobs = []
+        statistics = {
+            "input_tokens": [compute_tokens(input, self._tokenizer.encode)]
+            * len(outputs.outputs),
+            "output_tokens": [],
+        }
         for output in outputs.outputs:
             texts.append(output.text)
+            statistics["output_tokens"].append(len(output.token_ids))
             if output.logprobs is not None:
                 outputs_logprobs.append(self._get_llm_logprobs(output))
-        return texts, outputs_logprobs
+        return texts, statistics, outputs_logprobs
 
     def _prepare_structured_output(
         self, structured_output: "OutlinesStructuredOutputType"
@@ -490,16 +491,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             self.structured_output["schema"] = schema
         return result["processor"]
 
-    def _get_llm_statistics(
-        self, input: str, outputs: "RequestOutput"
-    ) -> "LLMStatistics":
-        output_tokens = [len(output.token_ids) for output in outputs.outputs]
-        return {
-            "input_tokens": [compute_tokens(input, self._tokenizer.encode)]
-            * len(output_tokens),
-            "output_tokens": output_tokens,
-        }
-
     def _get_llm_logprobs(self, output: "CompletionOutput") -> List[List["Logprob"]]:
         logprobs = []
         for token_logprob in output.logprobs:  # type: ignore
@@ -513,7 +504,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     @staticmethod
     def _prepare_sorted_results(
-        batched_outputs: List[List[str]],
+        batched_outputs: List["LLMOutput"],
         sorted_indices: List[int],
         generations: List[GenerateOutput],
         num_generations: int = 1,
