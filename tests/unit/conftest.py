@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import atexit
+import os
 from typing import TYPE_CHECKING, Any, Dict, List, Union
+from urllib.request import urlretrieve
 
 import pytest
 from pydantic import PrivateAttr
@@ -126,3 +129,35 @@ class DummyTaskOfflineBatchGeneration(DummyTask):
 @pytest.fixture
 def dummy_llm() -> AsyncLLM:
     return DummyAsyncLLM()
+
+
+@pytest.fixture(scope="session")
+def local_llamacpp_model_path(tmp_path_factory):
+    """
+    Session-scoped fixture that provides the local model path for LlamaCpp testing.
+
+    Download a small test model to a temporary directory.
+    The model is downloaded once per test session and cleaned up after all tests.
+
+    Args:
+        tmp_path_factory: Pytest fixture providing a temporary directory factory.
+
+    Returns:
+        str: The path to the local LlamaCpp model file.
+    """
+    model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
+    model_url = f"https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/{model_name}"
+    tmp_path = tmp_path_factory.getbasetemp()
+    model_path = tmp_path / model_name
+
+    if not model_path.exists():
+        urlretrieve(model_url, model_path)
+
+    def cleanup():
+        if model_path.exists():
+            os.remove(model_path)
+
+    # Register the cleanup function to be called at exit
+    atexit.register(cleanup)
+
+    return str(tmp_path)
