@@ -16,10 +16,11 @@ import os
 import random
 import sys
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
 
 from pydantic import (
     Field,
+    PositiveInt,
     PrivateAttr,
     SecretStr,
     ValidationError,
@@ -31,7 +32,7 @@ from typing_extensions import Annotated, override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput
+from distilabel.models.llms.typing import GenerateOutput, Logprob
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.typing import (
@@ -45,11 +46,14 @@ if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
     from huggingface_hub.inference._generated.types.chat_completion import (
         ChatCompletionOutput,
+        ChatCompletionOutputComplete,
     )
     from huggingface_hub.inference._generated.types.text_generation import (
         TextGenerationOutput,
     )
     from transformers import PreTrainedTokenizer
+
+    from distilabel.models.llms.typing import Logprob
 
 
 class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
@@ -338,15 +342,15 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
     def _get_structured_output(
         self, input: FormattedInput
-    ) -> Union[Dict[str, Any], None]:
+    ) -> Tuple["StandardInput", Union[Dict[str, Any], None]]:
         """Gets the structured output (if any) for the given input.
 
         Args:
             input: a single input in chat format to generate responses for.
 
         Returns:
-            The structured output that will be passed as `grammer` to the inference endpoint
-            or `None` if not required.
+            The input and the structured output that will be passed as `grammar` to the
+            inference endpoint or `None` if not required.
         """
         structured_output = None
 
@@ -377,7 +381,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                     "value"
                 ].model_json_schema()
 
-        return structured_output
+        return input, structured_output
 
     async def _generate_with_text_generation(
         self,
@@ -387,26 +391,28 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         frequency_penalty: Optional[float] = None,
         temperature: float = 1.0,
         do_sample: bool = False,
-        top_k: Optional[int] = None,
+        top_n_tokens: Optional[int] = None,
         top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
         typical_p: Optional[float] = None,
         stop_sequences: Union[List[str], None] = None,
         return_full_text: bool = False,
         seed: Optional[int] = None,
         watermark: bool = False,
     ) -> GenerateOutput:
-        structured_output = self._get_structured_output(input)
-
-        completion = None
+        input, structured_output = self._get_structured_output(input)
+        prompt = self.prepare_input(input)
+        generation: Union["TextGenerationOutput", None] = None
         try:
-            completion: "TextGenerationOutput" = await self._aclient.text_generation(  # type: ignore
-                prompt=self.prepare_input(input),  # type: ignore
+            generation = await self._aclient.text_generation(  # type: ignore
+                prompt=prompt,
                 max_new_tokens=max_new_tokens,
                 do_sample=do_sample,
                 typical_p=typical_p,
                 repetition_penalty=repetition_penalty,
                 frequency_penalty=frequency_penalty,
                 temperature=temperature,
+                top_n_tokens=top_n_tokens,
                 top_p=top_p,
                 top_k=top_k,
                 stop_sequences=stop_sequences,
@@ -423,18 +429,32 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
-
         return prepare_output(
-            [completion.generated_text],
-            input_tokens=[
-                compute_tokens(self.prepare_input(input), self._tokenizer.encode)
-                if self._tokenizer
+            generations=[generation.generated_text] if generation else [None],
+            input_tokens=[compute_tokens(prompt, self._tokenizer.encode)],  # type: ignore
+            output_tokens=[
+                generation.details.generated_tokens
+                if generation and generation.details
                 else 0
             ],
-            output_tokens=[
-                completion.details.generated_tokens if completion.details else 0
-            ],
+            logprobs=[self._get_logprobs_from_text_generation(generation)]
+            if generation
+            else None,  # type: ignore
         )
+
+    def _get_logprobs_from_text_generation(
+        self, generation: "TextGenerationOutput"
+    ) -> Union[List[List["Logprob"]], None]:
+        if generation.details is None or generation.details.top_tokens is None:
+            return None
+
+        return [
+            [
+                {"token": top_logprob["text"], "logprob": top_logprob["logprob"]}
+                for top_logprob in token_logprobs
+            ]
+            for token_logprobs in generation.details.top_tokens
+        ]
 
     async def _generate_with_chat_completion(
         self,
@@ -442,6 +462,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         max_new_tokens: int = 128,
         frequency_penalty: Optional[float] = None,
         logit_bias: Optional[List[float]] = None,
+        logprobs: bool = False,
         presence_penalty: Optional[float] = None,
         seed: Optional[int] = None,
         stop_sequences: Optional[List[str]] = None,
@@ -449,15 +470,19 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         tool_choice: Optional[Union[Dict[str, str], Literal["auto"]]] = None,
         tool_prompt: Optional[str] = None,
         tools: Optional[List[Dict[str, Any]]] = None,
+        top_logprobs: Optional[PositiveInt] = None,
         top_p: Optional[float] = None,
     ) -> GenerateOutput:
         message = None
+        completion: Union["ChatCompletionOutput", None] = None
+        output_logprobs = None
         try:
-            completion: "ChatCompletionOutput" = await self._aclient.chat_completion(  # type: ignore
+            completion = await self._aclient.chat_completion(  # type: ignore
                 messages=input,  # type: ignore
                 max_tokens=max_new_tokens,
                 frequency_penalty=frequency_penalty,
                 logit_bias=logit_bias,
+                logprobs=logprobs,
                 presence_penalty=presence_penalty,
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
@@ -467,24 +492,42 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 tool_choice=tool_choice,  # type: ignore
                 tool_prompt=tool_prompt,
                 tools=tools,  # type: ignore
+                top_logprobs=top_logprobs,
                 top_p=top_p,
             )
-            choice = completion.choices[0]
+            choice = completion.choices[0]  # type: ignore
             if (message := choice.message.content) is None:
                 self._logger.warning(  # type: ignore
                     f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )
+            if choice_logprobs := self._get_logprobs_from_choice(choice):
+                output_logprobs = [choice_logprobs]
         except Exception as e:
             self._logger.warning(  # type: ignore
                 f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
         return prepare_output(
-            [message],
-            input_tokens=[completion.usage.prompt_tokens],
-            output_tokens=[completion.usage.completion_tokens],
+            generations=[message],
+            input_tokens=[completion.usage.prompt_tokens] if completion else None,
+            output_tokens=[completion.usage.completion_tokens] if completion else None,
+            logprobs=output_logprobs,
         )
+
+    def _get_logprobs_from_choice(
+        self, choice: "ChatCompletionOutputComplete"
+    ) -> Union[List[List["Logprob"]], None]:
+        if choice.logprobs is None:
+            return None
+
+        return [
+            [
+                {"token": top_logprob.token, "logprob": top_logprob.logprob}
+                for top_logprob in token_logprobs.top_logprobs
+            ]
+            for token_logprobs in choice.logprobs.content
+        ]
 
     def _check_stop_sequences(
         self,
@@ -517,6 +560,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         max_new_tokens: int = 128,
         frequency_penalty: Optional[Annotated[float, Field(ge=-2.0, le=2.0)]] = None,
         logit_bias: Optional[List[float]] = None,
+        logprobs: bool = False,
         presence_penalty: Optional[Annotated[float, Field(ge=-2.0, le=2.0)]] = None,
         seed: Optional[int] = None,
         stop_sequences: Optional[List[str]] = None,
@@ -524,6 +568,8 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         tool_choice: Optional[Union[Dict[str, str], Literal["auto"]]] = None,
         tool_prompt: Optional[str] = None,
         tools: Optional[List[Dict[str, Any]]] = None,
+        top_logprobs: Optional[PositiveInt] = None,
+        top_n_tokens: Optional[PositiveInt] = None,
         top_p: Optional[float] = None,
         do_sample: bool = False,
         repetition_penalty: Optional[float] = None,
@@ -549,6 +595,9 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 This argument is exclusive to the `chat_completion` method and will be used
                 only if `tokenizer_id` is `None`.
                 Defaults to `None`.
+            logprobs: whether to return the log probabilities or not. This argument is exclusive
+                to the `chat_completion` method and will be used only if `tokenizer_id`
+                is `None`. Defaults to `False`.
             presence_penalty: a value between `-2.0` and `2.0`. Positive values penalize
                 new tokens based on whether they appear in the text so far, increasing the
                 model likelihood to talk about new topics. This argument is exclusive to
@@ -569,6 +618,12 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             tools: a list of tools definitions that the LLM can use.
                 This argument is exclusive to the `chat_completion` method and will be used
                 only if `tokenizer_id` is `None`. Defaults to `None`.
+            top_logprobs: the number of top log probabilities to return per output token
+                generated. This argument is exclusive to the `chat_completion` method and
+                will be used only if `tokenizer_id` is `None`. Defaults to `None`.
+            top_n_tokens: the number of top log probabilities to return per output token
+                generated. This argument is exclusive of the `text_generation` method and
+                will be only used if `tokenizer_id` is not `None`. Defaults to `None`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             do_sample: whether to use sampling for the generation. This argument is exclusive
                 of the `text_generation` method and will be only used if `tokenizer_id` is not
@@ -602,6 +657,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 max_new_tokens=max_new_tokens,
                 frequency_penalty=frequency_penalty,
                 logit_bias=logit_bias,
+                logprobs=logprobs,
                 presence_penalty=presence_penalty,
                 seed=seed,
                 stop_sequences=stop_sequences,
@@ -609,6 +665,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 tool_choice=tool_choice,
                 tool_prompt=tool_prompt,
                 tools=tools,
+                top_logprobs=top_logprobs,
                 top_p=top_p,
             )
 
