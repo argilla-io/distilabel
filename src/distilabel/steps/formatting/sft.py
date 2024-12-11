@@ -15,10 +15,13 @@
 import hashlib
 from typing import TYPE_CHECKING, List
 
+from typing_extensions import override
+
 from distilabel.steps.base import Step, StepInput
+from distilabel.utils.card.dataset_card import get_dataset_use_template
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import DatasetUse, StepColumns, StepOutput
 
 
 class FormatTextGenerationSFT(Step):
@@ -140,6 +143,17 @@ class FormatTextGenerationSFT(Step):
 
             yield input
 
+    @override
+    def _dataset_use(self) -> "DatasetUse":
+        with open(get_dataset_use_template("sft")) as f:
+            template = f.read()
+
+        return {
+            "title": "Supervised Fine-Tuning (SFT)",
+            "template": template,
+            "variables": ["dataset_name"],
+        }
+
 
 class FormatChatGenerationSFT(Step):
     """Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT).
@@ -244,3 +258,14 @@ class FormatChatGenerationSFT(Step):
                     {"role": "assistant", "content": item["generation"]},  # type: ignore
                 ]
             yield input
+
+    @override
+    def _dataset_use(self) -> "DatasetUse":
+        with open(get_dataset_use_template("sft")) as f:
+            template = f.read()
+
+        return {
+            "title": "Supervised Fine-Tuning (SFT)",
+            "template": template,
+            "variables": ["dataset_name"],
+        }

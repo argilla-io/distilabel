@@ -53,7 +53,12 @@ if TYPE_CHECKING:
         DownstreamConnectableSteps,
         UpstreamConnectableSteps,
     )
-    from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
+    from distilabel.steps.typing import (
+        DatasetUse,
+        GeneratorStepOutput,
+        StepColumns,
+        StepOutput,
+    )
 
 
 DEFAULT_INPUT_BATCH_SIZE = 50
@@ -609,6 +614,18 @@ class _Step(
         dump = super()._model_dump(obj, **kwargs)
         dump["runtime_parameters_info"] = self.get_runtime_parameters_info()
         return dump
+
+    def _dataset_use(self) -> "DatasetUse":
+        """This method can be used to include additional information in the final dataset
+        card. A given step can override this method to include information about the uses,
+        like for example, how to fine-tune on the final dataset.
+        If overwritten, it must return a dictionary with 2 keys:
+        "template": that will contain a string that can be converted to a Jinja2 Template.
+        "variables": that will contain a list of strings that will be used to fill the template.
+
+        This info will be grabbed when the Distiset is created and pushed to the hub.
+        """
+        pass
 
 
 class Step(_Step, ABC):

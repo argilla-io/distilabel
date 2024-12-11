@@ -20,7 +20,7 @@ import sys
 from collections import defaultdict
 from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Generator, Iterator, List, Optional, Union
 
 import fsspec
 import yaml
@@ -50,6 +50,7 @@ from distilabel.utils.huggingface import get_hf_token
 
 if TYPE_CHECKING:
     from distilabel.pipeline._dag import DAG
+    from distilabel.steps.typing import DatasetUse
 
 
 class Distiset(dict):
@@ -73,6 +74,7 @@ class Distiset(dict):
     _artifacts_path: Optional[Path] = None
     _log_filename_path: Optional[Path] = None
     _citations: Optional[List[str]] = None
+    _dataset_uses: Optional[list["DatasetUse"]] = None
 
     def push_to_hub(
         self,
@@ -199,6 +201,8 @@ class Distiset(dict):
             ),
             "tags": ["synthetic", "distilabel", "rlaif"],
         }
+        # The variables must be passed by name here to be rendered in the template.
+        uses = self._get_dataset_uses(dataset_name=repo_id)
 
         card = DistilabelDatasetCard.from_template(
             card_data=DatasetCardData(**metadata),
@@ -208,6 +212,7 @@ class Distiset(dict):
             filename_py=filename_py,
             artifacts=self._get_artifacts_metadata(),
             references=self.citations,
+            dataset_uses=list(uses) if uses else [],
         )
 
         return card
@@ -237,6 +242,30 @@ class Distiset(dict):
                 )
 
         return dict(artifacts_metadata)
+
+    def _get_dataset_uses(self, **kwargs: Any) -> Union[Iterator[dict[str, str]], None]:
+        """Gets the dataset uses from the pipeline steps.
+        To determine automatically the variables that will be rendered in the template, the name in the
+        `kwargs` dictionary must match the name of the variable in the template.
+        """
+        if not self._dataset_uses:
+            # The variable hasn't been set (this is done when calling `create_distiset`).
+            return
+
+        from jinja2 import Template
+
+        for dataset_use in self._dataset_uses:
+            template = Template(dataset_use["template"])
+            variables = dataset_use["variables"]
+            to_render = {}
+            for var_name, variable in kwargs.items():
+                if var_name in variables:
+                    to_render[var_name] = variable
+
+            yield {
+                "title": dataset_use["title"],
+                "content": template.render(**to_render),
+            }
 
     def _extract_readme_metadata(
         self, repo_id: str, token: Optional[str]
@@ -669,6 +698,7 @@ def create_distiset(  # noqa: C901
 
     if dag:
         distiset._citations = _grab_citations(dag)
+        distiset._dataset_uses = _get_dataset_uses(dag)
 
     return distiset
 
@@ -706,3 +736,21 @@ def _grab_citations(dag: "DAG") -> List[str]:
                     print(f"Untracked error: {e}")
             citations.extend(bibtex_refs)
     return citations
+
+
+def _get_dataset_uses(dag: "DAG") -> list["DatasetUse"]:
+    """Extracts the uses of the dataset, by calling the method in the steps that
+    define it.
+
+    Args:
+        dag: `DAG` contained in the pipeline that created the `Distiset`.
+
+    Returns:
+        List of uses to add to the `Distiset`.
+    """
+    uses = []
+    for step_name in dag:
+        if dataset_use := dag.get_step(step_name)[STEP_ATTR_NAME]._dataset_use():
+            uses.append(dataset_use)
+
+    return uses
