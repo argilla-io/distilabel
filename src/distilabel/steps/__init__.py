@@ -35,6 +35,7 @@ from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
 from distilabel.steps.embeddings.nearest_neighbour import FaissNearestNeighbour
 from distilabel.steps.filtering.embedding import EmbeddingDedup
 from distilabel.steps.filtering.minhash import MinHashDedup
+from distilabel.steps.formatting.apo import FormatAPO
 from distilabel.steps.formatting.conversation import ConversationTemplate
 from distilabel.steps.formatting.dpo import (
     FormatChatGenerationDPO,
@@ -79,6 +80,7 @@ __all__ = [
     "EmbeddingGeneration",
     "FaissNearestNeighbour",
     "ConversationTemplate",
+    "FormatAPO",
     "FormatChatGenerationDPO",
     "FormatTextGenerationDPO",
     "FormatChatGenerationSFT",
