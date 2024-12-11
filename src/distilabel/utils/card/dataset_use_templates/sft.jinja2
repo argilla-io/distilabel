@@ -1,0 +1,30 @@
+The following is a template to fine-tune a model on the generated dataset.
+It uses [`TRL`](https://github.com/huggingface/trl) to fine-tune a model with the formatted data.
+
+**Note**: This is a template and should be customized to your needs, even though the default values
+can be used, you may need to tweak them to your needs.
+
+```bash
+accelerate launch --config_file examples/accelerate_configs/deepspeed_zero3.yaml examples/scripts/sft.py \
+    --model_name_or_path="meta-llama/Llama-3.1-8B-Instruct" \ # Base model to fine-tune, this is a default
+    --dataset_name="{{ dataset_name }}" \
+    --learning_rate=1.0e-05 \
+    --lr_scheduler_type="cosine" \
+    --per_device_train_batch_size=6 \
+    --per_device_eval_batch_size=6 \
+    --do_eval \
+    --eval_strategy="steps" \
+    --gradient_accumulation_steps=2 \
+    --output_dir="<user/model_name>"  \                       # Model name in the HuggingFace Hub \
+    --logging_steps=5 \
+    --eval_steps=50 \
+    --num_train_epochs=2 \
+    --max_steps=-1 \
+    --warmup_steps=50 \
+    --max_seq_length=2048 \
+    --push_to_hub \
+    --gradient_checkpointing \
+    --bf16
+#    --report_to="wandb"                                      # Activate if you want to report to Weights & Biases
+#    --run_name="<user/model_name>"                           # If reporting to Weights & Biases, this will be the name of the run.
+```
