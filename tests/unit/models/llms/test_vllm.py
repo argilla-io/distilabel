@@ -103,7 +103,10 @@ SAMPLE_DATA = [
 
 
 class TestvLLM:
-    @pytest.mark.parametrize("multi_structured_output", (False, True))
+    @pytest.mark.parametrize(
+        "multi_structured_output",
+        (True, False),
+    )
     @pytest.mark.parametrize(
         "num_generations, expected_result",
         [
@@ -113,6 +116,18 @@ class TestvLLM:
                     {
                         "generations": ["I'm fine thank you"],
                         "statistics": {"input_tokens": [21], "output_tokens": [6]},
+                        "logprobs": [
+                            [
+                                [
+                                    {"token": "I'm", "logprob": -1},
+                                    {"token": "Hello", "logprob": -3},
+                                ],
+                                [
+                                    {"token": "I'm", "logprob": -1},
+                                    {"token": "Hello", "logprob": -3},
+                                ],
+                            ]
+                        ],
                     }
                 ],
             ),
@@ -125,6 +140,19 @@ class TestvLLM:
                             "input_tokens": [21, 21],
                             "output_tokens": [6, 6],
                         },
+                        "logprobs": [
+                            [
+                                [
+                                    {"token": "I'm", "logprob": -1},
+                                    {"token": "Hello", "logprob": -3},
+                                ],
+                                [
+                                    {"token": "I'm", "logprob": -1},
+                                    {"token": "Hello", "logprob": -3},
+                                ],
+                            ]
+                        ]
+                        * 2,
                     }
                 ],
             ),
@@ -157,6 +185,16 @@ class TestvLLM:
                     mock.Mock(  # CompletionOutput
                         text="I'm fine thank you",
                         token_ids=[1, 2, 3, 4, 5, 7],
+                        logprobs=[
+                            {
+                                1: mock.Mock(decoded_token="I'm", logprob=-1),
+                                2: mock.Mock(decoded_token="Hello", logprob=-3),
+                            },
+                            {
+                                1: mock.Mock(decoded_token="I'm", logprob=-1),
+                                2: mock.Mock(decoded_token="Hello", logprob=-3),
+                            },
+                        ],
                     )
                 ]
                 * num_generations,

@@ -451,9 +451,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             pairs = list(enumerate(sorted_indices))
             pairs.sort(key=lambda x: x[1])
             generations = [generations[original_idx] for original_idx, _ in pairs]
-            import pdb
-
-            pdb.set_trace()
 
         return generations
 
