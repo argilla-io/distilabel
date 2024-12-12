@@ -16,6 +16,7 @@ import json
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 import pytest
+from pydantic import ValidationError
 
 from distilabel.steps.tasks.text_classification import TextClassification
 from tests.unit.conftest import DummyAsyncLLM
@@ -101,7 +102,7 @@ class TestTextClassification:
             assert '```\n{\n    "labels": "label"\n}\n```' in content
         else:
             assert (
-                "Provide the label(s) that best describe the text. Do not include any labels that do not apply."
+                "Provide a list with the label or labels that best describe the text. Do not include any label that do not apply."
                 in content
             )
             assert '```\n{\n    "labels": [' in content
@@ -160,4 +161,15 @@ class TestTextClassification:
             assert (
                 result[0]["distilabel_metadata"]["raw_output_text_classification_0"]
                 == expected
+            )
+
+    def test_multilabel_error(self) -> None:
+        with pytest.raises(
+            ValidationError,
+            match=r"Only one of \'is_multilabel\' for TextClassifiaction or \'n\' for TextClustering can be set at the same time.",
+        ):
+            TextClassification(
+                llm=DummyAsyncLLM(),
+                is_multilabel=True,
+                n=2
             )
