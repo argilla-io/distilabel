@@ -21,6 +21,8 @@ This task can be used for text classification problems, where the goal is to ass
 
 - **system_prompt**: A prompt to display to the user before the task starts. Contains a default  message to make the model behave like a classifier specialist.
 
+- **n**: Number of labels to generate. If only 1 is required, corresponds to a label  classification problem, if >1 it will intend return the "n" labels most representative  for the text. Defaults to 1.
+
 - **is_multilabel**: Indicates whether the task allows multiple labels or a single label.
 
 - **context**: Context to use when generating the labels. By default contains a generic message,  but can be used to customize the context for the task.

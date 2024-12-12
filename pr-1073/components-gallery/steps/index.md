@@ -26,6 +26,7 @@ hide:
     | :material-file-download:        | load                | Load steps are used to load the data.                                                              |
     | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
+    | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
 
 <div class="grid cards" markdown>
 
@@ -261,6 +262,14 @@ hide:
     Assign a score to a response using a Reward Model.
 
     [:octicons-arrow-right-24: RewardModelScore](rewardmodelscore.md){ .bottom }
+
+-   :material-receipt-text-edit:{ .lg .middle } __FormatPRM__
+
+    ---
+
+    Helper step to transform the data into the format expected by the PRM model.
+
+    [:octicons-arrow-right-24: FormatPRM](formatprm.md){ .bottom }
 
 -   :material-receipt-text-edit:{ .lg .middle } __TruncateTextColumn__
 
