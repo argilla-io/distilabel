@@ -437,23 +437,25 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 if generation and generation.details
                 else 0
             ],
-            logprobs=[self._get_logprobs_from_text_generation(generation)]
+            logprobs=self._get_logprobs_from_text_generation(generation)
             if generation
             else None,  # type: ignore
         )
 
     def _get_logprobs_from_text_generation(
         self, generation: "TextGenerationOutput"
-    ) -> Union[List[List["Logprob"]], None]:
+    ) -> Union[List[List[List["Logprob"]]], None]:
         if generation.details is None or generation.details.top_tokens is None:
             return None
 
         return [
             [
-                {"token": top_logprob["text"], "logprob": top_logprob["logprob"]}
-                for top_logprob in token_logprobs
+                [
+                    {"token": top_logprob["text"], "logprob": top_logprob["logprob"]}
+                    for top_logprob in token_logprobs
+                ]
+                for token_logprobs in generation.details.top_tokens
             ]
-            for token_logprobs in generation.details.top_tokens
         ]
 
     async def _generate_with_chat_completion(
