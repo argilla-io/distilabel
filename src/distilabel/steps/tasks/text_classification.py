@@ -259,7 +259,11 @@ class TextClassification(Task):
         self._labels_format: str = (
             '"label"'
             if self.n == 1 and not self.is_multilabel
-            else "[" + ", ".join([f'"label_{i}"' for i in range(3 if self.is_multilabel else self.n)]) + "]"
+            else "["
+            + ", ".join(
+                [f'"label_{i}"' for i in range(3 if self.is_multilabel else self.n)]
+            )
+            + "]"
         )
         self._labels_message: str = (
             "Provide the label that best describes the text."
@@ -275,9 +279,7 @@ class TextClassification(Task):
         self._output_message: str = (
             "please give me only the correct label in JSON format"
             if self.n == 1 and not self.is_multilabel
-            else (
-                "please give me only the relevant labels in JSON format"
-            )
+            else ("please give me only the relevant labels in JSON format")
         )
 
     def _get_available_labels_message(self) -> str:
@@ -380,7 +382,7 @@ class TextClassification(Task):
         Returns:
             JSON Schema of the response to enforce.
         """
-        if self.n==1 and not self.is_multilabel:
+        if self.n == 1 and not self.is_multilabel:
 
             class SingleLabelSchema(BaseModel):
                 labels: str
@@ -407,6 +409,6 @@ class TextClassification(Task):
         try:
             return orjson.loads(output)
         except orjson.JSONDecodeError:
-            if self.n>1 and not self.is_multilabel:
+            if self.n > 1 and not self.is_multilabel:
                 return {"labels": [None for _ in range(self.n)]}
             return {"labels": [None] if self.is_multilabel else None}

@@ -168,8 +168,4 @@ class TestTextClassification:
             ValidationError,
             match=r"Only one of \'is_multilabel\' for TextClassifiaction or \'n\' for TextClustering can be set at the same time.",
         ):
-            TextClassification(
-                llm=DummyAsyncLLM(),
-                is_multilabel=True,
-                n=2
-            )
+            TextClassification(llm=DummyAsyncLLM(), is_multilabel=True, n=2)
