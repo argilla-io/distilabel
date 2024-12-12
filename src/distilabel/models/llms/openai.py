@@ -303,6 +303,12 @@ class OpenAILLM(AsyncLLM):
             "top_p": top_p,
             "stop": stop,
         }
+        # Check if it's a vision generation task, in that case "stop" cannot be used or raises
+        # an error in the API.
+        if isinstance(
+            [row for row in input if row["role"] == "user"][0]["content"], list
+        ):
+            kwargs.pop("stop")
 
         if response_format is not None:
             kwargs["response_format"] = response_format

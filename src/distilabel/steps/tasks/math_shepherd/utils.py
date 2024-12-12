@@ -53,12 +53,12 @@ class FormatPRM(Step):
     correct steps.
 
     Attributes:
-        format (Literal["math-shepherd", "trl"]): The format to use for the PRM model.
+        format: The format to use for the PRM model.
             "math-shepherd" corresponds to the original paper, while "trl" is a format
             prepared to train the model using TRL.
-        step_token (str): String that serves as a unique token denoting the position
+        step_token: String that serves as a unique token denoting the position
             for predicting the step score.
-        tags (list[str]): List of tags that represent the correct and incorrect steps.
+        tags: List of tags that represent the correct and incorrect steps.
             This only needs to be informed if it's different than the default in
             `MathShepherdCompleter`.
 
@@ -110,10 +110,6 @@ class FormatPRM(Step):
             )
         )
         result = next(formatter.process(result))
-        # result[0]["input"]
-        # "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market? Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. ки\nStep 2: Calculate the amount of white fiber needed: Since it's half that much, we can divide 2 by 2: 2 / 2 = <<2/2=1>>1 bolt of white fiber. ки\nStep 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 ки"
-        # result[0]["label"]
-        # "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market? Step 1: Determine the amount of blue fiber needed: 2 bolts of blue fiber are required. +\nStep 2: Calculate the amount of white fiber needed: Since it's half that much, we can divide 2 by 2: 2 / 2 = <<2/2=1>>1 bolt of white fiber. +\nStep 3: Add the amount of blue and white fiber: 2 (blue) + 1 (white) = <<2+1=3>>3 bolts of fiber in total. The answer is: 3 +"
         ```
 
         Prepare your data to train a PRM model with the TRL format:
