@@ -334,7 +334,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         )
 
     def _prepare_structured_output(
-        self, structured_output: Optional["StructuredOutputType"] = None
+        self, structured_output: "StructuredOutputType"
     ) -> Union[Any, None]:
         """Method in charge of preparing the structured output generator.
 
@@ -431,7 +431,7 @@ class AsyncLLM(LLM):
     @abstractmethod
     async def agenerate(
         self, input: "FormattedInput", num_generations: int = 1, **kwargs: Any
-    ) -> List[Union[str, None]]:
+    ) -> "GenerateOutput":
         """Method to generate a `num_generations` responses for a given input asynchronously,
         and executed concurrently in `generate` method.
         """
@@ -591,8 +591,8 @@ class AsyncLLM(LLM):
 
 
 def merge_responses(
-    responses: List[Dict[str, Any]], n: int = 1
-) -> List[Dict[str, Any]]:
+    responses: List["GenerateOutput"], n: int = 1
+) -> List["GenerateOutput"]:
     """Helper function to group the responses from `LLM.agenerate` method according
     to the number of generations requested.
 
@@ -612,19 +612,27 @@ def merge_responses(
         for i in range(0, len(lst), n):
             yield list(islice(lst, i, i + n))
 
-    # Split responses into groups of size n
-    grouped_responses = list(chunks(responses, n))
+    extra_keys = [
+        key for key in responses[0].keys() if key not in ("generations", "statistics")
+    ]
 
     result = []
-    for group in grouped_responses:
-        first = group[0]
+    for group in chunks(responses, n):
         merged = {
-            "generations": sum((r["generations"] for r in group), []),
-            "statistics": {
-                key: sum((r["statistics"][key] for r in group), [])
-                for key in first["statistics"]
-            },
+            "generations": [],
+            "statistics": {"input_tokens": [], "output_tokens": []},
         }
+        for response in group:
+            merged["generations"].append(response["generations"][0])
+            # Merge statistics
+            for key in response["statistics"]:
+                if key not in merged["statistics"]:
+                    merged["statistics"][key] = []
+                merged["statistics"][key].append(response["statistics"][key][0])
+            # Merge extra keys returned by the `LLM`
+            for extra_key in extra_keys:
+                if extra_key not in merged:
+                    merged[extra_key] = []
+                merged[extra_key].append(response[extra_key][0])
         result.append(merged)
-
     return result

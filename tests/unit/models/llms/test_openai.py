@@ -66,7 +66,15 @@ class TestOpenAILLM:
 
         mocked_completion = Mock(
             choices=[
-                Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))
+                Mock(
+                    message=Mock(content=" Aenean hendrerit aliquam velit. ..."),
+                    logprobs=Mock(
+                        content=[
+                            Mock(top_logprobs=[Mock(token=" ", logprob=-1)]),
+                            Mock(top_logprobs=[Mock(token="Aenean", logprob=-2)]),
+                        ]
+                    ),
+                )
             ],
             usage=Mock(prompt_tokens=100, completion_tokens=100),
         )
@@ -84,6 +92,9 @@ class TestOpenAILLM:
         assert result == {
             "generations": [" Aenean hendrerit aliquam velit. ..."],
             "statistics": {"input_tokens": [100], "output_tokens": [100]},
+            "logprobs": [
+                [[{"token": " ", "logprob": -1}], [{"token": "Aenean", "logprob": -2}]]
+            ],
         }
 
     @pytest.mark.asyncio
@@ -100,9 +111,6 @@ class TestOpenAILLM:
             },
         )  # type: ignore
         llm._aclient = async_openai_mock
-        import tiktoken
-
-        llm._tokenizer = tiktoken.encoding_for_model(self.model_id)
 
         mocked_usage = MagicMock(
             usage=MagicMock(prompt_tokens=100, completion_tokens=100),
@@ -139,6 +147,12 @@ class TestOpenAILLM:
                     {
                         "generations": [" Aenean hendrerit aliquam velit. ..."],
                         "statistics": {"input_tokens": [100], "output_tokens": [100]},
+                        "logprobs": [
+                            [
+                                [{"token": " ", "logprob": -1}],
+                                [{"token": "Aenean", "logprob": -2}],
+                            ]
+                        ],
                     }
                 ],
             ),
@@ -148,6 +162,13 @@ class TestOpenAILLM:
                     {
                         "generations": [" Aenean hendrerit aliquam velit. ..."] * 2,
                         "statistics": {"input_tokens": [100], "output_tokens": [100]},
+                        "logprobs": [
+                            [
+                                [{"token": " ", "logprob": -1}],
+                                [{"token": "Aenean", "logprob": -2}],
+                            ]
+                        ]
+                        * 2,
                     }
                 ],
             ),
@@ -165,7 +186,17 @@ class TestOpenAILLM:
         llm._aclient = async_openai_mock
 
         mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+            choices=[
+                Mock(
+                    message=Mock(content=" Aenean hendrerit aliquam velit. ..."),
+                    logprobs=Mock(
+                        content=[
+                            Mock(top_logprobs=[Mock(token=" ", logprob=-1)]),
+                            Mock(top_logprobs=[Mock(token="Aenean", logprob=-2)]),
+                        ]
+                    ),
+                )
+            ]
             * num_generations,
             usage=Mock(prompt_tokens=100, completion_tokens=100),
         )
@@ -185,6 +216,13 @@ class TestOpenAILLM:
             ]
         )
         assert result == expected_result
+
+    @pytest.mark.asyncio
+    async def test_generate_raises_value_error_if_unknown_response_format(
+        self, async_openai_mock: MagicMock, _: MagicMock
+    ) -> None:
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
+        llm._aclient = async_openai_mock
 
         with pytest.raises(ValueError):
             llm.generate(
