@@ -16,7 +16,16 @@ import os
 import random
 import sys
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from pydantic import (
     Field,
@@ -679,6 +688,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             repetition_penalty=repetition_penalty,
             frequency_penalty=frequency_penalty,
             temperature=temperature,
+            top_n_tokens=top_n_tokens,
             top_p=top_p,
             top_k=top_k,
             stop_sequences=stop_sequences,
