@@ -17,9 +17,16 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import orjson
 from jinja2 import Template
-from pydantic import BaseModel, Field, PositiveInt, PrivateAttr
-from typing_extensions import override
+from pydantic import (
+    BaseModel,
+    Field,
+    PositiveInt,
+    PrivateAttr,
+    model_validator,
+)
+from typing_extensions import Self, override
 
+from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks import Task
 
 if TYPE_CHECKING:
@@ -41,7 +48,7 @@ If the text is ambiguous or lacks sufficient information for classification, res
 ```
 
 ## Output Format
-Now, please give me the labels in JSON format, do not include any other text in your response:
+Now, {{ output_message }}, do not include any other text in your response:
 ```
 {
     "labels": {{ labels_format }}
@@ -74,9 +81,10 @@ class TextClassification(Task):
     Attributes:
         system_prompt: A prompt to display to the user before the task starts. Contains a default
             message to make the model behave like a classifier specialist.
-        n: Number of labels to generate If only 1 is required, corresponds to a label
+        n: Number of labels to generate. If only 1 is required, corresponds to a label
             classification problem, if >1 it will intend return the "n" labels most representative
             for the text. Defaults to 1.
+        is_multilabel: Indicates whether the task allows multiple labels or a single label.
         context: Context to use when generating the labels. By default contains a generic message,
             but can be used to customize the context for the task.
         examples: List of examples to help the model understand the task, few shots.
@@ -84,6 +92,7 @@ class TextClassification(Task):
             a dictionary with the labels and their descriptions.
         default_label: Default label to use when the text is ambiguous or lacks sufficient information for
             classification. Can be a list in case of multiple labels (n>1).
+        query_title: Title of the query used to show the example/s to classify.
 
     Examples:
         Assigning a sentiment to a text:
@@ -128,7 +137,7 @@ class TextClassification(Task):
 
         text_classification = TextClassification(
             llm=llm,
-            n=1,
+            is_multilabel=False,
             context="Determine the intent of the text.",
             available_labels={
                 "complaint": "A statement expressing dissatisfaction or annoyance about a product, service, or experience. It's a negative expression of discontent, often with the intention of seeking a resolution or compensation.",
@@ -164,7 +173,7 @@ class TextClassification(Task):
 
         text_classification = TextClassification(
             llm=llm,
-            n=3,
+            is_multilabel=True,
             context=(
                 "Describe the main themes, topics, or categories that could describe the "
                 "following type of persona."
@@ -199,7 +208,11 @@ class TextClassification(Task):
     )
     n: PositiveInt = Field(
         default=1,
-        description="Number of labels to generate. Defaults to 1.",
+        description="Number of labels to generate. Only used for TextClustering.",
+    )
+    is_multilabel: bool = Field(
+        default=False,
+        description="Indicates whether the task allows multiple labels or a single label. Only used for TextClassification.",
     )
     context: Optional[str] = Field(
         default="Generate concise, relevant labels that accurately represent the text's main themes, topics, or categories.",
@@ -220,7 +233,7 @@ class TextClassification(Task):
         default="Unclassified",
         description=(
             "Default label to use when the text is ambiguous or lacks sufficient information for "
-            "classification. Can be a list in case of multiple labels (n>1)."
+            "classification. Can be a list in case of multiple labels."
         ),
     )
     query_title: str = Field(
@@ -231,21 +244,43 @@ class TextClassification(Task):
 
     _template: Optional[Template] = PrivateAttr(default=None)
 
+    @model_validator(mode="after")
+    def multilabel_validation(self) -> Self:
+        if self.n > 1 and self.is_multilabel:
+            raise DistilabelUserError(
+                "Only one of 'is_multilabel' for TextClassifiaction or 'n' for TextClustering can be set at the same time.",
+                page="components-gallery/tasks/textclassification/",
+            )
+        return self
+
     def load(self) -> None:
         super().load()
         self._template = Template(TEXT_CLASSIFICATION_TEMPLATE)
         self._labels_format: str = (
             '"label"'
-            if self.n == 1
-            else "[" + ", ".join([f'"label_{i}"' for i in range(self.n)]) + "]"
+            if self.n == 1 and not self.is_multilabel
+            else "["
+            + ", ".join(
+                [f'"label_{i}"' for i in range(3 if self.is_multilabel else self.n)]
+            )
+            + "]"
         )
         self._labels_message: str = (
             "Provide the label that best describes the text."
-            if self.n == 1
-            else f"Provide a list of {self.n} labels that best describe the text."
+            if self.n == 1 and not self.is_multilabel
+            else (
+                f"Provide a list of {self.n} labels that best describe the text."
+                if not self.is_multilabel
+                else "Provide a list with the label or labels that best describe the text. Do not include any label that do not apply."
+            )
         )
         self._available_labels_message: str = self._get_available_labels_message()
         self._examples: str = self._get_examples_message()
+        self._output_message: str = (
+            "please give me only the correct label in JSON format"
+            if self.n == 1 and not self.is_multilabel
+            else ("please give me only the relevant labels in JSON format")
+        )
 
     def _get_available_labels_message(self) -> str:
         """Prepares the message to display depending on the available labels (if any),
@@ -320,6 +355,7 @@ class TextClassification(Task):
                     labels_message=self._labels_message,
                     available_labels=self._available_labels_message,
                     examples=self._examples,
+                    output_message=self._output_message,
                     default_label=self.default_label,
                     labels_format=self._labels_format,
                     query_title=self.query_title,
@@ -346,17 +382,17 @@ class TextClassification(Task):
         Returns:
             JSON Schema of the response to enforce.
         """
-        if self.n > 1:
+        if self.n == 1 and not self.is_multilabel:
 
-            class MultiLabelSchema(BaseModel):
-                labels: List[str]
+            class SingleLabelSchema(BaseModel):
+                labels: str
 
-            return MultiLabelSchema.model_json_schema()
+            return SingleLabelSchema.model_json_schema()
 
-        class SingleLabelSchema(BaseModel):
-            labels: str
+        class MultiLabelSchema(BaseModel):
+            labels: List[str]
 
-        return SingleLabelSchema.model_json_schema()
+        return MultiLabelSchema.model_json_schema()
 
     def _format_structured_output(
         self, output: str
@@ -373,6 +409,6 @@ class TextClassification(Task):
         try:
             return orjson.loads(output)
         except orjson.JSONDecodeError:
-            if self.n > 1:
+            if self.n > 1 and not self.is_multilabel:
                 return {"labels": [None for _ in range(self.n)]}
-            return {"labels": None}
+            return {"labels": [None] if self.is_multilabel else None}
