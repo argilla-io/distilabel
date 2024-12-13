@@ -20,6 +20,7 @@ from distilabel.steps.tasks.base import GeneratorTask, Task
 from distilabel.steps.tasks.clair import CLAIR
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.decorator import task
+from distilabel.steps.tasks.dota_math import DotaMathAugmentQuery
 from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
 from distilabel.steps.tasks.evol_instruct.evol_complexity.base import EvolComplexity
 from distilabel.steps.tasks.evol_instruct.evol_complexity.generator import (
@@ -71,6 +72,7 @@ __all__ = [
     "ChatItem",
     "ChatType",
     "ComplexityScorer",
+    "DotaMathAugmentQuery",
     "EmbeddingTaskGenerator",
     "EvolComplexity",
     "EvolComplexityGenerator",
