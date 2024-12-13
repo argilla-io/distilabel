@@ -121,6 +121,7 @@ exclude = ["docs"]
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B"]
 ignore = ["E501", "B905", "B008"]
+extend-select = ["RUF022"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

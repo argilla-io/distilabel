@@ -23,9 +23,9 @@ from distilabel.pipeline.templates import (
 )
 
 __all__ = [
+    "InstructionResponsePipeline",
     "Pipeline",
     "RayPipeline",
-    "InstructionResponsePipeline",
     "routing_batch_function",
     "sample_n_steps",
 ]
