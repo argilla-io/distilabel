@@ -236,3 +236,48 @@ class TestDistiset:
             "size_categories": "n<1K",
             "tags": ["synthetic", "distilabel", "rlaif"],
         }
+
+    @pytest.mark.parametrize(
+        "dataset_uses, expected",
+        [
+            (None, None),
+            (
+                [
+                    {
+                        "title": "Title Use 1",
+                        "template": "Test Template",
+                        "variables": [],
+                    },
+                ],
+                "## Uses\n\n### Title Use 1\n\nTest Template",
+            ),
+            (
+                [
+                    {
+                        "title": "Title Use 1",
+                        "template": "Test Template",
+                        "variables": ["var1", "var2"],
+                    },
+                    {
+                        "title": "Title Use 2",
+                        "template": "Template with {{ dataset_name }}",
+                        "variables": ["dataset_name"],
+                    },
+                ],
+                "## Uses\n\n### Title Use 1\n\nTest Template\n\n### Title Use 2\n\nTemplate with repo_name_or_path",
+            ),
+        ],
+    )
+    def test_get_card_with_uses(
+        self,
+        distiset: Distiset,
+        dataset_uses: Optional[list[dict[str, Any]]],
+        expected: Optional[Dict[str, Any]],
+    ) -> None:
+        distiset._dataset_uses = dataset_uses
+        distiset_card = distiset._get_card("repo_name_or_path")
+
+        if dataset_uses is None:
+            assert "## Uses" not in str(distiset_card)
+        else:
+            assert expected in str(distiset_card)

@@ -40,6 +40,15 @@ def size_categories_parser(input_size: int) -> str:
     return "n>1T"
 
 
+def get_dataset_use_template(name: str) -> Path:
+    path = Path(__file__).parent / "dataset_use_templates" / f"{name}.jinja2"
+    if not path.exists():
+        raise ValueError(
+            f"Template {name} not found, availables are {path.parent.glob('*.jinja2')}"
+        )
+    return path
+
+
 class DistilabelDatasetCard(DatasetCard):
     """A `DatasetCard` subclass that uses the Distilabel template by default."""
 

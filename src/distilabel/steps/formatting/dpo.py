@@ -15,10 +15,13 @@
 import hashlib
 from typing import TYPE_CHECKING, List
 
+from typing_extensions import override
+
 from distilabel.steps.base import Step, StepInput
+from distilabel.utils.card.dataset_card import get_dataset_use_template
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import DatasetUse, StepColumns, StepOutput
 
 
 class FormatTextGenerationDPO(Step):
@@ -194,6 +197,17 @@ class FormatTextGenerationDPO(Step):
 
             yield input
 
+    @override
+    def _dataset_use(self) -> "DatasetUse":
+        with open(get_dataset_use_template("dpo")) as f:
+            template = f.read()
+
+        return {
+            "title": "Direct Preference Optimization (DPO)",
+            "template": template,
+            "variables": ["dataset_name"],
+        }
+
 
 class FormatChatGenerationDPO(Step):
     """Format the output of a combination of a `ChatGeneration` + a preference task for Direct Preference Optimization (DPO).
@@ -354,3 +368,14 @@ class FormatChatGenerationDPO(Step):
                 item["rejected_rating"] = item["ratings"][rejected_idx]
 
             yield input
+
+    @override
+    def _dataset_use(self) -> "DatasetUse":
+        with open(get_dataset_use_template("dpo")) as f:
+            template = f.read()
+
+        return {
+            "title": "Direct Preference Optimization (DPO)",
+            "template": template,
+            "variables": ["dataset_name"],
+        }

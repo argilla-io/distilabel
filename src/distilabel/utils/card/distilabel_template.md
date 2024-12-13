@@ -72,7 +72,6 @@ ds = load_dataset("{{ repo_id }}")
 
 {% if artifacts %}
 ## Artifacts
-
 {% for step_name, artifacts in artifacts.items() %}
 * **Step**: `{{ step_name }}`
   {% for artifact in artifacts %}
@@ -82,16 +81,21 @@ ds = load_dataset("{{ repo_id }}")
       {% endfor %}
   {% endfor %}
 {% endfor %}
-
 {% endif %}
 
-{% if references %}
-## References
+{% if dataset_uses %}
+## Uses
+{% for use in dataset_uses %}
+### {{ use.title }}
 
+{{ use.content }}
+{% endfor %}{% endif %}
+
+{% if references %}
+## References
 {% for reference in references %}
 ```
 {{ reference }}
 ```
-
 {% endfor %}
 {% endif %}
