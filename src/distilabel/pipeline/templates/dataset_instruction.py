@@ -67,7 +67,7 @@ class DatasetInstructionResponsePipeline:
         num_instructions: int = 2,
         batch_size: int = 1,
     ) -> None:
-        """ Initializes the pipeline. 
+        """Initializes the pipeline.
 
         Args:
             llm (Optional[LLM], optional): The language model to use. Defaults to None.
@@ -141,4 +141,3 @@ class DatasetInstructionResponsePipeline:
             )
 
         return pipeline
-
