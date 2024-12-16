@@ -21,9 +21,11 @@ from distilabel.pipeline import Pipeline
 from distilabel.steps import ExpandColumns, KeepColumns
 from distilabel.steps.tasks import TextGeneration
 
-MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 from distilabel.models import InferenceEndpointsLLM
 from distilabel.steps.tasks import SelfInstruct
+
+
+MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
 
 class DatasetInstructionResponsePipeline:
@@ -67,7 +69,7 @@ class DatasetInstructionResponsePipeline:
         num_instructions: int = 2,
         batch_size: int = 1,
     ) -> None:
-        """ Initializes the pipeline. 
+        """Initializes the pipeline.
 
         Args:
             llm (Optional[LLM], optional): The language model to use. Defaults to None.
@@ -97,7 +99,12 @@ class DatasetInstructionResponsePipeline:
         )
 
     def run(self, dataset, **kwargs) -> Distiset:
-        """Runs the pipeline and returns a Distiset."""
+        """Runs the pipeline and returns a Distiset.
+
+        Args:
+            dataset: The dataset to run the pipeline on.
+            **kwargs: Additional arguments to pass to the pipeline.
+        """
         return self.pipeline.run(dataset, **kwargs)
 
     def _get_pipeline(
@@ -141,4 +148,3 @@ class DatasetInstructionResponsePipeline:
             )
 
         return pipeline
-
