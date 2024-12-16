@@ -19,6 +19,7 @@ from distilabel.pipeline.routing_batch_function import (
     sample_n_steps,
 )
 from distilabel.pipeline.templates import (
+    DatasetInstructionResponsePipeline,
     InstructionResponsePipeline,
 )
 
@@ -26,6 +27,7 @@ __all__ = [
     "Pipeline",
     "RayPipeline",
     "InstructionResponsePipeline",
+    "DatasetInstructionResponsePipeline",
     "routing_batch_function",
     "sample_n_steps",
 ]
