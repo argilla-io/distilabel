@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import FormattedInput
     from distilabel.steps.typing import StepColumns
 
+# Aka "Augmentation Prompt"
 DOTA_MATH_AUGMENTATION_SYSTEM_PROMPT = """
 I want you to act as a math teacher. You should think of some ways to help students do variation training for challenging competition mathematics problems.
 Here are some ways you can refer: Introduce fractions or percentages, Combine multiple concepts, Include a conditional statement, Increase the complexity of the problem and so on. Response with specific format, like:
@@ -70,5 +71,11 @@ class DotaMathAugmentQuery(Task):
             return {"augmented_queries": None}
 
         matches = DOTA_MATH_EXTRACT_AUGMENTED_QUERY_REGEX.finditer(output)
-        queries = [match.group(2).strip() for match in matches]
+        queries = []
+        for match in matches:
+            augmented_query = match.group(2).strip()
+            # Sometimes the LLM includes the description of the augmentation applied before
+            # giving the augmented query: "Increase the complexity of the problem: ..."
+            augmented_query = augmented_query.split(":")[-1].strip()
+            queries.append(augmented_query)
         return {"augmented_queries": queries}
