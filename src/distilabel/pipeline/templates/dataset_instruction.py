@@ -67,21 +67,23 @@ class DatasetInstructionResponsePipeline:
         num_instructions: int = 2,
         batch_size: int = 1,
     ) -> None:
+        """ Initializes the pipeline. 
+
+        Args:
+            llm (Optional[LLM], optional): The language model to use. Defaults to None.
+            system_prompt (str, optional): The system prompt to use. Defaults to "You are a creative AI Assistant writer.".
+            hf_token (Optional[str], optional): The Hugging Face API token to use. Defaults to None.
+            num_instructions (int, optional): The number of instructions to generate. Defaults to 2.
+            batch_size (int, optional): The batch size to use. Defaults to 1.
+        """
         if llm is None:
             self.llm: LLM = InferenceEndpointsLLM(
                 model_id=MODEL,
                 tokenizer_id=MODEL,
-                magpie_pre_query_template="llama3",
                 generation_kwargs={
                     "temperature": 0.9,
                     "do_sample": True,
                     "max_new_tokens": 2048,
-                    "stop_sequences": [
-                        "<|eot_id|>",
-                        "<|start_header_id|>",
-                        "assistant",
-                        " \n\n",
-                    ],
                 },
                 api_key=hf_token,
             )
@@ -105,7 +107,7 @@ class DatasetInstructionResponsePipeline:
         with Pipeline(name="dataset_chat") as pipeline:
             self_instruct = SelfInstruct(
                 llm=self.llm,
-                num_instructions=num_instructions,  # This is the default value
+                num_instructions=num_instructions,
             )
 
             expand_columns = ExpandColumns(
@@ -117,7 +119,7 @@ class DatasetInstructionResponsePipeline:
                 columns=["instruction", "input"],
             )
 
-            response_generation = TextGeneration(  #
+            response_generation = TextGeneration(
                 name="exam_generation",
                 system_prompt=system_prompt,
                 template="Respond to the instruction based on the document. Document:\n{{ input }} \nInstruction: {{ instruction }}",
@@ -140,9 +142,3 @@ class DatasetInstructionResponsePipeline:
 
         return pipeline
 
-    def _get_output_columns(self, n_turns: int) -> list:
-        """Returns the output mappings for the pipeline."""
-        if n_turns == 1:
-            return ["instruction", "response", "model_name"]
-        else:
-            return ["instruction", "conversation", "model_name"]
