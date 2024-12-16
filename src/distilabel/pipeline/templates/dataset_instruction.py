@@ -17,13 +17,10 @@ from typing import Optional
 
 from distilabel.distiset import Distiset
 from distilabel.llms import LLM, InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import ExpandColumns, KeepColumns
-from distilabel.steps.tasks import TextGeneration
-
-from distilabel.models import InferenceEndpointsLLM
-from distilabel.steps.tasks import SelfInstruct
-
+from distilabel.steps.tasks import SelfInstruct, TextGeneration
 
 MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
