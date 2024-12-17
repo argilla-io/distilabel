@@ -20,7 +20,7 @@ from distilabel.steps.tasks.base import GeneratorTask, Task
 from distilabel.steps.tasks.clair import CLAIR
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.decorator import task
-from distilabel.steps.tasks.dota_math import DotaMathAugmentQuery
+from distilabel.steps.tasks.dotamath import DotaMathAugmentQuery
 from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
 from distilabel.steps.tasks.evol_instruct.evol_complexity.base import EvolComplexity
 from distilabel.steps.tasks.evol_instruct.evol_complexity.generator import (
@@ -47,6 +47,7 @@ from distilabel.steps.tasks.magpie.generator import MagpieGenerator
 from distilabel.steps.tasks.math_shepherd.completer import MathShepherdCompleter
 from distilabel.steps.tasks.math_shepherd.generator import MathShepherdGenerator
 from distilabel.steps.tasks.math_shepherd.utils import FormatPRM
+from distilabel.steps.tasks.mugglemath import MuggleMathAugmentQuery
 from distilabel.steps.tasks.pair_rm import PairRM
 from distilabel.steps.tasks.prometheus_eval import PrometheusEval
 from distilabel.steps.tasks.quality_scorer import QualityScorer
@@ -94,6 +95,7 @@ __all__ = [
     "MathShepherdCompleter",
     "MathShepherdGenerator",
     "MonolingualTripletGenerator",
+    "MuggleMathAugmentQuery",
     "PairRM",
     "PrometheusEval",
     "QualityScorer",
