@@ -174,7 +174,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
-        if self._pipeline.tokenizer.chat_template:  # type: ignore
+        if self._pipeline.tokenizer.chat_template is None:  # type: ignore
             return input[0]["content"]
 
         prompt: str = (
