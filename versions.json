@@ -245,11 +245,16 @@
     "aliases": []
   },
   {
-    "version": "1.4.1",
-    "title": "1.4.1",
+    "version": "1.4.2",
+    "title": "1.4.2",
     "aliases": [
       "latest"
     ]
+  },
+  {
+    "version": "1.4.1",
+    "title": "1.4.1",
+    "aliases": []
   },
   {
     "version": "1.4.0",
