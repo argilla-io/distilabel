@@ -213,7 +213,6 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
                 raise ImportError(
                     "Transformers is not installed. Please install it using `pip install transformers`."
                 ) from ie
-
             self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
 
         # NOTE: Here because of the custom `logging` interface used, since it will create the logging name
