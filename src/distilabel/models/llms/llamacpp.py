@@ -53,7 +53,6 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
         tokenizer_id: the tokenizer Hugging Face Hub repo id or a path to a directory containing
             the tokenizer config files. If not provided, the one associated to the `model`
             will be used. Defaults to `None`.
-
         use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
             template. Defaults to `False`.
         magpie_pre_query_template: the pre-query template to be applied to the prompt or
@@ -278,11 +277,8 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
         top_p: float = 1.0,
         extra_generation_kwargs: Optional[Dict[str, Any]] = None,
     ) -> "CreateChatCompletionResponse":
-        import pdb
-
         prompt = self.prepare_input(input)
-        pdb.set_trace()
-        output = self._model.create_completion(
+        return self._model.create_completion(
             prompt=prompt,
             max_tokens=max_new_tokens,
             frequency_penalty=frequency_penalty,
@@ -292,8 +288,6 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
             logits_processor=self._logits_processor,
             **(extra_generation_kwargs or {}),
         )
-        pdb.set_trace()
-        return output
 
     @validate_call
     def generate(  # type: ignore
