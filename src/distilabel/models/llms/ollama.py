@@ -239,6 +239,7 @@ class OllamaLLM(AsyncLLM, MagpieChatTemplateMixin):
             format=format,
             options=options,
             keep_alive=keep_alive,
+            raw=True,
         )
 
     @validate_call
@@ -277,7 +278,6 @@ class OllamaLLM(AsyncLLM, MagpieChatTemplateMixin):
                         input, format, options, keep_alive
                     )
                 )
-
                 text = completion.response
         except Exception as e:
             self._logger.warning(  # type: ignore
