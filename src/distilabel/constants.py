@@ -48,6 +48,9 @@ PIPELINE_LOG_FILENAME: Final[str] = "pipeline.log"
 # Docs page for the custom errors
 DISTILABEL_DOCS_URL: Final[str] = "https://distilabel.argilla.io/latest/"
 
+# Argilla related constants
+ARGILLA_API_URL_ENV_VAR_NAME: Final[str] = "ARGILLA_API_URL"
+ARGILLA_API_KEY_ENV_VAR_NAME: Final[str] = "ARGILLA_API_KEY"
 
 __all__ = [
     "BASE_CACHE_DIR",
