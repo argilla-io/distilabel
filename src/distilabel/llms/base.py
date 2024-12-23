@@ -220,7 +220,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                     f" for {self.offline_batch_generation_block_until_done} seconds before"
                     " trying to get the results again."
                 )
-                # When running a `Step` in a child process, SIGINT is overriden so the child
+                # When running a `Step` in a child process, SIGINT is overridden so the child
                 # process doesn't stop when the parent process receives a SIGINT signal.
                 # The new handler sets an environment variable that is checked here to stop
                 # the polling.
