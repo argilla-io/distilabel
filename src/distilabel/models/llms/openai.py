@@ -35,8 +35,7 @@ if TYPE_CHECKING:
     from openai.types.chat.chat_completion import Choice as OpenAIChoice
     from openai.types.completion import Completion as OpenAICompletion
 
-    from distilabel.llms.typing import LLMStatistics
-    from distilabel.models.llms.typing import Logprob
+    from distilabel.models.llms.typing import LLMStatistics, Logprob
 
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"

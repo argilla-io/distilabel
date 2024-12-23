@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from mistralai import Mistral
     from mistralai.models.chatcompletionresponse import ChatCompletionResponse
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics
 
 
 _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
