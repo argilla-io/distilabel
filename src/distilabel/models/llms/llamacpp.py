@@ -226,6 +226,10 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
                     "Transformers is not installed. Please install it using `pip install transformers`."
                 ) from ie
             self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
+            if self._tokenizer.chat_template is None:
+                raise ValueError(
+                    "The tokenizer does not have a chat template. Please use a tokenizer with a chat template."
+                )
 
         # NOTE: Here because of the custom `logging` interface used, since it will create the logging name
         # out of the model name, which won't be available until the `Llama` instance is created.

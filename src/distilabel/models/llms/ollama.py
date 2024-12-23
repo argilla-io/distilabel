@@ -186,6 +186,10 @@ class OllamaLLM(AsyncLLM, MagpieChatTemplateMixin):
                     "Transformers is not installed. Please install it using `pip install transformers`."
                 ) from ie
             self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
+            if self._tokenizer.chat_template is None:
+                raise ValueError(
+                    "The tokenizer does not have a chat template. Please use a tokenizer with a chat template."
+                )
 
     @property
     def model_name(self) -> str:
