@@ -14,7 +14,7 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import Field, FilePath, PrivateAttr, validate_call
+from pydantic import Field, FilePath, PrivateAttr, model_validator, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
@@ -172,6 +172,18 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
     )
     _logits_processor: Optional["LogitsProcessorList"] = PrivateAttr(default=None)
     _model: Optional["Llama"] = PrivateAttr(...)
+
+    @model_validator(mode="after")  # type: ignore
+    def validate_magpie_usage(
+        self,
+    ) -> "LlamaCppLLM":
+        """Validates that magpie usage is valid."""
+
+        if self.use_magpie_template and self.tokenizer_id is None:
+            raise ValueError(
+                "`use_magpie_template` cannot be `True` if `tokenizer_id` is `None`. Please,"
+                " set a `tokenizer_id` and try again."
+            )
 
     def load(self) -> None:
         """Loads the `Llama` model from the `model_path`."""

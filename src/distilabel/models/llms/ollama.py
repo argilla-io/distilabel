@@ -15,7 +15,7 @@
 from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Sequence, Union
 
 from llama_cpp.llama_types import CreateChatCompletionResponse
-from pydantic import Field, PrivateAttr, validate_call
+from pydantic import Field, PrivateAttr, model_validator, validate_call
 from typing_extensions import TypedDict
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -148,6 +148,18 @@ class OllamaLLM(AsyncLLM, MagpieChatTemplateMixin):
     _num_generations_param_supported = False
     _aclient: Optional["AsyncClient"] = PrivateAttr(...)
 
+    @model_validator(mode="after")  # type: ignore
+    def validate_magpie_usage(
+        self,
+    ) -> "OllamaLLM":
+        """Validates that magpie usage is valid."""
+
+        if self.use_magpie_template and self.tokenizer_id is None:
+            raise ValueError(
+                "`use_magpie_template` cannot be `True` if `tokenizer_id` is `None`. Please,"
+                " set a `tokenizer_id` and try again."
+            )
+
     def load(self) -> None:
         """Loads the `AsyncClient` to use Ollama async API."""
         super().load()
@@ -165,14 +177,6 @@ class OllamaLLM(AsyncLLM, MagpieChatTemplateMixin):
                 "Ollama Python client is not installed. Please install it using"
                 " `pip install ollama`."
             ) from e
-
-        if self.use_magpie_template or self.magpie_pre_query_template:
-            if not self.tokenizer_id:
-                raise ValueError(
-                    "The Hugging Face Hub repo id or a path to a directory containing"
-                    " the tokenizer config files is required when using the `use_magpie_template`"
-                    " or `magpie_pre_query_template` runtime parameters."
-                )
 
         if self.tokenizer_id:
             try:
