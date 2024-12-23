@@ -38,6 +38,17 @@ def llm() -> Generator[LlamaCppLLM, None, None]:
 
 
 class TestLlamaCppLLM:
+    def test_no_tokenizer_magpie_raise_value_error(self) -> None:
+        with pytest.raises(
+            ValueError,
+            match="`use_magpie_template` cannot be `True` if `tokenizer_id` is `None`",
+        ):
+            LlamaCppLLM(
+                model_path="tinyllama.gguf",
+                use_magpie_template=True,
+                magpie_pre_query_template="llama3",
+            )
+
     def test_model_name(self, llm: LlamaCppLLM) -> None:
         assert llm.model_name == "tinyllama.gguf"
 

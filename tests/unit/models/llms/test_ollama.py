@@ -22,6 +22,17 @@ from distilabel.models.llms.ollama import OllamaLLM
 
 @patch("ollama.AsyncClient")
 class TestOllamaLLM:
+    def test_no_tokenizer_magpie_raise_value_error(self, _: MagicMock) -> None:
+        with pytest.raises(
+            ValueError,
+            match="`use_magpie_template` cannot be `True` if `tokenizer_id` is `None`",
+        ):
+            OllamaLLM(
+                model="llama3.1",
+                use_magpie_template=True,
+                magpie_pre_query_template="llama3",
+            )
+
     def test_ollama_llm(self, _: MagicMock) -> None:
         llm = OllamaLLM(model="notus")  # type: ignore
         assert isinstance(llm, OllamaLLM)
