@@ -41,10 +41,14 @@ class UltraFeedback(Task):
             assessment of the text outputs within a single prompt. The custom aspect is:
             - `overall-rating`: Evaluate text outputs based on an overall assessment.
             Defaults to `"overall-rating"`.
+        system_prompt: The system prompt to use in the generation. If not provided, then
+            it will check if the input row has a column named `system_prompt` and use it.
+            If not, then no system prompt will be used. Defaults to `None`.
 
     Input columns:
         - instruction (`str`): The reference instruction to evaluate the text outputs.
         - generations (`List[str]`): The text outputs to evaluate for the given instruction.
+        - system_prompt (`str`): The system prompt to use in the generation.
 
     Output columns:
         - ratings (`List[float]`): The ratings for each of the provided text outputs.
@@ -196,7 +200,7 @@ class UltraFeedback(Task):
         "overall-rating",
     ] = "overall-rating"
 
-    _system_prompt: str = PrivateAttr(
+    system_prompt: str = PrivateAttr(
         default=(
             "Your role is to evaluate text quality based on given criteria.\n"
             'You\'ll receive an instructional description ("Instruction") and {no_texts} text outputs ("Text").\n'
@@ -226,25 +230,32 @@ class UltraFeedback(Task):
     @property
     def inputs(self) -> List[str]:
         """The input for the task is the `instruction`, and the `generations` for it."""
-        return ["instruction", "generations"]
+        return {"instruction": True, "generations": True, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        return [
-            {
-                "role": "system",
-                "content": self._system_prompt.format(
-                    no_texts=len(input["generations"])
-                ),
-            },
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.append(
+                {
+                    "role": "user",
+                    "content": self.system_prompt.format(
+                        no_texts=len(input["generations"])
+                    ),
+                }
+            )
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
                     instruction=input["instruction"], generations=input["generations"]
                 ),
             },
-        ]
+        )
+        return messages
 
     @property
     def outputs(self) -> List[str]:

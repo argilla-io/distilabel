@@ -411,6 +411,11 @@ class Task(_Task, Step):
         num_generations: The number of generations to be produced per input.
     """
 
+    system_prompt: Optional[str] = Field(
+        default=None,
+        description="The system prompt for the task.",
+    )
+
     @abstractmethod
     def format_input(self, input: Dict[str, Any]) -> "FormattedInput":
         """Abstract method to format the inputs of the task. It needs to receive an input

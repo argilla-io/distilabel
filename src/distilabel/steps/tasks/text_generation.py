@@ -44,15 +44,12 @@ class TextGeneration(Task):
             syntax. If not provided, it will assume the text passed is an instruction and
             construct the appropriate template.
         columns: A string with the column, or a list with columns expected in the template.
-            Take a look at the examples for more information. Defaults to `instruction`.
-        use_system_prompt: DEPRECATED. To be removed in 1.5.0. Whether to use the system
-            prompt in the generation. Defaults to `True`, which means that if the column
-            `system_prompt` is defined within the input batch, then the `system_prompt`
-            will be used, otherwise, it will be ignored.
+            Take a look at the examples for more information. Defaults to `instruction`..
 
     Input columns:
         - dynamic (determined by `columns` attribute): By default will be set to `instruction`.
             The columns can point both to a `str` or a `List[str]` to be used in the template.
+        - system_prompt: The system prompt to use in the generation.
 
     Output columns:
         - generation (`str`): The generated text.
@@ -189,8 +186,6 @@ class TextGeneration(Task):
         ```
     """
 
-    system_prompt: Union[str, None] = None
-    use_system_prompt: bool = Field(default=True, deprecated=True)
     template: str = Field(
         default="{{ instruction }}",
         description=(
@@ -260,14 +255,12 @@ class TextGeneration(Task):
 
         messages = self._prepare_message_content(input)
 
-        row_system_prompt = input.get("system_prompt")
-        if row_system_prompt:
-            messages.insert(0, {"role": "system", "content": row_system_prompt})
-
-        if self.system_prompt and not row_system_prompt:
+        if "system_prompt" in input:
+            messages.insert(0, {"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
             messages.insert(0, {"role": "system", "content": self.system_prompt})
 
-        return messages  # type: ignore
+        return messages
 
     @property
     def outputs(self) -> List[str]:
