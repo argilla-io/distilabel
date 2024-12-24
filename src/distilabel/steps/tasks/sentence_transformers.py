@@ -89,9 +89,11 @@ class GenerateSentencePair(Task):
         hard_negative: A flag to indicate if the negative should be a hard-negative or not.
             Hard negatives make it hard for the model to distinguish against the positive,
             with a higher degree of semantic similarity.
+        system_prompt: The system prompt for the GenerateSentencePair task.
 
     Input columns:
         - anchor (`str`): The anchor sentence to generate the positive and negative sentences.
+        - system_prompt (`Optional[str]`): The system prompt for the GenerateSentencePair task.
 
     Output columns:
         - positive (`str`): The positive sentence related to the `anchor`.
@@ -279,7 +281,7 @@ class GenerateSentencePair(Task):
     @property
     def inputs(self) -> List[str]:
         """The inputs for the task is the `anchor` sentence."""
-        return ["anchor"]
+        return {"anchor": True, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The inputs are formatted as a `ChatType`, with a system prompt describing the
@@ -307,8 +309,12 @@ class GenerateSentencePair(Task):
             POSITIVE_NEGATIVE_SYSTEM_PROMPT if self.triplet else POSITIVE_SYSTEM_PROMPT
         ).format(**format_system_prompt)
 
-        return [
-            {"role": "system", "content": system_prompt},
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(
@@ -316,7 +322,8 @@ class GenerateSentencePair(Task):
                     context=self.context if self.context else None,
                 ),
             },
-        ]
+        )
+        return messages
 
     @property
     def outputs(self) -> List[str]:

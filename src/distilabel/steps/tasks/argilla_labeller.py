@@ -62,7 +62,7 @@ class ArgillaLabeller(Task):
         - question (`Optional[Dict[str, Any]]`): The question settings for the question to be answered.
         - example_records (`Optional[List[Dict[str, Any]]]`): The few shot example records with responses to be used to answer the question.
         - guidelines (`Optional[str]`): The guidelines for the annotation task.
-
+        - system_prompt (`Optional[str]`): The system prompt for the annotation task.
     Output columns:
         - suggestion (`Dict[str, Any]`): The final suggestion for annotation.
 
@@ -205,7 +205,7 @@ class ArgillaLabeller(Task):
         ```
     """
 
-    system_prompt: str = (
+    system_prompt: Optional[str] = Field(
         "You are an expert annotator and labelling assistant that understands complex domains and natural language processing. "
         "You are given input fields and a question. "
         "You should create a valid JSON object as an response to the question based on the input fields. "
@@ -270,6 +270,7 @@ class ArgillaLabeller(Task):
             "question": False,
             "example_records": False,
             "guidelines": False,
+            "system_prompt": False,
         }
 
     def _format_record(
@@ -421,7 +422,9 @@ class ArgillaLabeller(Task):
         )
 
         messages = []
-        if self.system_prompt:
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
             messages.append({"role": "system", "content": self.system_prompt})
         messages.append({"role": "user", "content": prompt})
         return messages

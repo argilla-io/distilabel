@@ -60,6 +60,7 @@ class TextClassification(Task):
 
     Input columns:
         - text (`str`): The reference text we want to obtain labels for.
+        - system_prompt (`Optional[str]`): The system prompt for the TextClassification task.
 
     Output columns:
         - labels (`Union[str, List[str]]`): The label or list of labels for the text.
@@ -84,7 +85,7 @@ class TextClassification(Task):
             a dictionary with the labels and their descriptions.
         default_label: Default label to use when the text is ambiguous or lacks sufficient information for
             classification. Can be a list in case of multiple labels (n>1).
-
+        system_prompt: The system prompt for the TextClassification task.
     Examples:
         Assigning a sentiment to a text:
 
@@ -301,8 +302,8 @@ class TextClassification(Task):
 
     @property
     def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`."""
-        return ["text"]
+        """The input for the task is the `text`."""
+        return {"text": True, "system_prompt": False}
 
     @property
     def outputs(self) -> List[str]:
@@ -312,7 +313,12 @@ class TextClassification(Task):
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        messages = [
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.append({"role": "system", "content": self.system_prompt})
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
@@ -325,10 +331,8 @@ class TextClassification(Task):
                     query_title=self.query_title,
                     text=input["text"],
                 ),
-            },
-        ]
-        if self.system_prompt:
-            messages.insert(0, {"role": "system", "content": self.system_prompt})
+            }
+        )
         return messages
 
     def format_output(
