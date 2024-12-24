@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 import orjson
 from jinja2 import Template
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
@@ -200,7 +200,7 @@ class UltraFeedback(Task):
         "overall-rating",
     ] = "overall-rating"
 
-    system_prompt: str = PrivateAttr(
+    system_prompt: str = Field(
         default=(
             "Your role is to evaluate text quality based on given criteria.\n"
             'You\'ll receive an instructional description ("Instruction") and {no_texts} text outputs ("Text").\n'
