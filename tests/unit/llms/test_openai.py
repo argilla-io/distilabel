@@ -446,9 +446,10 @@ class TestOpenAILLM:
         }
 
     @pytest.mark.parametrize(
-        "structured_output, dump",
+        "default_headers, structured_output, dump",
         [
             (
+                None,
                 None,
                 {
                     "model": "gpt-4",
@@ -456,6 +457,7 @@ class TestOpenAILLM:
                     "max_retries": 6,
                     "base_url": "https://api.openai.com/v1",
                     "timeout": 120,
+                    "default_headers": None,
                     "structured_output": None,
                     "jobs_ids": None,
                     "offline_batch_generation_block_until_done": None,
@@ -467,6 +469,7 @@ class TestOpenAILLM:
                 },
             ),
             (
+                {"X-Custom-Header": "test"},
                 {
                     "schema": DummyUserDetail.model_json_schema(),
                     "mode": "tool_call",
@@ -478,6 +481,7 @@ class TestOpenAILLM:
                     "max_retries": 6,
                     "base_url": "https://api.openai.com/v1",
                     "timeout": 120,
+                    "default_headers": {"X-Custom-Header": "test"},
                     "structured_output": {
                         "schema": DummyUserDetail.model_json_schema(),
                         "mode": "tool_call",
@@ -498,10 +502,27 @@ class TestOpenAILLM:
         self,
         _async_openai_mock: MagicMock,
         _openai_mock: MagicMock,
+        default_headers: Dict[str, Any],
         structured_output: Dict[str, Any],
         dump: Dict[str, Any],
     ) -> None:
-        llm = OpenAILLM(model=self.model_id, structured_output=structured_output)
+        llm = OpenAILLM(
+            model=self.model_id,
+            default_headers=default_headers,
+            structured_output=structured_output,
+        )
 
         assert llm.dump() == dump
         assert isinstance(OpenAILLM.from_dict(dump), OpenAILLM)
+
+    def test_openai_llm_default_headers(
+        self, _async_openai_mock: MagicMock, _openai_mock: MagicMock
+    ) -> None:
+        custom_headers = {"X-Custom-Header": "test"}
+        llm = OpenAILLM(
+            model=self.model_id, api_key="api.key", default_headers=custom_headers
+        )  # type: ignore
+
+        assert isinstance(llm, OpenAILLM)
+        assert llm.model_name == self.model_id
+        assert llm.default_headers == custom_headers
