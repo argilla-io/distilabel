@@ -149,6 +149,10 @@ class OpenAILLM(AsyncLLM):
         default_factory=lambda: os.getenv(_OPENAI_API_KEY_ENV_VAR_NAME),
         description="The API key to authenticate the requests to the OpenAI API.",
     )
+    default_headers: Optional[RuntimeParameter[Dict[str, str]]] = Field(
+        default=None,
+        description="The default headers to use for the OpenAI API requests.",
+    )
     max_retries: RuntimeParameter[int] = Field(
         default=6,
         description="The maximum number of times to retry the request to the API before"
@@ -192,6 +196,7 @@ class OpenAILLM(AsyncLLM):
             api_key=self.api_key.get_secret_value(),
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
+            default_headers=self.default_headers,
         )
 
         self._aclient = AsyncOpenAI(
@@ -199,6 +204,7 @@ class OpenAILLM(AsyncLLM):
             api_key=self.api_key.get_secret_value(),
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
+            default_headers=self.default_headers,
         )
 
         if self.structured_output:
@@ -217,6 +223,7 @@ class OpenAILLM(AsyncLLM):
 
         self._client = None  # type: ignore
         self._aclient = None  # type: ignore
+        self.default_headers = None
         self.structured_output = None
         super().unload()
 
