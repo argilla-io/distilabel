@@ -12,16 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    List,
+    Optional,
+    Union,
+)
 
-from pydantic import Field, PrivateAttr, validate_call
+from pydantic import (
+    Field,
+    PrivateAttr,
+    validate_call,
+)
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
 from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
+from distilabel.steps.tasks.typing import (
+    OutlinesStructuredOutputType,
+    StandardInput,
+)
 
 if TYPE_CHECKING:
     import mlx.nn as nn
@@ -53,9 +67,9 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         Generate text:
 
         ```python
-        from distilabel.models.llms import TransformersLLM
+        from distilabel.models.llms import MlxLLM
 
-        llm = TransformersLLM(model="microsoft/Phi-3-mini-4k-instruct")
+        llm = MlxLLM(model="mlx-community/Meta-Llama-3.1-8B-Instruct-4bit")
 
         llm.load()
 
