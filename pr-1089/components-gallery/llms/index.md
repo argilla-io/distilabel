@@ -146,5 +146,13 @@ hide:
 
     [:octicons-arrow-right-24: vLLM](vllm.md){ .bottom }
 
+-   :hugging:{ .lg .middle } __MlxLLM__
+
+    ---
+
+    Hugging Face `transformers` library LLM implementation using the text generation
+
+    [:octicons-arrow-right-24: MlxLLM](mlxllm.md){ .bottom }
+
 
 </div>
