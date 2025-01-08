@@ -158,15 +158,6 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
         " the tokenizer config files. If not provided, the one associated to the `model`"
         " will be used.",
     )
-    use_magpie_template: RuntimeParameter[bool] = Field(
-        default=False,
-        description="Whether to use the Magpie pre-query template or not.",
-    )
-    magpie_pre_query_template: Optional[RuntimeParameter[str]] = Field(
-        default=None,
-        description="The pre-query template to use for the model. Valid values are "
-        "`llama3`, `qwen2` or another pre-query template provided.",
-    )
     _logits_processor: Optional["LogitsProcessorList"] = PrivateAttr(default=None)
     _model: Optional["Llama"] = PrivateAttr(...)
 

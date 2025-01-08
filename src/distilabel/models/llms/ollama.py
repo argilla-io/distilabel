@@ -133,15 +133,6 @@ class OllamaLLM(AsyncLLM, MagpieChatTemplateMixin):
         " the tokenizer config files. If not provided, the one associated to the `model`"
         " will be used.",
     )
-    use_magpie_template: RuntimeParameter[bool] = Field(
-        default=False,
-        description="Whether to use the Magpie pre-query template or not.",
-    )
-    magpie_pre_query_template: Optional[RuntimeParameter[str]] = Field(
-        default=None,
-        description="The pre-query template to use for the model. Valid values are "
-        "`llama3`, `qwen2` or another pre-query template provided.",
-    )
     _num_generations_param_supported = False
     _aclient: Optional["AsyncClient"] = PrivateAttr(...)  # type: ignore
 
