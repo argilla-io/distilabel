@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
     from anthropic.types import Message
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics
 
 
 _ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
