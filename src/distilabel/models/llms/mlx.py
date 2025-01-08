@@ -101,7 +101,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             from mlx_lm import generate, load
         except ImportError as ie:
             raise ImportError(
-                "MLX is not installed. Please install it using `pip install mlx` and `pip install mlx-lm`."
+                "MLX is not installed. Please install it using `pip install 'distilabel[mlx]'`."
             ) from ie
 
         self._model, self._tokenizer = load(
