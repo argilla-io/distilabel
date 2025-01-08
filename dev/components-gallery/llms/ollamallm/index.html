@@ -5057,6 +5057,21 @@
 <p><strong>timeout</strong>: the timeout for the LLM. Defaults to <code>120</code>.</p>
 </li>
 <li>
+<p><strong>follow_redirects</strong>: whether to follow redirects. Defaults to <code>True</code>.</p>
+</li>
+<li>
+<p><strong>structured_output</strong>: a dictionary containing the structured output configuration or if more  fine-grained control is needed, an instance of <code>OutlinesStructuredOutput</code>. Defaults to None.</p>
+</li>
+<li>
+<p><strong>tokenizer_id</strong>: the tokenizer Hugging Face Hub repo id or a path to a directory containing  the tokenizer config files. If not provided, the one associated to the <code>model</code>  will be used. Defaults to <code>None</code>.</p>
+</li>
+<li>
+<p><strong>use_magpie_template</strong>: a flag used to enable/disable applying the Magpie pre-query  template. Defaults to <code>False</code>.</p>
+</li>
+<li>
+<p><strong>magpie_pre_query_template</strong>: the pre-query template to be applied to the prompt or  sent to the LLM to generate an instruction or a follow up user message. Valid  values are "llama3", "qwen2" or another pre-query template provided. Defaults  to <code>None</code>.</p>
+</li>
+<li>
 <p><strong>_aclient</strong>: the <code>AsyncClient</code> to use for the Ollama API. It is meant to be used internally.  Set in the <code>load</code> method.</p>
 </li>
 </ul>
@@ -5071,7 +5086,7 @@
 </ul>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
 <h4 id="generate-text">Generate text<a class="headerlink" href="#generate-text" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.models.llms</span> <span class="kn">import</span> <span class="n">OllamaLLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.models.llms</span><span class="w"> </span><span class="kn">import</span> <span class="n">OllamaLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">OllamaLLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama3&quot;</span><span class="p">)</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
