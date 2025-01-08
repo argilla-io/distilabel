@@ -129,7 +129,7 @@ class OllamaLLM(AsyncLLM, MagpieChatTemplateMixin):
     )
     tokenizer_id: Optional[RuntimeParameter[str]] = Field(
         default=None,
-        description="The tokenizer Hugging Face Hub repo id or a path to a directory containing"
+        description="The Hugging Face Hub repo id or a path to a directory containing"
         " the tokenizer config files. If not provided, the one associated to the `model`"
         " will be used.",
     )
