@@ -43,8 +43,7 @@ if TYPE_CHECKING:
 
 
 class MlxLLM(LLM, MagpieChatTemplateMixin):
-    """Hugging Face `transformers` library LLM implementation using the text generation
-    pipeline.
+    """Apple MLX LLM implementation.
 
     Attributes:
         path_or_hf_repo: the path to the model or the Hugging Face Hub repo id.
@@ -61,7 +60,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             to `None`.
 
     Icon:
-        `:hugging:`
+        `:apple:`
 
     Examples:
         Generate text:
