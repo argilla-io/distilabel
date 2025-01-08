@@ -116,8 +116,8 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
                 self.structured_output
             )
 
-        if self._tokenizer.pad_token is None:  # type: ignore
-            self._tokenizer.pad_token = self._tokenizer.eos_token  # type: ignore
+        if self._tokenizer.pad_token is None:
+            self._tokenizer.pad_token = self._tokenizer.eos_token
 
         self._mlx_generate = generate
 
@@ -138,12 +138,12 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         Returns:
             The prompt to send to the LLM.
         """
-        if self._tokenizer.chat_template is None:  # type: ignore
+        if self._tokenizer.chat_template is None:
             return input[0]["content"]
 
         prompt: str = (
-            self._tokenizer.apply_chat_template(  # type: ignore
-                input,  # type: ignore
+            self._tokenizer.apply_chat_template(
+                input,
                 tokenize=False,
                 add_generation_prompt=True,
             )
@@ -153,7 +153,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         return super().apply_magpie_pre_query_template(prompt, input)
 
     @validate_call
-    def generate(  # type: ignore
+    def generate(
         self,
         inputs: List[StandardInput],
         num_generations: int = 1,
