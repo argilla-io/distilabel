@@ -21,9 +21,11 @@ from distilabel.models.llms.mlx import MlxLLM
 
 from .utils import DummyUserDetail
 
+RUNS_ON_APPLE_SILICON = platform.processor() == "arm" and platform.system() == "Darwin"
+
 
 @pytest.mark.skipif(
-    platform.processor() != "arm" or platform.system() != "Darwin",
+    not RUNS_ON_APPLE_SILICON,
     reason="MLX only runs on Apple Silicon",
 )
 @pytest.fixture(scope="module")
@@ -34,7 +36,7 @@ def llm() -> Generator[MlxLLM, None, None]:
 
 
 @pytest.mark.skipif(
-    platform.processor() != "arm" or platform.system() != "Darwin",
+    not RUNS_ON_APPLE_SILICON,
     reason="MLX only runs on Apple Silicon",
 )
 class TestMlxLLM:
