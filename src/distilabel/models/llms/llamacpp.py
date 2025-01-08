@@ -26,10 +26,7 @@ from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutp
 if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse, Llama, LogitsProcessorList
 
-    from distilabel.steps.tasks.typing import (
-        FormattedInput,
-        StandardInput,
-    )
+    from distilabel.steps.tasks.typing import FormattedInput, StandardInput
 
 
 class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
@@ -173,7 +170,7 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
     _logits_processor: Optional["LogitsProcessorList"] = PrivateAttr(default=None)
     _model: Optional["Llama"] = PrivateAttr(...)
 
-    @model_validator(mode="after")  # type: ignore
+    @model_validator(mode="after")
     def validate_magpie_usage(
         self,
     ) -> "LlamaCppLLM":
@@ -195,7 +192,7 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
             ) from ie
 
         self._model = Llama(
-            model_path=self.model_path.as_posix(),  # type: ignore
+            model_path=self.model_path.as_posix(),
             seed=self.seed,
             n_ctx=self.n_ctx,
             n_batch=self.n_batch,
@@ -223,7 +220,7 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
                 from transformers import AutoTokenizer
             except ImportError as ie:
                 raise ImportError(
-                    "Transformers is not installed. Please install it using `pip install transformers`."
+                    "Transformers is not installed. Please install it using `pip install 'distilabel[hf-transformers]'`."
                 ) from ie
             self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
             if self._tokenizer.chat_template is None:
