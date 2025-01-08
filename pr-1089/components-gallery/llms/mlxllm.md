@@ -5,11 +5,9 @@ hide:
 # MlxLLM
 
 
-Hugging Face `transformers` library LLM implementation using the text generation
+Apple MLX LLM implementation.
 
 
-
-pipeline.
 
 
 
