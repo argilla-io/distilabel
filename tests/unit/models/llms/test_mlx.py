@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import platform
 from typing import Any, Dict, Generator
 
 import pytest
@@ -21,6 +22,10 @@ from distilabel.models.llms.mlx import MlxLLM
 from .utils import DummyUserDetail
 
 
+@pytest.mark.skipif(
+    platform.processor() != "arm" or platform.system() != "Darwin",
+    reason="MLX only runs on Apple Silicon",
+)
 @pytest.fixture(scope="module")
 def llm() -> Generator[MlxLLM, None, None]:
     llm = MlxLLM(path_or_hf_repo="mlx-community/Qwen2.5-0.5B-4bit")
@@ -28,6 +33,10 @@ def llm() -> Generator[MlxLLM, None, None]:
     yield llm
 
 
+@pytest.mark.skipif(
+    platform.processor() != "arm" or platform.system() != "Darwin",
+    reason="MLX only runs on Apple Silicon",
+)
 class TestMlxLLM:
     def test_model_name(self, llm: MlxLLM) -> None:
         assert llm.path_or_hf_repo == "mlx-community/Qwen2.5-0.5B-4bit"
