@@ -100,9 +100,6 @@ DUMP_REGEX = {
 }
 
 
-@pytest.mark.skip(
-    reason="won't work until we update our code to work with `outlines>0.1.0`"
-)
 class TestOutlinesIntegration:
     @pytest.mark.parametrize(
         "format, schema, prompt",
