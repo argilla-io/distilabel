@@ -37,11 +37,13 @@ if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
 
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
-# Available frameworks for the structured output configuration.
-_outlines_version = pkg_resources.get_distribution("outlines").version
-outlines_below_0_1_0 = pkg_resources.parse_version(
-    _outlines_version
-) < pkg_resources.parse_version("0.1.0")
+
+if importlib.util.find_spec("outlines"):
+    outlines_below_0_1_0 = pkg_resources.parse_version(
+        pkg_resources.get_distribution("outlines").version
+    ) < pkg_resources.parse_version("0.1.0")
+else:
+    outlines_below_0_1_0 = True
 
 
 def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
