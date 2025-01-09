@@ -142,6 +142,8 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             trust_remote_code=self.trust_remote_code,
         )
         self._pipeline = Transformers(model, tokenizer)
+        self._pipeline.tokenizer.chat_template = tokenizer.chat_template
+        self._pipeline.tokenizer.apply_chat_template = tokenizer.apply_chat_template
 
     def _set_transformers_pipeline(self):
         from transformers import pipeline
@@ -221,13 +223,8 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if self._pipeline.tokenizer.chat_template is None:  # type: ignore
             return input[0]["content"]
 
-        if self.structured_output and not outlines_below_0_1_0:
-            tokenizer = self._pipeline.tokenizer.tokenizer
-        else:
-            tokenizer = self._pipeline.tokenizer
-
         prompt: str = (
-            tokenizer.apply_chat_template(
+            self._pipeline.tokenizer.apply_chat_template(
                 input,
                 tokenize=False,
                 add_generation_prompt=True,
