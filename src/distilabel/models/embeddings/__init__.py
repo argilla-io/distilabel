@@ -21,7 +21,6 @@ from distilabel.models.embeddings.vllm import vLLMEmbeddings
 __all__ = [
     "Embeddings",
     "LlamaCppEmbeddings",
-    "LlamaCppEmbeddings",
     "SentenceTransformerEmbeddings",
     "vLLMEmbeddings",
 ]
