@@ -268,7 +268,22 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         prepared_inputs = [self.prepare_input(input=input) for input in inputs]
 
-        if self.structured_output is not None and not outlines_below_0_1_0:
+        if self.structured_output is None or (
+            self.structured_output and outlines_below_0_1_0
+        ):
+            outputs: List[List[Dict[str, str]]] = self._pipeline(
+                prepared_inputs,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                repetition_penalty=repetition_penalty,
+                top_p=top_p,
+                top_k=top_k,
+                do_sample=do_sample,
+                num_return_sequences=num_generations,
+                prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
+                pad_token_id=self._pipeline.tokenizer.eos_token_id,
+            )
+        else:
             from outlines.models.transformers import (
                 GenerationParameters,
                 SamplingParameters,
@@ -296,19 +311,6 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 )
                 for idx_sample, generation in enumerate(generations):
                     outputs[idx_sample][idx_generation] = {"generated_text": generation}
-        else:
-            outputs: List[List[Dict[str, str]]] = self._pipeline(
-                prepared_inputs,
-                max_new_tokens=max_new_tokens,
-                temperature=temperature,
-                repetition_penalty=repetition_penalty,
-                top_p=top_p,
-                top_k=top_k,
-                do_sample=do_sample,
-                num_return_sequences=num_generations,
-                prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
-                pad_token_id=self._pipeline.tokenizer.eos_token_id,
-            )
 
         llm_output = [
             [generation["generated_text"] for generation in output]
