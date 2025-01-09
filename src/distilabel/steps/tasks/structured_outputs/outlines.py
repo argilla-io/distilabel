@@ -88,7 +88,9 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
 
 
 def _get_outlines_tokenizer_or_model(llm: Any, framework: Frameworks) -> Callable:
-    if not outlines_below_0_1_0:
+    if outlines_below_0_1_0:
+        return llm
+    else:
         if framework == "llamacpp":
             from outlines.models.llamacpp import LlamaCppTokenizer
 
@@ -99,8 +101,6 @@ def _get_outlines_tokenizer_or_model(llm: Any, framework: Frameworks) -> Callabl
             return TransformerTokenizer(llm.tokenizer)
         elif framework == "vllm":
             return llm.get_tokenizer()
-    else:
-        return llm
 
 
 def prepare_guided_output(
@@ -127,6 +127,7 @@ def prepare_guided_output(
         case of "json" will also include the schema as a dict, to simplify serialization
         and deserialization.
     """
+
     if not importlib.util.find_spec("outlines"):
         raise ImportError(
             "Outlines is not installed. Please install it using `pip install outlines`."
@@ -159,7 +160,7 @@ def prepare_guided_output(
         }
 
     if format == "regex":
-        return {"processor": regex_processor(schema, llm)}
+        return {"processor": regex_processor(schema, tokenizer_or_model)}
 
     raise DistilabelUserError(
         f"Invalid format '{format}'. Must be either 'json' or 'regex'.",
