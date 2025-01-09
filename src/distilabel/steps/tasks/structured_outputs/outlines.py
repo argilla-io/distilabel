@@ -96,8 +96,12 @@ def _get_outlines_tokenizer_or_model(llm: Any, framework: Frameworks) -> Callabl
 
             return LlamaCppTokenizer(llm)
         elif framework == "transformers":
-            from outlines.models.transformers import TransformerTokenizer
+            from outlines.models.transformers import Transformers, TransformerTokenizer
 
+            if isinstance(llm, Transformers):
+                return llm.tokenizer
+            else:
+                return TransformerTokenizer(llm.tokenizer)
             return TransformerTokenizer(llm.tokenizer)
         elif framework == "vllm":
             return llm.get_tokenizer()
