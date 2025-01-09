@@ -23,15 +23,12 @@ from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.structured_outputs.outlines import (
-    outlines_below_0_1_0,
-)
+from distilabel.steps.tasks.structured_outputs.outlines import outlines_below_0_1_0
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
 if TYPE_CHECKING:
-    from outlines.models.transformers import Transformers
-    from transformers import LogitsProcessor, LogitsProcessorList, Pipeline
+    from transformers import Pipeline
     from transformers.modeling_utils import PreTrainedModel
     from transformers.tokenization_utils import PreTrainedTokenizer
 
@@ -113,11 +110,9 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         description="The structured output format to use across all the generations.",
     )
 
-    _pipeline: Optional[Union["Pipeline", "Transformers"]] = PrivateAttr(...)
+    _pipeline: Optional["Pipeline"] = PrivateAttr(...)
     _prefix_allowed_tokens_fn: Union[Callable, None] = PrivateAttr(default=None)
-    _logits_processor: Optional[Union["LogitsProcessor", "LogitsProcessorList"]] = (
-        PrivateAttr(default=None)
-    )
+    _logits_processor: Union[Callable, None] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
@@ -126,56 +121,13 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             CudaDevicePlacementMixin.load(self)
 
         try:
-            from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline  # noqa
+            from transformers import pipeline
         except ImportError as ie:
             raise ImportError(
                 "Transformers is not installed. Please install it using `pip install transformers`."
             ) from ie
 
-        if self.structured_output is not None:
-            if outlines_below_0_1_0:
-                self._set_transformers_pipeline()
-                self._prefix_allowed_tokens_fn = self._prepare_structured_output(
-                    self.structured_output
-                )
-            else:
-                self._set_outlines_pipeline()
-                self._logits_processor = self._prepare_structured_output(
-                    self.structured_output
-                )
-        else:
-            self._set_transformers_pipeline()
-
-        super().load()
-
-    def _set_outlines_pipeline(self):
-        from outlines.models.transformers import Transformers
-        from transformers import AutoModelForCausalLM, AutoTokenizer
-
         token = self.token.get_secret_value() if self.token is not None else self.token
-        model = AutoModelForCausalLM.from_pretrained(
-            self.model,
-            output_attentions=True,
-            token=token,
-            revision=self.revision,
-            torch_dtype=self.torch_dtype,
-            trust_remote_code=self.trust_remote_code,
-            device_map=self.device_map,
-            **(self.model_kwargs or {}),
-        ).to(self.device)
-        tokenizer = AutoTokenizer.from_pretrained(
-            self.tokenizer or self.model,
-            token=token,
-            use_fast=self.use_fast,
-            revision=self.revision,
-            trust_remote_code=self.trust_remote_code,
-        )
-        self._pipeline = Transformers(model, tokenizer)
-        self._pipeline.tokenizer.chat_template = tokenizer.chat_template
-        self._pipeline.tokenizer.apply_chat_template = tokenizer.apply_chat_template
-
-    def _set_transformers_pipeline(self):
-        from transformers import pipeline
 
         self._pipeline = pipeline(
             "text-generation",
@@ -188,17 +140,24 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             use_fast=self.use_fast,
             device=self.device,
             device_map=self.device_map,
-            token=self.token.get_secret_value()
-            if self.token is not None
-            else self.token,
+            token=token,
             return_full_text=False,
         )
 
         if self.chat_template is not None:
-            self._pipeline.tokenizer.chat_template = self.chat_template
+            self._pipeline.tokenizer.chat_template = self.chat_template  # type: ignore
 
-        if self._pipeline.tokenizer.pad_token is None:
-            self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token
+        if self._pipeline.tokenizer.pad_token is None:  # type: ignore
+            self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token  # type: ignore
+
+        if self.structured_output:
+            processor = self._prepare_structured_output(self.structured_output)
+            if outlines_below_0_1_0:
+                self._prefix_allowed_tokens_fn = processor
+            else:
+                self._logits_processor = [processor]
+
+        super().load()
 
     def unload(self) -> None:
         """Unloads the `vLLM` model."""
@@ -224,8 +183,8 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             return input[0]["content"]
 
         prompt: str = (
-            self._pipeline.tokenizer.apply_chat_template(
-                input,
+            self._pipeline.tokenizer.apply_chat_template(  # type: ignore
+                input,  # type: ignore
                 tokenize=False,
                 add_generation_prompt=True,
             )
@@ -235,7 +194,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         return super().apply_magpie_pre_query_template(prompt, input)
 
     @validate_call
-    def generate(
+    def generate(  # type: ignore
         self,
         inputs: List[StandardInput],
         num_generations: int = 1,
@@ -265,53 +224,21 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-
         prepared_inputs = [self.prepare_input(input=input) for input in inputs]
 
-        if self.structured_output is None or (
-            self.structured_output and outlines_below_0_1_0
-        ):
-            outputs: List[List[Dict[str, str]]] = self._pipeline(
-                prepared_inputs,
-                max_new_tokens=max_new_tokens,
-                temperature=temperature,
-                repetition_penalty=repetition_penalty,
-                top_p=top_p,
-                top_k=top_k,
-                do_sample=do_sample,
-                num_return_sequences=num_generations,
-                prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
-                pad_token_id=self._pipeline.tokenizer.eos_token_id,
-            )
-        else:
-            from outlines.models.transformers import (
-                GenerationParameters,
-                SamplingParameters,
-            )
-
-            outputs = [
-                [[] for _ in range(num_generations)]
-                for _ in range(len(prepared_inputs))
-            ]
-            for idx_generation in range(num_generations):
-                generations = self._pipeline.generate(
-                    prepared_inputs,
-                    generation_parameters=GenerationParameters(
-                        max_tokens=max_new_tokens,
-                        stop_at=None,
-                        seed=None,
-                    ),
-                    logits_processor=self._logits_processor,
-                    sampling_parameters=SamplingParameters(
-                        sampler="multinomial",
-                        top_p=top_p,
-                        top_k=top_k,
-                        temperature=temperature,
-                    ),
-                )
-                for idx_sample, generation in enumerate(generations):
-                    outputs[idx_sample][idx_generation] = {"generated_text": generation}
-
+        outputs: List[List[Dict[str, str]]] = self._pipeline(  # type: ignore
+            prepared_inputs,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            repetition_penalty=repetition_penalty,
+            top_p=top_p,
+            top_k=top_k,
+            do_sample=do_sample,
+            num_return_sequences=num_generations,
+            prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
+            pad_token_id=self._pipeline.tokenizer.eos_token_id,
+            logits_processor=self._logits_processor,
+        )
         llm_output = [
             [generation["generated_text"] for generation in output]
             for output in outputs
@@ -361,7 +288,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         last_hidden_states = model(**input_ids)["last_hidden_state"]
 
         return [
-            seq_last_hidden_state[attention_mask.bool(), :].detach().cpu().numpy()  # type: ignore
+            seq_last_hidden_state[attention_mask.bool(), :].detach().cpu().numpy()
             for seq_last_hidden_state, attention_mask in zip(
                 last_hidden_states,
                 input_ids["attention_mask"],  # type: ignore
