@@ -143,7 +143,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         )
         self._pipeline = Transformers(model, tokenizer)
 
-    def _set_native_tf_pipeline(self):
+    def _set_transformers_pipeline(self):
         from transformers import pipeline
 
         self._pipeline = pipeline(
@@ -182,9 +182,9 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 "Transformers is not installed. Please install it using `pip install transformers`."
             ) from ie
 
-        if self.structured_output:
+        if self.structured_output is not None:
             if outlines_below_0_1_0:
-                self._set_native_tf_pipeline()
+                self._set_transformers_pipeline()
                 self._prefix_allowed_tokens_fn = self._prepare_structured_output(
                     self.structured_output
                 )
@@ -194,7 +194,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                     self.structured_output
                 )
         else:
-            self._set_native_tf_pipeline()
+            self._set_transformers_pipeline()
 
         super().load()
 
@@ -218,8 +218,16 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
+        if self._pipeline.tokenizer.chat_template is None:  # type: ignore
+            return input[0]["content"]
+
+        if self.structured_output and not outlines_below_0_1_0:
+            tokenizer = self._pipeline.tokenizer.tokenizer
+        else:
+            tokenizer = self._pipeline.tokenizer
+
         prompt: str = (
-            self._pipeline.tokenizer.tokenizer.apply_chat_template(
+            tokenizer.apply_chat_template(
                 input,
                 tokenize=False,
                 add_generation_prompt=True,
@@ -233,7 +241,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     def generate(
         self,
         inputs: List[StandardInput],
-        num_generations: int = 2,
+        num_generations: int = 1,
         max_new_tokens: int = 128,
         temperature: float = 0.1,
         repetition_penalty: float = 1.1,
@@ -263,7 +271,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         prepared_inputs = [self.prepare_input(input=input) for input in inputs]
 
-        if self.structured_output and not outlines_below_0_1_0:
+        if self.structured_output is not None and not outlines_below_0_1_0:
             from outlines.models.transformers import (
                 GenerationParameters,
                 SamplingParameters,
