@@ -27,7 +27,7 @@ from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, Standard
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
 if TYPE_CHECKING:
-    from transformers import Pipeline
+    from transformers import LogitsProcessorList, Pipeline
     from transformers.modeling_utils import PreTrainedModel
     from transformers.tokenization_utils import PreTrainedTokenizer
 
@@ -111,6 +111,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     _pipeline: Optional["Pipeline"] = PrivateAttr(...)
     _prefix_allowed_tokens_fn: Union[Callable, None] = PrivateAttr(default=None)
+    _logits_processor: Optional["LogitsProcessorList"] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
@@ -119,7 +120,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             CudaDevicePlacementMixin.load(self)
 
         try:
-            from transformers import pipeline
+            from transformers import LogitsProcessorList, pipeline
         except ImportError as ie:
             raise ImportError(
                 "Transformers is not installed. Please install it using `pip install transformers`."
@@ -149,9 +150,19 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token  # type: ignore
 
         if self.structured_output:
-            self._prefix_allowed_tokens_fn = self._prepare_structured_output(
-                self.structured_output
+            from distilabel.steps.tasks.structured_outputs.outlines import (
+                outlines_below_0_1_0,
             )
+
+            if outlines_below_0_1_0:
+                self._prefix_allowed_tokens_fn = self._prepare_structured_output(
+                    self.structured_output
+                )
+            else:
+                logits_processor = self._prepare_structured_output(
+                    self.structured_output
+                )
+                self._logits_processor = LogitsProcessorList([logits_processor])
 
         super().load()
 
@@ -222,7 +233,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         """
         prepared_inputs = [self.prepare_input(input=input) for input in inputs]
 
-        outputs: List[List[Dict[str, str]]] = self._pipeline(  # type: ignore
+        outputs: List[List[Dict[str, str]]] = self._pipeline(
             prepared_inputs,
             max_new_tokens=max_new_tokens,
             temperature=temperature,
@@ -232,7 +243,8 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             do_sample=do_sample,
             num_return_sequences=num_generations,
             prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
-            pad_token_id=self._pipeline.tokenizer.eos_token_id,  # type: ignore
+            logits_processor=self._logits_processor,
+            pad_token_id=self._pipeline.tokenizer.eos_token_id,
         )
         llm_output = [
             [generation["generated_text"] for generation in output]

@@ -27,6 +27,7 @@ from typing import (
     get_args,
 )
 
+import pkg_resources
 from pydantic import BaseModel
 
 from distilabel.errors import DistilabelUserError
@@ -36,7 +37,11 @@ if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
 
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
-"""Available frameworks for the structured output configuration. """
+# Available frameworks for the structured output configuration.
+_outlines_version = pkg_resources.get_distribution("outlines").version
+outlines_below_0_1_0 = pkg_resources.parse_version(
+    _outlines_version
+) < pkg_resources.parse_version("0.1.0")
 
 
 def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
@@ -46,31 +51,56 @@ def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
 
 def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
     """Helper function to return the appropriate logits processor for the given framework."""
-    if framework == "transformers":
-        from outlines.integrations.transformers import (
-            JSONPrefixAllowedTokens,
-            RegexPrefixAllowedTokens,
+    if framework not in Frameworks.__args__:
+        raise DistilabelUserError(
+            f"Invalid framework '{framework}'. Must be one of {get_args(Frameworks)}",
+            page="sections/how_to_guides/advanced/structured_generation/",
         )
 
-        return JSONPrefixAllowedTokens, RegexPrefixAllowedTokens
+    if outlines_below_0_1_0:
+        if framework == "transformers":
+            from outlines.integrations.transformers import (
+                JSONPrefixAllowedTokens,
+                RegexPrefixAllowedTokens,
+            )
 
-    if framework == "llamacpp":
-        from outlines.integrations.llamacpp import (
-            JSONLogitsProcessor,
-            RegexLogitsProcessor,
-        )
+            return JSONPrefixAllowedTokens, RegexPrefixAllowedTokens
+
+        if framework == "llamacpp":
+            from outlines.integrations.llamacpp import (
+                JSONLogitsProcessor,
+                RegexLogitsProcessor,
+            )
+
+            return JSONLogitsProcessor, RegexLogitsProcessor
+
+        if framework == "vllm":
+            from outlines.integrations.vllm import (
+                JSONLogitsProcessor,
+                RegexLogitsProcessor,
+            )
+
+            return JSONLogitsProcessor, RegexLogitsProcessor
+    else:
+        from outlines.processors import JSONLogitsProcessor, RegexLogitsProcessor
 
         return JSONLogitsProcessor, RegexLogitsProcessor
 
-    if framework == "vllm":
-        from outlines.integrations.vllm import JSONLogitsProcessor, RegexLogitsProcessor
 
-        return JSONLogitsProcessor, RegexLogitsProcessor
+def _get_outlines_tokenizer_or_model(llm: Any, framework: Frameworks) -> Callable:
+    if not outlines_below_0_1_0:
+        if framework == "llamacpp":
+            from outlines.models.llamacpp import LlamaCppTokenizer
 
-    raise DistilabelUserError(
-        f"Invalid framework '{framework}'. Must be one of {get_args(Frameworks)}",
-        page="sections/how_to_guides/advanced/structured_generation/",
-    )
+            return LlamaCppTokenizer(llm)
+        elif framework == "transformers":
+            from outlines.models.transformers import TransformerTokenizer
+
+            return TransformerTokenizer(llm.tokenizer)
+        elif framework == "vllm":
+            return llm.get_tokenizer()
+    else:
+        return llm
 
 
 def prepare_guided_output(
@@ -104,6 +134,8 @@ def prepare_guided_output(
 
     json_processor, regex_processor = _get_logits_processor(framework)
 
+    tokenizer_or_model = _get_outlines_tokenizer_or_model(llm, framework)
+
     format = structured_output.get("format")
     schema = structured_output.get("schema")
 
@@ -120,7 +152,7 @@ def prepare_guided_output(
         return {
             "processor": json_processor(
                 schema,
-                llm,
+                tokenizer_or_model,
                 whitespace_pattern=structured_output.get("whitespace_pattern"),
             ),
             "schema": schema_as_dict(schema),
