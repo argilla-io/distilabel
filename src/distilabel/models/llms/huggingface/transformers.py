@@ -119,6 +119,35 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         PrivateAttr(default=None)
     )
 
+    def load(self) -> None:
+        """Loads the model and tokenizer and creates the text generation pipeline. In addition,
+        it will configure the tokenizer chat template."""
+        if self.device == "cuda":
+            CudaDevicePlacementMixin.load(self)
+
+        try:
+            from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline  # noqa
+        except ImportError as ie:
+            raise ImportError(
+                "Transformers is not installed. Please install it using `pip install transformers`."
+            ) from ie
+
+        if self.structured_output is not None:
+            if outlines_below_0_1_0:
+                self._set_transformers_pipeline()
+                self._prefix_allowed_tokens_fn = self._prepare_structured_output(
+                    self.structured_output
+                )
+            else:
+                self._set_outlines_pipeline()
+                self._logits_processor = self._prepare_structured_output(
+                    self.structured_output
+                )
+        else:
+            self._set_transformers_pipeline()
+
+        super().load()
+
     def _set_outlines_pipeline(self):
         from outlines.models.transformers import Transformers
         from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -170,35 +199,6 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         if self._pipeline.tokenizer.pad_token is None:
             self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token
-
-    def load(self) -> None:
-        """Loads the model and tokenizer and creates the text generation pipeline. In addition,
-        it will configure the tokenizer chat template."""
-        if self.device == "cuda":
-            CudaDevicePlacementMixin.load(self)
-
-        try:
-            from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline  # noqa
-        except ImportError as ie:
-            raise ImportError(
-                "Transformers is not installed. Please install it using `pip install transformers`."
-            ) from ie
-
-        if self.structured_output is not None:
-            if outlines_below_0_1_0:
-                self._set_transformers_pipeline()
-                self._prefix_allowed_tokens_fn = self._prepare_structured_output(
-                    self.structured_output
-                )
-            else:
-                self._set_outlines_pipeline()
-                self._logits_processor = self._prepare_structured_output(
-                    self.structured_output
-                )
-        else:
-            self._set_transformers_pipeline()
-
-        super().load()
 
     def unload(self) -> None:
         """Unloads the `vLLM` model."""
