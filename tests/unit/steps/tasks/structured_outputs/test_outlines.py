@@ -136,7 +136,7 @@ class TestOutlinesIntegration:
         prompt = [
             [{"role": "system", "content": ""}, {"role": "user", "content": prompt}]
         ]
-        result = llm.generate(prompt, max_new_tokens=30)
+        result = llm.generate(prompt, max_new_tokens=30, temperature=0.7)
         assert isinstance(result, list)
         assert isinstance(result[0], dict)
         assert "generations" in result[0] and "statistics" in result[0]
