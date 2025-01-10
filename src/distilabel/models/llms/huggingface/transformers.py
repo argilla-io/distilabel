@@ -23,6 +23,9 @@ from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
+from distilabel.steps.tasks.structured_outputs.outlines import (
+    _is_outlines_version_below_0_1_0,
+)
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
@@ -111,6 +114,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     _pipeline: Optional["Pipeline"] = PrivateAttr(...)
     _prefix_allowed_tokens_fn: Union[Callable, None] = PrivateAttr(default=None)
+    _logits_processor: Union[Callable, None] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
@@ -149,9 +153,11 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token  # type: ignore
 
         if self.structured_output:
-            self._prefix_allowed_tokens_fn = self._prepare_structured_output(
-                self.structured_output
-            )
+            processor = self._prepare_structured_output(self.structured_output)
+            if _is_outlines_version_below_0_1_0():
+                self._prefix_allowed_tokens_fn = processor
+            else:
+                self._logits_processor = [processor]
 
         super().load()
 
@@ -232,7 +238,8 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             do_sample=do_sample,
             num_return_sequences=num_generations,
             prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
-            pad_token_id=self._pipeline.tokenizer.eos_token_id,  # type: ignore
+            pad_token_id=self._pipeline.tokenizer.eos_token_id,
+            logits_processor=self._logits_processor,
         )
         llm_output = [
             [generation["generated_text"] for generation in output]
@@ -292,7 +299,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     def _prepare_structured_output(
         self, structured_output: Optional[OutlinesStructuredOutputType] = None
-    ) -> Union[Callable, None]:
+    ) -> Union[Callable, List[Callable]]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
 
         Args:

@@ -19,22 +19,18 @@ from typing import (
     Dict,
     List,
     Optional,
-    Union,
 )
 
 from pydantic import (
-    Field,
     PrivateAttr,
     validate_call,
 )
 
-from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
 from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.typing import (
-    OutlinesStructuredOutputType,
     StandardInput,
 )
 
@@ -51,8 +47,6 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         tokenizer_config: the tokenizer configuration.
         model_config: the model configuration.
         adapter_path: the path to the adapter.
-        structured_output: a dictionary containing the structured output configuration or if more
-            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
             template. Defaults to `False`.
         magpie_pre_query_template: the pre-query template to be applied to the prompt or
@@ -82,17 +76,10 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
     tokenizer_config: Dict[str, Any] = {}
     model_config: Dict[str, Any] = {}
     adapter_path: Optional[str] = None
-    structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
-        default=None,
-        description="The structured output format to use across all the generations.",
-    )
 
     _mlx_generate: Optional[Callable] = PrivateAttr(default=None)
     _model: Optional["nn.Module"] = PrivateAttr(...)
     _tokenizer: Optional["TokenizerWrapper"] = PrivateAttr(...)
-    _structured_output_logits_processor: Union[Callable, None] = PrivateAttr(
-        default=None
-    )
 
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
@@ -111,11 +98,6 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             model_config=self.model_config,
             adapter_path=self.adapter_path,
         )
-
-        if self.structured_output:
-            self._structured_output_logits_processor = self._prepare_structured_output(
-                self.structured_output
-            )
 
         if self._tokenizer.pad_token is None:
             self._tokenizer.pad_token = self._tokenizer.eos_token
@@ -207,10 +189,6 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        logits_processors = []
-        if self._structured_output_logits_processor:
-            logits_processors.append(self._structured_output_logits_processor)
-
         structured_output = None
         result = []
         for input in inputs:
@@ -219,13 +197,9 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
 
             output: List[str] = []
             for _ in range(num_generations):
-                if structured_output:
-                    additional_logits_processors = self._prepare_structured_output(
-                        structured_output
-                    )
-                    logits_processors.append(additional_logits_processors)
+                if structured_output:  # will raise a NotImplementedError
+                    self._prepare_structured_output(structured_output)
                 prompt = self.prepare_input(input)
-
                 generation = self._mlx_generate(
                     prompt=prompt,
                     model=self._model,
@@ -264,25 +238,3 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
                 )
             )
         return result
-
-    def _prepare_structured_output(
-        self, structured_output: Optional[OutlinesStructuredOutputType] = None
-    ) -> Union[Callable, None]:
-        """Creates the appropriate function to filter tokens to generate structured outputs.
-
-        Args:
-            structured_output: the configuration dict to prepare the structured output.
-
-        Returns:
-            The callable that will be used to guide the generation of the model.
-        """
-        from distilabel.steps.tasks.structured_outputs.outlines import (
-            prepare_guided_output,
-        )
-
-        result = prepare_guided_output(
-            structured_output, "transformers", self._pipeline
-        )
-        if schema := result.get("schema"):
-            self.structured_output["schema"] = schema
-        return result["processor"]
