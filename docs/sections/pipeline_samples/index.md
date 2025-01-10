@@ -37,6 +37,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Tutorial](tutorials/GenerateSentencePair.ipynb)
 
+-   __Generate text classification data__
+
+    ---
+
+    Learn about how synthetic data generation for text classification can help address data imbalance or scarcity.
+
+    [:octicons-arrow-right-24: Tutorial](tutorials/generate_textcat_dataset.ipynb)
+
 </div>
 
 ## Paper Implementations
@@ -99,6 +107,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Paper](papers/clair.md)
 
+-   __Math Shepherd__
+
+    ---
+
+    Learn about Math-Shepherd, a framework to generate datasets to train process reward models (PRMs) which assign reward scores to each step of math problem solutions.
+
+    [:octicons-arrow-right-24: Paper](papers/math_shepherd.md)
+
 </div>
 
 ## Examples
@@ -137,6 +153,21 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/fine_personas_social_network.md)
 
+-   __Create questions and answers for a exam__
+
+    ---
+
+    Learn how to generate questions and answers for a exam, using a raw wikipedia page and structured generation.
+
+    [:octicons-arrow-right-24: Example](examples/exam_questions.md)
+
+-   __Text generation with images in distilabel__
+
+    ---
+
+    Ask questions about images using distilabel.
+
+    [:octicons-arrow-right-24: Example](examples/text_generation_with_image.md)
 
 </div>
 

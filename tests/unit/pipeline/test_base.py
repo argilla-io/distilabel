@@ -21,10 +21,12 @@ from typing import Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
+from datasets import Dataset
 from fsspec.implementations.local import LocalFileSystem
 from pydantic import Field
 from upath import UPath
 
+from distilabel import constants
 from distilabel.constants import (
     INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
@@ -95,6 +97,70 @@ class TestGlobalPipelineManager:
 
 
 class TestBasePipeline:
+    def test_get_load_stages(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        load_stages = pipeline.get_load_stages(load_groups=[[step2.name]])
+
+        assert load_stages == (
+            [[generator.name, step.name], [step2.name], [step3.name]],
+            [[step.name], [step2.name], [step3.name]],
+        )
+
+    def test_get_load_stages_sequential_step_execution(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        load_stages = pipeline.get_load_stages(load_groups="sequential_step_execution")
+
+        assert load_stages == (
+            [[generator.name], [step.name], [step2.name], [step3.name]],
+            [[generator.name], [step.name], [step2.name], [step3.name]],
+        )
+
+    @pytest.mark.parametrize(
+        "load_groups, expected",
+        [
+            ([["step_0", "step_1"], ["step_2"]], [["step_0", "step_1"], ["step_2"]]),
+            ("sequential_step_execution", [["step_0"], ["step_1"], ["step_2"]]),
+        ],
+    )
+    def test_built_load_groups(
+        self, load_groups: Any, expected: List[List[str]]
+    ) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep(name="step_0")
+            step = DummyStep1(name="step_1")
+            step2 = DummyStep1(name="step_2")
+
+            generator >> [step, step2]
+
+        assert pipeline._built_load_groups(load_groups) == expected
+
+    def test_built_load_groups_with_step_class(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+
+            generator >> [step, step2]
+
+        assert pipeline._built_load_groups([[generator], [step, step2]]) == [
+            [generator.name],
+            [step.name, step2.name],
+        ]
+
     def test_aggregated_steps_signature(self) -> None:
         with DummyPipeline(name="dummy") as pipeline_0:
             generator = DummyGeneratorStep()
@@ -125,6 +191,19 @@ class TestBasePipeline:
             assert _GlobalPipelineManager.get_pipeline() == pipeline
 
         assert _GlobalPipelineManager.get_pipeline() is None
+
+    def test_add_dataset_generator_step(self) -> None:
+        with DummyPipeline() as pipeline:
+            step_1 = DummyStep1()
+
+        dataset = Dataset.from_list(
+            [{"instruction": "Hello"}, {"instruction": "Hello again"}]
+        )
+        pipeline._add_dataset_generator_step(dataset, 123)
+        step = pipeline.dag.get_step("load_data_from_hub_0")[constants.STEP_ATTR_NAME]
+
+        assert step.name in pipeline.dag.get_step_predecessors(step_1.name)  # type: ignore
+        assert step.batch_size == 123  # type: ignore
 
     @pytest.mark.parametrize("use_cache", [False, True])
     def test_load_batch_manager(self, use_cache: bool) -> None:
@@ -357,6 +436,7 @@ class TestBasePipeline:
             generator >> [step, step2] >> step3 >> step4
 
         pipeline._load_batch_manager()
+        pipeline._create_steps_input_queues()
         pipeline._steps_load_status = {  # type: ignore
             generator.name: 1,
             step.name: 1,
@@ -381,6 +461,7 @@ class TestBasePipeline:
 
         pipeline._init_steps_load_status()
         pipeline._load_batch_manager()
+        pipeline._create_steps_input_queues()
         pipeline._steps_load_status[generator.name] = _STEP_LOAD_FAILED_CODE  # type: ignore
         caplog.set_level(logging.INFO)
 
@@ -399,6 +480,7 @@ class TestBasePipeline:
 
         pipeline._init_steps_load_status()
         pipeline._load_batch_manager()
+        pipeline._create_steps_input_queues()
         pipeline._stop_called = True
 
         assert pipeline._run_stage_steps_and_wait(stage=0) is False
@@ -474,6 +556,16 @@ class TestBasePipeline:
             pipeline.dag.get_step(generator_name)[INPUT_QUEUE_ATTR_NAME], Queue
         )
 
+    def test_create_steps_input_queues(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            steps = [DummyStep1() for _ in range(5)]
+
+            generator >> steps
+
+        pipeline._create_steps_input_queues()
+        assert len(pipeline._steps_input_queues) == 6
+
     def test_run_steps(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
@@ -482,17 +574,9 @@ class TestBasePipeline:
 
             generator >> step >> global_step
 
-        pipeline._create_step_input_queue = mock.MagicMock()
         pipeline._run_step = mock.MagicMock()
+        pipeline._create_steps_input_queues()
         pipeline._run_steps(steps=[generator.name, step.name])  # type: ignore
-
-        pipeline._create_step_input_queue.assert_has_calls(
-            [
-                mock.call(step_name=step.name),
-                mock.call(step_name=generator.name),
-            ],
-            any_order=True,
-        )
 
         pipeline._run_step.assert_has_calls(
             [
@@ -513,6 +597,7 @@ class TestBasePipeline:
         step_name: str = step.name  # type: ignore
 
         pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
+        pipeline._init_steps_load_status()
         generator_queue = Queue()
         pipeline.dag.set_step_attr(
             generator_name, INPUT_QUEUE_ATTR_NAME, generator_queue
@@ -1243,6 +1328,53 @@ class TestBasePipeline:
             gen_step >> step1_0
 
         assert pipeline.name == "pipeline_dummy_generator_step_0_dummy_step1_0"
+
+    def test_validate_load_groups_step_not_in_pipeline(self) -> None:
+        pipeline = DummyPipeline()
+
+        with pytest.raises(
+            ValueError,
+            match="Step with name 'random' included in group 0 of the `load_groups` is not an step included in the pipeline.",
+        ):
+            pipeline._validate_load_groups(load_groups=[["random"]])
+
+    def test_validate_load_groups_including_global_step(self) -> None:
+        pipeline = DummyPipeline()
+        step = DummyGlobalStep(pipeline=pipeline)
+        step_0 = DummyStep1()
+        with pytest.raises(
+            ValueError,
+            match=f"Global step '{step.name}' has been included in a load group.",
+        ):
+            pipeline._validate_load_groups(load_groups=[[step.name, step_0.name]])
+
+    def test_validate_load_groups_duplicate_step(self) -> None:
+        pipeline = DummyPipeline()
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+
+        with pytest.raises(
+            ValueError,
+            match=f"Step with name '{dummy_step_1.name}' in load group 1 has already been included in a previous load group.",
+        ):
+            pipeline._validate_load_groups(
+                load_groups=[[dummy_step_1.name], [dummy_step_1.name]]
+            )
+
+    def test_validate_load_groups_non_immediate_predecessor(self) -> None:
+        pipeline = DummyPipeline()
+        generator_step_1 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+        dummy_step_2 = DummyStep1(name="demon", pipeline=pipeline, input_batch_size=7)
+
+        generator_step_1 >> dummy_step_1 >> dummy_step_2
+
+        with pytest.raises(
+            ValueError,
+            match=f"Step with name '{dummy_step_2.name}' cannot be in the same load group as the step with name '{generator_step_1.name}'.",
+        ):
+            pipeline._validate_load_groups(
+                load_groups=[[generator_step_1.name, dummy_step_2.name]]
+            )
 
 
 class TestPipelineSerialization:

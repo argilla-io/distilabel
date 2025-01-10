@@ -184,9 +184,20 @@ class Distiset(dict):
         """
         sample_records = {}
         for name, dataset in self.items():
-            sample_records[name] = (
+            record = (
                 dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
             )
+            for key, value in record.items():
+                # If list is too big, the `README.md` generated will be huge so we truncate it
+                if isinstance(value, list):
+                    length = len(value)
+                    if length < 10:
+                        continue
+                    record[key] = value[:10]
+                    record[key].append(
+                        f"... (truncated - showing 10 of {length} elements)"
+                    )
+            sample_records[name] = record
 
         readme_metadata = {}
         if repo_id and token:

@@ -21,7 +21,7 @@ from jinja2 import Template
 from pydantic import PrivateAttr
 from typing_extensions import override
 
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks.base import Task
@@ -68,7 +68,7 @@ class DeepSeekProverAutoFormalization(Task):
 
         ```python
         from distilabel.steps.tasks import DeepSeekProverAutoFormalization
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         prover_autoformal = DeepSeekProverAutoFormalization(
@@ -104,7 +104,7 @@ class DeepSeekProverAutoFormalization(Task):
 
         ```python
         from distilabel.steps.tasks import DeepSeekProverAutoFormalization
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # You can gain inspiration from the following examples to create your own few-shot examples:
         # https://github.com/yangky11/miniF2F-lean4/blob/main/MiniF2F/Valid.lean
@@ -246,7 +246,7 @@ class DeepSeekProverScorer(Task):
 
         ```python
         from distilabel.steps.tasks import DeepSeekProverScorer
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         prover_scorer = DeepSeekProverAutoFormalization(

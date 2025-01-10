@@ -41,7 +41,7 @@ pip install distilabel[ray]
 For the purpose of explaining how to execute a pipeline with Ray, we'll use the following pipeline throughout the examples:
 
 ```python
-from distilabel.llms import vLLM
+from distilabel.models import vLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration

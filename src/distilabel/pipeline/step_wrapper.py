@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional, Union, cast
 from distilabel.constants import LAST_BATCH_SENT_FLAG
 from distilabel.errors import DISTILABEL_DOCS_URL
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
-from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.typing import StepLoadStatus
 from distilabel.steps.base import GeneratorStep, Step, _Step
@@ -177,7 +177,7 @@ class _StepWrapper:
             offset = batch.seq_no * step.batch_size  # type: ignore
 
             self.step._logger.info(
-                f"🧬 Starting yielding batches from generator step '{self.step.name}'."
+                f"🚰 Starting yielding batches from generator step '{self.step.name}'."
                 f" Offset: {offset}"
             )
 

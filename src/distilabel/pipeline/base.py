@@ -47,7 +47,7 @@ from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.write_buffer import _WriteBuffer
-from distilabel.steps.base import GeneratorStep
+from distilabel.steps.base import GeneratorStep, _Step
 from distilabel.steps.generators.utils import make_generator_step
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.notebook import in_notebook
@@ -70,10 +70,11 @@ if TYPE_CHECKING:
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
     from distilabel.pipeline.typing import (
         InputDataset,
+        LoadGroups,
         PipelineRuntimeParametersInfo,
         StepLoadStatus,
     )
-    from distilabel.steps.base import Step, _Step
+    from distilabel.steps.base import Step
 
     class _CacheLocation(TypedDict):
         """Dictionary to store the filenames and directories of a cached pipeline.
@@ -92,6 +93,9 @@ if TYPE_CHECKING:
         batch_input_data: Path
         log_file: Path
         stages_file: Path
+
+
+LoadStages = tuple[list[list[str]], list[list[str]]]
 
 
 class _GlobalPipelineManager:
@@ -125,6 +129,7 @@ class _GlobalPipelineManager:
 
 _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
+_STEP_UNLOADED_CODE = -1000
 
 _PIPELINE_DEFAULT_NAME = "__default_pipeline_name__"
 
@@ -201,6 +206,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._batch_manager: Optional["_BatchManager"] = None
         self._write_buffer: Optional["_WriteBuffer"] = None
+        self._steps_input_queues: Dict[str, "Queue"] = {}
 
         self._steps_load_status: Dict[str, int] = {}
         self._steps_load_status_lock = threading.Lock()
@@ -220,6 +226,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._current_stage = 0
         self._stages_last_batch: List[List[str]] = []
+        self._load_groups = []
 
         self.requirements = requirements or []
 
@@ -277,10 +284,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def run(
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        load_groups: Optional["LoadGroups"] = None,
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
         dataset: Optional["InputDataset"] = None,
+        dataset_batch_size: int = 50,
         logging_handlers: Optional[List[logging.Handler]] = None,
     ) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
@@ -292,6 +301,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
                 the runtime parameters for the step as the value. Defaults to `None`.
+            load_groups: A list containing lists of steps that have to be loaded together
+                and in isolation with respect to the rest of the steps of the pipeline.
+                This argument also allows passing the following modes:
+
+                - "sequential_step_execution": each step will be executed in a stage i.e.
+                    the execution of the steps will be sequential.
+
+                Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
                 `True`.
             storage_parameters: A dictionary with the storage parameters (`fsspec` and path)
@@ -308,6 +325,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             dataset: If given, it will be used to create a `GeneratorStep` and put it as the
                 root step. Convenient method when you have already processed the dataset in
                 your script and just want to pass it already processed. Defaults to `None`.
+            dataset_batch_size: if `dataset` is given, this will be the size of the batches
+                yield by the `GeneratorStep` created using the `dataset`. Defaults to `50`.
             logging_handlers: A list of logging handlers that will be used to log the
                 output of the pipeline. This argument can be useful so the logging messages
                 can be extracted and used in a different context. Defaults to `None`.
@@ -326,7 +345,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._refresh_pipeline_from_cache()
 
         if dataset is not None:
-            self._add_dataset_generator_step(dataset)
+            self._add_dataset_generator_step(dataset, dataset_batch_size)
 
         setup_logging(
             log_queue=self._log_queue,
@@ -342,8 +361,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._set_pipeline_name()
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
-        # no missing runtime parameters, batch sizes are correct, etc.
-        self.dag.validate()
+        # no missing runtime parameters, batch sizes are correct, load groups are valid,
+        # etc.
+        self._load_groups = self._built_load_groups(load_groups)
+        self._validate()
 
         self._set_pipeline_artifacts_path_in_steps()
 
@@ -427,13 +448,32 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._dry_run = False
         return distiset
 
-    def _add_dataset_generator_step(self, dataset: "InputDataset") -> None:
+    def get_load_stages(self, load_groups: Optional["LoadGroups"] = None) -> LoadStages:
+        """Convenient method to get the load stages of a pipeline.
+
+        Args:
+            load_groups: A list containing list of steps that has to be loaded together
+                and in isolation with respect to the rest of the steps of the pipeline.
+                Defaults to `None`.
+
+        Returns:
+            A tuple with the first element containing asorted list by stage containing
+            lists with the names of the steps of the stage, and the second element a list
+            sorted by stage containing lists with the names of the last steps of the stage.
+        """
+        load_groups = self._built_load_groups(load_groups)
+        return self.dag.get_steps_load_stages(load_groups)
+
+    def _add_dataset_generator_step(
+        self, dataset: "InputDataset", batch_size: int = 50
+    ) -> None:
         """Create a root step to work as the `GeneratorStep` for the pipeline using a
         dataset.
 
         Args:
             dataset: A dataset that will be used to create a `GeneratorStep` and
                 placed in the DAG as the root step.
+            batch_size: The size of the batches generated by the `GeneratorStep`.
 
         Raises:
             ValueError: If there's already a `GeneratorStep` in the pipeline.
@@ -447,7 +487,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     f" `GeneratorStep`: {step}",
                     page="sections/how_to_guides/basic/step/#types-of-steps",
                 )
-        loader = make_generator_step(dataset, self)
+        loader = make_generator_step(
+            dataset=dataset,
+            pipeline=self,
+            batch_size=batch_size,
+        )
         self.dag.add_root_step(loader)
 
     def get_runtime_parameters_info(self) -> "PipelineRuntimeParametersInfo":
@@ -462,6 +506,108 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             step: "_Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
             runtime_parameters[step_name] = step.get_runtime_parameters_info()
         return runtime_parameters
+
+    def _built_load_groups(
+        self, load_groups: Optional["LoadGroups"] = None
+    ) -> List[List[str]]:
+        if load_groups is None:
+            return []
+
+        if load_groups == "sequential_step_execution":
+            return [[step_name] for step_name in self.dag]
+
+        return [
+            [
+                step.name if isinstance(step, _Step) else step
+                for step in steps_load_group
+            ]  # type: ignore
+            for steps_load_group in load_groups
+        ]
+
+    def _validate(self) -> None:
+        """Validates the pipeline DAG to check that all the steps are chainable, there are
+        no missing runtime parameters, batch sizes are correct and that load groups are
+        valid (if any)."""
+        self.dag.validate()
+        self._validate_load_groups(self._load_groups)
+
+    def _validate_load_groups(self, load_groups: List[List[Any]]) -> None:  # noqa: C901
+        """Checks that the provided load groups are valid and that the steps can be scheduled
+        to be loaded in different stages without any issue.
+
+        Args:
+            load_groups: the load groups to be checked.
+
+        Raises:
+            DistilabelUserError: if something is not OK when checking the load groups.
+        """
+
+        def check_predecessor_in_load_group(
+            step_name: str, load_group: List[str], first: bool
+        ) -> Union[str, None]:
+            if not first and step_name in load_group:
+                return step_name
+
+            for predecessor_step_name in self.dag.get_step_predecessors(step_name):
+                # Immediate predecessor is in the same load group. This is OK.
+                if first and predecessor_step_name in load_group:
+                    continue
+
+                # Case: A -> B -> C, load_group=[A, C]
+                # If a non-immediate predecessor is in the same load group and an immediate
+                # predecessor is not , then it's not OK because we cannot load `step_name`
+                # before one immediate predecessor.
+                if step_name_in_load_group := check_predecessor_in_load_group(
+                    predecessor_step_name, load_group, False
+                ):
+                    return step_name_in_load_group
+
+            return None
+
+        steps_included_in_load_group = []
+        for load_group_num, steps_load_group in enumerate(load_groups):
+            for step_name in steps_load_group:
+                if step_name not in self.dag.G:
+                    raise DistilabelUserError(
+                        f"Step with name '{step_name}' included in group {load_group_num} of"
+                        " the `load_groups` is not an step included in the pipeline. Please,"
+                        " check that you're passing the correct step name and run again.",
+                        page="sections/how_to_guides/advanced/load_groups_and_execution_stages",
+                    )
+
+                node = self.dag.get_step(step_name)
+                step: "_Step" = node[constants.STEP_ATTR_NAME]
+
+                if step_name_in_load_group := check_predecessor_in_load_group(
+                    step_name, steps_load_group, True
+                ):
+                    # Improve this user error message
+                    raise DistilabelUserError(
+                        f"Step with name '{step_name}' cannot be in the same load group"
+                        f" as the step with name '{step_name_in_load_group}'. '{step_name_in_load_group}'"
+                        f" is not an immediate predecessor of '{step_name}' and there are"
+                        " immediate predecessors that have not been included.",
+                        page="sections/how_to_guides/advanced/load_groups_and_execution_stages",
+                    )
+
+                if step.is_global and len(steps_load_group) > 1:
+                    raise DistilabelUserError(
+                        f"Global step '{step_name}' has been included in a load group along"
+                        " more steps. Global steps cannot be included in a load group with"
+                        " more steps as they will be loaded in a different stage to the"
+                        " rest of the steps in the pipeline by default.",
+                        page="sections/how_to_guides/advanced/load_groups_and_execution_stages",
+                    )
+
+                if step_name in steps_included_in_load_group:
+                    raise DistilabelUserError(
+                        f"Step with name '{step_name}' in load group {load_group_num} has"
+                        " already been included in a previous load group. A step cannot be in more"
+                        " than one load group.",
+                        page="sections/how_to_guides/advanced/load_groups_and_execution_stages",
+                    )
+
+                steps_included_in_load_group.append(step_name)
 
     def _init_steps_load_status(self) -> None:
         """Initialize the `_steps_load_status` dictionary assigning 0 to every step of
@@ -742,6 +888,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             },
         )
 
+    def _get_steps_load_stages(self) -> Tuple[List[List[str]], List[List[str]]]:
+        return self.dag.get_steps_load_stages(self._load_groups)
+
     def _load_stages_status(self, use_cache: bool = True) -> None:
         """Try to load the stages status from cache, or initialize it if cache file doesn't
         exist or cache is not going to be used."""
@@ -752,7 +901,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         else:
             self._current_stage = 0
             self._stages_last_batch = [
-                [] for _ in range(len(self.dag.get_steps_load_stages()[0]))
+                [] for _ in range(len(self._get_steps_load_stages()[0]))
             ]
 
     def _refresh_pipeline_from_cache(self) -> None:
@@ -877,17 +1026,25 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
     def _print_load_stages_info(self) -> None:
         """Prints the information about the load stages."""
-        stages, _ = self.dag.get_steps_load_stages()
+        stages, _ = self._get_steps_load_stages()
         msg = ""
         for stage, steps in enumerate(stages):
             steps_to_be_loaded = self._steps_to_be_loaded_in_stage(stage)
             msg += f"\n * Stage {stage}:"
-            for step in steps:
-                msg += f"\n   - '{step}'"
-                if step not in steps_to_be_loaded:
+            for step_name in steps:
+                step: "Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
+                if step.is_generator:
+                    emoji = "🚰"
+                elif step.is_global:
+                    emoji = "🌐"
+                else:
+                    emoji = "🔄"
+                msg += f"\n   - {emoji} '{step_name}'"
+                if step_name not in steps_to_be_loaded:
                     msg += " (results cached, won't be loaded and executed)"
+        legend = "\n * Legend: 🚰 GeneratorStep 🌐 GlobalStep 🔄 Step"
         self._logger.info(
-            f"⌛ The steps of the pipeline will be loaded in stages:{msg}"
+            f"⌛ The steps of the pipeline will be loaded in stages:{legend}{msg}"
         )
 
     def _run_output_queue_loop_in_thread(self) -> threading.Thread:
@@ -901,6 +1058,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
+        self._create_steps_input_queues()
+
         if not self._initialize_pipeline_execution():
             return
 
@@ -929,12 +1088,20 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # If there is another load stage and all the `last_batch`es from the stage
             # have been received, then load the next stage.
             if self._should_load_next_stage():
+                self._wait_current_stage_to_finish()
                 if not self._update_stage():
                     break
 
             self._manage_batch_flow(batch)
 
         self._finalize_pipeline_execution()
+
+    def _create_steps_input_queues(self) -> None:
+        """Creates the input queue for all the steps in the pipeline."""
+        for step_name in self.dag:
+            self._logger.debug(f"Creating input queue for '{step_name}' step...")
+            input_queue = self._create_step_input_queue(step_name)
+            self._steps_input_queues[step_name] = input_queue
 
     def _initialize_pipeline_execution(self) -> bool:
         """Load the steps of the required stage to initialize the pipeline execution,
@@ -1036,7 +1203,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             batch: The last batch received from a step.
         """
-        _, stages_last_steps = self.dag.get_steps_load_stages()
+        _, stages_last_steps = self._get_steps_load_stages()
         stage_last_steps = stages_last_steps[self._current_stage]
         if batch.step_name in stage_last_steps:
             self._stages_last_batch[self._current_stage].append(batch.step_name)
@@ -1062,7 +1229,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Returns:
             `True` if the next stage should be loaded, `False` otherwise.
         """
-        _, stage_last_steps = self.dag.get_steps_load_stages()
+        _, stage_last_steps = self._get_steps_load_stages()
         there_is_next_stage = self._current_stage + 1 < len(stage_last_steps)
         stage_last_batches_received = (
             self._stages_last_batch[self._current_stage]
@@ -1122,6 +1289,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         self._steps_load_status[step_name] += 1
                 elif status == "unloaded":
                     self._steps_load_status[step_name] -= 1
+                    if self._steps_load_status[step_name] == 0:
+                        self._steps_load_status[step_name] = _STEP_UNLOADED_CODE
                 else:
                     # load failed
                     self._steps_load_status[step_name] = _STEP_LOAD_FAILED_CODE
@@ -1154,13 +1323,43 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        steps_stages, _ = self.dag.get_steps_load_stages()
+        steps_stages, _ = self._get_steps_load_stages()
 
         return [
             step
             for step in steps_stages[stage]
             if not self._batch_manager.step_has_finished(step)
         ]
+
+    def _get_steps_load_status(self, steps: List[str]) -> Dict[str, int]:
+        """Gets the a dictionary containing the load status of the provided steps.
+
+        Args:
+            steps: a list containing the names of the steps to get their load status.
+
+        Returns:
+            A dictionary containing the load status of the provided steps.
+        """
+        return {
+            step_name: replicas
+            for step_name, replicas in self._steps_load_status.items()
+            if step_name in steps
+        }
+
+    def _wait_current_stage_to_finish(self) -> None:
+        """Waits for the current stage to finish."""
+        stage = self._current_stage
+        steps = self._steps_to_be_loaded_in_stage(stage)
+        self._logger.info(f"⏳ Waiting for stage {stage} to finish...")
+        with self._stop_called_lock:
+            while not self._stop_called:
+                filtered_steps_load_status = self._get_steps_load_status(steps)
+                if all(
+                    replicas == _STEP_UNLOADED_CODE
+                    for replicas in filtered_steps_load_status.values()
+                ):
+                    self._logger.info(f"✅ Stage {stage} has finished!")
+                    break
 
     def _run_stage_steps_and_wait(self, stage: int) -> bool:
         """Runs the steps of the specified stage and waits for them to be ready.
@@ -1185,11 +1384,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         with self._stop_called_lock:
             while not self._stop_called:
                 with self._steps_load_status_lock:
-                    filtered_steps_load_status = {
-                        step_name: replicas
-                        for step_name, replicas in self._steps_load_status.items()
-                        if step_name in steps
-                    }
+                    filtered_steps_load_status = self._get_steps_load_status(steps)
                     self._logger.debug(
                         f"Steps from stage {stage} loaded: {filtered_steps_load_status}"
                     )
@@ -1207,7 +1402,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     replicas_message = ""
                     for step_name, replicas in filtered_steps_load_status.items():
                         step_replica_count = self.dag.get_step_replica_count(step_name)
-                        if replicas == step_replica_count:
+                        # It can happen that the step is very fast and it has done all the
+                        # work and have finished its execution before checking if it has
+                        # been loaded, that's why we also considered the step to be loaded
+                        # if `_STEP_UNLOADED_CODE`.
+                        if (
+                            replicas == step_replica_count
+                            or replicas == _STEP_UNLOADED_CODE
+                        ):
                             num_steps_loaded += 1
                         replicas_message += f"\n * '{step_name}' replicas: {max(0, replicas)}/{step_replica_count}"
 
@@ -1236,13 +1438,18 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         # Wait for the input queue to be empty, which means that all the steps finished
         # processing the batches that were sent before the stop flag.
-        for step_name in self.dag:
-            self._wait_step_input_queue_empty(step_name)
+        self._wait_steps_input_queues_empty()
 
         self._consume_output_queue()
 
         if self._should_load_next_stage():
             self._current_stage += 1
+
+    def _wait_steps_input_queues_empty(self) -> None:
+        self._logger.debug("Waiting for steps input queues to be empty...")
+        for step_name in self.dag:
+            self._wait_step_input_queue_empty(step_name)
+        self._logger.debug("Steps input queues are empty!")
 
     def _wait_step_input_queue_empty(self, step_name: str) -> Union["Queue[Any]", None]:
         """Waits for the input queue of a step to be empty.
@@ -1276,7 +1483,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             num_replicas = self._steps_load_status[step_name]
 
             # The step has finished (replicas = 0) or it has failed to load
-            if num_replicas in [0, _STEP_LOAD_FAILED_CODE]:
+            if num_replicas in [0, _STEP_LOAD_FAILED_CODE, _STEP_UNLOADED_CODE]:
                 return True
 
         return False
@@ -1320,7 +1527,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         for step_name in steps:
             step: "Step" = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
-            input_queue = self._create_step_input_queue(step_name=step_name)
+            input_queue = self._steps_input_queues[step.name]  # type: ignore
 
             # Set `pipeline` to `None` as in some Python environments the pipeline is not
             # picklable and it will raise an error when trying to send the step to the process.
@@ -1348,6 +1555,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _add_batches_back_to_batch_manager(self) -> None:
         """Add the `Batch`es that were sent to a `Step` back to the `_BatchManager`. This
         method should be used when the pipeline has been stopped prematurely."""
+        self._logger.debug(
+            "Adding batches from step input queues back to the batch manager..."
+        )
         for step_name in self.dag:
             node = self.dag.get_step(step_name)
             step: "_Step" = node[constants.STEP_ATTR_NAME]
@@ -1366,7 +1576,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     self._logger.debug(
                         f"Adding batch back to the batch manager: {batch}"
                     )
-                input_queue.put(None)
+                if self._check_step_not_loaded_or_finished(step_name):
+                    # Notify the step to stop
+                    input_queue.put(None)
+        self._logger.debug("Finished adding batches back to the batch manager.")
 
     def _consume_output_queue(self) -> None:
         """Consumes the `Batch`es from the output queue until it's empty. This method should
@@ -1432,12 +1645,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # Step ("this", the one from which the batch was received) has enough data on its
             # buffers to create a new batch
             while new_batch := self._batch_manager.get_batch(step.name):  # type: ignore
-                # if new_batch := self._batch_manager.get_batch(step.name):  # type: ignore
                 self._send_batch_to_step(new_batch)
-
             else:
                 self._request_more_batches_if_needed(step)
         else:
+            # Case in which the pipeline only contains a `GeneratorStep` so we constanly keep
+            # requesting batch after batch as there is no downstream step to consume it
             if len(self.dag) == 1:
                 self._request_batch_from_generator(step.name)  # type: ignore
 

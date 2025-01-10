@@ -17,13 +17,13 @@ import importlib.util
 import inspect
 import json
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
     Literal,
     Tuple,
     Type,
-    Union,
     get_args,
 )
 
@@ -31,7 +31,9 @@ from pydantic import BaseModel
 
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
-from distilabel.steps.tasks.typing import StructuredOutputType
+
+if TYPE_CHECKING:
+    from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
 
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
 """Available frameworks for the structured output configuration. """
@@ -72,10 +74,10 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
 
 
 def prepare_guided_output(
-    structured_output: StructuredOutputType,
+    structured_output: "OutlinesStructuredOutputType",
     framework: Frameworks,
     llm: Any,
-) -> Dict[str, Union[Callable, None]]:
+) -> Dict[str, Any]:
     """Prepares the `LLM` to generate guided output using `outlines`.
 
     It allows to generate JSON or Regex structured outputs for the integrated
@@ -104,6 +106,8 @@ def prepare_guided_output(
 
     format = structured_output.get("format")
     schema = structured_output.get("schema")
+
+    assert schema is not None, "schema cannot be `None`"
 
     # If schema not informed (may be forgotten), try infering it
     if not format:
