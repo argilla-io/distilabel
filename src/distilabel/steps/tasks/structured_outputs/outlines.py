@@ -24,6 +24,7 @@ from typing import (
     Literal,
     Tuple,
     Type,
+    Union,
     get_args,
 )
 
@@ -34,6 +35,10 @@ from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
 
 if TYPE_CHECKING:
+    from llama_cpp import Llama
+    from transformers import Pipeline
+    from vllm import LLM
+
     from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
 
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
@@ -108,7 +113,9 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
     return getattr(module, json_cls), getattr(module, regex_cls)
 
 
-def _get_tokenizer_from_model(llm: Any, framework: Frameworks) -> Callable:
+def _get_tokenizer_from_model(
+    llm: Union["LLM", "Pipeline", "Llama"], framework: Frameworks
+) -> Callable:
     if framework == "llamacpp":
         from outlines.models.llamacpp import LlamaCppTokenizer
 
@@ -118,7 +125,9 @@ def _get_tokenizer_from_model(llm: Any, framework: Frameworks) -> Callable:
 
         return TransformerTokenizer(llm.tokenizer)
     elif framework == "vllm":
-        return llm.get_tokenizer()
+        from outlines.models.vllm import adapt_tokenizer
+
+        return adapt_tokenizer(llm.get_tokenizer())
 
 
 def prepare_guided_output(
@@ -161,36 +170,26 @@ def prepare_guided_output(
             format = "regex"
 
     if _is_outlines_version_below_0_1_0():
-        # use the model/llm, processor is NOT a list
-        if format == "json":
-            return {
-                "processor": json_processor(
-                    schema,
-                    llm,
-                    whitespace_pattern=structured_output.get("whitespace_pattern"),
-                ),
-                "schema": schema_as_dict(schema),
-            }
-
-        if format == "regex":
-            return {"processor": regex_processor(schema, llm)}
+        # use the llm for processor initialization
+        model = llm
+        tokenizer = None
     else:
-        # use tokenizer, processor is a list
+        # use the tokenizer for processor initialization
+        model = None
         tokenizer = _get_tokenizer_from_model(llm, framework)
-        if format == "json":
-            return {
-                "processor": [
-                    json_processor(
-                        schema,
-                        tokenizer,
-                        whitespace_pattern=structured_output.get("whitespace_pattern"),
-                    )
-                ],
-                "schema": schema_as_dict(schema),
-            }
 
-        if format == "regex":
-            return {"processor": [regex_processor(schema, tokenizer)]}
+    if format == "json":
+        return {
+            "processor": json_processor(
+                schema,
+                model or tokenizer,
+                whitespace_pattern=structured_output.get("whitespace_pattern"),
+            ),
+            "schema": schema_as_dict(schema),
+        }
+
+    if format == "regex":
+        return {"processor": regex_processor(schema, llm)}
 
     raise DistilabelUserError(
         f"Invalid format '{format}'. Must be either 'json' or 'regex'.",

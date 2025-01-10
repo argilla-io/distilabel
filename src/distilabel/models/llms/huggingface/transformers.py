@@ -309,6 +309,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             The callable that will be used to guide the generation of the model.
         """
         from distilabel.steps.tasks.structured_outputs.outlines import (
+            _is_outlines_version_below_0_1_0,
             prepare_guided_output,
         )
 
@@ -317,4 +318,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         )
         if schema := result.get("schema"):
             self.structured_output["schema"] = schema
-        return result["processor"]
+        if _is_outlines_version_below_0_1_0():
+            return result["processor"]
+        else:
+            return [result["processor"]]

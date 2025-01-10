@@ -393,10 +393,14 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
             The callable that will be used to guide the generation of the model.
         """
         from distilabel.steps.tasks.structured_outputs.outlines import (
+            _is_outlines_version_below_0_1_0,
             prepare_guided_output,
         )
 
         result = prepare_guided_output(structured_output, "llamacpp", self._model)
         if (schema := result.get("schema")) and self.structured_output:
             self.structured_output["schema"] = schema
-        return result["processor"]
+        if _is_outlines_version_below_0_1_0():
+            return result["processor"]
+        else:
+            return [result["processor"]]
