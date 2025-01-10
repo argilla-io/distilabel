@@ -16,6 +16,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     List,
     Optional,
     Union,
@@ -30,7 +31,7 @@ from pydantic import (
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
 from distilabel.models.llms.typing import GenerateOutput
-from distilabel.models.llms.utils import prepare_output
+from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.typing import (
     OutlinesStructuredOutputType,
@@ -78,8 +79,8 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
     """
 
     path_or_hf_repo: str
-    tokenizer_config: Any = {}
-    model_config: Any = {}
+    tokenizer_config: Dict[str, Any] = {}
+    model_config: Dict[str, Any] = {}
     adapter_path: Optional[str] = None
     structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
         default=None,
@@ -211,12 +212,12 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             logits_processors.append(self._structured_output_logits_processor)
 
         structured_output = None
-        batch_outputs = []
+        result = []
         for input in inputs:
             if isinstance(input, tuple):
                 input, structured_output = input
 
-            outputs = []
+            output: List[str] = []
             for _ in range(num_generations):
                 if structured_output:
                     additional_logits_processors = self._prepare_structured_output(
@@ -225,7 +226,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
                     logits_processors.append(additional_logits_processors)
                 prompt = self.prepare_input(input)
 
-                output = self._mlx_generate(
+                generation = self._mlx_generate(
                     prompt=prompt,
                     model=self._model,
                     tokenizer=self._tokenizer,
@@ -247,9 +248,22 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
                     min_tokens_to_keep=min_tokens_to_keep,
                 )
 
-                outputs.append(output)
-            batch_outputs.append(prepare_output(outputs))
-        return batch_outputs
+                output.append(generation)
+
+            result.append(
+                prepare_output(
+                    output,
+                    input_tokens=[compute_tokens(input, self._tokenizer.encode)],
+                    output_tokens=[
+                        compute_tokens(
+                            text_or_messages=generation,
+                            tokenizer=self._tokenizer.encode,
+                        )
+                        for generation in output
+                    ],
+                )
+            )
+        return result
 
     def _prepare_structured_output(
         self, structured_output: Optional[OutlinesStructuredOutputType] = None
