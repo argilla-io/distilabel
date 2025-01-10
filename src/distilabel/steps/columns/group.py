@@ -21,7 +21,7 @@ from distilabel.steps.base import Step, StepInput
 from distilabel.steps.columns.utils import group_columns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.steps.typing import StepOutput
 
 
 class GroupColumns(Step):
@@ -96,12 +96,12 @@ class GroupColumns(Step):
     output_columns: Optional[List[str]] = None
 
     @property
-    def inputs(self) -> "StepColumns":
+    def inputs(self) -> List[str]:
         """The inputs for the task are the column names in `columns`."""
         return self.columns
 
     @property
-    def outputs(self) -> "StepColumns":
+    def outputs(self) -> List[str]:
         """The outputs for the task are the column names in `output_columns` or
         `grouped_{column}` for each column in `columns`."""
         return (

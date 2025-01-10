@@ -12,53 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import urllib.request
+import platform
 from typing import Any, Dict, Generator
 
 import pytest
 
-from distilabel.models.llms.llamacpp import LlamaCppLLM
+from distilabel.models.llms.mlx import MlxLLM
 
 from .utils import DummyUserDetail
 
-
-def download_tinyllama() -> None:
-    if not os.path.exists("tinyllama.gguf"):
-        urllib.request.urlretrieve(
-            "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
-            "tinyllama.gguf",
-        )
+RUNS_ON_APPLE_SILICON = platform.processor() == "arm" and platform.system() == "Darwin"
 
 
+@pytest.mark.skipif(
+    not RUNS_ON_APPLE_SILICON,
+    reason="MLX only runs on Apple Silicon",
+)
 @pytest.fixture(scope="module")
-def llm() -> Generator[LlamaCppLLM, None, None]:
-    download_tinyllama()
-
-    llm = LlamaCppLLM(model_path="tinyllama.gguf", n_gpu_layers=0)  # type: ignore
+def llm() -> Generator[MlxLLM, None, None]:
+    llm = MlxLLM(path_or_hf_repo="mlx-community/Qwen2.5-0.5B-4bit")
     llm.load()
-
     yield llm
 
 
-class TestLlamaCppLLM:
-    def test_no_tokenizer_magpie_raise_value_error(self) -> None:
-        download_tinyllama()
+@pytest.mark.skipif(
+    not RUNS_ON_APPLE_SILICON,
+    reason="MLX only runs on Apple Silicon",
+)
+class TestMlxLLM:
+    def test_model_name(self, llm: MlxLLM) -> None:
+        assert llm.path_or_hf_repo == "mlx-community/Qwen2.5-0.5B-4bit"
 
-        with pytest.raises(
-            ValueError,
-            match="`use_magpie_template` cannot be `True` if `tokenizer_id` is `None`",
-        ):
-            LlamaCppLLM(
-                model_path="tinyllama.gguf",
-                use_magpie_template=True,
-                magpie_pre_query_template="llama3",
-            )
-
-    def test_model_name(self, llm: LlamaCppLLM) -> None:
-        assert llm.model_name == "tinyllama.gguf"
-
-    def test_generate(self, llm: LlamaCppLLM) -> None:
+    def test_generate(self, llm: MlxLLM) -> None:
         responses = llm.generate(
             inputs=[
                 [{"role": "user", "content": "Hello, how are you?"}],
@@ -84,25 +69,20 @@ class TestLlamaCppLLM:
             (
                 None,
                 {
-                    "chat_format": None,
-                    "extra_kwargs": {},
-                    "n_batch": 512,
-                    "n_ctx": 512,
-                    "n_gpu_layers": 0,
-                    "seed": 4294967295,
+                    "path_or_hf_repo": "mlx-community/Qwen2.5-0.5B-4bit",
                     "generation_kwargs": {},
                     "structured_output": None,
+                    "adapter_path": None,
                     "jobs_ids": None,
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
-                    "type_info": {
-                        "module": "distilabel.models.llms.llamacpp",
-                        "name": "LlamaCppLLM",
-                    },
-                    "verbose": False,
                     "magpie_pre_query_template": None,
-                    "tokenizer_id": None,
+                    "tokenizer_config": {},
                     "use_magpie_template": False,
+                    "type_info": {
+                        "module": "distilabel.models.llms.mlx",
+                        "name": "MlxLLM",
+                    },
                 },
             ),
             (
@@ -111,28 +91,23 @@ class TestLlamaCppLLM:
                     "format": "json",
                 },
                 {
-                    "chat_format": None,
-                    "extra_kwargs": {},
-                    "n_batch": 512,
-                    "n_ctx": 512,
-                    "n_gpu_layers": 0,
-                    "seed": 4294967295,
+                    "path_or_hf_repo": "mlx-community/Qwen2.5-0.5B-4bit",
                     "generation_kwargs": {},
+                    "magpie_pre_query_template": None,
+                    "tokenizer_config": {},
+                    "use_magpie_template": False,
                     "structured_output": {
                         "schema": DummyUserDetail.model_json_schema(),
                         "format": "json",
                     },
+                    "adapter_path": None,
                     "jobs_ids": None,
                     "offline_batch_generation_block_until_done": None,
                     "use_offline_batch_generation": False,
                     "type_info": {
-                        "module": "distilabel.models.llms.llamacpp",
-                        "name": "LlamaCppLLM",
+                        "module": "distilabel.models.llms.mlx",
+                        "name": "MlxLLM",
                     },
-                    "verbose": False,
-                    "magpie_pre_query_template": None,
-                    "tokenizer_id": None,
-                    "use_magpie_template": False,
                 },
             ),
         ],
@@ -140,11 +115,10 @@ class TestLlamaCppLLM:
     def test_serialization(
         self, structured_output: Dict[str, Any], dump: Dict[str, Any]
     ) -> None:
-        llm = LlamaCppLLM(
-            model_path="tinyllama.gguf",
-            n_gpu_layers=0,
+        llm = MlxLLM(
+            path_or_hf_repo="mlx-community/Qwen2.5-0.5B-4bit",
             structured_output=structured_output,
         )
 
         assert llm.dump() == dump
-        assert isinstance(LlamaCppLLM.from_dict(dump), LlamaCppLLM)
+        assert isinstance(MlxLLM.from_dict(dump), MlxLLM)

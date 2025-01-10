@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from pydantic import BaseModel
     from tokenizers import Tokenizer
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics
 
 
 _COHERE_API_KEY_ENV_VAR_NAME = "COHERE_API_KEY"

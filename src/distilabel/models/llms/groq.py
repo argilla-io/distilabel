@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from groq import AsyncGroq
     from groq.types.chat.chat_completion import ChatCompletion
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics
 
 
 _GROQ_API_BASE_URL_ENV_VAR_NAME = "GROQ_BASE_URL"
