@@ -15151,11 +15151,7 @@ to <code>None</code>.</p>
 <span class="normal"><a href="#__codelineno-0-317">317</a></span>
 <span class="normal"><a href="#__codelineno-0-318">318</a></span>
 <span class="normal"><a href="#__codelineno-0-319">319</a></span>
-<span class="normal"><a href="#__codelineno-0-320">320</a></span>
-<span class="normal"><a href="#__codelineno-0-321">321</a></span>
-<span class="normal"><a href="#__codelineno-0-322">322</a></span>
-<span class="normal"><a href="#__codelineno-0-323">323</a></span>
-<span class="normal"><a href="#__codelineno-0-324">324</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="k">class</span><span class="w"> </span><span class="nc">TransformersLLM</span><span class="p">(</span><span class="n">LLM</span><span class="p">,</span> <span class="n">MagpieChatTemplateMixin</span><span class="p">,</span> <span class="n">CudaDevicePlacementMixin</span><span class="p">):</span>
+<span class="normal"><a href="#__codelineno-0-320">320</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="k">class</span><span class="w"> </span><span class="nc">TransformersLLM</span><span class="p">(</span><span class="n">LLM</span><span class="p">,</span> <span class="n">MagpieChatTemplateMixin</span><span class="p">,</span> <span class="n">CudaDevicePlacementMixin</span><span class="p">):</span>
 </span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Hugging Face `transformers` library LLM implementation using the text generation</span>
 </span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">    pipeline.</span>
 </span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>
@@ -15275,7 +15271,7 @@ to <code>None</code>.</p>
 </span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a>            <span class="k">if</span> <span class="n">_is_outlines_version_below_0_1_0</span><span class="p">():</span>
 </span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_allowed_tokens_fn</span> <span class="o">=</span> <span class="n">processor</span>
 </span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a>            <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">_logits_processor</span> <span class="o">=</span> <span class="n">processor</span>
+</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">_logits_processor</span> <span class="o">=</span> <span class="p">[</span><span class="n">processor</span><span class="p">]</span>
 </span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a>
 </span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 </span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a>
@@ -15427,19 +15423,15 @@ to <code>None</code>.</p>
 </span><span id="__span-0-309"><a id="__codelineno-0-309" name="__codelineno-0-309"></a><span class="sd">            The callable that will be used to guide the generation of the model.</span>
 </span><span id="__span-0-310"><a id="__codelineno-0-310" name="__codelineno-0-310"></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="__span-0-311"><a id="__codelineno-0-311" name="__codelineno-0-311"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.tasks.structured_outputs.outlines</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a>            <span class="n">_is_outlines_version_below_0_1_0</span><span class="p">,</span>
-</span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a>            <span class="n">prepare_guided_output</span><span class="p">,</span>
-</span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a>        <span class="p">)</span>
-</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a>
-</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">prepare_guided_output</span><span class="p">(</span>
-</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a>            <span class="n">structured_output</span><span class="p">,</span> <span class="s2">&quot;transformers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pipeline</span>
-</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a>        <span class="p">)</span>
-</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>        <span class="k">if</span> <span class="n">schema</span> <span class="o">:=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schema&quot;</span><span class="p">):</span>
-</span><span id="__span-0-320"><a id="__codelineno-0-320" name="__codelineno-0-320"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">structured_output</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
-</span><span id="__span-0-321"><a id="__codelineno-0-321" name="__codelineno-0-321"></a>        <span class="k">if</span> <span class="n">_is_outlines_version_below_0_1_0</span><span class="p">():</span>
-</span><span id="__span-0-322"><a id="__codelineno-0-322" name="__codelineno-0-322"></a>            <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;processor&quot;</span><span class="p">]</span>
-</span><span id="__span-0-323"><a id="__codelineno-0-323" name="__codelineno-0-323"></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-324"><a id="__codelineno-0-324" name="__codelineno-0-324"></a>            <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;processor&quot;</span><span class="p">]]</span>
+</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a>            <span class="n">prepare_guided_output</span><span class="p">,</span>
+</span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a>        <span class="p">)</span>
+</span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a>
+</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">prepare_guided_output</span><span class="p">(</span>
+</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a>            <span class="n">structured_output</span><span class="p">,</span> <span class="s2">&quot;transformers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pipeline</span>
+</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a>        <span class="p">)</span>
+</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a>        <span class="k">if</span> <span class="n">schema</span> <span class="o">:=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schema&quot;</span><span class="p">):</span>
+</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">structured_output</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
+</span><span id="__span-0-320"><a id="__codelineno-0-320" name="__codelineno-0-320"></a>        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;processor&quot;</span><span class="p">]</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 
@@ -15576,7 +15568,7 @@ it will configure the tokenizer chat template.</p>
 </span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a>        <span class="k">if</span> <span class="n">_is_outlines_version_below_0_1_0</span><span class="p">():</span>
 </span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_allowed_tokens_fn</span> <span class="o">=</span> <span class="n">processor</span>
 </span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_logits_processor</span> <span class="o">=</span> <span class="n">processor</span>
+</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_logits_processor</span> <span class="o">=</span> <span class="p">[</span><span class="n">processor</span><span class="p">]</span>
 </span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a>
 </span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
@@ -16298,11 +16290,7 @@ execute the task head.</p>
 <span class="normal"><a href="#__codelineno-0-317">317</a></span>
 <span class="normal"><a href="#__codelineno-0-318">318</a></span>
 <span class="normal"><a href="#__codelineno-0-319">319</a></span>
-<span class="normal"><a href="#__codelineno-0-320">320</a></span>
-<span class="normal"><a href="#__codelineno-0-321">321</a></span>
-<span class="normal"><a href="#__codelineno-0-322">322</a></span>
-<span class="normal"><a href="#__codelineno-0-323">323</a></span>
-<span class="normal"><a href="#__codelineno-0-324">324</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-300"><a id="__codelineno-0-300" name="__codelineno-0-300"></a><span class="k">def</span><span class="w"> </span><span class="nf">_prepare_structured_output</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-320">320</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-300"><a id="__codelineno-0-300" name="__codelineno-0-300"></a><span class="k">def</span><span class="w"> </span><span class="nf">_prepare_structured_output</span><span class="p">(</span>
 </span><span id="__span-0-301"><a id="__codelineno-0-301" name="__codelineno-0-301"></a>    <span class="bp">self</span><span class="p">,</span> <span class="n">structured_output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OutlinesStructuredOutputType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="__span-0-302"><a id="__codelineno-0-302" name="__codelineno-0-302"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]]:</span>
 </span><span id="__span-0-303"><a id="__codelineno-0-303" name="__codelineno-0-303"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates the appropriate function to filter tokens to generate structured outputs.</span>
@@ -16314,19 +16302,15 @@ execute the task head.</p>
 </span><span id="__span-0-309"><a id="__codelineno-0-309" name="__codelineno-0-309"></a><span class="sd">        The callable that will be used to guide the generation of the model.</span>
 </span><span id="__span-0-310"><a id="__codelineno-0-310" name="__codelineno-0-310"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-311"><a id="__codelineno-0-311" name="__codelineno-0-311"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.tasks.structured_outputs.outlines</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a>        <span class="n">_is_outlines_version_below_0_1_0</span><span class="p">,</span>
-</span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a>        <span class="n">prepare_guided_output</span><span class="p">,</span>
-</span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a>    <span class="p">)</span>
-</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a>
-</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">prepare_guided_output</span><span class="p">(</span>
-</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a>        <span class="n">structured_output</span><span class="p">,</span> <span class="s2">&quot;transformers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pipeline</span>
-</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a>    <span class="p">)</span>
-</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>    <span class="k">if</span> <span class="n">schema</span> <span class="o">:=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schema&quot;</span><span class="p">):</span>
-</span><span id="__span-0-320"><a id="__codelineno-0-320" name="__codelineno-0-320"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">structured_output</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
-</span><span id="__span-0-321"><a id="__codelineno-0-321" name="__codelineno-0-321"></a>    <span class="k">if</span> <span class="n">_is_outlines_version_below_0_1_0</span><span class="p">():</span>
-</span><span id="__span-0-322"><a id="__codelineno-0-322" name="__codelineno-0-322"></a>        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;processor&quot;</span><span class="p">]</span>
-</span><span id="__span-0-323"><a id="__codelineno-0-323" name="__codelineno-0-323"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-324"><a id="__codelineno-0-324" name="__codelineno-0-324"></a>        <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;processor&quot;</span><span class="p">]]</span>
+</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a>        <span class="n">prepare_guided_output</span><span class="p">,</span>
+</span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a>    <span class="p">)</span>
+</span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a>
+</span><span id="__span-0-315"><a id="__codelineno-0-315" name="__codelineno-0-315"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">prepare_guided_output</span><span class="p">(</span>
+</span><span id="__span-0-316"><a id="__codelineno-0-316" name="__codelineno-0-316"></a>        <span class="n">structured_output</span><span class="p">,</span> <span class="s2">&quot;transformers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pipeline</span>
+</span><span id="__span-0-317"><a id="__codelineno-0-317" name="__codelineno-0-317"></a>    <span class="p">)</span>
+</span><span id="__span-0-318"><a id="__codelineno-0-318" name="__codelineno-0-318"></a>    <span class="k">if</span> <span class="n">schema</span> <span class="o">:=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schema&quot;</span><span class="p">):</span>
+</span><span id="__span-0-319"><a id="__codelineno-0-319" name="__codelineno-0-319"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">structured_output</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
+</span><span id="__span-0-320"><a id="__codelineno-0-320" name="__codelineno-0-320"></a>    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;processor&quot;</span><span class="p">]</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
