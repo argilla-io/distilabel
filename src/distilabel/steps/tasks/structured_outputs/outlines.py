@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
 
 
-def _outlines_version_below_0_1_0() -> bool:
+def _is_outlines_version_below_0_1_0() -> bool:
     """Helper function to check outlines availability and version.
 
     Returns:
@@ -60,7 +60,7 @@ def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
 
 def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
     """Helper function to return the appropriate logits processors for the given framework."""
-    if _outlines_version_below_0_1_0():
+    if _is_outlines_version_below_0_1_0():
         processors = {
             "transformers": (
                 "outlines.integrations.transformers",
@@ -160,7 +160,7 @@ def prepare_guided_output(
         elif isinstance(schema, str):
             format = "regex"
 
-    if _outlines_version_below_0_1_0():
+    if _is_outlines_version_below_0_1_0():
         # use the model/llm, processor is NOT a list
         if format == "json":
             return {

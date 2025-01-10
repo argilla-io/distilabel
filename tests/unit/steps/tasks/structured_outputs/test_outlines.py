@@ -19,8 +19,8 @@ from pydantic import BaseModel
 
 from distilabel.models.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
+    _is_outlines_version_below_0_1_0,
     model_to_schema,
-    outlines_below_0_1_0,
 )
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
 
@@ -181,7 +181,7 @@ class TestOutlinesIntegration:
         llm = TransformersLLM.from_dict(DUMP_JSON)
         assert isinstance(llm, TransformersLLM)
         llm.load()
-        if outlines_below_0_1_0:
+        if _is_outlines_version_below_0_1_0():
             assert llm._prefix_allowed_tokens_fn is not None
             assert llm._logits_processor is None
         else:
