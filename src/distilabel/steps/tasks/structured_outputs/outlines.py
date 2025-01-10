@@ -99,7 +99,7 @@ def prepare_guided_output(
     """
     if not importlib.util.find_spec("outlines"):
         raise ImportError(
-            "Outlines is not installed. Please install it using `pip install outlines`."
+            "Outlines is not installed. Please install it using `pip install 'distilabel[outlines]'`."
         )
 
     json_processor, regex_processor = _get_logits_processor(framework)

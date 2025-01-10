@@ -109,7 +109,7 @@ def prepare_instructor(
     """
     if not importlib.util.find_spec("instructor"):
         raise ImportError(
-            "`instructor` is not installed. Please install it using `pip install instructor`."
+            "`instructor` is not installed. Please install it using `pip install 'distilabel[instructor]'`."
         )
     import instructor
 

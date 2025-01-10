@@ -181,7 +181,7 @@ class LlamaCppEmbeddings(Embeddings, CudaDevicePlacementMixin):
         except ImportError as ie:
             raise ImportError(
                 "`llama-cpp-python` package is not installed. Please install it using"
-                " `pip install llama-cpp-python`."
+                " `pip install 'distilabel[llama-cpp]'`."
             ) from ie
 
         if self.repo_id is not None:

@@ -163,7 +163,7 @@ class OllamaLLM(AsyncLLM, MagpieChatTemplateMixin):
         except ImportError as e:
             raise ImportError(
                 "Ollama Python client is not installed. Please install it using"
-                " `pip install ollama`."
+                " `pip install 'distilabel[ollama]'`."
             ) from e
 
         if self.tokenizer_id:

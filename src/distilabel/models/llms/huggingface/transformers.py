@@ -122,7 +122,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             from transformers import pipeline
         except ImportError as ie:
             raise ImportError(
-                "Transformers is not installed. Please install it using `pip install transformers`."
+                "Transformers is not installed. Please install it using `pip install 'distilabel[hf-transformers]'`."
             ) from ie
 
         token = self.token.get_secret_value() if self.token is not None else self.token

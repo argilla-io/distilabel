@@ -176,7 +176,7 @@ class AnthropicLLM(AsyncLLM):
         except ImportError as ie:
             raise ImportError(
                 "Anthropic Python client is not installed. Please install it using"
-                " `pip install anthropic`."
+                " `pip install 'distilabel[anthropic]'`."
             ) from ie
 
         if self.api_key is None:

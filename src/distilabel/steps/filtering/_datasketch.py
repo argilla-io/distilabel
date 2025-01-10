@@ -43,7 +43,7 @@ class DiskCacheListStorage(OrderedStorage):
         except ImportError as e:
             raise ImportError(
                 "`diskcache` is required for disk storage using `MinHashDedup`. "
-                "Please install it using `pip install diskcache`."
+                "Please install it using `pip install 'distilabel[minhash]'`."
             ) from e
 
         # Start with a clean file on each pipeline

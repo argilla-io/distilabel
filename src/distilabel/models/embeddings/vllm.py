@@ -93,7 +93,7 @@ class vLLMEmbeddings(Embeddings, CudaDevicePlacementMixin):
 
         except ImportError as ie:
             raise ImportError(
-                "vLLM is not installed. Please install it using `pip install vllm`."
+                "vLLM is not installed. Please install it using `pip install 'distilabel[vllm]'`."
             ) from ie
 
         self._model = _vLLM(

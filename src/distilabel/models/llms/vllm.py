@@ -189,7 +189,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             from vllm import LLM as _vLLM
         except ImportError as ie:
             raise ImportError(
-                "vLLM is not installed. Please install it using `pip install vllm`."
+                "vLLM is not installed. Please install it using `pip install 'distilabel[vllm]'`."
             ) from ie
 
         self._model = _vLLM(
@@ -585,7 +585,7 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
         except ImportError as ie:
             raise ImportError(
                 "OpenAI Python client is not installed. Please install it using"
-                " `pip install openai`."
+                " `pip install 'distilabel[openai]'`."
             ) from ie
 
         self._client = OpenAI(
@@ -602,7 +602,7 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
         except ImportError as ie:
             raise ImportError(
                 "To use `ClientvLLM` you need to install `transformers`."
-                "Please install it using `pip install transformers`."
+                "Please install it using `pip install 'distilabel[hf-transformers]'`."
             ) from ie
 
         self._tokenizer = AutoTokenizer.from_pretrained(
