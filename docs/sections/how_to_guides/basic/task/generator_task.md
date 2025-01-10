@@ -13,14 +13,13 @@ from typing_extensions import override
 
 from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.typing import ChatType
-from distilabel.steps.typing import GeneratorOutput
-
+from distilabel.steps.typing import GeneratorStepOutput
 
 class MyCustomTask(GeneratorTask):
     instruction: str
 
     @override
-    def process(self, offset: int = 0) -> GeneratorOutput:
+    def process(self, offset: int = 0) -> GeneratorStepOutput:
         output = self.llm.generate(
             inputs=[
                 [
@@ -79,11 +78,12 @@ from typing import Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.typing import GeneratorStepOutput
 
 
 class MyCustomTask(GeneratorTask):
     @override
-    def process(self, offset: int = 0) -> GeneratorOutput:
+    def process(self, offset: int = 0) -> GeneratorStepOutput:
         output = self.llm.generate(
             inputs=[
                 [{"role": "user", "content": "Tell me a joke."}],
