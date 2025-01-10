@@ -36,12 +36,13 @@ from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
 
 if TYPE_CHECKING:
     from llama_cpp import Llama
+    from outlines.models.mlxlm import TransformerTokenizer
     from transformers import Pipeline
     from vllm import LLM
 
     from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
 
-Frameworks = Literal["transformers", "llamacpp", "vllm"]
+Frameworks = Literal["transformers", "llamacpp", "vllm", "mlx"]
 
 
 def _is_outlines_version_below_0_1_0() -> bool:
@@ -82,6 +83,11 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
                 "JSONLogitsProcessor",
                 "RegexLogitsProcessor",
             ),
+            "mlx": (
+                "outlines.processors.mlxlm",
+                "JSONLogitsProcessor",
+                "RegexLogitsProcessor",
+            ),
         }
     else:
         processors = {
@@ -100,6 +106,11 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
                 "JSONLogitsProcessor",
                 "RegexLogitsProcessor",
             ),
+            "mlx": (
+                "outlines.processors",
+                "JSONLogitsProcessor",
+                "RegexLogitsProcessor",
+            ),
         }
 
     if framework not in processors:
@@ -114,26 +125,29 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
 
 
 def _get_tokenizer_from_model(
-    llm: Union["LLM", "Pipeline", "Llama"], framework: Frameworks
+    llm: Union["LLM", "Pipeline", "Llama", "TransformerTokenizer"],
+    framework: Frameworks,
 ) -> Callable:
     if framework == "llamacpp":
         from outlines.models.llamacpp import LlamaCppTokenizer
 
         return LlamaCppTokenizer(llm)
-    elif framework == "transformers":
+    if framework == "transformers":
         from outlines.models.transformers import TransformerTokenizer
 
         return TransformerTokenizer(llm.tokenizer)
-    elif framework == "vllm":
+    if framework == "vllm":
         from outlines.models.vllm import adapt_tokenizer
 
         return adapt_tokenizer(llm.get_tokenizer())
+    if framework == "mlx":
+        return llm
 
 
 def prepare_guided_output(
     structured_output: "OutlinesStructuredOutputType",
     framework: Frameworks,
-    llm: Any,
+    llm: Union["LLM", "Pipeline", "Llama", "TransformerTokenizer"],
 ) -> Dict[str, Any]:
     """Prepares the `LLM` to generate guided output using `outlines`.
 

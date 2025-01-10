@@ -276,12 +276,14 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         Returns:
             The callable that will be used to guide the generation of the model.
         """
+        from outlines.models.mlxlm import TransformerTokenizer
+
         from distilabel.steps.tasks.structured_outputs.outlines import (
             prepare_guided_output,
         )
 
         result = prepare_guided_output(
-            structured_output, "transformers", self._pipeline
+            structured_output, "mlx", TransformerTokenizer(self._tokenizer._tokenizer)
         )
         if schema := result.get("schema"):
             self.structured_output["schema"] = schema
