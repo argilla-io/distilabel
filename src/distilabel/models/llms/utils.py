@@ -57,11 +57,15 @@ def prepare_output(
     """
     output: "GenerateOutput" = {
         "generations": generations,
-        "statistics": {
-            "input_tokens": input_tokens or [],
-            "output_tokens": output_tokens or [],
-        },
+        "statistics": {},
     }
+
+    if input_tokens:
+        output["statistics"]["input_tokens"] = input_tokens
+
+    if output_tokens:
+        output["statistics"]["output_tokens"] = output_tokens
+
     if logprobs:
         output["logprobs"] = logprobs
     return output
