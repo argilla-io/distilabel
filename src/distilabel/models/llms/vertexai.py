@@ -25,7 +25,7 @@ from distilabel.steps.tasks.typing import StandardInput
 if TYPE_CHECKING:
     from vertexai.generative_models import Content, GenerationResponse, GenerativeModel
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics
 
 
 class VertexChatItem(TypedDict):
