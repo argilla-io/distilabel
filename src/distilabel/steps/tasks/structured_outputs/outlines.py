@@ -37,7 +37,7 @@ from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
 if TYPE_CHECKING:
     from llama_cpp import Llama
     from transformers import Pipeline
-    from vllm import LLM
+    from vllm import LLM as _vLLM
 
     from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
 
@@ -114,7 +114,7 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
 
 
 def _get_tokenizer_from_model(
-    llm: Union["LLM", "Pipeline", "Llama"],
+    llm: Union["_vLLM", "Pipeline", "Llama"],
     framework: Frameworks,
 ) -> Callable:
     if framework == "llamacpp":
@@ -134,7 +134,7 @@ def _get_tokenizer_from_model(
 def prepare_guided_output(
     structured_output: "OutlinesStructuredOutputType",
     framework: Frameworks,
-    llm: Union["LLM", "Pipeline", "Llama"],
+    llm: Union["_vLLM", "Pipeline", "Llama"],
 ) -> Dict[str, Any]:
     """Prepares the `LLM` to generate guided output using `outlines`.
 
