@@ -5885,7 +5885,7 @@ method is called.</p>
 </span><span id="__span-0-220"><a id="__codelineno-0-220" name="__codelineno-0-220"></a>                    <span class="sa">f</span><span class="s2">&quot; for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">offline_batch_generation_block_until_done</span><span class="si">}</span><span class="s2"> seconds before&quot;</span>
 </span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a>                    <span class="s2">&quot; trying to get the results again.&quot;</span>
 </span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a>                <span class="p">)</span>
-</span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a>                <span class="c1"># When running a `Step` in a child process, SIGINT is overriden so the child</span>
+</span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a>                <span class="c1"># When running a `Step` in a child process, SIGINT is overridden so the child</span>
 </span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a>                <span class="c1"># process doesn&#39;t stop when the parent process receives a SIGINT signal.</span>
 </span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>                <span class="c1"># The new handler sets an environment variable that is checked here to stop</span>
 </span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>                <span class="c1"># the polling.</span>
