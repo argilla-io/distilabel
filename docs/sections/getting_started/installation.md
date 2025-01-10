@@ -57,6 +57,8 @@ Additionally, as part of `distilabel` some extra dependencies are available, mai
 
 - `sentence-transformers`: for generating sentence embeddings using [sentence-transformers](https://github.com/UKPLab/sentence-transformers).
 
+- `mlx`: for using [MLX](https://github.com/ml-explore/mlx) models via the `MlxLLM` integration.
+
 ### Data processing
 
 - `ray`: for scaling and distributing a pipeline with [Ray](https://github.com/ray-project/ray).
