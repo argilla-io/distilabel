@@ -34,12 +34,12 @@ from pydantic import BaseModel
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
 
-if TYPE_CHECKING:
-    from llama_cpp import Llama
-    from transformers import Pipeline
-    from vllm import LLM as _vLLM
+if TYPE_CHECKING:  # noqa
+    from llama_cpp import Llama  # noqa
+    from transformers import Pipeline  # noqa
+    from vllm import LLM as _vLLM  # noqa
 
-    from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
+    from distilabel.steps.tasks.typing import OutlinesStructuredOutputType  # noqa
 
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
 
