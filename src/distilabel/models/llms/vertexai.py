@@ -89,7 +89,7 @@ class VertexAILLM(AsyncLLM):
         except ImportError as e:
             raise ImportError(
                 "vertexai is not installed. Please install it using"
-                " `pip install google-cloud-aiplatform`."
+                " `pip install 'distilabel[vertexai]'`."
             ) from e
 
         if _is_gemini_model(self.model):

@@ -262,7 +262,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         except ImportError as ie:
             raise ImportError(
                 "Hugging Face Hub Python client is not installed. Please install it using"
-                " `pip install huggingface-hub`."
+                " `pip install 'distilabel[hf-inference-endpoints]'`."
             ) from ie
 
         if self.api_key is None:
@@ -311,7 +311,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             except ImportError as ie:
                 raise ImportError(
                     "Transformers Python client is not installed. Please install it using"
-                    " `pip install transformers`."
+                    " `pip install 'distilabel[hf-inference-endpoints]'`."
                 ) from ie
 
             self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)

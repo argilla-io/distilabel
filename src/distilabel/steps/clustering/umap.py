@@ -112,7 +112,7 @@ class UMAP(GlobalStep):
         super().load()
         if importlib.util.find_spec("umap") is None:
             raise ImportError(
-                "`umap` package is not installed. Please install it using `pip install umap-learn`."
+                "`umap` package is not installed. Please install it using `pip install 'distilabel[text-clustering]'`."
             )
         from umap import UMAP as _UMAP
 

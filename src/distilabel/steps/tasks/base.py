@@ -521,15 +521,15 @@ def normalize_statistics(output: "GenerateOutput") -> "GenerateOutput":
     gen_length = len(output["generations"])
 
     for stat_key, stat_values in output["statistics"].items():
-        current_length = len(stat_values)
+        current_length = len(stat_values)  # type: ignore
 
-        if current_length < gen_length:
+        if current_length > 0 and current_length < gen_length:
             # Calculate how many times to repeat the tokens
             repeats = gen_length // current_length
             remainder = gen_length % current_length
 
             # Create new list with repeated values
-            new_values = stat_values * repeats + stat_values[:remainder]
+            new_values = stat_values * repeats + stat_values[:remainder]  # type: ignore
             output["statistics"][stat_key] = new_values
 
     return output
@@ -552,7 +552,11 @@ def iterate_generations_with_stats(
     ]
     for i, generation in enumerate(outputs["generations"]):
         # Create a new dictionary with the statistics for this index
-        stats = {key: values[i] for key, values in outputs["statistics"].items()}  # type: ignore
+        stats = {
+            key: values[i]  # type: ignore
+            for key, values in outputs["statistics"].items()
+            if values
+        }
         # Extra keys returned by the `LLM`
         extra = {key: outputs[key][i] for key in extra_keys}
         yield generation, stats, extra

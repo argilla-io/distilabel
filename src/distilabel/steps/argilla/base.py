@@ -94,8 +94,7 @@ class ArgillaBase(Step, ABC):
 
         if importlib.util.find_spec("argilla") is None:
             raise ImportError(
-                "Argilla is not installed. Please install it using `pip install argilla"
-                " --upgrade`."
+                "Argilla is not installed. Please install it using `pip install 'distilabel[argilla]'`."
             )
 
     def _client_init(self) -> None:

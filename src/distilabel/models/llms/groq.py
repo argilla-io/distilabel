@@ -144,7 +144,7 @@ class GroqLLM(AsyncLLM):
         except ImportError as ie:
             raise ImportError(
                 "Groq Python client is not installed. Please install it using"
-                ' `pip install groq` or from the extras as `pip install "distilabel[groq]"`.'
+                ' `pip install "distilabel[groq]"`.'
             ) from ie
 
         if self.api_key is None:
