@@ -194,7 +194,9 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
         )
 
         if self.structured_output:
-            self._set_logits_processor(self.structured_output)
+            self._logits_processor = self._prepare_structured_output(
+                self.structured_output
+            )
 
         if self.use_magpie_template or self.magpie_pre_query_template:
             if not self.tokenizer_id:
@@ -220,19 +222,6 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
         # NOTE: Here because of the custom `logging` interface used, since it will create the logging name
         # out of the model name, which won't be available until the `Llama` instance is created.
         super().load()
-
-    def _set_logits_processor(
-        self, structured_output: Optional[OutlinesStructuredOutputType] = None
-    ) -> None:
-        from distilabel.steps.tasks.structured_outputs.outlines import (
-            outlines_below_0_1_0,
-        )
-
-        processor = self._prepare_structured_output(structured_output)
-        if outlines_below_0_1_0:
-            self._logits_processor = processor
-        else:
-            self._logits_processor = [processor]
 
     @property
     def model_name(self) -> str:
@@ -352,8 +341,9 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
                 # after each generation, so subsequent calls yield nothing. This is a workaround
                 # until is fixed in the `llama_cpp` or `outlines` libraries.
                 if structured_output:
-                    self._set_logits_processor(structured_output)
-
+                    self._logits_processor = self._prepare_structured_output(
+                        structured_output
+                    )
                 if self.tokenizer_id is None:
                     completion = self._generate_chat_completion(
                         input,
