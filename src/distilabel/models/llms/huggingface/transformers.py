@@ -299,7 +299,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     def _prepare_structured_output(
         self, structured_output: Optional[OutlinesStructuredOutputType] = None
-    ) -> Union[Callable, None]:
+    ) -> Union[Callable, List[Callable]]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
 
         Args:

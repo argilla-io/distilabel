@@ -24,7 +24,12 @@ from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
-    from llama_cpp import CreateChatCompletionResponse, Llama, LogitsProcessorList
+    from llama_cpp import (
+        CreateChatCompletionResponse,
+        Llama,
+        LogitsProcessor,
+        LogitsProcessorList,
+    )
 
     from distilabel.steps.tasks.typing import FormattedInput, StandardInput
 
@@ -383,7 +388,7 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
 
     def _prepare_structured_output(
         self, structured_output: Optional[OutlinesStructuredOutputType] = None
-    ) -> Union["LogitsProcessorList", None]:
+    ) -> Union["LogitsProcessorList", "LogitsProcessor"]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
 
         Args:

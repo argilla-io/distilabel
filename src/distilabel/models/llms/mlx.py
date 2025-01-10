@@ -267,7 +267,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
 
     def _prepare_structured_output(
         self, structured_output: Optional[OutlinesStructuredOutputType] = None
-    ) -> Union[Callable, None]:
+    ) -> Union[List[Callable], Callable]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
 
         Args:
@@ -285,4 +285,4 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         )
         if schema := result.get("schema"):
             self.structured_output["schema"] = schema
-        return result["processor"]
+        return [result["processor"]]
