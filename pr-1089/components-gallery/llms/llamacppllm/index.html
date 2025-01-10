@@ -3328,7 +3328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../vllm/" class="md-nav__link">
+      <a href="../mlxllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3349,7 +3349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mlxllm/" class="md-nav__link">
+      <a href="../vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5112,6 +5112,15 @@
 </li>
 <li>
 <p><strong>extra_kwargs</strong>: additional dictionary of keyword arguments that will be passed to the  <code>Llama</code> class of <code>llama_cpp</code> library. Defaults to <code>{}</code>.</p>
+</li>
+<li>
+<p><strong>tokenizer_id</strong>: the tokenizer Hugging Face Hub repo id or a path to a directory containing  the tokenizer config files. If not provided, the one associated to the <code>model</code>  will be used. Defaults to <code>None</code>.</p>
+</li>
+<li>
+<p><strong>use_magpie_template</strong>: a flag used to enable/disable applying the Magpie pre-query  template. Defaults to <code>False</code>.</p>
+</li>
+<li>
+<p><strong>magpie_pre_query_template</strong>: the pre-query template to be applied to the prompt or  sent to the LLM to generate an instruction or a follow up user message. Valid  values are "llama3", "qwen2" or another pre-query template provided. Defaults  to <code>None</code>.</p>
 </li>
 <li>
 <p><strong>_model</strong>: the Llama model instance. This attribute is meant to be used internally and  should not be accessed directly. It will be set in the <code>load</code> method.</p>

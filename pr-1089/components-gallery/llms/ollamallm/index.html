@@ -3328,7 +3328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../vllm/" class="md-nav__link">
+      <a href="../mlxllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3349,7 +3349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mlxllm/" class="md-nav__link">
+      <a href="../vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -5076,6 +5076,21 @@
 </li>
 <li>
 <p><strong>timeout</strong>: the timeout for the LLM. Defaults to <code>120</code>.</p>
+</li>
+<li>
+<p><strong>follow_redirects</strong>: whether to follow redirects. Defaults to <code>True</code>.</p>
+</li>
+<li>
+<p><strong>structured_output</strong>: a dictionary containing the structured output configuration or if more  fine-grained control is needed, an instance of <code>OutlinesStructuredOutput</code>. Defaults to None.</p>
+</li>
+<li>
+<p><strong>tokenizer_id</strong>: the tokenizer Hugging Face Hub repo id or a path to a directory containing  the tokenizer config files. If not provided, the one associated to the <code>model</code>  will be used. Defaults to <code>None</code>.</p>
+</li>
+<li>
+<p><strong>use_magpie_template</strong>: a flag used to enable/disable applying the Magpie pre-query  template. Defaults to <code>False</code>.</p>
+</li>
+<li>
+<p><strong>magpie_pre_query_template</strong>: the pre-query template to be applied to the prompt or  sent to the LLM to generate an instruction or a follow up user message. Valid  values are "llama3", "qwen2" or another pre-query template provided. Defaults  to <code>None</code>.</p>
 </li>
 <li>
 <p><strong>_aclient</strong>: the <code>AsyncClient</code> to use for the Ollama API. It is meant to be used internally.  Set in the <code>load</code> method.</p>

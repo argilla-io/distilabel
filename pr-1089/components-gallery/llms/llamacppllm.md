@@ -33,6 +33,12 @@ llama.cpp LLM implementation running the Python bindings for the C++ code.
 
 - **extra_kwargs**: additional dictionary of keyword arguments that will be passed to the  `Llama` class of `llama_cpp` library. Defaults to `{}`.
 
+- **tokenizer_id**: the tokenizer Hugging Face Hub repo id or a path to a directory containing  the tokenizer config files. If not provided, the one associated to the `model`  will be used. Defaults to `None`.
+
+- **use_magpie_template**: a flag used to enable/disable applying the Magpie pre-query  template. Defaults to `False`.
+
+- **magpie_pre_query_template**: the pre-query template to be applied to the prompt or  sent to the LLM to generate an instruction or a follow up user message. Valid  values are "llama3", "qwen2" or another pre-query template provided. Defaults  to `None`.
+
 - **_model**: the Llama model instance. This attribute is meant to be used internally and  should not be accessed directly. It will be set in the `load` method.
 
 
