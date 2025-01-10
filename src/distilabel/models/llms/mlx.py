@@ -287,4 +287,4 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         )
         if schema := result.get("schema"):
             self.structured_output["schema"] = schema
-        return [result["processor"]]
+        return result["processor"]
