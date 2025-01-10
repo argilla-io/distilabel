@@ -106,6 +106,9 @@ mlx = ["mlx >= 0.21.0", "mlx-lm"]
 
 # minhash
 minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]
+lancedb = [
+    "lancedb>=0.13.0",
+]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"

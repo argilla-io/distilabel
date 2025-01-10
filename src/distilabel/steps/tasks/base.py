@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import importlib
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, Union
 
@@ -30,6 +29,7 @@ from distilabel.steps.base import (
     StepInput,
     _Step,
 )
+from distilabel.utils.dependencies import check_dependency
 from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
@@ -283,13 +283,6 @@ class _Task(_Step, ABC):
             # the LLM is loaded
             from distilabel.models.llms import InferenceEndpointsLLM
             from distilabel.models.llms.base import AsyncLLM
-
-            def check_dependency(module_name: str) -> None:
-                if not importlib.util.find_spec(module_name):
-                    raise ImportError(
-                        f"`{module_name}` is not installed and is needed for the structured generation with this LLM."
-                        f" Please install it using `pip install {module_name}`."
-                    )
 
             dependency = "outlines"
             structured_output = {"schema": schema}

@@ -19,14 +19,14 @@ from typing import TYPE_CHECKING, List
 import pytest
 
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.argilla.base import ArgillaBase
+from distilabel.steps.argilla.base import ArgillaStepBase
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class CustomArgilla(ArgillaBase):
+class CustomArgilla(ArgillaStepBase):
     def load(self) -> None:
         pass
 
@@ -89,7 +89,7 @@ class TestArgilla:
             if sys.version_info < (3, 12)
             else "Can't instantiate abstract class ArgillaBase without an implementation for abstract methods 'inputs', 'process'",
         ):
-            ArgillaBase(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
+            ArgillaStepBase(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
