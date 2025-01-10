@@ -190,7 +190,7 @@ def prepare_guided_output(
         }
 
     if format == "regex":
-        return {"processor": regex_processor(schema, llm)}
+        return {"processor": regex_processor(schema, model or tokenizer)}
 
     raise DistilabelUserError(
         f"Invalid format '{format}'. Must be either 'json' or 'regex'.",
