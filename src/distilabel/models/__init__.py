@@ -14,6 +14,7 @@
 
 
 from distilabel.models.embeddings.base import Embeddings
+from distilabel.models.embeddings.llamacpp import LlamaCppEmbeddings
 from distilabel.models.embeddings.sentence_transformers import (
     SentenceTransformerEmbeddings,
 )
@@ -53,6 +54,7 @@ __all__ = [
     "HiddenState",
     "InferenceEndpointsLLM",
     "LiteLLM",
+    "LlamaCppEmbeddings",
     "LlamaCppLLM",
     "MistralLLM",
     "MixtureOfAgentsLLM",
