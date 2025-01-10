@@ -23,7 +23,9 @@ from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.structured_outputs.outlines import outlines_below_0_1_0
+from distilabel.steps.tasks.structured_outputs.outlines import (
+    _outlines_version_below_0_1_0,
+)
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
@@ -152,10 +154,10 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         if self.structured_output:
             processor = self._prepare_structured_output(self.structured_output)
-            if outlines_below_0_1_0:
+            if _outlines_version_below_0_1_0():
                 self._prefix_allowed_tokens_fn = processor
             else:
-                self._logits_processor = [processor]
+                self._logits_processor = processor
 
         super().load()
 
