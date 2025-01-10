@@ -140,7 +140,7 @@ class MistralLLM(AsyncLLM):
         except ImportError as ie:
             raise ImportError(
                 "MistralAI Python client is not installed. Please install it using"
-                " `pip install mistralai`."
+                " `pip install 'distilabel[mistralai]'`."
             ) from ie
 
         if self.api_key is None:

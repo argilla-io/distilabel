@@ -104,7 +104,7 @@ class LiteLLM(AsyncLLM):
         except ImportError as e:
             raise ImportError(
                 "LiteLLM Python client is not installed. Please install it using"
-                " `pip install litellm`."
+                " `pip install 'distilabel[litellm]'`."
             ) from e
         self._aclient = litellm.acompletion
 

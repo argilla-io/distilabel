@@ -54,6 +54,7 @@ class OpenAILLM(AsyncLLM):
         api_key: the API key to authenticate the requests to the OpenAI API. Defaults to
             `None` which means that the value set for the environment variable `OPENAI_API_KEY`
             will be used, or `None` if not set.
+        default_headers: the default headers to use for the OpenAI API requests.
         max_retries: the maximum number of times to retry the request to the API before
             failing. Defaults to `6`.
         timeout: the maximum time in seconds to wait for a response from the API. Defaults
@@ -186,7 +187,7 @@ class OpenAILLM(AsyncLLM):
         except ImportError as ie:
             raise ImportError(
                 "OpenAI Python client is not installed. Please install it using"
-                " `pip install openai`."
+                " `pip install 'distilabel[openai]'`."
             ) from ie
 
         if self.api_key is None:

@@ -110,7 +110,7 @@ class SentenceTransformerEmbeddings(Embeddings, CudaDevicePlacementMixin):
         except ImportError as e:
             raise ImportError(
                 "`sentence-transformers` package is not installed. Please install it using"
-                " `pip install sentence-transformers`."
+                " `pip install 'distilabel[sentence-transformers]'`."
             ) from e
 
         self._model = SentenceTransformer(

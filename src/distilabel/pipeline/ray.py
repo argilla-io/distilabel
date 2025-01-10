@@ -204,7 +204,7 @@ class RayPipeline(BasePipeline):
             import ray
         except ImportError as ie:
             raise ImportError(
-                "ray is not installed. Please install it using `pip install ray[default]`."
+                "ray is not installed. Please install it using `pip install 'distilabel[ray]'`."
             ) from ie
 
         if self._ray_head_node_url:
