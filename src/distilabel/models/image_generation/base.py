@@ -24,7 +24,7 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
-    RuntimeParametersMixin,
+    RuntimeParametersModelMixin,
 )
 from distilabel.utils.docstring import parse_google_docstring
 from distilabel.utils.itertools import grouper
@@ -33,14 +33,10 @@ from distilabel.utils.serialization import _Serializable
 if TYPE_CHECKING:
     from logging import Logger
 
-    from distilabel.mixins.runtime_parameters import (
-        RuntimeParameterInfo,
-        RuntimeParametersNames,
-    )
     from distilabel.utils.docstring import Docstring
 
 
-class ImageGenerationModel(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
+class ImageGenerationModel(RuntimeParametersModelMixin, BaseModel, _Serializable, ABC):
     """Base class for `ImageGeneration` models.
 
     To implement an `ImageGeneration` subclass, you need to subclass this class and implement:
@@ -121,87 +117,6 @@ class ImageGenerationModel(RuntimeParametersMixin, BaseModel, _Serializable, ABC
         method.
         """
         return self.generate(inputs=inputs, num_generations=num_generations, **kwargs)
-
-    @property
-    def generate_parameters(self) -> list["inspect.Parameter"]:
-        """Returns the parameters of the `generate` method.
-
-        Returns:
-            A list containing the parameters of the `generate` method.
-        """
-        return list(inspect.signature(self.generate).parameters.values())
-
-    @property
-    def runtime_parameters_names(self) -> "RuntimeParametersNames":
-        """Returns the runtime parameters of the `ImageGenerationModel`, which are combination of the
-        attributes of the `ImageGenerationModel` type hinted with `RuntimeParameter` and the parameters
-        of the `generate` method that are not `input` and `num_generations`.
-
-        Returns:
-            A dictionary with the name of the runtime parameters as keys and a boolean
-            indicating if the parameter is optional or not.
-        """
-        runtime_parameters = super().runtime_parameters_names
-        runtime_parameters["generation_kwargs"] = {}
-
-        # runtime parameters from the `generate` method
-        for param in self.generate_parameters:
-            if param.name in ["input", "inputs", "num_generations"]:
-                continue
-            is_optional = param.default != inspect.Parameter.empty
-            runtime_parameters["generation_kwargs"][param.name] = is_optional
-
-        return runtime_parameters
-
-    def get_runtime_parameters_info(self) -> list["RuntimeParameterInfo"]:
-        """Gets the information of the runtime parameters of the `ImageGenerationModel` such as the name
-        and the description. This function is meant to include the information of the runtime
-        parameters in the serialized data of the `ImageGenerationModel`.
-
-        Returns:
-            A list containing the information for each runtime parameter of the `ImageGenerationModel`.
-        """
-        runtime_parameters_info = super().get_runtime_parameters_info()
-
-        generation_kwargs_info = next(
-            (
-                runtime_parameter_info
-                for runtime_parameter_info in runtime_parameters_info
-                if runtime_parameter_info["name"] == "generation_kwargs"
-            ),
-            None,
-        )
-
-        # If `generation_kwargs` attribute is present, we need to include the `generate`
-        # method arguments as the information for this attribute.
-        if generation_kwargs_info:
-            generate_docstring_args = self.generate_parsed_docstring["args"]
-            generation_kwargs_info["keys"] = []
-            # TODO: This doesn't happen with LLM, but with ImageGenerationModel the optional key is not found
-            # in a pipeline, due to some bug. For the moment this does the job. It may be
-            # related to the InferenceEndpointsImageGeneration for example being both
-            # ImageGenerationModel and InferenceEdnpointsLLM, but cannot find the point that makes the
-            # error appear.
-            if "optional" not in generation_kwargs_info:
-                return runtime_parameters_info
-            for key, value in generation_kwargs_info["optional"].items():
-                info = {"name": key, "optional": value}
-                if description := generate_docstring_args.get(key):
-                    info["description"] = description
-                generation_kwargs_info["keys"].append(info)
-
-            generation_kwargs_info.pop("optional")
-
-        return runtime_parameters_info
-
-    @cached_property
-    def generate_parsed_docstring(self) -> "Docstring":
-        """Returns the parsed docstring of the `generate` method.
-
-        Returns:
-            The parsed docstring of the `generate` method.
-        """
-        return parse_google_docstring(self.generate)
 
 
 class AsyncImageGenerationModel(ImageGenerationModel):
