@@ -125,7 +125,7 @@ The `Citations` section can include any number of bibtex references. To define t
 
     The `Distiset` object has a new method `transform_columns_to_image` specifically to transform the images to `PIL.Image.Image` before pushing the dataset to the hugging face hub.
 
-Since version `1.5.0` we have the [`ImageGeneration`](https://distilabel.argilla.io/dev/components-gallery/task/imagegeneration/) task that is able to generate images from text. By default, all the process will work internally with a string representation for the images. This is done for simplicity while processing. But to take advantage of the huggingface hub functionalities if the dataset generate is going to be stored there, a proper Image object may be preferable, so we can see the images in the dataset viewer for example. Let's take a look at the following pipeline extracted from "examples/image_generation.py" at the root of the repository to see how we can do it:
+Since version `1.5.0` we have the [`ImageGeneration`](https://distilabel.argilla.io/dev/components-gallery/task/imagegeneration/) task that is able to generate images from text. By default, all the process will work internally with a string representation for the images. This is done for simplicity while processing. But to take advantage of the Hugging Face Hub functionalities if the dataset generated is going to be stored there, a proper Image object may be preferable, so we can see the images in the dataset viewer for example. Let's take a look at the following pipeline extracted from "examples/image_generation.py" at the root of the repository to see how we can do it:
 
 ```diff
 # Assume all the imports are already done, we are only interested
