@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import validate_call
 
@@ -21,10 +21,10 @@ from distilabel.models.image_generation.utils import image_to_str
 from distilabel.models.llms.huggingface import InferenceEndpointsLLM
 
 if TYPE_CHECKING:
-    from PIL import Image
+    from PIL.Image import Image
 
 
-class InferenceEndpointsImageGeneration(
+class InferenceEndpointsImageGeneration(  # type: ignore
     AsyncImageGenerationModel, InferenceEndpointsLLM
 ):
     """Inference Endpoint image generation implementation running the async API client.
@@ -59,13 +59,13 @@ class InferenceEndpointsImageGeneration(
 
     @property
     def model_name(self) -> str:
-        return InferenceEndpointsLLM.model_name.fget(self)
+        return InferenceEndpointsLLM.model_name.fget(self)  # type: ignore
 
     def load(self) -> None:
         InferenceEndpointsLLM.load(self)
 
     @validate_call
-    async def agenerate(
+    async def agenerate(  # type: ignore
         self,
         input: str,
         negative_prompt: Optional[str] = None,
@@ -73,8 +73,7 @@ class InferenceEndpointsImageGeneration(
         width: Optional[float] = None,
         num_inference_steps: Optional[float] = None,
         guidance_scale: Optional[float] = None,
-        num_generations: int = 1,
-    ) -> list[dict[str, any]]:
+    ) -> list[dict[str, Any]]:
         """Generates images from text prompts using `huggingface_hub.AsyncInferenceClient.text_to_image`.
 
         Args:
@@ -91,7 +90,7 @@ class InferenceEndpointsImageGeneration(
             A list with a dictionary containing a list with the image as a base64 string.
         """
 
-        image: "Image" = await self._aclient.text_to_image(
+        image: "Image" = await self._aclient.text_to_image(  # type: ignore
             input,
             negative_prompt=negative_prompt,
             height=height,

@@ -98,12 +98,12 @@ class ImageGenerationModel(RuntimeParametersMixin, BaseModel, _Serializable, ABC
 
     @abstractmethod
     def generate(
-        self, input: list[str], num_generations: int = 1, **kwargs: Any
+        self, inputs: list[str], num_generations: int = 1, **kwargs: Any
     ) -> list[list[dict[str, Any]]]:
         """Generates images from the provided input.
 
         Args:
-            input: the prompt text to generate the image from.
+            inputs: the prompt text to generate the image from.
             num_generations: the number of images to generate. Defaults to `1`.
 
         Returns:
@@ -177,7 +177,7 @@ class ImageGenerationModel(RuntimeParametersMixin, BaseModel, _Serializable, ABC
         if generation_kwargs_info:
             generate_docstring_args = self.generate_parsed_docstring["args"]
             generation_kwargs_info["keys"] = []
-            # TODO: This doesn't happen with LLM, but with ImageGenerationModel the optional key is not found
+            # TODO: This doesn't happen with LLM, but with ImageGenerationModel the optional key is not found
             # in a pipeline, due to some bug. For the moment this does the job. It may be
             # related to the InferenceEndpointsImageGeneration for example being both
             # ImageGenerationModel and InferenceEdnpointsLLM, but cannot find the point that makes the
