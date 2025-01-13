@@ -154,6 +154,14 @@ hide:
 
     [:octicons-arrow-right-24: LlamaCppLLM](llamacppllm.md){ .bottom }
 
+-   :apple:{ .lg .middle } __MlxLLM__
+
+    ---
+
+    Apple MLX LLM implementation.
+
+    [:octicons-arrow-right-24: MlxLLM](mlxllm.md){ .bottom }
+
 -   :material-brain:{ .lg .middle } __vLLM__
 
     ---

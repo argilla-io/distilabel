@@ -27,6 +27,7 @@ hide:
     | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
     | :material-image:                | image-generation    | Image generation steps are used to generate images based on a given prompt.                        |
+    | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
 
 <div class="grid cards" markdown>
 
@@ -55,6 +56,22 @@ hide:
 
     [:octicons-arrow-right-24: Magpie](magpie.md){ .bottom }
 
+-   :material-text-box-edit:{ .lg .middle } __MathShepherdCompleter__
+
+    ---
+
+    Math Shepherd Completer and auto-labeller task.
+
+    [:octicons-arrow-right-24: MathShepherdCompleter](mathshepherdcompleter.md){ .bottom }
+
+-   :material-text-box-edit:{ .lg .middle } __MathShepherdGenerator__
+
+    ---
+
+    Math Shepherd solution generator.
+
+    [:octicons-arrow-right-24: MathShepherdGenerator](mathshepherdgenerator.md){ .bottom }
+
 -   :material-text-box-edit:{ .lg .middle } __SelfInstruct__
 
     ---
@@ -70,6 +87,14 @@ hide:
     Text generation with an `LLM` given a prompt.
 
     [:octicons-arrow-right-24: TextGeneration](textgeneration.md){ .bottom }
+
+-   :material-text-box-edit:{ .lg .middle } __TextGenerationWithImage__
+
+    ---
+
+    Text generation with images with an `LLM` given a prompt.
+
+    [:octicons-arrow-right-24: TextGenerationWithImage](textgenerationwithimage.md){ .bottom }
 
 -   :material-text-box-edit:{ .lg .middle } __URIAL__
 
