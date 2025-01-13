@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from mistralai import Mistral
     from mistralai.models.chatcompletionresponse import ChatCompletionResponse
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics
 
 
 _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
@@ -140,7 +140,7 @@ class MistralLLM(AsyncLLM):
         except ImportError as ie:
             raise ImportError(
                 "MistralAI Python client is not installed. Please install it using"
-                " `pip install mistralai`."
+                " `pip install 'distilabel[mistralai]'`."
             ) from ie
 
         if self.api_key is None:

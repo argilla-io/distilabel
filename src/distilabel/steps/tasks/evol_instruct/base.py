@@ -27,7 +27,7 @@ from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics
     from distilabel.steps.typing import StepOutput
 
 

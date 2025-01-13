@@ -124,7 +124,7 @@ class DBSCAN(GlobalStep):
         super().load()
         if importlib.util.find_spec("sklearn") is None:
             raise ImportError(
-                "`sklearn` package is not installed. Please install it using `pip install scikit-learn`."
+                "`sklearn` package is not installed. Please install it using `pip install 'distilabel[text-clustering]'`."
             )
         from sklearn.cluster import DBSCAN as _DBSCAN
 

@@ -44,6 +44,9 @@ from distilabel.steps.tasks.instruction_backtranslation import (
 )
 from distilabel.steps.tasks.magpie.base import Magpie
 from distilabel.steps.tasks.magpie.generator import MagpieGenerator
+from distilabel.steps.tasks.math_shepherd.completer import MathShepherdCompleter
+from distilabel.steps.tasks.math_shepherd.generator import MathShepherdGenerator
+from distilabel.steps.tasks.math_shepherd.utils import FormatPRM
 from distilabel.steps.tasks.pair_rm import PairRM
 from distilabel.steps.tasks.prometheus_eval import PrometheusEval
 from distilabel.steps.tasks.quality_scorer import QualityScorer
@@ -52,50 +55,58 @@ from distilabel.steps.tasks.sentence_transformers import GenerateSentencePair
 from distilabel.steps.tasks.structured_generation import StructuredGeneration
 from distilabel.steps.tasks.text_classification import TextClassification
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
+from distilabel.steps.tasks.text_generation_with_image import TextGenerationWithImage
 from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 from distilabel.steps.tasks.urial import URIAL
 
 __all__ = [
-    "GeneratorTask",
-    "ImageTask",
-    "Task",
-    "ArgillaLabeller",
+    "CLAIR",
+    "URIAL",
     "APIGenExecutionChecker",
     "APIGenGenerator",
     "APIGenSemanticChecker",
+    "ArgillaLabeller",
+    "ArgillaLabeller",
+    "BitextRetrievalGenerator",
+    "ChatGeneration",
+    "ChatItem",
+    "ChatType",
     "ComplexityScorer",
-    "task",
-    "EvolInstruct",
+    "EmbeddingTaskGenerator",
     "EvolComplexity",
     "EvolComplexityGenerator",
+    "EvolInstruct",
     "EvolInstructGenerator",
     "EvolQuality",
+    "FormatPRM",
     "GenerateEmbeddings",
-    "Genstruct",
-    "BitextRetrievalGenerator",
-    "EmbeddingTaskGenerator",
     "GenerateLongTextMatchingData",
+    "GenerateSentencePair",
     "GenerateShortTextMatchingData",
     "GenerateTextClassificationData",
     "GenerateTextRetrievalData",
-    "MonolingualTripletGenerator",
+    "GeneratorTask",
+    "Genstruct",
     "ImageGeneration",
+    "ImageTask",
     "InstructionBacktranslation",
     "Magpie",
     "MagpieGenerator",
+    "MathShepherdCompleter",
+    "MathShepherdGenerator",
+    "MonolingualTripletGenerator",
+    "MonolingualTripletGenerator",
     "PairRM",
     "PrometheusEval",
     "QualityScorer",
     "SelfInstruct",
-    "GenerateSentencePair",
     "StructuredGeneration",
+    "Task",
+    "Task",
     "TextClassification",
-    "ChatGeneration",
     "TextGeneration",
-    "ChatItem",
-    "ChatType",
-    "CLAIR",
+    "TextGenerationWithImage",
     "UltraFeedback",
-    "URIAL",
+    "task",
 ]

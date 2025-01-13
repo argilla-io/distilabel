@@ -163,7 +163,7 @@ class FaissNearestNeighbour(GlobalStep):
         if importlib.util.find_spec("faiss") is None:
             raise ImportError(
                 "`faiss` package is not installed. Please install it using `pip install"
-                " faiss-cpu` or `pip install faiss-gpu`."
+                " 'distilabel[faiss-cpu]' or 'distilabel[faiss-gpu]'`."
             )
 
     @property

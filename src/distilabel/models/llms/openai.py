@@ -17,7 +17,7 @@ import os
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, Union
 
 import orjson
-from pydantic import Field, PrivateAttr, SecretStr, validate_call
+from pydantic import Field, PositiveInt, PrivateAttr, SecretStr, validate_call
 
 from distilabel import envs
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
@@ -32,8 +32,10 @@ if TYPE_CHECKING:
     from openai.types import Batch as OpenAIBatch
     from openai.types import FileObject as OpenAIFileObject
     from openai.types.chat import ChatCompletion as OpenAIChatCompletion
+    from openai.types.chat.chat_completion import Choice as OpenAIChoice
+    from openai.types.completion import Completion as OpenAICompletion
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics, Logprob
 
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
@@ -52,6 +54,7 @@ class OpenAILLM(AsyncLLM):
         api_key: the API key to authenticate the requests to the OpenAI API. Defaults to
             `None` which means that the value set for the environment variable `OPENAI_API_KEY`
             will be used, or `None` if not set.
+        default_headers: the default headers to use for the OpenAI API requests.
         max_retries: the maximum number of times to retry the request to the API before
             failing. Defaults to `6`.
         timeout: the maximum time in seconds to wait for a response from the API. Defaults
@@ -151,6 +154,10 @@ class OpenAILLM(AsyncLLM):
         default_factory=lambda: os.getenv(_OPENAI_API_KEY_ENV_VAR_NAME),
         description="The API key to authenticate the requests to the OpenAI API.",
     )
+    default_headers: Optional[RuntimeParameter[Dict[str, str]]] = Field(
+        default=None,
+        description="The default headers to use for the OpenAI API requests.",
+    )
     max_retries: RuntimeParameter[int] = Field(
         default=6,
         description="The maximum number of times to retry the request to the API before"
@@ -180,7 +187,7 @@ class OpenAILLM(AsyncLLM):
         except ImportError as ie:
             raise ImportError(
                 "OpenAI Python client is not installed. Please install it using"
-                " `pip install openai`."
+                " `pip install 'distilabel[openai]'`."
             ) from ie
 
         if self.api_key is None:
@@ -194,6 +201,7 @@ class OpenAILLM(AsyncLLM):
             api_key=self.api_key.get_secret_value(),
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
+            default_headers=self.default_headers,
         )
 
         self._aclient = AsyncOpenAI(
@@ -201,6 +209,7 @@ class OpenAILLM(AsyncLLM):
             api_key=self.api_key.get_secret_value(),
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
+            default_headers=self.default_headers,
         )
 
         if self.structured_output:
@@ -219,6 +228,7 @@ class OpenAILLM(AsyncLLM):
 
         self._client = None  # type: ignore
         self._aclient = None  # type: ignore
+        self.default_headers = None
         self.structured_output = None
         super().unload()
 
@@ -233,6 +243,8 @@ class OpenAILLM(AsyncLLM):
         input: FormattedInput,
         num_generations: int = 1,
         max_new_tokens: int = 128,
+        logprobs: bool = False,
+        top_logprobs: Optional[PositiveInt] = None,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
@@ -249,6 +261,9 @@ class OpenAILLM(AsyncLLM):
                 `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
+            logprobs: whether to return the log probabilities or not. Defaults to `False`.
+            top_logprobs: the number of top log probabilities to return per output token
+                generated. Defaults to `None`.
             frequency_penalty: the repetition penalty to use for the generation. Defaults
                 to `0.0`.
             presence_penalty: the presence penalty to use for the generation. Defaults to
@@ -285,6 +300,8 @@ class OpenAILLM(AsyncLLM):
         kwargs = {
             "messages": input,  # type: ignore
             "model": self.model,
+            "logprobs": logprobs,
+            "top_logprobs": top_logprobs,
             "max_tokens": max_new_tokens,
             "n": num_generations,
             "frequency_penalty": frequency_penalty,
@@ -293,6 +310,12 @@ class OpenAILLM(AsyncLLM):
             "top_p": top_p,
             "stop": stop,
         }
+        # Check if it's a vision generation task, in that case "stop" cannot be used or raises
+        # an error in the API.
+        if isinstance(
+            [row for row in input if row["role"] == "user"][0]["content"], list
+        ):
+            kwargs.pop("stop")
 
         if response_format is not None:
             kwargs["response_format"] = response_format
@@ -301,10 +324,22 @@ class OpenAILLM(AsyncLLM):
             kwargs = self._prepare_kwargs(kwargs, structured_output)  # type: ignore
 
         completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
+
         if structured_output:
+            # NOTE: `instructor` doesn't work with `n` parameter, so it will always return
+            # only 1 choice.
+            statistics = self._get_llm_statistics(completion._raw_response)
+            if choice_logprobs := self._get_logprobs_from_choice(
+                completion._raw_response.choices[0]
+            ):
+                output_logprobs = [choice_logprobs]
+            else:
+                output_logprobs = None
             return prepare_output(
-                [completion.model_dump_json()],
-                **self._get_llm_statistics(completion._raw_response),
+                generations=[completion.model_dump_json()],
+                input_tokens=statistics["input_tokens"],
+                output_tokens=statistics["output_tokens"],
+                logprobs=output_logprobs,
             )
 
         return self._generations_from_openai_completion(completion)
@@ -321,6 +356,7 @@ class OpenAILLM(AsyncLLM):
             A list of strings containing the generated responses for the input.
         """
         generations = []
+        logprobs = []
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(  # type: ignore
@@ -328,14 +364,38 @@ class OpenAILLM(AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
+            if choice_logprobs := self._get_logprobs_from_choice(choice):
+                logprobs.append(choice_logprobs)
 
-        return prepare_output(generations, **self._get_llm_statistics(completion))
+        statistics = self._get_llm_statistics(completion)
+        return prepare_output(
+            generations=generations,
+            input_tokens=statistics["input_tokens"],
+            output_tokens=statistics["output_tokens"],
+            logprobs=logprobs,
+        )
+
+    def _get_logprobs_from_choice(
+        self, choice: "OpenAIChoice"
+    ) -> Union[List[List["Logprob"]], None]:
+        if choice.logprobs is None or choice.logprobs.content is None:
+            return None
+
+        return [
+            [
+                {"token": top_logprob.token, "logprob": top_logprob.logprob}
+                for top_logprob in token_logprobs.top_logprobs
+            ]
+            for token_logprobs in choice.logprobs.content
+        ]
 
     def offline_batch_generate(
         self,
         inputs: Union[List["FormattedInput"], None] = None,
         num_generations: int = 1,
         max_new_tokens: int = 128,
+        logprobs: bool = False,
+        top_logprobs: Optional[PositiveInt] = None,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
@@ -353,6 +413,9 @@ class OpenAILLM(AsyncLLM):
                 `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
+            logprobs: whether to return the log probabilities or not. Defaults to `False`.
+            top_logprobs: the number of top log probabilities to return per output token
+                generated. Defaults to `None`.
             frequency_penalty: the repetition penalty to use for the generation. Defaults
                 to `0.0`.
             presence_penalty: the presence penalty to use for the generation. Defaults to
@@ -382,6 +445,8 @@ class OpenAILLM(AsyncLLM):
                 inputs=inputs,
                 **{
                     "model": self.model,
+                    "logprobs": logprobs,
+                    "top_logprobs": top_logprobs,
                     "max_tokens": max_new_tokens,
                     "n": num_generations,
                     "frequency_penalty": frequency_penalty,
@@ -678,8 +743,12 @@ class OpenAILLM(AsyncLLM):
         return f"distilabel-pipeline-{envs.DISTILABEL_PIPELINE_NAME}-{envs.DISTILABEL_PIPELINE_CACHE_ID}-fileno-{file_no}.jsonl"
 
     @staticmethod
-    def _get_llm_statistics(completion: "OpenAIChatCompletion") -> "LLMStatistics":
+    def _get_llm_statistics(
+        completion: Union["OpenAIChatCompletion", "OpenAICompletion"],
+    ) -> "LLMStatistics":
         return {
-            "input_tokens": [completion.usage.prompt_tokens if completion else 0],
-            "output_tokens": [completion.usage.completion_tokens if completion else 0],
+            "output_tokens": [
+                completion.usage.completion_tokens if completion.usage else 0
+            ],
+            "input_tokens": [completion.usage.prompt_tokens if completion.usage else 0],
         }

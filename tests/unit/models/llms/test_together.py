@@ -46,6 +46,7 @@ class TestTogetherLLM:
             "model": self.model_id,
             "generation_kwargs": {},
             "max_retries": 6,
+            "default_headers": None,
             "base_url": "https://api.together.xyz/v1",
             "timeout": 120,
             "structured_output": None,

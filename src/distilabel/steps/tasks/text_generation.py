@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from jinja2 import Template
@@ -21,6 +20,7 @@ from pydantic import Field, PrivateAttr
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
 from distilabel.utils.chat import is_openai_format
+from distilabel.utils.template import check_column_in_template
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
@@ -217,23 +217,6 @@ class TextGeneration(Task):
 
     def load(self) -> None:
         super().load()
-
-        def check_column_in_template(column, template):
-            pattern = (
-                r"(?:{%.*?\b"
-                + re.escape(column)
-                + r"\b.*?%}|{{\s*"
-                + re.escape(column)
-                + r"\s*}})"
-            )
-            if not re.search(pattern, template):
-                raise DistilabelUserError(
-                    (
-                        f"You required column name '{column}', but is not present in the template, "
-                        "ensure the 'columns' match with the 'template' to avoid errors."
-                    ),
-                    page="components-gallery/tasks/textgeneration/",
-                )
 
         for column in self.columns:
             check_column_in_template(column, self.template)

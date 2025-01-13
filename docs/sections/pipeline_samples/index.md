@@ -107,6 +107,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Paper](papers/clair.md)
 
+-   __Math Shepherd__
+
+    ---
+
+    Learn about Math-Shepherd, a framework to generate datasets to train process reward models (PRMs) which assign reward scores to each step of math problem solutions.
+
+    [:octicons-arrow-right-24: Paper](papers/math_shepherd.md)
+
 </div>
 
 ## Examples
@@ -161,6 +169,13 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/image_generation.md)
 
+-   __Text generation with images in distilabel__
+
+    ---
+
+    Ask questions about images using distilabel.
+
+    [:octicons-arrow-right-24: Example](examples/text_generation_with_image.md)
 
 </div>
 

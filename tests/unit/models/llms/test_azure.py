@@ -71,6 +71,7 @@ class TestAzureOpenAILLM:
                     "api_version": "preview",
                     "generation_kwargs": {},
                     "max_retries": 6,
+                    "default_headers": None,
                     "base_url": "https://example-resource.azure.openai.com/",
                     "timeout": 120,
                     "structured_output": None,
@@ -95,6 +96,7 @@ class TestAzureOpenAILLM:
                     "generation_kwargs": {},
                     "max_retries": 6,
                     "base_url": "https://example-resource.azure.openai.com/",
+                    "default_headers": None,
                     "timeout": 120,
                     "structured_output": {
                         "schema": DummyUserDetail.model_json_schema(),

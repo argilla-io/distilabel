@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from groq import AsyncGroq
     from groq.types.chat.chat_completion import ChatCompletion
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.models.llms.typing import LLMStatistics
 
 
 _GROQ_API_BASE_URL_ENV_VAR_NAME = "GROQ_BASE_URL"
@@ -144,7 +144,7 @@ class GroqLLM(AsyncLLM):
         except ImportError as ie:
             raise ImportError(
                 "Groq Python client is not installed. Please install it using"
-                ' `pip install groq` or from the extras as `pip install "distilabel[groq]"`.'
+                ' `pip install "distilabel[groq]"`.'
             ) from ie
 
         if self.api_key is None:

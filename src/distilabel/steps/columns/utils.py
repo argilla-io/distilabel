@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from distilabel.constants import DISTILABEL_METADATA_KEY
 
@@ -21,22 +21,36 @@ if TYPE_CHECKING:
     from distilabel.steps.base import StepInput
 
 
-def merge_distilabel_metadata(*output_dicts: Dict[str, Any]) -> Dict[str, Any]:
+def merge_distilabel_metadata(
+    *output_dicts: Dict[str, Any],
+) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
     """
-    Merge the `DISTILABEL_METADATA_KEY` from multiple output dictionaries.
+    Merge the `DISTILABEL_METADATA_KEY` from multiple output dictionaries. `DISTILABEL_METADATA_KEY`
+    can be either a dictionary containing metadata keys or a list containing dictionaries
+    of metadata keys.
 
     Args:
-        *output_dicts: Variable number of dictionaries containing distilabel metadata.
+        *output_dicts: Variable number of dictionaries or lists containing distilabel metadata.
 
     Returns:
-        A merged dictionary containing all the distilabel metadata from the input dictionaries.
+        A merged dictionary or list containing all the distilabel metadata.
     """
     merged_metadata = defaultdict(list)
 
     for output_dict in output_dicts:
         metadata = output_dict.get(DISTILABEL_METADATA_KEY, {})
-        for key, value in metadata.items():
-            merged_metadata[key].append(value)
+        # If `distilabel_metadata_key` is a `list` then it contains dictionaries with
+        # the metadata per `num_generations` created when `group_generations==True`
+        if isinstance(metadata, list):
+            if not isinstance(merged_metadata, list):
+                merged_metadata = []
+            merged_metadata.extend(metadata)
+        else:
+            for key, value in metadata.items():
+                merged_metadata[key].append(value)
+
+    if isinstance(merged_metadata, list):
+        return merged_metadata
 
     final_metadata = {}
     for key, value_list in merged_metadata.items():

@@ -94,6 +94,7 @@ _STEPS_CATEGORY_TO_ICON = {
     "execution": ":octicons-code-16:",
     "save": ":material-content-save:",
     "image-generation": ":material-image:",
+    "labelling": ":label:",
 }
 
 _STEP_CATEGORY_TO_DESCRIPTION = {
@@ -114,7 +115,9 @@ _STEP_CATEGORY_TO_DESCRIPTION = {
     "execution": "Executes python functions.",
     "save": "Save steps are used to save the data.",
     "image-generation": "Image generation steps are used to generate images based on a given prompt.",
+    "labelling": "Labelling steps are used to label the data.",
 }
+
 
 assert list(_STEP_CATEGORY_TO_DESCRIPTION.keys()) == list(
     _STEPS_CATEGORY_TO_ICON.keys()

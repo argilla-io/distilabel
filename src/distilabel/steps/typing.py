@@ -14,24 +14,8 @@
 
 from typing import Any, Dict, Iterator, List, Tuple, Union
 
-StepData = List[Dict[str, Any]]
-StepStatistics = Dict[str, Any]
-StepOutput = Iterator[Dict[str, Union[StepData, StepStatistics]]]
-r"""`StepOutput` is an alias of the typing.
-A step output is a dict of the form:
-{
-		"outputs": [
-            {"col1": "val1", "col2": "val2"},
-            {"col1": "val1", "col2": "val2"},
-            {"col1": "val1", "col2": "val2"},
-		],
-		"statistics": {
-            "llm": {},
-            "time": 12341234,
-            ...
-		}
-}
-"""
+StepOutput = Iterator[List[Dict[str, Any]]]
+"""`StepOutput` is an alias of the typing `Iterator[List[Dict[str, Any]]]`"""
 
 GeneratorStepOutput = Iterator[Tuple[List[Dict[str, Any]], bool]]
 """`GeneratorStepOutput` is an alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""
