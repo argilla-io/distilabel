@@ -22,8 +22,8 @@ from distilabel.models.image_generation.huggingface.inference_endpoints import (
 from distilabel.models.image_generation.openai import OpenAIImageGeneration
 
 __all__ = [
-    "ImageGenerationModel",
     "AsyncImageGenerationModel",
+    "ImageGenerationModel",
     "InferenceEndpointsImageGeneration",
     "OpenAIImageGeneration",
 ]
