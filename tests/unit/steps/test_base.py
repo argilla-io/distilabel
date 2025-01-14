@@ -24,7 +24,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.decorator import step
-from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+from distilabel.typing import GeneratorStepOutput, StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
 
 

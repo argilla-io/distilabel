@@ -19,7 +19,7 @@ import pytest
 from distilabel.pipeline import Pipeline
 from distilabel.steps import Step
 from distilabel.steps.base import StepInput
-from distilabel.steps.typing import StepOutput
+from distilabel.typing import StepOutput
 from distilabel.utils.requirements import requirements
 
 from ..pipeline.utils import DummyGeneratorStep

@@ -22,7 +22,7 @@ from distilabel.pipeline import Pipeline, routing_batch_function
 from distilabel.steps import LoadDataFromDicts, StepInput, step
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 @routing_batch_function()

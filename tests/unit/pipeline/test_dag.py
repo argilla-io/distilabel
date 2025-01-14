@@ -28,7 +28,7 @@ from distilabel.steps.base import GeneratorStep, Step, StepInput, StepResources
 from .utils import DummyGeneratorStep, DummyGlobalStep, DummyStep1, DummyStep2
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import (
+    from distilabel.typing import (
         GeneratorStepOutput,
         StepOutput,
     )
