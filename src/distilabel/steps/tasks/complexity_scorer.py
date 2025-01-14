@@ -185,7 +185,7 @@ class ComplexityScorer(Task):
         scores = []
         score_lines = output.split("\n")
         for i, line in enumerate(score_lines):
-            match = _PARSE_SCORE_LINE_REGEX.match(line)
+            match = _PARSE_SCORE_LINE_REGEX.search(line)
             score = float(match.group(1)) if match else None
             scores.append(score)
             if i == len(input["instructions"]) - 1:

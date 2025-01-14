@@ -346,7 +346,7 @@ class GenerateSentencePair(Task):
         if self.use_default_structured_output:
             return self._format_structured_output(output)
 
-        match = POSITIVE_NEGATIVE_PAIR_REGEX.match(output)
+        match = POSITIVE_NEGATIVE_PAIR_REGEX.search(output)
         if match is None:
             formatted_output = {"positive": None}
             if self.triplet:
