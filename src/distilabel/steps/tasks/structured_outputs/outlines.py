@@ -39,7 +39,7 @@ if TYPE_CHECKING:  # noqa
     from transformers import Pipeline  # noqa
     from vllm import LLM as _vLLM  # noqa
 
-    from distilabel.steps.tasks.typing import OutlinesStructuredOutputType  # noqa
+    from distilabel.typing import OutlinesStructuredOutputType  # noqa
 
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
 

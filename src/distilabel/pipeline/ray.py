@@ -32,8 +32,8 @@ if TYPE_CHECKING:
     from ray.util.scheduling_strategies import PlacementGroupSchedulingStrategy
 
     from distilabel.distiset import Distiset
-    from distilabel.pipeline.typing import InputDataset, LoadGroups
     from distilabel.steps.base import _Step
+    from distilabel.typing import InputDataset, LoadGroups
 
 
 class RayPipeline(BasePipeline):

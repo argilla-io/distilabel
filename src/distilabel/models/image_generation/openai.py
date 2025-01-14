@@ -13,19 +13,19 @@
 # limitations under the License.
 
 import base64
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Any, Literal, Optional
 
 import requests
 from pydantic import validate_call
 
+from distilabel.models.base_clients.openai import OpenAIBaseClient
 from distilabel.models.image_generation.base import AsyncImageGenerationModel
-from distilabel.models.llms.openai import OpenAILLM
 
 if TYPE_CHECKING:
     from openai.types import ImagesResponse
 
 
-class OpenAIImageGeneration(AsyncImageGenerationModel, OpenAILLM):
+class OpenAIImageGeneration(OpenAIBaseClient, AsyncImageGenerationModel):
     """OpenAI image generation implementation running the async API client.
 
     Attributes:
@@ -65,15 +65,10 @@ class OpenAIImageGeneration(AsyncImageGenerationModel, OpenAILLM):
         ```
     """
 
-    @property
-    def model_name(self) -> str:
-        return OpenAILLM.model_name.fget(self)
-
     def load(self) -> None:
-        OpenAILLM.load(self)
-
-    def unload(self) -> None:
-        OpenAILLM.unload(self)
+        # Sets the logger and calls the load method of the BaseClient
+        AsyncImageGenerationModel.load(self)
+        OpenAIBaseClient.load(self)
 
     @validate_call
     async def agenerate(  # type: ignore
@@ -86,7 +81,7 @@ class OpenAIImageGeneration(AsyncImageGenerationModel, OpenAILLM):
             Literal["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"]
         ] = None,
         style: Optional[Literal["vivid", "natural"]] = None,
-    ) -> list[dict[str, any]]:
+    ) -> list[dict[str, Any]]:
         """Generates `num_generations` images for the given input using the OpenAI async
         client. The images are base64 string representations.
 

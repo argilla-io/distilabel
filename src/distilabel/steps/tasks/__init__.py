@@ -56,9 +56,9 @@ from distilabel.steps.tasks.structured_generation import StructuredGeneration
 from distilabel.steps.tasks.text_classification import TextClassification
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
 from distilabel.steps.tasks.text_generation_with_image import TextGenerationWithImage
-from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 from distilabel.steps.tasks.urial import URIAL
+from distilabel.typing import ChatItem, ChatType
 
 __all__ = [
     "CLAIR",

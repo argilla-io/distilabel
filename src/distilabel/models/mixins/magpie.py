@@ -18,7 +18,7 @@ from pydantic import BaseModel, field_validator, model_validator
 from typing_extensions import Self
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import StandardInput
+    from distilabel.typing import StandardInput
 
 MagpieAvailablePreQueryTemplates = Literal["llama3", "qwen2"]
 """The available predefined pre-query templates."""

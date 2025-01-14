@@ -23,10 +23,10 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.evol_quality.utils import MUTATION_TEMPLATES
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.typing import ChatType
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class EvolQuality(Task):

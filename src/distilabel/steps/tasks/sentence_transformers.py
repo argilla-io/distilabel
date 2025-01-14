@@ -28,7 +28,7 @@ else:
     import importlib.resources as importlib_resources
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 GenerationAction = Literal["paraphrase", "semantically-similar", "query", "answer"]
 

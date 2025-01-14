@@ -14,10 +14,10 @@
 
 from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.typing import ChatType
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput, LLMLogprobs, LLMOutput
+    from distilabel.typing import GenerateOutput, LLMLogprobs, LLMOutput
 
 
 def compute_tokens(

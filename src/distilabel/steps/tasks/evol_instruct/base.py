@@ -23,12 +23,11 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.evol_instruct.utils import MUTATION_TEMPLATES
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.typing import ChatType
 from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import LLMStatistics
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import LLMStatistics, StepOutput
 
 
 class EvolInstruct(Task):

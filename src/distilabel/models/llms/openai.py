@@ -13,36 +13,32 @@
 # limitations under the License.
 
 import io
-import os
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, Union
 
 import orjson
-from pydantic import Field, PositiveInt, PrivateAttr, SecretStr, validate_call
+from pydantic import PositiveInt, validate_call
 
 from distilabel import envs
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
-from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.models.base_clients.openai import OpenAIBaseClient
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import prepare_output
-from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
+from distilabel.typing import FormattedInput, GenerateOutput
 
 if TYPE_CHECKING:
-    from openai import AsyncOpenAI, OpenAI
     from openai.types import Batch as OpenAIBatch
     from openai.types import FileObject as OpenAIFileObject
     from openai.types.chat import ChatCompletion as OpenAIChatCompletion
     from openai.types.chat.chat_completion import Choice as OpenAIChoice
     from openai.types.completion import Completion as OpenAICompletion
 
-    from distilabel.models.llms.typing import LLMStatistics, Logprob
+    from distilabel.typing import LLMStatistics, Logprob
 
 
-_OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
 _OPENAI_BATCH_API_MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
 
 
-class OpenAILLM(AsyncLLM):
+class OpenAILLM(OpenAIBaseClient, AsyncLLM):
     """OpenAI LLM implementation running the async API client.
 
     Attributes:
@@ -143,99 +139,9 @@ class OpenAILLM(AsyncLLM):
         ```
     """
 
-    model: str
-    base_url: Optional[RuntimeParameter[str]] = Field(
-        default_factory=lambda: os.getenv(
-            "OPENAI_BASE_URL", "https://api.openai.com/v1"
-        ),
-        description="The base URL to use for the OpenAI API requests.",
-    )
-    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default_factory=lambda: os.getenv(_OPENAI_API_KEY_ENV_VAR_NAME),
-        description="The API key to authenticate the requests to the OpenAI API.",
-    )
-    default_headers: Optional[RuntimeParameter[Dict[str, str]]] = Field(
-        default=None,
-        description="The default headers to use for the OpenAI API requests.",
-    )
-    max_retries: RuntimeParameter[int] = Field(
-        default=6,
-        description="The maximum number of times to retry the request to the API before"
-        " failing.",
-    )
-    timeout: RuntimeParameter[int] = Field(
-        default=120,
-        description="The maximum time in seconds to wait for a response from the API.",
-    )
-    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
-        Field(
-            default=None,
-            description="The structured output format to use across all the generations.",
-        )
-    )
-
-    _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
-    _client: "OpenAI" = PrivateAttr(None)
-    _aclient: "AsyncOpenAI" = PrivateAttr(None)
-
     def load(self) -> None:
-        """Loads the `AsyncOpenAI` client to benefit from async requests."""
-        super().load()
-
-        try:
-            from openai import AsyncOpenAI, OpenAI
-        except ImportError as ie:
-            raise ImportError(
-                "OpenAI Python client is not installed. Please install it using"
-                " `pip install 'distilabel[openai]'`."
-            ) from ie
-
-        if self.api_key is None:
-            raise ValueError(
-                f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
-                f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
-            )
-
-        self._client = OpenAI(
-            base_url=self.base_url,
-            api_key=self.api_key.get_secret_value(),
-            max_retries=self.max_retries,  # type: ignore
-            timeout=self.timeout,
-            default_headers=self.default_headers,
-        )
-
-        self._aclient = AsyncOpenAI(
-            base_url=self.base_url,
-            api_key=self.api_key.get_secret_value(),
-            max_retries=self.max_retries,  # type: ignore
-            timeout=self.timeout,
-            default_headers=self.default_headers,
-        )
-
-        if self.structured_output:
-            result = self._prepare_structured_output(
-                structured_output=self.structured_output,
-                client=self._aclient,
-                framework="openai",
-            )
-            self._aclient = result.get("client")  # type: ignore
-            if structured_output := result.get("structured_output"):
-                self.structured_output = structured_output
-
-    def unload(self) -> None:
-        """Set clients to `None` as they both contain `thread._RLock` which cannot be pickled
-        in case an exception is raised and has to be handled in the main process"""
-
-        self._client = None  # type: ignore
-        self._aclient = None  # type: ignore
-        self.default_headers = None
-        self.structured_output = None
-        super().unload()
-
-    @property
-    def model_name(self) -> str:
-        """Returns the model name used for the LLM."""
-        return self.model
+        AsyncLLM.load(self)
+        OpenAIBaseClient.load(self)
 
     @validate_call
     async def agenerate(  # type: ignore

@@ -33,11 +33,15 @@ from pydantic import Field, PositiveInt, PrivateAttr, SecretStr, validate_call
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
 from distilabel.models.llms.openai import OpenAILLM
-from distilabel.models.llms.typing import GenerateOutput, Logprob
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
+from distilabel.typing import (
+    FormattedInput,
+    GenerateOutput,
+    Logprob,
+    OutlinesStructuredOutputType,
+)
 
 if TYPE_CHECKING:
     from openai import OpenAI  # noqa
@@ -45,10 +49,13 @@ if TYPE_CHECKING:
     from vllm import LLM as _vLLM
     from vllm.outputs import RequestOutput, CompletionOutput
 
-    from distilabel.steps.tasks.typing import StandardInput
-    from distilabel.models.llms.typing import LLMStatistics
-    from distilabel.steps.tasks.typing import StructuredInput
-    from distilabel.models.llms.typing import LLMLogprobs, LLMOutput
+    from distilabel.typing import (
+        StandardInput,
+        StructuredInput,
+        LLMStatistics,
+        LLMLogprobs,
+        LLMOutput,
+    )
 
 
 LogitsProcessorFn = Union[

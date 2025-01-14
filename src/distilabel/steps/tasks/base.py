@@ -34,9 +34,13 @@ from distilabel.steps.base import (
 from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput, LLMStatistics
-    from distilabel.steps.tasks.typing import ChatType, FormattedInput
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import (
+        ChatType,
+        FormattedInput,
+        GenerateOutput,
+        LLMStatistics,
+        StepOutput,
+    )
 
 
 class _Task(_Step, ABC):

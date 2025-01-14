@@ -22,8 +22,7 @@ from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import FormattedInput
+    from distilabel.typing import FormattedInput, GenerateOutput
 
 
 class DummyOfflineBatchGenerateLLM(LLM):

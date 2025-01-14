@@ -20,7 +20,7 @@ import orjson
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import StepColumns, StepOutput
 
 
 def split_solution_steps(text: str) -> list[str]:

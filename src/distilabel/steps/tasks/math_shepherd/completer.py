@@ -28,9 +28,7 @@ from distilabel.steps.tasks.math_shepherd.utils import (
 from distilabel.utils.itertools import batched
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import LLMStatistics
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import ChatType, LLMStatistics, StepColumns, StepOutput
 
 
 SYSTEM_PROMPT = """\

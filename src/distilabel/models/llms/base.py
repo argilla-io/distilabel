@@ -40,12 +40,13 @@ from distilabel.utils.serialization import _Serializable
 if TYPE_CHECKING:
     from logging import Logger
 
-    from distilabel.models.llms.typing import GenerateOutput, HiddenState
-    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
-    from distilabel.steps.tasks.typing import (
+    from distilabel.typing import (
         FormattedInput,
+        GenerateOutput,
+        HiddenState,
         InstructorStructuredOutputType,
         StandardInput,
+        StructuredOutputType,
     )
     from distilabel.utils.docstring import Docstring
 

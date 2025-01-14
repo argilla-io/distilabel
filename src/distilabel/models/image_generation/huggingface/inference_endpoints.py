@@ -16,16 +16,18 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import validate_call
 
+from distilabel.models.base_clients.inference_endpoints import (
+    InferenceEndpointsBaseClient,
+)
 from distilabel.models.image_generation.base import AsyncImageGenerationModel
 from distilabel.models.image_generation.utils import image_to_str
-from distilabel.models.llms.huggingface import InferenceEndpointsLLM
 
 if TYPE_CHECKING:
     from PIL.Image import Image
 
 
 class InferenceEndpointsImageGeneration(  # type: ignore
-    AsyncImageGenerationModel, InferenceEndpointsLLM
+    InferenceEndpointsBaseClient, AsyncImageGenerationModel
 ):
     """Inference Endpoint image generation implementation running the async API client.
 
@@ -57,12 +59,10 @@ class InferenceEndpointsImageGeneration(  # type: ignore
         ```
     """
 
-    @property
-    def model_name(self) -> str:
-        return InferenceEndpointsLLM.model_name.fget(self)  # type: ignore
-
     def load(self) -> None:
-        InferenceEndpointsLLM.load(self)
+        # Sets the logger and calls the load method of the BaseClient
+        AsyncImageGenerationModel.load(self)
+        InferenceEndpointsBaseClient.load(self)
 
     @validate_call
     async def agenerate(  # type: ignore
@@ -73,6 +73,7 @@ class InferenceEndpointsImageGeneration(  # type: ignore
         width: Optional[float] = None,
         num_inference_steps: Optional[float] = None,
         guidance_scale: Optional[float] = None,
+        num_generations: int = 1,
     ) -> list[dict[str, Any]]:
         """Generates images from text prompts using `huggingface_hub.AsyncInferenceClient.text_to_image`.
 
@@ -85,6 +86,8 @@ class InferenceEndpointsImageGeneration(  # type: ignore
                 to a higher quality image at the expense of slower inference.
             guidance_scale: Higher guidance scale encourages to generate images that are closely
                 linked to the text `prompt`, usually at the expense of lower image quality.
+            num_generations: The number of images to generate. Defaults to `1`.
+                It's here to ensure the validation succeeds, but it won't have effect.
 
         Returns:
             A list with a dictionary containing a list with the image as a base64 string.

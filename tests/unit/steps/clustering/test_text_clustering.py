@@ -21,8 +21,7 @@ from distilabel.steps.clustering.text_clustering import TextClustering
 from tests.unit.conftest import DummyAsyncLLM
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import FormattedInput
+    from distilabel.typing import FormattedInput, GenerateOutput
 
 
 class ClusteringLLM(DummyAsyncLLM):

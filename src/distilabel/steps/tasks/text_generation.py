@@ -23,8 +23,7 @@ from distilabel.utils.chat import is_openai_format
 from distilabel.utils.template import check_column_in_template
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import ChatType, StepColumns
 
 
 class TextGeneration(Task):

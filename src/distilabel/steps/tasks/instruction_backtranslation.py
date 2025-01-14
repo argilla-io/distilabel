@@ -26,7 +26,7 @@ from jinja2 import Template
 from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.typing import ChatType
 
 
 class InstructionBacktranslation(Task):

@@ -20,7 +20,7 @@ from typing_extensions import override
 from distilabel.steps.base import GeneratorStep
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.typing import GeneratorStepOutput
 
 
 class LoadDataFromDicts(GeneratorStep):

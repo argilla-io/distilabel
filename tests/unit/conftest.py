@@ -26,8 +26,7 @@ from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType, FormattedInput
+    from distilabel.typing import ChatType, FormattedInput, GenerateOutput
 
 
 # Defined here too, so that the serde still works

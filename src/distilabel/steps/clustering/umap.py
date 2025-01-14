@@ -27,7 +27,7 @@ from distilabel.steps import (
 if TYPE_CHECKING:
     from umap import UMAP as _UMAP
 
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class UMAP(GlobalStep):

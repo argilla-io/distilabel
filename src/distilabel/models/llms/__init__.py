@@ -27,10 +27,10 @@ from distilabel.models.llms.moa import MixtureOfAgentsLLM
 from distilabel.models.llms.ollama import OllamaLLM
 from distilabel.models.llms.openai import OpenAILLM
 from distilabel.models.llms.together import TogetherLLM
-from distilabel.models.llms.typing import GenerateOutput, HiddenState
 from distilabel.models.llms.vertexai import VertexAILLM
 from distilabel.models.llms.vllm import ClientvLLM, vLLM
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.typing import GenerateOutput, HiddenState
 
 __all__ = [
     "LLM",

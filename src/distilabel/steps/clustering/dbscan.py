@@ -27,7 +27,7 @@ from distilabel.steps import (
 if TYPE_CHECKING:
     from sklearn.cluster import DBSCAN as _DBSCAN
 
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class DBSCAN(GlobalStep):

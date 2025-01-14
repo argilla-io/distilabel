@@ -18,14 +18,13 @@ from pydantic import PrivateAttr, validate_call
 from typing_extensions import TypedDict
 
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import prepare_output
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.typing import GenerateOutput, StandardInput
 
 if TYPE_CHECKING:
     from vertexai.generative_models import Content, GenerationResponse, GenerativeModel
 
-    from distilabel.models.llms.typing import LLMStatistics
+    from distilabel.typing import LLMStatistics
 
 
 class VertexChatItem(TypedDict):

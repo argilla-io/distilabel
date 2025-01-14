@@ -18,10 +18,13 @@ from pydantic import Field, FilePath, PrivateAttr, model_validator, validate_cal
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
+from distilabel.typing import (
+    FormattedInput,
+    GenerateOutput,
+    OutlinesStructuredOutputType,
+)
 
 if TYPE_CHECKING:
     from llama_cpp import (
@@ -31,7 +34,7 @@ if TYPE_CHECKING:
         LogitsProcessorList,
     )
 
-    from distilabel.steps.tasks.typing import FormattedInput, StandardInput
+    from distilabel.typing import FormattedInput, StandardInput
 
 
 class LlamaCppLLM(LLM, MagpieChatTemplateMixin):

@@ -25,8 +25,7 @@ if TYPE_CHECKING:
     import torch
     from transformers import PreTrainedModel, PreTrainedTokenizer
 
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import ChatType, StepColumns, StepOutput
 
 
 class RewardModelScore(Step, CudaDevicePlacementMixin):

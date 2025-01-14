@@ -18,11 +18,11 @@ from typing import TYPE_CHECKING, Optional
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import prepare_output
 from distilabel.steps.base import RuntimeParameter
-from distilabel.steps.tasks.typing import (
+from distilabel.typing import (
     FormattedInput,
+    GenerateOutput,
     InstructorStructuredOutputType,
 )
 
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from groq import AsyncGroq
     from groq.types.chat.chat_completion import ChatCompletion
 
-    from distilabel.models.llms.typing import LLMStatistics
+    from distilabel.typing import LLMStatistics
 
 
 _GROQ_API_BASE_URL_ENV_VAR_NAME = "GROQ_BASE_URL"

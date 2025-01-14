@@ -19,17 +19,19 @@ from typing_extensions import TypedDict
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
+from distilabel.typing import (
+    GenerateOutput,
+    InstructorStructuredOutputType,
+    StandardInput,
+)
 
 if TYPE_CHECKING:
     from ollama import AsyncClient
     from ollama._types import ChatResponse, GenerateResponse
 
-    from distilabel.models.llms.typing import LLMStatistics
-    from distilabel.steps.tasks.typing import StandardInput
+    from distilabel.typing import LLMStatistics, StandardInput
 
 
 # Copied from `ollama._types.Options`

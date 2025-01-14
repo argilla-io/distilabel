@@ -23,7 +23,7 @@ from typing_extensions import override
 from distilabel.steps.tasks import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 
 TEXT_CLASSIFICATION_TEMPLATE: str = """\

@@ -31,7 +31,7 @@ from distilabel.steps.base import Step, StepInput
 if TYPE_CHECKING:
     from argilla import Argilla, Dataset
 
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import StepColumns, StepOutput
 
 
 _ARGILLA_API_URL_ENV_VAR_NAME = "ARGILLA_API_URL"

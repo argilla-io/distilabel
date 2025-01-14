@@ -36,7 +36,7 @@ from distilabel.steps.base import Step, StepInput
 if TYPE_CHECKING:
     from datasketch import MinHash, MinHashLSH
 
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 # Copied from: https://github.com/huggingface/datatrove/blob/main/src/datatrove/utils/text.py#L89C1-L95C65
