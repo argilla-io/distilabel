@@ -454,7 +454,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
             paths.append(llm_path)
 
-        # Create the `components-gallery/llms/index.md` file
+        # Create the `components-gallery/embeddings/index.md` file
         content = _COMPONENTS_LIST_TEMPLATE.render(
             title="Embeddings Gallery",
             description="",
