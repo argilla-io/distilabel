@@ -287,14 +287,6 @@ class RuntimeParametersModelMixin(RuntimeParametersMixin):
             generate_docstring_args = self.generate_parsed_docstring["args"]
             generation_kwargs_info["keys"] = []
 
-            # TODO: This doesn't happen with LLM, but with ImageGenerationModel the optional key is not found
-            # in a pipeline, due to some bug. For the moment this does the job. It may be
-            # related to the InferenceEndpointsImageGeneration for example being both
-            # ImageGenerationModel and InferenceEdnpointsLLM, but cannot find the point that makes the
-            # error appear.
-            if "optional" not in generation_kwargs_info:
-                return runtime_parameters_info
-
             for key, value in generation_kwargs_info["optional"].items():
                 info = {"name": key, "optional": value}
                 if description := generate_docstring_args.get(key):
