@@ -23,7 +23,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import GlobalStep, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class PushToHub(GlobalStep):

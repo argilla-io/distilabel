@@ -16,7 +16,7 @@ from distilabel.steps.tasks.apigen.execution_checker import APIGenExecutionCheck
 from distilabel.steps.tasks.apigen.generator import APIGenGenerator
 from distilabel.steps.tasks.apigen.semantic_checker import APIGenSemanticChecker
 from distilabel.steps.tasks.argilla_labeller import ArgillaLabeller
-from distilabel.steps.tasks.base import GeneratorTask, Task
+from distilabel.steps.tasks.base import GeneratorTask, ImageTask, Task
 from distilabel.steps.tasks.clair import CLAIR
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.decorator import task
@@ -29,6 +29,7 @@ from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
 from distilabel.steps.tasks.evol_quality.base import EvolQuality
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
 from distilabel.steps.tasks.genstruct import Genstruct
+from distilabel.steps.tasks.image_generation import ImageGeneration
 from distilabel.steps.tasks.improving_text_embeddings import (
     BitextRetrievalGenerator,
     EmbeddingTaskGenerator,
@@ -55,9 +56,9 @@ from distilabel.steps.tasks.structured_generation import StructuredGeneration
 from distilabel.steps.tasks.text_classification import TextClassification
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
 from distilabel.steps.tasks.text_generation_with_image import TextGenerationWithImage
-from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 from distilabel.steps.tasks.urial import URIAL
+from distilabel.typing import ChatItem, ChatType
 
 __all__ = [
     "CLAIR",
@@ -65,6 +66,7 @@ __all__ = [
     "APIGenExecutionChecker",
     "APIGenGenerator",
     "APIGenSemanticChecker",
+    "ArgillaLabeller",
     "ArgillaLabeller",
     "BitextRetrievalGenerator",
     "ChatGeneration",
@@ -86,17 +88,21 @@ __all__ = [
     "GenerateTextRetrievalData",
     "GeneratorTask",
     "Genstruct",
+    "ImageGeneration",
+    "ImageTask",
     "InstructionBacktranslation",
     "Magpie",
     "MagpieGenerator",
     "MathShepherdCompleter",
     "MathShepherdGenerator",
     "MonolingualTripletGenerator",
+    "MonolingualTripletGenerator",
     "PairRM",
     "PrometheusEval",
     "QualityScorer",
     "SelfInstruct",
     "StructuredGeneration",
+    "Task",
     "Task",
     "TextClassification",
     "TextGeneration",

@@ -30,7 +30,7 @@ from distilabel.steps.base import StepInput
 if TYPE_CHECKING:
     from argilla import RatingQuestion, Suggestion, TextField, TextQuestion
 
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class PreferenceToArgilla(ArgillaBase):

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import random
 import sys
 import warnings
@@ -30,29 +29,22 @@ from typing import (
 from pydantic import (
     Field,
     PositiveInt,
-    PrivateAttr,
-    SecretStr,
     ValidationError,
     model_validator,
     validate_call,
 )
 from pydantic._internal._model_construction import ModelMetaclass
-from typing_extensions import Annotated, override
+from typing_extensions import Annotated
 
-from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.models.base_clients.inference_endpoints import (
+    InferenceEndpointsBaseClient,
+)
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput, Logprob
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.typing import (
-    FormattedInput,
-    StandardInput,
-    StructuredOutputType,
-)
-from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR, get_hf_token
+from distilabel.typing import FormattedInput, GenerateOutput, Logprob, StandardInput
 
 if TYPE_CHECKING:
-    from huggingface_hub import AsyncInferenceClient
     from huggingface_hub.inference._generated.types.chat_completion import (
         ChatCompletionOutput,
         ChatCompletionOutputComplete,
@@ -60,12 +52,13 @@ if TYPE_CHECKING:
     from huggingface_hub.inference._generated.types.text_generation import (
         TextGenerationOutput,
     )
-    from transformers import PreTrainedTokenizer
 
-    from distilabel.models.llms.typing import Logprob
+    from distilabel.typing import Logprob
 
 
-class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
+class InferenceEndpointsLLM(
+    InferenceEndpointsBaseClient, AsyncLLM, MagpieChatTemplateMixin
+):
     """InferenceEndpoints LLM implementation running the async API client.
 
     This LLM will internally use `huggingface_hub.AsyncInferenceClient`.
@@ -164,39 +157,11 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         ```
     """
 
-    model_id: Optional[str] = None
-
-    endpoint_name: Optional[RuntimeParameter[str]] = Field(
-        default=None,
-        description="The name of the Inference Endpoint to use for the LLM.",
-    )
-    endpoint_namespace: Optional[RuntimeParameter[str]] = Field(
-        default=None,
-        description="The namespace of the Inference Endpoint to use for the LLM.",
-    )
-    base_url: Optional[RuntimeParameter[str]] = Field(
-        default=None,
-        description="The base URL to use for the Inference Endpoints API requests.",
-    )
-    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default_factory=lambda: os.getenv(HF_TOKEN_ENV_VAR),
-        description="The API key to authenticate the requests to the Inference Endpoints API.",
-    )
-
-    tokenizer_id: Optional[str] = None
-    model_display_name: Optional[str] = None
-
-    structured_output: Optional[RuntimeParameter[StructuredOutputType]] = Field(
-        default=None,
-        description="The structured output format to use across all the generations.",
-    )
-
-    _num_generations_param_supported = False
-
-    _model_name: Optional[str] = PrivateAttr(default=None)
-    _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
-    _api_key_env_var: str = PrivateAttr(HF_TOKEN_ENV_VAR)
-    _aclient: Optional["AsyncInferenceClient"] = PrivateAttr(...)
+    def load(self) -> None:
+        # Sets the logger and calls the load method of the BaseClient
+        self._num_generations_param_supported = False
+        AsyncLLM.load(self)
+        InferenceEndpointsBaseClient.load(self)
 
     @model_validator(mode="after")  # type: ignore
     def only_one_of_model_id_endpoint_name_or_base_url_provided(
@@ -240,92 +205,6 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             f"Only one of `model_id` or `endpoint_name` must be provided. If `base_url` is"
             f" provided too, it will be overwritten instead. Found `model_id`={self.model_id},"
             f" `endpoint_name`={self.endpoint_name}, and `base_url`={self.base_url}."
-        )
-
-    def load(self) -> None:  # noqa: C901
-        """Loads the `AsyncInferenceClient` client to connect to the Hugging Face Inference
-        Endpoint.
-
-        Raises:
-            ImportError: if the `huggingface-hub` Python client is not installed.
-            ValueError: if the model is not currently deployed or is not running the TGI framework.
-            ImportError: if the `transformers` Python client is not installed.
-        """
-        super().load()
-
-        try:
-            from huggingface_hub import (
-                AsyncInferenceClient,
-                InferenceClient,
-                get_inference_endpoint,
-            )
-        except ImportError as ie:
-            raise ImportError(
-                "Hugging Face Hub Python client is not installed. Please install it using"
-                " `pip install 'distilabel[hf-inference-endpoints]'`."
-            ) from ie
-
-        if self.api_key is None:
-            self.api_key = SecretStr(get_hf_token(self.__class__.__name__, "api_key"))
-
-        if self.model_id is not None:
-            client = InferenceClient(
-                model=self.model_id, token=self.api_key.get_secret_value()
-            )
-            status = client.get_model_status()
-
-            if (
-                status.state not in {"Loadable", "Loaded"}
-                and status.framework != "text-generation-inference"
-            ):
-                raise ValueError(
-                    f"Model {self.model_id} is not currently deployed or is not running the TGI framework"
-                )
-
-            self.base_url = client._resolve_url(
-                model=self.model_id, task="text-generation"
-            )
-
-        if self.endpoint_name is not None:
-            client = get_inference_endpoint(
-                name=self.endpoint_name,
-                namespace=self.endpoint_namespace,
-                token=self.api_key.get_secret_value(),
-            )
-            if client.status in ["paused", "scaledToZero"]:
-                client.resume().wait(timeout=300)
-            elif client.status == "initializing":
-                client.wait(timeout=300)
-
-            self.base_url = client.url
-            self._model_name = client.repository
-
-        self._aclient = AsyncInferenceClient(
-            base_url=self.base_url,
-            token=self.api_key.get_secret_value(),
-        )
-
-        if self.tokenizer_id:
-            try:
-                from transformers import AutoTokenizer
-            except ImportError as ie:
-                raise ImportError(
-                    "Transformers Python client is not installed. Please install it using"
-                    " `pip install 'distilabel[hf-inference-endpoints]'`."
-                ) from ie
-
-            self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
-
-    @property
-    @override
-    def model_name(self) -> Union[str, None]:  # type: ignore
-        """Returns the model name used for the LLM."""
-        return (
-            self.model_display_name
-            or self._model_name
-            or self.model_id
-            or self.endpoint_name
-            or self.base_url
         )
 
     def prepare_input(self, input: "StandardInput") -> str:
@@ -588,6 +467,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         top_k: Optional[int] = None,
         typical_p: Optional[float] = None,
         watermark: bool = False,
+        num_generations: int = 1,
     ) -> GenerateOutput:
         """Generates completions for the given input using the async client. This method
         uses two methods of the `huggingface_hub.AsyncClient`: `chat_completion` and `text_generation`.
@@ -656,6 +536,8 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             watermark: whether to add the watermark to the generated text. This argument
                 is exclusive of the `text_generation` method and will be only used if `tokenizer_id`
                 is not `None`. Defaults to `None`.
+            num_generations: the number of generations to generate. Defaults to `1`. It's here to ensure
+                the validation succeds.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.

@@ -31,6 +31,14 @@ hide:
 
     [:octicons-arrow-right-24: LLMs](llms/index.md){ .bottom }
 
+-   :material-image:{ .lg .middle } __ImageGenerationModels__
+
+    ---
+
+    Explore all the available `ImageGenerationModels`s integrated with `distilabel`.
+
+    [:octicons-arrow-right-24: ImageGenerationModels](image_generation/index.md){ .bottom }
+
 -   :material-vector-line:{ .lg .middle } __Embeddings__
 
     ---

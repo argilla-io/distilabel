@@ -217,7 +217,7 @@ We can define a custom step by creating a new subclass of the [`Task`][distilabe
 
 - `inputs`: is a property that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
-- `format_input`: is a method that receives a dictionary with the input data and returns a [`ChatType`][distilabel.steps.tasks.ChatType] following [the chat-completion OpenAI message formatting](https://platform.openai.com/docs/guides/text-generation).
+- `format_input`: is a method that receives a dictionary with the input data and returns a [`ChatType`][distilabel.typing.models.ChatType] following [the chat-completion OpenAI message formatting](https://platform.openai.com/docs/guides/text-generation).
 
 - `outputs`: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not. This property should always include `model_name` as one of the outputs since that's automatically injected from the LLM.
 
@@ -233,8 +233,7 @@ We can define a custom step by creating a new subclass of the [`Task`][distilabe
     from distilabel.steps.tasks import Task
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepColumns
-        from distilabel.steps.tasks.typing import ChatType
+        from distilabel.typing import StepColumns, ChatType
 
 
     class MyCustomTask(Task):

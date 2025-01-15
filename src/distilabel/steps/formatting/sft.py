@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, List
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import StepColumns, StepOutput
 
 
 class FormatTextGenerationSFT(Step):

@@ -22,6 +22,7 @@ from typing_extensions import override
 from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.errors import DistilabelUserError
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.models.image_generation.base import ImageGenerationModel
 from distilabel.models.llms.base import LLM
 from distilabel.steps.base import (
     GeneratorStep,
@@ -33,9 +34,13 @@ from distilabel.steps.base import (
 from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput, LLMStatistics
-    from distilabel.steps.tasks.typing import ChatType, FormattedInput
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import (
+        ChatType,
+        FormattedInput,
+        GenerateOutput,
+        LLMStatistics,
+        StepOutput,
+    )
 
 
 class _Task(_Step, ABC):
@@ -489,6 +494,102 @@ class GlobalTask(_Task, GlobalStep):
     """
 
     pass
+
+
+class ImageTask(_Task, Step):
+    """`ImageTask` is a class that implements the `_Task` abstract class and adds the `Step`
+    interface to be used as a step in the pipeline. It differs from the `Task` in that it's
+    expected to work with `ImageGenerationModel`s instead of `LLM`s.
+
+    Attributes:
+        image_generation_model: the `ImageGenerationModel` to be used to generate the outputs.
+        llm: This attribute is here to respect the `_Task` interface, but it's used internally only.
+        group_generations: whether to group the `num_generations` generated per input in
+            a list or create a row per generation. Defaults to `False`.
+        num_generations: The number of generations to be produced per input.
+    """
+
+    llm: Union[LLM, ImageGenerationModel, None] = None
+    image_generation_model: ImageGenerationModel
+
+    def model_post_init(self, __context: Any) -> None:
+        assert self.llm is None, (
+            "`ImageTask` cannot use an `LLM` attribute given by the user, pass "
+            "the `image_generation_model` attribute instead."
+        )
+        self.llm = self.image_generation_model
+        # Call the post init from the Step, as we don't want to call specific behaviour
+        # from the task, that may need to deal with specific attributes from the LLM
+        # not in the ImageGenerationModel
+        super(Step, self).model_post_init(__context)
+
+    @abstractmethod
+    def format_input(self, input: dict[str, any]) -> str:
+        """Abstract method to format the inputs of the task. It needs to receive an input
+        as a Python dictionary, and generates a string to be used as the prompt for the model."""
+        pass
+
+    def _format_inputs(self, inputs: list[dict[str, any]]) -> List["FormattedInput"]:
+        """Formats the inputs of the task using the `format_input` method.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Returns:
+            A list containing the formatted inputs, which are `ChatType`-like following
+            the OpenAI formatting.
+        """
+        return [self.format_input(input) for input in inputs]
+
+    def _format_outputs(
+        self,
+        outputs: list[Union[str, None]],
+        input: Union[Dict[str, Any], None] = None,
+    ) -> List[Dict[str, Any]]:
+        """Formats the outputs of the task using the `format_output` method. If the output
+        is `None` (i.e. the LLM failed to generate a response), then the outputs will be
+        set to `None` as well.
+
+        Args:
+            outputs: The outputs (`n` generations) for the provided `input`.
+            input: The input used to generate the output.
+
+        Returns:
+            A list containing a dictionary with the outputs of the task for each input.
+        """
+        inputs = [None] if input is None else [input]
+        formatted_outputs = []
+
+        for output, input in zip(outputs, inputs):  # type: ignore
+            try:
+                formatted_output = self.format_output(output, input)
+                formatted_output = self._create_metadata(
+                    formatted_output,
+                    output,
+                    input,
+                    add_raw_output=self.add_raw_output,  # type: ignore
+                    add_raw_input=self.add_raw_input,  # type: ignore
+                    statistics=None,
+                )
+                formatted_outputs.append(formatted_output)
+            except Exception as e:
+                self._logger.warning(  # type: ignore
+                    f"Task '{self.name}' failed to format output: {e}. Saving raw response."  # type: ignore
+                )
+                formatted_outputs.append(self._output_on_failure(output, input))
+        return formatted_outputs
+
+    @abstractmethod
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+        """Processes the inputs of the task and generates the outputs using the `ImageGenerationModel`.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Yields:
+            A list of Python dictionaries with the outputs of the task.
+        """
+        pass
 
 
 def normalize_statistics(output: "GenerateOutput") -> "GenerateOutput":

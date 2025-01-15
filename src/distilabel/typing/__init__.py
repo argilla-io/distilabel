@@ -12,26 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.models.llms.typing import GenerateOutput
-from distilabel.pipeline.typing import (
-    DownstreamConnectable,
-    DownstreamConnectableSteps,
-    InputDataset,
-    PipelineRuntimeParametersInfo,
-    StepLoadStatus,
-    UpstreamConnectableSteps,
-)
-from distilabel.steps.tasks.typing import (
+from distilabel.typing.base import (
     ChatItem,
     ChatType,
+    ImageContent,
+    ImageUrl,
+    TextContent,
+)
+from distilabel.typing.models import (
     FormattedInput,
+    GenerateOutput,
+    HiddenState,
     InstructorStructuredOutputType,
+    LLMLogprobs,
+    LLMOutput,
+    LLMStatistics,
+    Logprob,
     OutlinesStructuredOutputType,
     StandardInput,
     StructuredInput,
     StructuredOutputType,
+    TokenCount,
 )
-from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
+from distilabel.typing.pipeline import (
+    DownstreamConnectable,
+    DownstreamConnectableSteps,
+    InputDataset,
+    LoadGroups,
+    PipelineRuntimeParametersInfo,
+    StepLoadStatus,
+    UpstreamConnectableSteps,
+)
+from distilabel.typing.steps import GeneratorStepOutput, StepColumns, StepOutput
 
 __all__ = [
     "ChatItem",
@@ -41,8 +53,16 @@ __all__ = [
     "FormattedInput",
     "GenerateOutput",
     "GeneratorStepOutput",
+    "HiddenState",
+    "ImageContent",
+    "ImageUrl",
     "InputDataset",
     "InstructorStructuredOutputType",
+    "LLMLogprobs",
+    "LLMOutput",
+    "LLMStatistics",
+    "LoadGroups",
+    "Logprob",
     "OutlinesStructuredOutputType",
     "PipelineRuntimeParametersInfo",
     "StandardInput",
@@ -51,5 +71,7 @@ __all__ = [
     "StepOutput",
     "StructuredInput",
     "StructuredOutputType",
+    "TextContent",
+    "TokenCount",
     "UpstreamConnectableSteps",
 ]

@@ -28,8 +28,7 @@ from distilabel.utils.image import image_to_str
 if TYPE_CHECKING:
     from PIL.Image import Image
 
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import ChatType, StepColumns
 
 
 class TextGenerationWithImage(TextGeneration):

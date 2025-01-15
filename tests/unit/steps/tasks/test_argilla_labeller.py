@@ -19,7 +19,7 @@ import pytest
 
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.argilla_labeller import ArgillaLabeller
-from distilabel.steps.tasks.typing import ChatItem
+from distilabel.typing import ChatItem
 from tests.unit.conftest import DummyAsyncLLM
 
 

@@ -47,7 +47,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import GeneratorStep
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.typing import GeneratorStepOutput
 
 
 T = TypeVar("T")

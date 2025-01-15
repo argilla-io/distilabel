@@ -9,7 +9,7 @@ from typing_extensions import override
 from distilabel.steps import GeneratorStep
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, GeneratorStepOutput
+    from distilabel.typing import StepColumns, GeneratorStepOutput
 
 class MyGeneratorStep(GeneratorStep):
     instructions: List[str]
@@ -67,7 +67,7 @@ We can define a custom generator step by creating a new subclass of the [`Genera
     The default signature for the `process` method is `process(self, offset: int = 0) -> GeneratorStepOutput`. The argument `offset` should be respected, no more arguments can be provided, and the type-hints and return type-hints should be respected too because it should be able to receive any number of inputs by default i.e. more than one [`Step`][distilabel.steps.Step] at a time could be connected to the current one.
 
 !!! WARNING
-    For the custom [`Step`][distilabel.steps.Step] subclasses to work properly with `distilabel` and with the validation and serialization performed by default over each [`Step`][distilabel.steps.Step] in the [`Pipeline`][distilabel.pipeline.Pipeline], the type-hint for both [`StepInput`][distilabel.steps.StepInput] and [`StepOutput`][distilabel.steps.typing.StepOutput] should be used and not surrounded with double-quotes or imported under `typing.TYPE_CHECKING`, otherwise, the validation and/or serialization will fail.
+    For the custom [`Step`][distilabel.steps.Step] subclasses to work properly with `distilabel` and with the validation and serialization performed by default over each [`Step`][distilabel.steps.Step] in the [`Pipeline`][distilabel.pipeline.Pipeline], the type-hint for both [`StepInput`][distilabel.steps.StepInput] and [`StepOutput`][distilabel.typing.StepOutput] should be used and not surrounded with double-quotes or imported under `typing.TYPE_CHECKING`, otherwise, the validation and/or serialization will fail.
 
 === "Inherit from `GeneratorStep`"
 
@@ -81,7 +81,7 @@ We can define a custom generator step by creating a new subclass of the [`Genera
     from distilabel.steps import GeneratorStep
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepColumns, GeneratorStepOutput
+        from distilabel.typing import StepColumns, GeneratorStepOutput
 
     class MyGeneratorStep(GeneratorStep):
         instructions: List[str]
@@ -104,7 +104,7 @@ We can define a custom generator step by creating a new subclass of the [`Genera
     from distilabel.steps import step
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import GeneratorStepOutput
+        from distilabel.typing import GeneratorStepOutput
 
     @step(outputs=[...], step_type="generator")
     def CustomGeneratorStep(offset: int = 0) -> "GeneratorStepOutput":

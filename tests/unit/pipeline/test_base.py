@@ -47,7 +47,7 @@ from distilabel.pipeline.routing_batch_function import (
 )
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import Step, StepInput, StepResources, _Step
-from distilabel.steps.typing import StepOutput
+from distilabel.typing import StepOutput
 from distilabel.utils.requirements import requirements
 from distilabel.utils.serialization import TYPE_INFO_KEY
 

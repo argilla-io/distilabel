@@ -20,10 +20,10 @@ import yaml
 
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import FormattedInput
+from distilabel.typing import FormattedInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import StepColumns
 
 
 TaskFormattingOutputFunc = Callable[..., Dict[str, Any]]

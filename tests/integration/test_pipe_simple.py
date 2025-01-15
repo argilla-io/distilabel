@@ -21,7 +21,7 @@ from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.data import LoadDataFromDicts
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 DATA = [
     {"prompt": "Tell me a joke"},

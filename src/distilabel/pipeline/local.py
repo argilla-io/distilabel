@@ -44,8 +44,8 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
-    from distilabel.pipeline.typing import InputDataset, LoadGroups
     from distilabel.steps.base import _Step
+    from distilabel.typing import InputDataset, LoadGroups
 
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 

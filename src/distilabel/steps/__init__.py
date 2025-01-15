@@ -55,7 +55,7 @@ from distilabel.steps.generators.utils import make_generator_step
 from distilabel.steps.globals.huggingface import PushToHub
 from distilabel.steps.reward_model import RewardModelScore
 from distilabel.steps.truncate import TruncateTextColumn
-from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+from distilabel.typing import GeneratorStepOutput, StepOutput
 
 __all__ = [
     "DBSCAN",

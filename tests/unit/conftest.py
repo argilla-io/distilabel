@@ -20,13 +20,13 @@ from urllib.request import urlretrieve
 import pytest
 from pydantic import PrivateAttr
 
+from distilabel.models.image_generation.base import AsyncImageGenerationModel
 from distilabel.models.llms.base import LLM, AsyncLLM
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType, FormattedInput
+    from distilabel.typing import ChatType, FormattedInput, GenerateOutput
 
 
 # Defined here too, so that the serde still works
@@ -99,6 +99,29 @@ class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
             }
             for _ in range(len(inputs))
         ]
+
+
+class DummyAsyncImageGenerationModel(AsyncImageGenerationModel):
+    def load(self) -> None:
+        pass
+
+    @property
+    def model_name(self) -> str:
+        return "test"
+
+    async def agenerate(  # type: ignore
+        self, input: str, num_generations: int = 1
+    ) -> list[dict[str, Any]]:
+        import numpy as np
+        from PIL import Image
+
+        np.random.seed(42)
+        arr = np.random.randint(0, 255, (100, 100, 3))
+        random_image = Image.fromarray(arr, "RGB")
+        from distilabel.models.image_generation.utils import image_to_str
+
+        img_str = image_to_str(random_image)
+        return [{"images": [img_str]} for _ in range(num_generations)]
 
 
 class DummyTask(Task):

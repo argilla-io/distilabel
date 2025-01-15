@@ -36,7 +36,7 @@ from distilabel.utils.typing_ import is_parameter_annotated_with
 
 if TYPE_CHECKING:
     from distilabel.steps.base import _Step
-    from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
+    from distilabel.typing import GeneratorStepOutput, StepColumns, StepOutput
 
 _STEP_MAPPING = {
     "normal": Step,

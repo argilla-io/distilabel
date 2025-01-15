@@ -27,12 +27,9 @@ from pydantic import (
 )
 
 from distilabel.models.llms.base import LLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.typing import (
-    StandardInput,
-)
+from distilabel.typing import GenerateOutput, StandardInput
 
 if TYPE_CHECKING:
     import mlx.nn as nn

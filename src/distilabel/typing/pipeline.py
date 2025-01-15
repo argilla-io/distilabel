@@ -18,10 +18,11 @@ from typing import (
     Dict,
     List,
     Literal,
-    TypedDict,
     TypeVar,
     Union,
 )
+
+from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     import pandas as pd

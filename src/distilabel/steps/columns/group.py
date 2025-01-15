@@ -21,7 +21,7 @@ from distilabel.steps.base import Step, StepInput
 from distilabel.steps.columns.utils import group_columns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class GroupColumns(Step):

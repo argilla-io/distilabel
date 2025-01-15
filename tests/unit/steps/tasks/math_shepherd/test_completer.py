@@ -21,7 +21,7 @@ from distilabel.steps.tasks.math_shepherd.completer import MathShepherdCompleter
 from tests.unit.conftest import DummyLLM
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput
+    from distilabel.typing import GenerateOutput
 
 
 class MathShepherdCompleterLLM(DummyLLM):

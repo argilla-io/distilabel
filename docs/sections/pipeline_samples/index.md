@@ -161,6 +161,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/exam_questions.md)
 
+-   __Image generation with distilabel__
+
+    ---
+
+    Generate synthetic images using distilabel.
+
+    [:octicons-arrow-right-24: Example](examples/image_generation.md)
+
 -   __Text generation with images in distilabel__
 
     ---

@@ -16,6 +16,7 @@ import inspect
 from typing import Generator, List, Type, TypedDict, TypeVar
 
 from distilabel.models.embeddings.base import Embeddings
+from distilabel.models.image_generation.base import ImageGenerationModel
 from distilabel.models.llms.base import LLM
 from distilabel.steps.base import _Step
 from distilabel.steps.tasks.base import _Task
@@ -28,6 +29,7 @@ class ComponentsInfo(TypedDict):
     """A dictionary containing `distilabel` components information."""
 
     llms: List
+    image_generation_models: List
     steps: List
     tasks: List
     embeddings: List
@@ -54,6 +56,10 @@ def export_components_info() -> ComponentsInfo:
         "llms": [
             {"name": llm_type.__name__, "docstring": parse_google_docstring(llm_type)}
             for llm_type in _get_llms()
+        ],
+        "image_generation_models": [
+            {"name": igm_type.__name__, "docstring": parse_google_docstring(igm_type)}
+            for igm_type in _get_image_generation_models()
         ],
         "embeddings": [
             {
@@ -110,6 +116,22 @@ def _get_llms() -> List[Type["LLM"]]:
         llm_type
         for llm_type in _recursive_subclasses(LLM)
         if not inspect.isabstract(llm_type)
+    ]
+
+
+def _get_image_generation_models() -> List[Type["ImageGenerationModel"]]:
+    """Get all `ImageGenerationModel` subclasses, that are not abstract classes.
+
+    Note:
+        This is a placeholder as we don't have `ImageGenerationModel` classes yet.
+
+    Returns:
+        The list of all the classes under `distilabel.models.image_generation` that are not abstract classes.
+    """
+    return [
+        igm_type
+        for igm_type in _recursive_subclasses(ImageGenerationModel)
+        if not inspect.isabstract(igm_type)
     ]
 
 

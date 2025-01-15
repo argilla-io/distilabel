@@ -22,7 +22,7 @@ from distilabel.steps.tasks.structured_outputs.outlines import (
     _is_outlines_version_below_0_1_0,
     model_to_schema,
 )
-from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
+from distilabel.typing import OutlinesStructuredOutputType
 
 
 class DummyUserTest(BaseModel):

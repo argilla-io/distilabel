@@ -25,8 +25,7 @@ from distilabel.steps.tasks.math_shepherd.utils import (
 )
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import ChatType, StepColumns
 
 
 SYSTEM_PROMPT = """\

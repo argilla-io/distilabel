@@ -103,6 +103,7 @@ text-clustering = [
     "matplotlib >= 3.8.3",   # For the figure (even though it's optional)
 ]
 mlx = ["mlx >= 0.21.0", "mlx-lm"]
+vision = ["Pillow >= 10.3.0"]  # To work with images.
 
 # minhash
 minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]

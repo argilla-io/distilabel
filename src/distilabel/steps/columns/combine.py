@@ -19,7 +19,7 @@ from distilabel.steps.base import Step, StepInput
 from distilabel.steps.columns.utils import merge_distilabel_metadata
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class CombineOutputs(Step):

@@ -68,13 +68,13 @@ if TYPE_CHECKING:
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
-    from distilabel.pipeline.typing import (
+    from distilabel.steps.base import Step
+    from distilabel.typing import (
         InputDataset,
         LoadGroups,
         PipelineRuntimeParametersInfo,
         StepLoadStatus,
     )
-    from distilabel.steps.base import Step
 
     class _CacheLocation(TypedDict):
         """Dictionary to store the filenames and directories of a cached pipeline.

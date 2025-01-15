@@ -48,12 +48,14 @@ if TYPE_CHECKING:
 
     from distilabel.pipeline.base import BasePipeline
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
-    from distilabel.pipeline.typing import (
+    from distilabel.typing import (
         DownstreamConnectable,
         DownstreamConnectableSteps,
+        GeneratorStepOutput,
+        StepColumns,
+        StepOutput,
         UpstreamConnectableSteps,
     )
-    from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
 
 
 DEFAULT_INPUT_BATCH_SIZE = 50

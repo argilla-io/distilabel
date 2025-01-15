@@ -20,8 +20,7 @@ from distilabel.steps.base import Step, StepInput
 from distilabel.utils.chat import is_openai_format
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import ChatType, StepColumns, StepOutput
 
 
 class GenerateEmbeddings(Step):

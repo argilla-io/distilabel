@@ -24,7 +24,7 @@ from distilabel.steps.generators.huggingface import LoadDataFromHub
 from distilabel.steps.tasks.text_generation import TextGeneration
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class RenameColumns(Step):

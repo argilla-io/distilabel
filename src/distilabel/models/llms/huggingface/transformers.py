@@ -19,14 +19,17 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.structured_outputs.outlines import (
     _is_outlines_version_below_0_1_0,
 )
-from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
+from distilabel.typing import (
+    GenerateOutput,
+    OutlinesStructuredOutputType,
+    StandardInput,
+)
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
 if TYPE_CHECKING:
@@ -34,7 +37,7 @@ if TYPE_CHECKING:
     from transformers.modeling_utils import PreTrainedModel
     from transformers.tokenization_utils import PreTrainedTokenizer
 
-    from distilabel.models.llms.typing import HiddenState
+    from distilabel.typing import HiddenState
 
 
 class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
