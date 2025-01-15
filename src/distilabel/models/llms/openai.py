@@ -29,8 +29,11 @@ if TYPE_CHECKING:
     from openai.types import Batch as OpenAIBatch
     from openai.types import FileObject as OpenAIFileObject
     from openai.types.chat import ChatCompletion as OpenAIChatCompletion
-    from openai.types.chat.chat_completion import Choice as OpenAIChoice
+    from openai.types.chat.chat_completion import Choice as OpenAIChatCompletionChoice
     from openai.types.completion import Completion as OpenAICompletion
+    from openai.types.completion_choice import (
+        CompletionChoice as OpenAICompletionChoice,
+    )
 
     from distilabel.typing import LLMStatistics, Logprob
 
@@ -151,6 +154,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
         max_new_tokens: int = 128,
         logprobs: bool = False,
         top_logprobs: Optional[PositiveInt] = None,
+        echo: bool = False,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
@@ -170,6 +174,8 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
             logprobs: whether to return the log probabilities or not. Defaults to `False`.
             top_logprobs: the number of top log probabilities to return per output token
                 generated. Defaults to `None`.
+            echo: whether to echo the input in the response or not. It's only used if the
+                `input` argument is an `str`. Defaults to `False`.
             frequency_penalty: the repetition penalty to use for the generation. Defaults
                 to `0.0`.
             presence_penalty: the presence penalty to use for the generation. Defaults to
@@ -183,13 +189,107 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
                 for more information on how to use the JSON model from OpenAI. Defaults to None
                 which returns text. To return JSON, use {"type": "json_object"}.
 
-        Note:
-            If response_format
-
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
 
+        if isinstance(input, str):
+            return await self._generate_completion(
+                input=input,
+                num_generations=num_generations,
+                max_new_tokens=max_new_tokens,
+                echo=echo,
+                top_logprobs=top_logprobs,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
+                temperature=temperature,
+                top_p=top_p,
+            )
+
+        return await self._generate_chat_completion(
+            input=input,
+            num_generations=num_generations,
+            max_new_tokens=max_new_tokens,
+            logprobs=logprobs,
+            top_logprobs=top_logprobs,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            temperature=temperature,
+            top_p=top_p,
+            stop=stop,
+            response_format=response_format,
+        )
+
+    async def _generate_completion(
+        self,
+        input: str,
+        num_generations: int = 1,
+        max_new_tokens: int = 128,
+        echo: bool = False,
+        top_logprobs: Optional[PositiveInt] = None,
+        frequency_penalty: float = 0.0,
+        presence_penalty: float = 0.0,
+        temperature: float = 1.0,
+        top_p: float = 1.0,
+    ) -> GenerateOutput:
+        completion = await self._aclient.completions.create(
+            prompt=input,
+            echo=echo,
+            model=self.model,
+            n=num_generations,
+            max_tokens=max_new_tokens,
+            logprobs=top_logprobs,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            temperature=temperature,
+            top_p=top_p,
+        )
+
+        generations = []
+        logprobs = []
+        for choice in completion.choices:
+            generations.append(choice.text)
+            if choice_logprobs := self._get_logprobs_from_completion_choice(choice):
+                logprobs.append(choice_logprobs)
+
+        statistics = self._get_llm_statistics(completion)
+        return prepare_output(
+            generations=generations,
+            input_tokens=statistics["input_tokens"],
+            output_tokens=statistics["output_tokens"],
+            logprobs=logprobs,
+        )
+
+    def _get_logprobs_from_completion_choice(
+        self, choice: "OpenAICompletionChoice"
+    ) -> Union[List[Union[List["Logprob"], None]], None]:
+        if choice.logprobs is None or choice.logprobs.top_logprobs is None:
+            return None
+
+        return [
+            [
+                {"token": token, "logprob": token_logprob}
+                for token, token_logprob in logprobs.items()
+            ]
+            if logprobs is not None
+            else None
+            for logprobs in choice.logprobs.top_logprobs
+        ]
+
+    async def _generate_chat_completion(
+        self,
+        input: FormattedInput,
+        num_generations: int = 1,
+        max_new_tokens: int = 128,
+        logprobs: bool = False,
+        top_logprobs: Optional[PositiveInt] = None,
+        frequency_penalty: float = 0.0,
+        presence_penalty: float = 0.0,
+        temperature: float = 1.0,
+        top_p: float = 1.0,
+        stop: Optional[Union[str, List[str]]] = None,
+        response_format: Optional[Dict[str, str]] = None,
+    ) -> GenerateOutput:
         structured_output = None
         if isinstance(input, tuple):
             input, structured_output = input
@@ -235,7 +335,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
             # NOTE: `instructor` doesn't work with `n` parameter, so it will always return
             # only 1 choice.
             statistics = self._get_llm_statistics(completion._raw_response)
-            if choice_logprobs := self._get_logprobs_from_choice(
+            if choice_logprobs := self._get_logprobs_from_chat_completion_choice(
                 completion._raw_response.choices[0]
             ):
                 output_logprobs = [choice_logprobs]
@@ -270,7 +370,9 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
-            if choice_logprobs := self._get_logprobs_from_choice(choice):
+            if choice_logprobs := self._get_logprobs_from_chat_completion_choice(
+                choice
+            ):
                 logprobs.append(choice_logprobs)
 
         statistics = self._get_llm_statistics(completion)
@@ -281,8 +383,8 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
             logprobs=logprobs,
         )
 
-    def _get_logprobs_from_choice(
-        self, choice: "OpenAIChoice"
+    def _get_logprobs_from_chat_completion_choice(
+        self, choice: "OpenAIChatCompletionChoice"
     ) -> Union[List[List["Logprob"]], None]:
         if choice.logprobs is None or choice.logprobs.content is None:
             return None

@@ -106,7 +106,7 @@ StandardInput = ChatType
 """StandardInput is an alias for ChatType that defines the default / standard input produced by `format_input`."""
 StructuredInput = Tuple[StandardInput, Union[StructuredOutputType, None]]
 """StructuredInput defines a type produced by `format_input` when using either `StructuredGeneration` or a subclass of it."""
-FormattedInput = Union[StandardInput, StructuredInput]
+FormattedInput = Union[StandardInput, StructuredInput, str]
 """FormattedInput is an alias for the union of `StandardInput` and `StructuredInput` as generated
 by `format_input` and expected by the `LLM`s, as well as `ConversationType` for the vision language models."""
 

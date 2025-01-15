@@ -16,7 +16,6 @@ import os
 from typing import (
     TYPE_CHECKING,
     Optional,
-    Union,
 )
 
 from pydantic import (
@@ -143,9 +142,9 @@ class InferenceEndpointsBaseClient(BaseModel):
             self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
 
     @property
-    def model_name(self) -> Union[str, None]:  # type: ignore
+    def model_name(self) -> str:
         """Returns the model name used for the model."""
-        return (
+        return (  # type: ignore
             self.model_display_name
             or self._model_name
             or self.model_id
