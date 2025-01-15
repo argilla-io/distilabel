@@ -221,16 +221,16 @@ class AsyncImageGenerationModel(ImageGenerationModel):
         num_generations: int = 1,
         **kwargs: Any,
     ) -> list[list[dict[str, Any]]]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
+        """Method to generate a list of images asynchronously, returning the output
+        synchronously awaiting for the image of each input sent to `agenerate`.
 
         Args:
-            inputs: the list of inputs to generate responses for.
+            inputs: the list of inputs to generate images for.
             num_generations: the number of generations to generate per input.
             **kwargs: the additional kwargs to be used for the generation.
 
         Returns:
-            A list containing the generations for each input.
+            A list containing the images for each input.
         """
         return self.event_loop.run_until_complete(
             self._agenerate(inputs=inputs, num_generations=num_generations, **kwargs)
