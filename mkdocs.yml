@@ -237,12 +237,10 @@ nav:
               - Hugging Face: "api/step_gallery/hugging_face.md"
               - Columns: "api/step_gallery/columns.md"
               - Extra: "api/step_gallery/extra.md"
-          - Typing: "api/step/typing.md"
       - Task:
           - "api/task/index.md"
           - GeneratorTask: "api/task/generator_task.md"
           - Task Gallery: "api/task/task_gallery.md"
-          - Typing: "api/task/typing.md"
       - LLM:
           - "api/models/llm/index.md"
           - LLM Gallery: "api/models/llm/llm_gallery.md"
@@ -255,7 +253,6 @@ nav:
       - Pipeline:
           - "api/pipeline/index.md"
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
-          - Typing: "api/pipeline/typing.md"
           - Step Wrapper: "api/pipeline/step_wrapper.md"
       - Mixins:
           - RuntimeParametersMixin: "api/mixins/runtime_parameters.md"
@@ -264,6 +261,7 @@ nav:
       - Errors: "api/errors.md"
       - Distiset: "api/distiset.md"
       - CLI: "api/cli.md"
+      - Types: "api/typing.md"
   - Community:
       - sections/community/index.md
       - How to contribute?: sections/community/contributor.md

@@ -59,7 +59,7 @@ from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import ImageTask
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import StepColumns, StepOutput
 
 
 class MyCustomImageTask(ImageTask):
