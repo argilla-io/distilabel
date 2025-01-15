@@ -58,14 +58,6 @@ hide:
 
     [:octicons-arrow-right-24: ClientvLLM](clientvllm.md){ .bottom }
 
--   :simple-openai:{ .lg .middle } __OpenAIImageGeneration__
-
-    ---
-
-    OpenAI image generation implementation running the async API client.
-
-    [:octicons-arrow-right-24: OpenAIImageGeneration](openaiimagegeneration.md){ .bottom }
-
 -   :material-brain:{ .lg .middle } __CohereLLM__
 
     ---
@@ -89,14 +81,6 @@ hide:
     InferenceEndpoints LLM implementation running the async API client.
 
     [:octicons-arrow-right-24: InferenceEndpointsLLM](inferenceendpointsllm.md){ .bottom }
-
--   :hugging:{ .lg .middle } __InferenceEndpointsImageGeneration__
-
-    ---
-
-    Inference Endpoint image generation implementation running the async API client.
-
-    [:octicons-arrow-right-24: InferenceEndpointsImageGeneration](inferenceendpointsimagegeneration.md){ .bottom }
 
 -   :material-brain:{ .lg .middle } __LiteLLM__
 

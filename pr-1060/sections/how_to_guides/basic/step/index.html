@@ -3179,27 +3179,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/llms/openaiimagegeneration/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../../components-gallery/llms/coherellm/" class="md-nav__link">
         
   
@@ -3243,27 +3222,6 @@
   
     <li class="md-nav__item">
       <a href="../../../../components-gallery/llms/inferenceendpointsllm/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../components-gallery/llms/inferenceendpointsimagegeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4502,27 +4460,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../api/step/typing/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Typing
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -4612,27 +4549,6 @@
   
   <span class="md-ellipsis">
     Task Gallery
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../api/task/typing/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Typing
   </span>
   
 
@@ -4957,27 +4873,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/pipeline/typing/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Typing
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../../api/pipeline/step_wrapper/" class="md-nav__link">
         
   
@@ -5165,6 +5060,27 @@
   
   <span class="md-ellipsis">
     CLI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/typing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Types
   </span>
   
 
@@ -5407,7 +5323,7 @@
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">StepInput</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepColumns</span><span class="p">,</span> <span class="n">StepOutput</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepColumns</span><span class="p">,</span> <span class="n">StepOutput</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="nd">@property</span>
@@ -5489,7 +5405,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>For the custom <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses to work properly with <code>distilabel</code> and with the validation and serialization performed by default over each <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> in the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>, the type-hint for both <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.StepInput"><code>StepInput</code></a> and <a class="autorefs autorefs-internal" href="../../../../api/step/typing/#distilabel.steps.typing.StepOutput"><code>StepOutput</code></a> should be used and not surrounded with double-quotes or imported under <code>typing.TYPE_CHECKING</code>, otherwise, the validation and/or serialization will fail.</p>
+<p>For the custom <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses to work properly with <code>distilabel</code> and with the validation and serialization performed by default over each <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> in the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>, the type-hint for both <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.StepInput"><code>StepInput</code></a> and <a class="autorefs autorefs-internal" href="../../../../api/typing/#distilabel.typing.steps.StepOutput"><code>StepOutput</code></a> should be used and not surrounded with double-quotes or imported under <code>typing.TYPE_CHECKING</code>, otherwise, the validation and/or serialization will fail.</p>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Inherit from <code>Step</code></label><label for="__tabbed_1_2">Using the <code>@step</code> decorator</label></div>
 <div class="tabbed-content">
@@ -5499,7 +5415,7 @@
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">StepInput</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepColumns</span><span class="p">,</span> <span class="n">StepOutput</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepColumns</span><span class="p">,</span> <span class="n">StepOutput</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="nd">@property</span>
@@ -5529,7 +5445,7 @@
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepInput</span><span class="p">,</span> <span class="n">step</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepOutput</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepOutput</span>
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nd">@step</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">CustomStep</span><span class="p">(</span><span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepOutput&quot;</span><span class="p">:</span>
