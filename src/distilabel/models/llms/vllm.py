@@ -25,6 +25,7 @@ from typing import (
     Literal,
     Optional,
     Tuple,
+    TypedDict,
     Union,
 )
 
@@ -56,6 +57,7 @@ if TYPE_CHECKING:
         LLMLogprobs,
         LLMOutput,
     )
+    from PIL import Image
 
 
 LogitsProcessorFn = Union[
@@ -64,6 +66,20 @@ LogitsProcessorFn = Union[
 ]
 
 LogitsProcessors = List[LogitsProcessorFn]
+
+
+class ImageType(TypedDict):
+    image: "Image.Image"
+
+
+class MultiModalDict(TypedDict):
+    prompt: str
+    multi_modal_data: ImageType
+
+
+PreparedInput = Union[str, MultiModalDict]
+"""A type alias representing the prepared input for the LLM model, both text
+and multimodal."""
 
 
 class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
@@ -256,7 +272,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "StandardInput") -> str:
+    def prepare_input(self, input: "StandardInput") -> PreparedInput:
         """Prepares the input (applying the chat template and tokenization) for the provided
         input.
 
@@ -269,16 +285,54 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if self._tokenizer.chat_template is None:
             return [item["content"] for item in input if item["role"] == "user"][0]
 
+        image = None
+        if (input[-1]["role"] == "user") and isinstance(input[-1]["content"], list):
+            input_, image = self._prepare_for_multimodal(input)
+        else:
+            input_ = input
+
         prompt: str = (
             self._tokenizer.apply_chat_template(
-                input,  # type: ignore
+                input_,  # type: ignore
                 tokenize=False,
                 add_generation_prompt=True,  # type: ignore
             )
-            if input
+            if input_
             else ""
         )
+
+        if image:
+            return {  # type: ignore
+                "prompt": prompt,
+                "multi_modal_data": {"image": image},  # type: ignore
+            }
         return super().apply_magpie_pre_query_template(prompt, input)
+
+    def _prepare_for_multimodal(
+        self, input: "StandardInput"
+    ) -> Tuple["StandardInput", "Image.Image"]:
+        """Prepares the input to run multimodal generation, extracting the image from the input
+        and returning the input without the image and the image itself as a PIL.Image.Image.
+        """
+        image = None
+        input_ = []
+        for item in input:
+            if (item["role"] == "user") and isinstance(item["content"], list):
+                image = item["content"][1]["image_url"]["url"]  # Image
+                if isinstance(image, str):
+                    from distilabel.models.image_generation.utils import image_from_str
+
+                    image = image_from_str(image)
+                # This is prepared to include images, must be transformed to a MultiModalDict
+                input_.append(
+                    {
+                        "role": "user",
+                        "content": item["content"][0]["text"],
+                    }
+                )
+            else:
+                input_.append(item)
+        return input_, image
 
     def _prepare_batches(
         self, inputs: List["StructuredInput"]
