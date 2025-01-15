@@ -26,6 +26,7 @@ hide:
     | :material-file-download:        | load                | Load steps are used to load the data.                                                              |
     | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
+    | :material-image:                | image-generation    | Image generation steps are used to generate images based on a given prompt.                        |
     | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
 
 <div class="grid cards" markdown>

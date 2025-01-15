@@ -26,6 +26,7 @@ hide:
     | :material-file-download:        | load                | Load steps are used to load the data.                                                              |
     | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
+    | :material-image:                | image-generation    | Image generation steps are used to generate images based on a given prompt.                        |
     | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
 
 <div class="grid cards" markdown>
@@ -270,6 +271,14 @@ hide:
     Generate queries and answers for the given functions in JSON format.
 
     [:octicons-arrow-right-24: APIGenSemanticChecker](apigensemanticchecker.md){ .bottom }
+
+-   :material-image:{ .lg .middle } __ImageGeneration__
+
+    ---
+
+    Image generation with an image to text model given a prompt.
+
+    [:octicons-arrow-right-24: ImageGeneration](imagegeneration.md){ .bottom }
 
 -   :material-check-outline:{ .lg .middle } __GenerateTextRetrievalData__
 
