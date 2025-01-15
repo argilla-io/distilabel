@@ -5893,16 +5893,16 @@ responses.</p>
 </span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a>        <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 </span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
-</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Method to generate a list of responses asynchronously, returning the output</span>
-</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">        synchronously awaiting for the response of each input sent to `agenerate`.</span>
+</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Method to generate a list of images asynchronously, returning the output</span>
+</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">        synchronously awaiting for the image of each input sent to `agenerate`.</span>
 </span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">        Args:</span>
-</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">            inputs: the list of inputs to generate responses for.</span>
+</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">            inputs: the list of inputs to generate images for.</span>
 </span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="sd">            num_generations: the number of generations to generate per input.</span>
 </span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a><span class="sd">            **kwargs: the additional kwargs to be used for the generation.</span>
 </span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a>
 </span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a><span class="sd">        Returns:</span>
-</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="sd">            A list containing the generations for each input.</span>
+</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="sd">            A list containing the images for each input.</span>
 </span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span>
 </span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_agenerate</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">num_generations</span><span class="o">=</span><span class="n">num_generations</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -6333,8 +6333,8 @@ responses.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Method to generate a list of responses asynchronously, returning the output
-synchronously awaiting for the response of each input sent to <code>agenerate</code>.</p>
+        <p>Method to generate a list of images asynchronously, returning the output
+synchronously awaiting for the image of each input sent to <code>agenerate</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -6357,7 +6357,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
             </td>
             <td>
               <div class="doc-md-description">
-                <p>the list of inputs to generate responses for.</p>
+                <p>the list of inputs to generate images for.</p>
               </div>
             </td>
             <td>
@@ -6415,7 +6415,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A list containing the generations for each input.</p>
+                <p>A list containing the images for each input.</p>
               </div>
             </td>
           </tr>
@@ -6449,16 +6449,16 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
 </span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a>    <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 </span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
-</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Method to generate a list of responses asynchronously, returning the output</span>
-</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">    synchronously awaiting for the response of each input sent to `agenerate`.</span>
+</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Method to generate a list of images asynchronously, returning the output</span>
+</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">    synchronously awaiting for the image of each input sent to `agenerate`.</span>
 </span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">        inputs: the list of inputs to generate responses for.</span>
+</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">        inputs: the list of inputs to generate images for.</span>
 </span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="sd">        num_generations: the number of generations to generate per input.</span>
 </span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a><span class="sd">        **kwargs: the additional kwargs to be used for the generation.</span>
 </span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a>
 </span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="sd">        A list containing the generations for each input.</span>
+</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="sd">        A list containing the images for each input.</span>
 </span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span>
 </span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_agenerate</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">num_generations</span><span class="o">=</span><span class="n">num_generations</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
