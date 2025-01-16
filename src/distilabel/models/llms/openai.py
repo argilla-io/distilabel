@@ -35,7 +35,12 @@ if TYPE_CHECKING:
         CompletionChoice as OpenAICompletionChoice,
     )
 
-    from distilabel.typing import LLMStatistics, Logprob
+    from distilabel.typing.models import (
+        LLMStatistics,
+        Logprob,
+        StandardInput,
+        StructuredInput,
+    )
 
 
 _OPENAI_BATCH_API_MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
@@ -161,6 +166,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
         top_p: float = 1.0,
         stop: Optional[Union[str, List[str]]] = None,
         response_format: Optional[Dict[str, str]] = None,
+        extra_body: Optional[Dict[str, Any]] = None,
     ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
         client.
@@ -188,6 +194,8 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
                 "text" or "json". Read the documentation [here](https://platform.openai.com/docs/guides/text-generation/json-mode)
                 for more information on how to use the JSON model from OpenAI. Defaults to None
                 which returns text. To return JSON, use {"type": "json_object"}.
+            extra_body: an optional dictionary containing extra body parameters that will
+                be sent to the OpenAI API endpoint. Defaults to `None`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
@@ -204,6 +212,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
                 presence_penalty=presence_penalty,
                 temperature=temperature,
                 top_p=top_p,
+                extra_body=extra_body,
             )
 
         return await self._generate_chat_completion(
@@ -218,6 +227,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
             top_p=top_p,
             stop=stop,
             response_format=response_format,
+            extra_body=extra_body,
         )
 
     async def _generate_completion(
@@ -231,6 +241,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
+        extra_body: Optional[Dict[str, Any]] = None,
     ) -> GenerateOutput:
         completion = await self._aclient.completions.create(
             prompt=input,
@@ -243,6 +254,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
             presence_penalty=presence_penalty,
             temperature=temperature,
             top_p=top_p,
+            extra_body=extra_body,
         )
 
         generations = []
@@ -278,7 +290,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
 
     async def _generate_chat_completion(
         self,
-        input: FormattedInput,
+        input: Union["StandardInput", "StructuredInput"],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         logprobs: bool = False,
@@ -289,6 +301,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
         top_p: float = 1.0,
         stop: Optional[Union[str, List[str]]] = None,
         response_format: Optional[Dict[str, str]] = None,
+        extra_body: Optional[Dict[str, Any]] = None,
     ) -> GenerateOutput:
         structured_output = None
         if isinstance(input, tuple):
@@ -315,9 +328,11 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
             "temperature": temperature,
             "top_p": top_p,
             "stop": stop,
+            "extra_body": extra_body,
         }
-        # Check if it's a vision generation task, in that case "stop" cannot be used or raises
-        # an error in the API.
+
+        # Checks if any message contains an image, in that case "stop" cannot be used or
+        # raises an error in the API.
         if isinstance(
             [row for row in input if row["role"] == "user"][0]["content"], list
         ):
