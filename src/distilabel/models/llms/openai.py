@@ -16,7 +16,7 @@ import io
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, Union
 
 import orjson
-from pydantic import PositiveInt, validate_call
+from pydantic import NonNegativeInt, PositiveInt, validate_call
 
 from distilabel import envs
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
@@ -156,7 +156,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
         self,
         input: FormattedInput,
         num_generations: int = 1,
-        max_new_tokens: int = 128,
+        max_new_tokens: NonNegativeInt = 128,
         logprobs: bool = False,
         top_logprobs: Optional[PositiveInt] = None,
         echo: bool = False,
