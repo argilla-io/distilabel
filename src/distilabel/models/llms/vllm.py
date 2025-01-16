@@ -256,7 +256,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "StandardInput") -> str:
+    def prepare_input(self, input: Union["StandardInput", str]) -> str:
         """Prepares the input (applying the chat template and tokenization) for the provided
         input.
 
@@ -266,8 +266,8 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
-        if self._tokenizer.chat_template is None:
-            return [item["content"] for item in input if item["role"] == "user"][0]
+        if isinstance(input, str):
+            return input
 
         prompt: str = (
             self._tokenizer.apply_chat_template(
@@ -406,8 +406,11 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         for prepared_inputs, structured_output in prepared_batches:
             if self.structured_output is not None and structured_output is not None:
-                # TODO: warning
-                pass
+                self._logger.warning(
+                    "An `structured_output` was provided in the model configuration, but"
+                    " one was also provided in the input. The input structured output will"
+                    " be used."
+                )
 
             if structured_output is not None:
                 logits_processors.append(
@@ -481,7 +484,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 outputs_logprobs.append(self._get_llm_logprobs(output))
         return texts, statistics, outputs_logprobs
 
-    def _prepare_structured_output(
+    def _prepare_structured_output(  # type: ignore
         self, structured_output: "OutlinesStructuredOutputType"
     ) -> Union[Callable, None]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
