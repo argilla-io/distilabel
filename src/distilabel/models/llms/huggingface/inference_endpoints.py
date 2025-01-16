@@ -273,7 +273,7 @@ class InferenceEndpointsLLM(
 
     async def _generate_with_text_generation(
         self,
-        input: FormattedInput,
+        input: str,
         max_new_tokens: int = 128,
         repetition_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
@@ -287,13 +287,12 @@ class InferenceEndpointsLLM(
         return_full_text: bool = False,
         seed: Optional[int] = None,
         watermark: bool = False,
+        structured_output: Union[Dict[str, Any], None] = None,
     ) -> GenerateOutput:
-        input, structured_output = self._get_structured_output(input)
-        prompt = self.prepare_input(input)
         generation: Union["TextGenerationOutput", None] = None
         try:
             generation = await self._aclient.text_generation(  # type: ignore
-                prompt=prompt,
+                prompt=input,
                 max_new_tokens=max_new_tokens,
                 do_sample=do_sample,
                 typical_p=typical_p,
@@ -319,7 +318,9 @@ class InferenceEndpointsLLM(
             )
         return prepare_output(
             generations=[generation.generated_text] if generation else [None],
-            input_tokens=[compute_tokens(prompt, self._tokenizer.encode)],  # type: ignore
+            input_tokens=[
+                compute_tokens(input, self._tokenizer.encode) if self._tokenizer else -1
+            ],
             output_tokens=[
                 generation.details.generated_tokens
                 if generation and generation.details
@@ -544,37 +545,43 @@ class InferenceEndpointsLLM(
         """
         stop_sequences = self._check_stop_sequences(stop_sequences)
 
-        if self.tokenizer_id is None:
-            return await self._generate_with_chat_completion(
-                input=input,  # type: ignore
+        if isinstance(input, str) or self.tokenizer_id is not None:
+            structured_output = None
+            if not isinstance(input, str):
+                input, structured_output = self._get_structured_output(input)
+                input = self.prepare_input(input)
+
+            return await self._generate_with_text_generation(
+                input=input,
                 max_new_tokens=max_new_tokens,
+                do_sample=do_sample,
+                typical_p=typical_p,
+                repetition_penalty=repetition_penalty,
                 frequency_penalty=frequency_penalty,
-                logit_bias=logit_bias,
-                logprobs=logprobs,
-                presence_penalty=presence_penalty,
-                seed=seed,
-                stop_sequences=stop_sequences,
                 temperature=temperature,
-                tool_choice=tool_choice,
-                tool_prompt=tool_prompt,
-                tools=tools,
-                top_logprobs=top_logprobs,
+                top_n_tokens=top_n_tokens,
                 top_p=top_p,
+                top_k=top_k,
+                stop_sequences=stop_sequences,
+                return_full_text=return_full_text,
+                seed=seed,
+                watermark=watermark,
+                structured_output=structured_output,
             )
 
-        return await self._generate_with_text_generation(
-            input=input,
+        return await self._generate_with_chat_completion(
+            input=input,  # type: ignore
             max_new_tokens=max_new_tokens,
-            do_sample=do_sample,
-            typical_p=typical_p,
-            repetition_penalty=repetition_penalty,
             frequency_penalty=frequency_penalty,
-            temperature=temperature,
-            top_n_tokens=top_n_tokens,
-            top_p=top_p,
-            top_k=top_k,
-            stop_sequences=stop_sequences,
-            return_full_text=return_full_text,
+            logit_bias=logit_bias,
+            logprobs=logprobs,
+            presence_penalty=presence_penalty,
             seed=seed,
-            watermark=watermark,
+            stop_sequences=stop_sequences,
+            temperature=temperature,
+            tool_choice=tool_choice,
+            tool_prompt=tool_prompt,
+            tools=tools,
+            top_logprobs=top_logprobs,
+            top_p=top_p,
         )
