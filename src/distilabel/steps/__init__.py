@@ -26,7 +26,7 @@ from distilabel.steps.clustering.text_clustering import TextClustering
 from distilabel.steps.clustering.umap import UMAP
 from distilabel.steps.columns.combine import CombineOutputs
 from distilabel.steps.columns.expand import ExpandColumns
-from distilabel.steps.columns.group import CombineColumns, GroupColumns
+from distilabel.steps.columns.group import GroupColumns
 from distilabel.steps.columns.keep import KeepColumns
 from distilabel.steps.columns.merge import MergeColumns
 from distilabel.steps.decorator import step
@@ -60,7 +60,6 @@ from distilabel.typing import GeneratorStepOutput, StepOutput
 __all__ = [
     "DBSCAN",
     "UMAP",
-    "CombineColumns",
     "CombineOutputs",
     "ConversationTemplate",
     "DataSampler",
