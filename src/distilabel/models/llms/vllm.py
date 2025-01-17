@@ -47,7 +47,8 @@ if TYPE_CHECKING:
     from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
-    from vllm.outputs import RequestOutput, CompletionOutput
+    from vllm.outputs import RequestOutput
+    from vllm.sequence import SampleLogprobs, PromptLogprobs
 
     from distilabel.typing import (
         StandardInput,
@@ -256,7 +257,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "StandardInput") -> str:
+    def prepare_input(self, input: Union["StandardInput", str]) -> str:
         """Prepares the input (applying the chat template and tokenization) for the provided
         input.
 
@@ -266,8 +267,8 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
-        if self._tokenizer.chat_template is None:
-            return [item["content"] for item in input if item["role"] == "user"][0]
+        if isinstance(input, str):
+            return input
 
         prompt: str = (
             self._tokenizer.apply_chat_template(
@@ -342,8 +343,10 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         stop: Optional[List[str]] = None,
         stop_token_ids: Optional[List[int]] = None,
         include_stop_str_in_output: bool = False,
+        skip_special_tokens: bool = True,
         logits_processors: Optional[LogitsProcessors] = None,
         extra_sampling_params: Optional[Dict[str, Any]] = None,
+        echo: bool = False,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input.
 
@@ -371,10 +374,14 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 when found. Defaults to `None`.
             include_stop_str_in_output: whether to include the stop string in the output.
                 Defaults to `False`.
+            skip_special_tokens: whether to exclude special tokens from the output. Defaults
+                to `False`.
             logits_processors: a list of functions to process the logits before sampling.
                 Defaults to `None`.
             extra_sampling_params: dictionary with additional arguments to be passed to
                 the `SamplingParams` class from `vllm`.
+            echo: whether to echo the include the prompt in the response or not. Defaults
+                to `False`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
@@ -406,8 +413,11 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         for prepared_inputs, structured_output in prepared_batches:
             if self.structured_output is not None and structured_output is not None:
-                # TODO: warning
-                pass
+                self._logger.warning(
+                    "An `structured_output` was provided in the model configuration, but"
+                    " one was also provided in the input. The input structured output will"
+                    " be used."
+                )
 
             if structured_output is not None:
                 logits_processors.append(
@@ -424,10 +434,12 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 top_k=top_k,
                 min_p=min_p,
                 max_tokens=max_new_tokens,
+                prompt_logprobs=logprobs if echo else None,
                 logprobs=logprobs,
                 stop=stop,
                 stop_token_ids=stop_token_ids,
                 include_stop_str_in_output=include_stop_str_in_output,
+                skip_special_tokens=skip_special_tokens,
                 logits_processors=logits_processors,
                 **extra_sampling_params,
             )
@@ -444,18 +456,26 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 logits_processors.pop(-1)
 
             for input, outputs in zip(prepared_inputs, batch_outputs):
+                processed_prompt_logprobs = []
+                if outputs.prompt_logprobs is not None:
+                    processed_prompt_logprobs = self._get_llm_logprobs(
+                        outputs.prompt_logprobs
+                    )
                 texts, statistics, outputs_logprobs = self._process_outputs(
-                    input, outputs
+                    input=input,
+                    outputs=outputs,
+                    echo=echo,
+                    prompt_logprobs=processed_prompt_logprobs,
                 )
                 batched_outputs.append(texts)
-                generations.append(
-                    prepare_output(
-                        generations=texts,
-                        input_tokens=statistics["input_tokens"],
-                        output_tokens=statistics["output_tokens"],
-                        logprobs=outputs_logprobs,
-                    )
+                generation = prepare_output(
+                    generations=texts,
+                    input_tokens=statistics["input_tokens"],
+                    output_tokens=statistics["output_tokens"],
+                    logprobs=outputs_logprobs,
                 )
+
+                generations.append(generation)
 
         if sorted_indices is not None:
             pairs = list(enumerate(sorted_indices))
@@ -465,7 +485,11 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         return generations
 
     def _process_outputs(
-        self, input: str, outputs: "RequestOutput"
+        self,
+        input: str,
+        outputs: "RequestOutput",
+        prompt_logprobs: List[List["Logprob"]],
+        echo: bool = False,
     ) -> Tuple["LLMOutput", "LLMStatistics", "LLMLogprobs"]:
         texts = []
         outputs_logprobs = []
@@ -475,13 +499,17 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             "output_tokens": [],
         }
         for output in outputs.outputs:
-            texts.append(output.text)
+            text = output.text
+            if echo:
+                text = input + text
+            texts.append(text)
             statistics["output_tokens"].append(len(output.token_ids))
             if output.logprobs is not None:
-                outputs_logprobs.append(self._get_llm_logprobs(output))
+                processed_output_logprobs = self._get_llm_logprobs(output.logprobs)
+                outputs_logprobs.append(prompt_logprobs + processed_output_logprobs)
         return texts, statistics, outputs_logprobs
 
-    def _prepare_structured_output(
+    def _prepare_structured_output(  # type: ignore
         self, structured_output: "OutlinesStructuredOutputType"
     ) -> Union[Callable, None]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
@@ -503,16 +531,21 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             self.structured_output["schema"] = schema
         return result["processor"]
 
-    def _get_llm_logprobs(self, output: "CompletionOutput") -> List[List["Logprob"]]:
-        logprobs = []
-        for token_logprob in output.logprobs:  # type: ignore
+    def _get_llm_logprobs(
+        self, logprobs: Union["PromptLogprobs", "SampleLogprobs"]
+    ) -> List[List["Logprob"]]:
+        processed_logprobs = []
+        for token_logprob in logprobs:  # type: ignore
             token_logprobs = []
+            if token_logprob is None:
+                processed_logprobs.append(None)
+                continue
             for logprob in token_logprob.values():
                 token_logprobs.append(
                     {"token": logprob.decoded_token, "logprob": logprob.logprob}
                 )
-            logprobs.append(token_logprobs)
-        return logprobs
+            processed_logprobs.append(token_logprobs)
+        return processed_logprobs
 
 
 class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):

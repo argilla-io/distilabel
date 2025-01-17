@@ -98,6 +98,33 @@ class TestOpenAILLM:
         }
 
     @pytest.mark.asyncio
+    async def test_agenerate_with_string_input(
+        self, async_openai_mock: MagicMock, _openai_mock: MagicMock
+    ) -> None:
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
+        llm._aclient = async_openai_mock
+
+        mocked_completion = Mock(
+            choices=[
+                Mock(
+                    text=" Aenean hendrerit aliquam velit. ...",
+                    logprobs=Mock(top_logprobs=[{" ": -1}, {"Aenean": -2}]),
+                )
+            ],
+            usage=Mock(prompt_tokens=100, completion_tokens=100),
+        )
+        llm._aclient.completions.create = AsyncMock(return_value=mocked_completion)
+
+        result = await llm.agenerate(input="string input")
+        assert result == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
+            "logprobs": [
+                [[{"token": " ", "logprob": -1}], [{"token": "Aenean", "logprob": -2}]]
+            ],
+        }
+
+    @pytest.mark.asyncio
     async def test_agenerate_structured(
         self, async_openai_mock: MagicMock, _openai_mock: MagicMock
     ) -> None:
@@ -216,6 +243,40 @@ class TestOpenAILLM:
             ]
         )
         assert result == expected_result
+
+    @pytest.mark.asyncio
+    async def test_generate_with_string_input(
+        self, async_openai_mock: MagicMock, _openai_mock: MagicMock
+    ) -> None:
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
+        llm._aclient = async_openai_mock
+
+        mocked_completion = Mock(
+            choices=[
+                Mock(
+                    text=" Aenean hendrerit aliquam velit. ...",
+                    logprobs=Mock(top_logprobs=[{" ": -1}, {"Aenean": -2}]),
+                )
+            ],
+            usage=Mock(prompt_tokens=100, completion_tokens=100),
+        )
+        llm._aclient.completions.create = AsyncMock(return_value=mocked_completion)
+
+        nest_asyncio.apply()
+
+        result = llm.generate(inputs=["input string"])
+        assert result == [
+            {
+                "generations": [" Aenean hendrerit aliquam velit. ..."],
+                "statistics": {"input_tokens": [100], "output_tokens": [100]},
+                "logprobs": [
+                    [
+                        [{"token": " ", "logprob": -1}],
+                        [{"token": "Aenean", "logprob": -2}],
+                    ]
+                ],
+            }
+        ]
 
     @pytest.mark.asyncio
     async def test_generate_raises_value_error_if_unknown_response_format(
