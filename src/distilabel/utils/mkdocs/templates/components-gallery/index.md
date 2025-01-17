@@ -5,6 +5,14 @@ hide:
 ---
 # Components Gallery
 
+??? info "Category Overview" 
+    | Icon                       | Category   | Description                                                       |
+    |----------------------------|------------|-------------------------------------------------------------------|
+    | :material-step-forward:    | Steps      | Steps are used for data manipulation.                            |
+    | :material-check-outline:   | Tasks      | Tasks allow performing data generation, annotation, and more.    |
+    | :material-brain:           | LLMs       | Explore all available Large Language Models integrated with distilabel. |
+    | :material-vector-line:     | Embeddings | Explore all available Embeddings Models integrated with distilabel.    |
+
 <div class="grid cards" markdown>
 
 -   :material-step-forward:{ .lg .middle } __Steps__

@@ -19,7 +19,7 @@ class MyCustomTask(GeneratorTask):
     instruction: str
 
     @override
-    def process(self, offset: int = 0) -> GeneratorOutput:
+    def process(self, offset: int = 0) -> GeneratorStepOutput:
         output = self.llm.generate(
             inputs=[
                 [
@@ -82,7 +82,7 @@ from distilabel.typing import ChatType
 
 class MyCustomTask(GeneratorTask):
     @override
-    def process(self, offset: int = 0) -> GeneratorOutput:
+    def process(self, offset: int = 0) -> GeneratorStepOutput:
         output = self.llm.generate(
             inputs=[
                 [{"role": "user", "content": "Tell me a joke."}],
