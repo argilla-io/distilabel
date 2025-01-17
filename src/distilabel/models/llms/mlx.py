@@ -19,9 +19,11 @@ from typing import (
     Dict,
     List,
     Optional,
+    Union,
 )
 
 from pydantic import (
+    Field,
     PrivateAttr,
     validate_call,
 )
@@ -42,7 +44,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
     Attributes:
         path_or_hf_repo: the path to the model or the Hugging Face Hub repo id.
         tokenizer_config: the tokenizer configuration.
-        model_config: the model configuration.
+        mlx_model_config: the MLX model configuration.
         adapter_path: the path to the adapter.
         use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
             template. Defaults to `False`.
@@ -70,21 +72,21 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
     """
 
     path_or_hf_repo: str
-    tokenizer_config: Dict[str, Any] = {}
-    model_config: Dict[str, Any] = {}
+    tokenizer_config: Dict[str, Any] = Field(default_factory=dict)
+    mlx_model_config: Dict[str, Any] = Field(default_factory=dict)
     adapter_path: Optional[str] = None
 
-    _mlx_generate: Optional[Callable] = PrivateAttr(default=None)
-    _model: Optional["nn.Module"] = PrivateAttr(...)
-    _tokenizer: Optional["TokenizerWrapper"] = PrivateAttr(...)
-    _make_sampler: Optional[Callable] = PrivateAttr(default=None)
+    _model: Optional["nn.Module"] = PrivateAttr(None)
+    _tokenizer: Optional["TokenizerWrapper"] = PrivateAttr(None)
+    _mlx_generate: Optional[Callable] = PrivateAttr(None)
+    _make_sampler: Optional[Callable] = PrivateAttr(None)
 
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
         it will configure the tokenizer chat template."""
         try:
             import mlx  # noqa
-            from mlx_lm import generate, load
+            from mlx_lm.utils import generate, load
             from mlx_lm.sample_utils import make_sampler
         except ImportError as ie:
             raise ImportError(
@@ -94,7 +96,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         self._model, self._tokenizer = load(
             self.path_or_hf_repo,
             tokenizer_config=self.tokenizer_config,
-            model_config=self.model_config,
+            model_config=self.mlx_model_config,
             adapter_path=self.adapter_path,
         )
 
@@ -110,7 +112,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         """Returns the model name used for the LLM."""
         return self.path_or_hf_repo
 
-    def prepare_input(self, input: "StandardInput") -> str:
+    def prepare_input(self, input: Union["StandardInput", str]) -> str:
         """Prepares the input (applying the chat template and tokenization) for the provided
         input.
 
@@ -120,11 +122,11 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         Returns:
             The prompt to send to the LLM.
         """
-        if self._tokenizer.chat_template is None:
-            return input[0]["content"]
+        if isinstance(input, str):
+            return input
 
         prompt: str = (
-            self._tokenizer.apply_chat_template(
+            self._tokenizer.apply_chat_template(  # type: ignore
                 input,
                 tokenize=False,
                 add_generation_prompt=True,
@@ -135,9 +137,9 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         return super().apply_magpie_pre_query_template(prompt, input)
 
     @validate_call
-    def generate(
+    def generate(  # type: ignore
         self,
-        inputs: List[StandardInput],
+        inputs: List[Union[StandardInput, str]],
         num_generations: int = 1,
         max_tokens: int = 256,
         logits_processors: Optional[List[Callable]] = None,
@@ -173,16 +175,18 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             quantized_kv_start: the start of the quantized key-value cache. Defaults to `0`.
             prompt_progress_callback: the callback to use for the generation. Defaults to
                 `None`.
-            repetition_penalty: the repetition penalty to use for the generation. Defaults to
-                `None`.
-            repetition_context_size: the context size for the repetition penalty. Defaults to
-                `None`.
+            temp: The temperature for text generation. Defaults to `0.0`.
+            top_p" The top-p value used for the generation. Defaults to `0.0`.
+            min_p: The min-p value used for the generation. Defaults to `0.0`.
+            min_tokens_to_keep: Minimum number of tokens to keep for sampling after
+                filtering. Must be at least 1. Defaults to `1`.
+            top_k: The top-k value used for the generation. Defaults to `-1`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
 
-        sampler = self._make_sampler(
+        sampler = self._make_sampler(  # type: ignore
             temp=temp,
             top_p=top_p,
             min_p=min_p,
@@ -200,7 +204,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
                 if structured_output:  # will raise a NotImplementedError
                     self._prepare_structured_output(structured_output)
                 prompt = self.prepare_input(input)
-                generation = self._mlx_generate(
+                generation = self._mlx_generate(  # type: ignore
                     prompt=prompt,
                     model=self._model,
                     tokenizer=self._tokenizer,
@@ -220,12 +224,12 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
 
             result.append(
                 prepare_output(
-                    output,
-                    input_tokens=[compute_tokens(input, self._tokenizer.encode)],
+                    generations=output,
+                    input_tokens=[compute_tokens(input, self._tokenizer.encode)],  # type: ignore
                     output_tokens=[
                         compute_tokens(
                             text_or_messages=generation,
-                            tokenizer=self._tokenizer.encode,
+                            tokenizer=self._tokenizer.encode,  # type: ignore
                         )
                         for generation in output
                     ],
