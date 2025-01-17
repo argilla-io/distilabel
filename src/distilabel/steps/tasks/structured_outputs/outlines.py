@@ -28,7 +28,6 @@ from typing import (
     get_args,
 )
 
-import pkg_resources
 from pydantic import BaseModel
 
 from distilabel.errors import DistilabelUserError
@@ -50,6 +49,8 @@ def _is_outlines_version_below_0_1_0() -> bool:
     Returns:
         bool: True if outlines is not installed or version is below 0.1.0
     """
+    import pkg_resources
+
     if not importlib.util.find_spec("outlines"):
         raise ImportError(
             "Outlines is not installed. Please install it using `pip install outlines`."

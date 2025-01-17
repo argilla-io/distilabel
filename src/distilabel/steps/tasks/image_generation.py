@@ -15,7 +15,6 @@
 import hashlib
 from typing import TYPE_CHECKING
 
-from distilabel.models.image_generation.utils import image_from_str
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import ImageTask
 
@@ -117,6 +116,13 @@ class ImageGeneration(ImageTask):
     save_artifacts: bool = False
     image_format: str = "JPEG"
 
+    def load(self) -> None:
+        from distilabel.models.image_generation.utils import image_from_str
+
+        super().load()
+
+        self._image_from_str = image_from_str
+
     @property
     def inputs(self) -> "StepColumns":
         return ["prompt"]
@@ -166,7 +172,7 @@ class ImageGeneration(ImageTask):
                     # use prompt as filename
                     prompt_hash = hashlib.md5(input["prompt"].encode()).hexdigest()
                     # Build PIL image to save it
-                    image = image_from_str(image)
+                    image = self._image_from_str(image)
 
                     self.save_artifact(
                         name="images",

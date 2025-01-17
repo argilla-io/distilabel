@@ -15,7 +15,6 @@
 from typing import TYPE_CHECKING, Any, Literal, Union
 
 from jinja2 import Template
-from PIL import Image
 from pydantic import Field
 
 from distilabel.steps.tasks.base import Task

@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from typing_extensions import override
 
@@ -125,15 +124,3 @@ class GroupColumns(Step):
             group_columns=self.inputs,
             output_group_columns=self.outputs,
         )
-
-
-class CombineColumns(GroupColumns):
-    """`CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead."""
-
-    def __init__(self, **data: Any) -> None:
-        warnings.warn(
-            "`CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return super().__init__(**data)
