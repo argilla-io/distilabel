@@ -77,6 +77,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
     _mlx_generate: Optional[Callable] = PrivateAttr(default=None)
     _model: Optional["nn.Module"] = PrivateAttr(...)
     _tokenizer: Optional["TokenizerWrapper"] = PrivateAttr(...)
+    _make_sampler: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
@@ -84,6 +85,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         try:
             import mlx  # noqa
             from mlx_lm import generate, load
+            from mlx_lm.sample_utils import make_sampler
         except ImportError as ie:
             raise ImportError(
                 "MLX is not installed. Please install it using `pip install 'distilabel[mlx]'`."
@@ -100,7 +102,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             self._tokenizer.pad_token = self._tokenizer.eos_token
 
         self._mlx_generate = generate
-
+        self._make_sampler = make_sampler
         super().load()
 
     @property
@@ -138,7 +140,6 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         inputs: List[StandardInput],
         num_generations: int = 1,
         max_tokens: int = 256,
-        sampler: Optional[Callable] = None,
         logits_processors: Optional[List[Callable]] = None,
         max_kv_size: Optional[int] = None,
         prompt_cache: Optional[Any] = None,
@@ -147,10 +148,11 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         kv_group_size: int = 64,
         quantized_kv_start: int = 0,
         prompt_progress_callback: Optional[Callable[[int, int], None]] = None,
-        temp: Optional[float] = None,
         repetition_penalty: Optional[float] = None,
         repetition_context_size: Optional[int] = None,
+        temp: Optional[float] = None,
         top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
         min_p: Optional[float] = None,
         min_tokens_to_keep: Optional[int] = None,
     ) -> List[GenerateOutput]:
@@ -163,7 +165,6 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
                 `1`.
             max_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            sampler: the sampler to use for the generation. Defaults to `None`.
             logits_processors: the logits processors to use for the generation. Defaults to
                 `None`.
             max_kv_size: the maximum size of the key-value cache. Defaults to `None`.
@@ -180,12 +181,20 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             repetition_context_size: the context size for the repetition penalty. Defaults to
                 `None`.
             top_p: the top-p value to use for the generation. Defaults to `None`.
+            top_k: the top-k value to use for the generation. Defaults to `None`.
             min_p: the minimum p value to use for the generation. Defaults to `None`.
             min_tokens_to_keep: the minimum number of tokens to keep. Defaults to `None`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        sampler = self._make_sampler(
+            temp=temp,
+            top_p=top_p,
+            min_p=min_p,
+            min_tokens_to_keep=min_tokens_to_keep,
+            top_k=top_k,
+        )
         structured_output = None
         result = []
         for input in inputs:
@@ -211,12 +220,8 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
                     kv_group_size=kv_group_size,
                     quantized_kv_start=quantized_kv_start,
                     prompt_progress_callback=prompt_progress_callback,
-                    temp=temp,
                     repetition_penalty=repetition_penalty,
                     repetition_context_size=repetition_context_size,
-                    top_p=top_p,
-                    min_p=min_p,
-                    min_tokens_to_keep=min_tokens_to_keep,
                 )
 
                 output.append(generation)
