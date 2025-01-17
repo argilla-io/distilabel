@@ -20440,7 +20440,7 @@ to <code>None</code>.</p>
     <p>Generate text:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.models.llms</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlxLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">MlxLLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;mlx-community/Meta-Llama-3.1-8B-Instruct-4bit&quot;</span><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">MlxLLM</span><span class="p">(</span><span class="n">path_or_hf_repo</span><span class="o">=</span><span class="s2">&quot;mlx-community/Meta-Llama-3.1-8B-Instruct-4bit&quot;</span><span class="p">)</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
@@ -20677,7 +20677,7 @@ to <code>None</code>.</p>
 </span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">        ```python</span>
 </span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">        from distilabel.models.llms import MlxLLM</span>
 </span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a>
-</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">        llm = MlxLLM(model=&quot;mlx-community/Meta-Llama-3.1-8B-Instruct-4bit&quot;)</span>
+</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">        llm = MlxLLM(path_or_hf_repo=&quot;mlx-community/Meta-Llama-3.1-8B-Instruct-4bit&quot;)</span>
 </span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a>
 </span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="sd">        llm.load()</span>
 </span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a>
