@@ -148,8 +148,11 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         kv_group_size: int = 64,
         quantized_kv_start: int = 0,
         prompt_progress_callback: Optional[Callable[[int, int], None]] = None,
-        repetition_penalty: Optional[float] = None,
-        repetition_context_size: Optional[int] = None,
+        temp: float = 0.0,
+        top_p: float = 0.0,
+        min_p: float = 0.0,
+        min_tokens_to_keep: int = 1,
+        top_k: int = -1,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
@@ -179,7 +182,13 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             A list of lists of strings containing the generated responses for each input.
         """
 
-        sampler = self._make_sampler()
+        sampler = self._make_sampler(
+            temp=temp,
+            top_p=top_p,
+            min_p=min_p,
+            min_tokens_to_keep=min_tokens_to_keep,
+            top_k=top_k,
+        )
         structured_output = None
         result = []
         for input in inputs:
