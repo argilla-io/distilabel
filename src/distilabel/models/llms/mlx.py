@@ -150,11 +150,6 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         prompt_progress_callback: Optional[Callable[[int, int], None]] = None,
         repetition_penalty: Optional[float] = None,
         repetition_context_size: Optional[int] = None,
-        temp: Optional[float] = None,
-        top_p: Optional[float] = None,
-        top_k: Optional[int] = None,
-        min_p: Optional[float] = None,
-        min_tokens_to_keep: Optional[int] = None,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
@@ -175,26 +170,16 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             quantized_kv_start: the start of the quantized key-value cache. Defaults to `0`.
             prompt_progress_callback: the callback to use for the generation. Defaults to
                 `None`.
-            temp: the temperature to use for the generation. Defaults to `None`.
             repetition_penalty: the repetition penalty to use for the generation. Defaults to
                 `None`.
             repetition_context_size: the context size for the repetition penalty. Defaults to
                 `None`.
-            top_p: the top-p value to use for the generation. Defaults to `None`.
-            top_k: the top-k value to use for the generation. Defaults to `None`.
-            min_p: the minimum p value to use for the generation. Defaults to `None`.
-            min_tokens_to_keep: the minimum number of tokens to keep. Defaults to `None`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        sampler = self._make_sampler(
-            temp=temp,
-            top_p=top_p,
-            min_p=min_p,
-            min_tokens_to_keep=min_tokens_to_keep,
-            top_k=top_k,
-        )
+
+        sampler = self._make_sampler()
         structured_output = None
         result = []
         for input in inputs:
@@ -220,8 +205,6 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
                     kv_group_size=kv_group_size,
                     quantized_kv_start=quantized_kv_start,
                     prompt_progress_callback=prompt_progress_callback,
-                    repetition_penalty=repetition_penalty,
-                    repetition_context_size=repetition_context_size,
                 )
 
                 output.append(generation)
