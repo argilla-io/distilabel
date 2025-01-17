@@ -20,7 +20,6 @@ from distilabel.models.base_clients.inference_endpoints import (
     InferenceEndpointsBaseClient,
 )
 from distilabel.models.image_generation.base import AsyncImageGenerationModel
-from distilabel.models.image_generation.utils import image_to_str
 
 if TYPE_CHECKING:
     from PIL.Image import Image
@@ -60,9 +59,13 @@ class InferenceEndpointsImageGeneration(  # type: ignore
     """
 
     def load(self) -> None:
+        from distilabel.models.image_generation.utils import image_to_str
+
         # Sets the logger and calls the load method of the BaseClient
         AsyncImageGenerationModel.load(self)
         InferenceEndpointsBaseClient.load(self)
+
+        self._image_to_str = image_to_str
 
     @validate_call
     async def agenerate(  # type: ignore
@@ -101,6 +104,6 @@ class InferenceEndpointsImageGeneration(  # type: ignore
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
         )
-        img_str = image_to_str(image, image_format="JPEG")
+        img_str = self._image_to_str(image, image_format="JPEG")
 
         return [{"images": [img_str]}]
