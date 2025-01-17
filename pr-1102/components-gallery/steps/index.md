@@ -48,14 +48,6 @@ hide:
 
     [:octicons-arrow-right-24: TextGenerationToArgilla](textgenerationtoargilla.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __CombineColumns__
-
-    ---
-
-    `CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead.
-
-    [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
-
 -   :material-content-save:{ .lg .middle } __PushToHub__
 
     ---
