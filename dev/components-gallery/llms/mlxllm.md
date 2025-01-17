@@ -19,7 +19,7 @@ Apple MLX LLM implementation.
 
 - **tokenizer_config**: the tokenizer configuration.
 
-- **model_config**: the model configuration.
+- **mlx_model_config**: the MLX model configuration.
 
 - **adapter_path**: the path to the adapter.
 
