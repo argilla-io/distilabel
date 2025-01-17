@@ -102,7 +102,7 @@ text-clustering = [
     "scikit-learn >= 1.4.1",
     "matplotlib >= 3.8.3",   # For the figure (even though it's optional)
 ]
-mlx = ["mlx >= 0.21.0", "mlx-lm >= 0.21, < 0.22"]
+mlx = ["mlx >= 0.21.0", "mlx-lm >= 0.21.0, < 0.22.0"]
 vision = ["Pillow >= 10.3.0"]  # To work with images.
 
 # minhash
