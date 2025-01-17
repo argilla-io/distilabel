@@ -60,7 +60,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         ```python
         from distilabel.models.llms import MlxLLM
 
-        llm = MlxLLM(model="mlx-community/Meta-Llama-3.1-8B-Instruct-4bit")
+        llm = MlxLLM(path_or_hf_repo="mlx-community/Meta-Llama-3.1-8B-Instruct-4bit")
 
         llm.load()
 
