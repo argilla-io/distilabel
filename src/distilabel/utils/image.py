@@ -14,12 +14,14 @@
 
 import base64
 import io
+from typing import TYPE_CHECKING
 
-from PIL import Image
+if TYPE_CHECKING:
+    from PIL import Image
 
 
 # TODO: Once we merge the image generation, this function can be reused
-def image_to_str(image: Image.Image, image_format: str = "JPEG") -> str:
+def image_to_str(image: "Image.Image", image_format: str = "JPEG") -> str:
     """Converts a PIL Image to a base64 encoded string."""
     buffered = io.BytesIO()
     image.save(buffered, format=image_format)
