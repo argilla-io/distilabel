@@ -176,7 +176,7 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             prompt_progress_callback: the callback to use for the generation. Defaults to
                 `None`.
             temp: The temperature for text generation. Defaults to `0.0`.
-            top_p" The top-p value used for the generation. Defaults to `0.0`.
+            top_p: The top-p value used for the generation. Defaults to `0.0`.
             min_p: The min-p value used for the generation. Defaults to `0.0`.
             min_tokens_to_keep: Minimum number of tokens to keep for sampling after
                 filtering. Must be at least 1. Defaults to `1`.
