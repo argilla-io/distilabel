@@ -106,8 +106,8 @@ class TestvLLM:
     @pytest.mark.parametrize(
         "multi_structured_output",
         # TODO:  uncomment once with update our code to work with `outlines>0.1.0`
-        # (True, False),
-        (False,),
+        (True, False),
+        # (False,),
     )
     @pytest.mark.parametrize(
         "num_generations, expected_result",
@@ -183,6 +183,7 @@ class TestvLLM:
 
         mocked_requests_output = [
             mock.Mock(  # RequestOutput
+                prompt_logprobs=[],
                 outputs=[
                     mock.Mock(  # CompletionOutput
                         text="I'm fine thank you",
