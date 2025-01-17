@@ -14,10 +14,8 @@
 
 import base64
 import io
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from PIL import Image
+from PIL import Image
 
 
 def image_to_str(image: "Image.Image", image_format: str = "JPEG") -> str:
