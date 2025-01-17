@@ -38,6 +38,7 @@ dependencies = [
     "orjson >= 3.10.0",
     "universal_pathlib >= 0.2.2",
     "portalocker >= 2.8.2",
+    "setuptools",
 ]
 dynamic = ["version"]
 
@@ -90,9 +91,7 @@ ray = ["ray[default] >= 2.31.0"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 vllm = [
     "vllm >= 0.5.3",
-    "filelock >= 3.13.4",
-    # `setuptools` is needed to be installed if installed with `uv pip install distilabel[vllm]`
-    "setuptools",
+    "filelock >= 3.13.4"
 ]
 sentence-transformers = ["sentence-transformers >= 3.0.0"]
 faiss-cpu = ["faiss-cpu >= 1.8.0"]
