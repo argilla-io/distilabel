@@ -17,6 +17,7 @@ import importlib.util
 import inspect
 import json
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -27,14 +28,34 @@ from typing import (
     get_args,
 )
 
+import pkg_resources
 from pydantic import BaseModel
 
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
-from distilabel.steps.tasks.typing import StructuredOutputType
+
+if TYPE_CHECKING:  # noqa
+    from llama_cpp import Llama  # noqa
+    from transformers import Pipeline  # noqa
+    from vllm import LLM as _vLLM  # noqa
+
+    from distilabel.typing import OutlinesStructuredOutputType  # noqa
 
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
-"""Available frameworks for the structured output configuration. """
+
+
+def _is_outlines_version_below_0_1_0() -> bool:
+    """Helper function to check outlines availability and version.
+
+    Returns:
+        bool: True if outlines is not installed or version is below 0.1.0
+    """
+    if not importlib.util.find_spec("outlines"):
+        raise ImportError(
+            "Outlines is not installed. Please install it using `pip install outlines`."
+        )
+    version = pkg_resources.get_distribution("outlines").version
+    return pkg_resources.parse_version(version) < pkg_resources.parse_version("0.1.0")
 
 
 def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
@@ -43,39 +64,78 @@ def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
 
 
 def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
-    """Helper function to return the appropriate logits processor for the given framework."""
-    if framework == "transformers":
-        from outlines.integrations.transformers import (
-            JSONPrefixAllowedTokens,
-            RegexPrefixAllowedTokens,
+    """Helper function to return the appropriate logits processors for the given framework."""
+    if _is_outlines_version_below_0_1_0():
+        processors = {
+            "transformers": (
+                "outlines.integrations.transformers",
+                "JSONPrefixAllowedTokens",
+                "RegexPrefixAllowedTokens",
+            ),
+            "llamacpp": (
+                "outlines.integrations.llamacpp",
+                "JSONLogitsProcessor",
+                "RegexLogitsProcessor",
+            ),
+            "vllm": (
+                "outlines.integrations.vllm",
+                "JSONLogitsProcessor",
+                "RegexLogitsProcessor",
+            ),
+        }
+    else:
+        processors = {
+            "transformers": (
+                "outlines.processors",
+                "JSONLogitsProcessor",
+                "RegexLogitsProcessor",
+            ),
+            "llamacpp": (
+                "outlines.processors",
+                "JSONLogitsProcessor",
+                "RegexLogitsProcessor",
+            ),
+            "vllm": (
+                "outlines.processors",
+                "JSONLogitsProcessor",
+                "RegexLogitsProcessor",
+            ),
+        }
+
+    if framework not in processors:
+        raise DistilabelUserError(
+            f"Invalid framework '{framework}'. Must be one of {get_args(Frameworks)}",
+            page="sections/how_to_guides/advanced/structured_generation/",
         )
 
-        return JSONPrefixAllowedTokens, RegexPrefixAllowedTokens
+    module_path, json_cls, regex_cls = processors[framework]
+    module = importlib.import_module(module_path)
+    return getattr(module, json_cls), getattr(module, regex_cls)
 
+
+def _get_tokenizer_from_model(
+    llm: Union["_vLLM", "Pipeline", "Llama"],
+    framework: Frameworks,
+) -> Callable:
     if framework == "llamacpp":
-        from outlines.integrations.llamacpp import (
-            JSONLogitsProcessor,
-            RegexLogitsProcessor,
-        )
+        from outlines.models.llamacpp import LlamaCppTokenizer
 
-        return JSONLogitsProcessor, RegexLogitsProcessor
+        return LlamaCppTokenizer(llm)
+    if framework == "transformers":
+        from outlines.models.transformers import TransformerTokenizer
 
+        return TransformerTokenizer(llm.tokenizer)
     if framework == "vllm":
-        from outlines.integrations.vllm import JSONLogitsProcessor, RegexLogitsProcessor
+        from outlines.models.vllm import adapt_tokenizer
 
-        return JSONLogitsProcessor, RegexLogitsProcessor
-
-    raise DistilabelUserError(
-        f"Invalid framework '{framework}'. Must be one of {get_args(Frameworks)}",
-        page="sections/how_to_guides/advanced/structured_generation/",
-    )
+        return adapt_tokenizer(llm.get_tokenizer())
 
 
 def prepare_guided_output(
-    structured_output: StructuredOutputType,
+    structured_output: "OutlinesStructuredOutputType",
     framework: Frameworks,
-    llm: Any,
-) -> Dict[str, Union[Callable, None]]:
+    llm: Union["_vLLM", "Pipeline", "Llama"],
+) -> Dict[str, Any]:
     """Prepares the `LLM` to generate guided output using `outlines`.
 
     It allows to generate JSON or Regex structured outputs for the integrated
@@ -95,15 +155,13 @@ def prepare_guided_output(
         case of "json" will also include the schema as a dict, to simplify serialization
         and deserialization.
     """
-    if not importlib.util.find_spec("outlines"):
-        raise ImportError(
-            "Outlines is not installed. Please install it using `pip install outlines`."
-        )
 
     json_processor, regex_processor = _get_logits_processor(framework)
 
     format = structured_output.get("format")
     schema = structured_output.get("schema")
+
+    assert schema is not None, "schema cannot be `None`"
 
     # If schema not informed (may be forgotten), try infering it
     if not format:
@@ -112,18 +170,27 @@ def prepare_guided_output(
         elif isinstance(schema, str):
             format = "regex"
 
+    if _is_outlines_version_below_0_1_0():
+        # use the llm for processor initialization
+        model = llm
+        tokenizer = None
+    else:
+        # use the tokenizer for processor initialization
+        model = None
+        tokenizer = _get_tokenizer_from_model(llm, framework)
+
     if format == "json":
         return {
             "processor": json_processor(
                 schema,
-                llm,
+                model or tokenizer,
                 whitespace_pattern=structured_output.get("whitespace_pattern"),
             ),
             "schema": schema_as_dict(schema),
         }
 
     if format == "regex":
-        return {"processor": regex_processor(schema, llm)}
+        return {"processor": regex_processor(schema, model or tokenizer)}
 
     raise DistilabelUserError(
         f"Invalid format '{format}'. Must be either 'json' or 'regex'.",

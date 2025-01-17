@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Union
 
 from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import StructuredInput
+from distilabel.typing import StructuredInput
 
 
 class StructuredGeneration(Task):
@@ -52,7 +52,7 @@ class StructuredGeneration(Task):
 
         ```python
         from distilabel.steps.tasks import StructuredGeneration
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         structured_gen = StructuredGeneration(
             llm=InferenceEndpointsLLM(
@@ -109,7 +109,7 @@ class StructuredGeneration(Task):
 
         ```python
         from distilabel.steps.tasks import StructuredGeneration
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         structured_gen = StructuredGeneration(
             llm=InferenceEndpointsLLM(

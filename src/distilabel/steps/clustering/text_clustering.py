@@ -28,7 +28,7 @@ from distilabel.steps.tasks.base import GlobalTask
 from distilabel.utils.itertools import batched
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class TextClustering(TextClassification, GlobalTask):
@@ -74,7 +74,7 @@ class TextClustering(TextClassification, GlobalTask):
         Generate labels for a set of texts using clustering:
 
         ```python
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
         from distilabel.steps import UMAP, DBSCAN, TextClustering
         from distilabel.pipeline import Pipeline
 

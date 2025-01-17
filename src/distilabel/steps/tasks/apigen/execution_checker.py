@@ -33,7 +33,7 @@ from distilabel.steps.tasks.apigen.utils import (
 if TYPE_CHECKING:
     from types import ModuleType
 
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import StepColumns, StepOutput
 
 
 class APIGenExecutionChecker(Step):

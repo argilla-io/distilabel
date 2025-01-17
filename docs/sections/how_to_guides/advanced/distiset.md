@@ -119,6 +119,33 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
 
 The `Citations` section can include any number of bibtex references. To define them, you can add as much elements as needed just like in the example: each citation will be a block of the form: ` ```@misc{...}``` `. This information will be automatically used in the README of your `Distiset` if you decide to call `distiset.push_to_hub`. Alternatively, if the `Citations` is not found, but in the `References` there are found any urls pointing to `https://arxiv.org/`, we will try to obtain the `Bibtex` equivalent automatically. This way, Hugging Face can automatically track the paper for you and it's easier to find other datasets citing the same paper, or directly visiting the paper page.
 
+#### Image Datasets
+
+!!! info "Keep reading if you are interested in Image datasets"
+
+    The `Distiset` object has a new method `transform_columns_to_image` specifically to transform the images to `PIL.Image.Image` before pushing the dataset to the hugging face hub.
+
+Since version `1.5.0` we have the [`ImageGeneration`](https://distilabel.argilla.io/dev/components-gallery/task/imagegeneration/) task that is able to generate images from text. By default, all the process will work internally with a string representation for the images. This is done for simplicity while processing. But to take advantage of the Hugging Face Hub functionalities if the dataset generated is going to be stored there, a proper Image object may be preferable, so we can see the images in the dataset viewer for example. Let's take a look at the following pipeline extracted from "examples/image_generation.py" at the root of the repository to see how we can do it:
+
+```diff
+# Assume all the imports are already done, we are only interested
+with Pipeline(name="image_generation_pipeline") as pipeline:
+    img_generation = ImageGeneration(
+        name="flux_schnell",
+        llm=igm,
+        InferenceEndpointsImageGeneration(model_id="black-forest-labs/FLUX.1-schnell")
+    )
+    ...
+
+if __name__ == "__main__":
+    distiset = pipeline.run(use_cache=False, dataset=ds)
+    # Save the images as `PIL.Image.Image`
++   distiset = distiset.transform_columns_to_image("image")
+    distiset.push_to_hub(...)
+```
+
+After calling [`transform_columns_to_image`][distilabel.distiset.Distiset.transform_columns_to_image] on the image columns we may have generated (in this case we only want to transform the `image` column, but a list can be passed). This will apply to any leaf nodes we have in the pipeline, meaning if we have different subsets, the "image" column will be found in all of them, or we can pass a list of columns.
+
 ### Save and load from disk
 
 Take into account that these methods work as `datasets.load_from_disk` and `datasets.Dataset.save_to_disk` so the arguments are directly passed to those methods. This means you can also make use of `storage_options` argument to save your [`Distiset`][distilabel.distiset.Distiset] in your cloud provider, including the distilabel artifacts (`pipeline.yaml`, `pipeline.log` and the `README.md` with the dataset card). You can read more in `datasets` documentation [here](https://huggingface.co/docs/datasets/filesystems#saving-serialized-datasets).

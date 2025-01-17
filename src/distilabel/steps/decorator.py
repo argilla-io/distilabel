@@ -17,7 +17,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Literal,
     Type,
     Union,
@@ -37,7 +36,7 @@ from distilabel.utils.typing_ import is_parameter_annotated_with
 
 if TYPE_CHECKING:
     from distilabel.steps.base import _Step
-    from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
+    from distilabel.typing import GeneratorStepOutput, StepColumns, StepOutput
 
 _STEP_MAPPING = {
     "normal": Step,
@@ -175,10 +174,10 @@ def step(
             **runtime_parameters,  # type: ignore
         )
 
-        def inputs_property(self) -> List[str]:
+        def inputs_property(self) -> "StepColumns":
             return inputs
 
-        def outputs_property(self) -> List[str]:
+        def outputs_property(self) -> "StepColumns":
             return outputs
 
         def process(

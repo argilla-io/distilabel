@@ -28,7 +28,7 @@ from pydantic import PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.typing import ChatType
 
 _PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
@@ -67,7 +67,7 @@ class QualityScorer(Task):
 
         ```python
         from distilabel.steps.tasks import QualityScorer
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         scorer = QualityScorer(
@@ -102,7 +102,7 @@ class QualityScorer(Task):
 
         ```python
         from distilabel.steps.tasks import QualityScorer
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         scorer = QualityScorer(
             llm=InferenceEndpointsLLM(

@@ -206,7 +206,7 @@ class _Serializable:
                     "_name": getattr(obj, k).__name__,
                     "_values": {x.name: x.value for x in v},  # type: ignore
                 }
-            elif isinstance(v, list):
+            elif isinstance(v, list) and len(v) > 0:
                 obj_list = getattr(obj, k)
                 if isinstance(obj_list, list) and isinstance(
                     obj_list[0], RuntimeParametersMixin

@@ -19,8 +19,9 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
+from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from pydantic import Field, PrivateAttr
@@ -32,8 +33,7 @@ from distilabel.steps.tasks.evol_instruct.utils import GENERATION_MUTATION_TEMPL
 from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.typing import ChatType, GeneratorStepOutput, LLMStatistics
 
 
 class EvolInstructGenerator(GeneratorTask):
@@ -81,7 +81,7 @@ class EvolInstructGenerator(GeneratorTask):
 
         ```python
         from distilabel.steps.tasks import EvolInstructGenerator
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         evol_instruct_generator = EvolInstructGenerator(
@@ -256,7 +256,9 @@ class EvolInstructGenerator(GeneratorTask):
             prompts.append([{"role": "user", "content": prompt_with_template}])
         return prompts
 
-    def _generate_answers(self, instructions: List[List[str]]) -> List[str]:
+    def _generate_answers(
+        self, instructions: List[List[str]]
+    ) -> Tuple[List[str], "LLMStatistics"]:
         """Generates the answer for the last instruction in `instructions`.
 
         Args:
@@ -276,10 +278,17 @@ class EvolInstructGenerator(GeneratorTask):
             _formatted_instructions,
             **self.llm.generation_kwargs,  # type: ignore
         )
-        return flatten_responses(responses)
+        statistics: Dict[str, Any] = defaultdict(list)
+        for response in responses:
+            for k, v in response["statistics"].items():
+                statistics[k].append(v[0])
+
+        return flatten_responses(
+            [response["generations"] for response in responses]
+        ), dict(statistics)
 
     @override
-    def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":  # NOQA: C901, type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
@@ -297,9 +306,17 @@ class EvolInstructGenerator(GeneratorTask):
         while len(instructions) < self.num_instructions:
             prompts = self._apply_random_mutation(iter_no=iter_no)
 
+            # TODO: Update the function to extract from the dict
+            responses = self.llm.generate(prompts, **self.llm.generation_kwargs)  # type: ignore
+
             generated_prompts = flatten_responses(
-                self.llm.generate(prompts, **self.llm.generation_kwargs)  # type: ignore
+                [response["generations"] for response in responses]
             )
+            statistics: "LLMStatistics" = defaultdict(list)
+            for response in responses:
+                for k, v in response["statistics"].items():
+                    statistics[k].append(v[0])
+
             for idx, generated_prompt in enumerate(generated_prompts):
                 generated_prompt = generated_prompt.split("Prompt#:")[-1].strip()
                 if self.max_length >= len(generated_prompt) >= self.min_length:  # type: ignore
@@ -319,11 +336,15 @@ class EvolInstructGenerator(GeneratorTask):
                 mutation_no = len(instructions) - mutation_no
 
             if not self.generate_answers and len(instructions[-mutation_no:]) > 0:
+                formatted_generations = []
+                for mutated_instruction in instructions[-mutation_no:]:
+                    mutated_instruction = self.format_output(mutated_instruction)
+                    mutated_instruction["distilabel_metadata"] = {
+                        f"statistics_instruction_{self.name}": dict(statistics)
+                    }
+                    formatted_generations.append(mutated_instruction)
                 yield (
-                    [
-                        self.format_output(mutated_instruction)
-                        for mutated_instruction in instructions[-mutation_no:]
-                    ],
+                    formatted_generations,
                     len(instructions) >= self.num_instructions,
                 )
 
@@ -334,17 +355,22 @@ class EvolInstructGenerator(GeneratorTask):
                 f"🧠 Generating answers for the {len(instructions)} evolved instructions!"
             )
 
-            answers = self._generate_answers(instructions)
+            answers, statistics = self._generate_answers(instructions)
 
             self._logger.info(
                 f"🎉 Finished generating answers for the {len(instructions)} evolved instructions!"
             )
 
+            formatted_outputs = []
+            for instruction, answer in zip(instructions, answers):
+                formatted_output = self.format_output(instruction, answer)
+                formatted_output["distilabel_metadata"] = {
+                    f"statistics_answer_{self.name}": dict(statistics)
+                }
+                formatted_outputs.append(formatted_output)
+
             yield (
-                [
-                    self.format_output(instruction, answer)
-                    for instruction, answer in zip(instructions, answers)
-                ],
+                formatted_outputs,
                 True,
             )
 

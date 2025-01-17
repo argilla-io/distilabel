@@ -12,11 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.llms._dummy import DummyAsyncLLM
+from typing import TYPE_CHECKING, Any
+
+from distilabel.models.llms.base import AsyncLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import CombineOutputs, LoadDataFromDicts
 from distilabel.steps.generators.data_sampler import DataSampler
 from distilabel.steps.tasks import TextGeneration
+
+if TYPE_CHECKING:
+    from distilabel.typing import FormattedInput, GenerateOutput
+
+
+class DummyAsyncLLM(AsyncLLM):
+    structured_output: Any = None
+
+    def load(self) -> None:
+        pass
+
+    @property
+    def model_name(self) -> str:
+        return "test"
+
+    async def agenerate(  # type: ignore
+        self, input: "FormattedInput", num_generations: int = 1
+    ) -> "GenerateOutput":
+        return {
+            "generations": ["output" for _ in range(num_generations)],
+            "statistics": {},
+        }
 
 
 def get_pipeline():

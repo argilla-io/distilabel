@@ -75,6 +75,7 @@ _LLM_DETAIL_TEMPLATE = Template(
     ).read()
 )
 
+
 _STEPS_CATEGORY_TO_ICON = {
     "text-generation": ":material-text-box-edit:",
     "chat-generation": ":material-chat:",
@@ -92,6 +93,8 @@ _STEPS_CATEGORY_TO_ICON = {
     "load": ":material-file-download:",
     "execution": ":octicons-code-16:",
     "save": ":material-content-save:",
+    "image-generation": ":material-image:",
+    "labelling": ":label:",
 }
 
 _STEP_CATEGORY_TO_DESCRIPTION = {
@@ -111,7 +114,10 @@ _STEP_CATEGORY_TO_DESCRIPTION = {
     "load": "Load steps are used to load the data.",
     "execution": "Executes python functions.",
     "save": "Save steps are used to save the data.",
+    "image-generation": "Image generation steps are used to generate images based on a given prompt.",
+    "labelling": "Labelling steps are used to label the data.",
 }
+
 
 assert list(_STEP_CATEGORY_TO_DESCRIPTION.keys()) == list(
     _STEPS_CATEGORY_TO_ICON.keys()
@@ -196,6 +202,12 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         self.file_paths["llms"] = self._generate_llms_pages(
             src_dir=src_dir, llms=components_info["llms"]
         )
+        self.file_paths["image_generation_models"] = (
+            self._generate_image_generation_pages(
+                src_dir=src_dir,
+                image_generation_models=components_info["image_generation_models"],
+            )
+        )
         self.file_paths["embeddings"] = self._generate_embeddings_pages(
             src_dir=src_dir, embeddings=components_info["embeddings"]
         )
@@ -206,6 +218,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             *self.file_paths["steps"],
             *self.file_paths["tasks"],
             *self.file_paths["llms"],
+            *self.file_paths["image_generation_models"],
             *self.file_paths["embeddings"],
         ]:
             file = File(
@@ -426,6 +439,48 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
         return paths
 
+    def _generate_image_generation_pages(
+        self, src_dir: Path, image_generation_models: list
+    ) -> List[str]:
+        """Generates the files for the `ILMs` subsection of the components gallery.
+
+        Args:
+            src_dir: The path to the source directory.
+            image_generation_models: The list of `ImageGenerationModel` components.
+
+        Returns:
+            The relative paths to the generated files.
+        """
+
+        paths = ["components-gallery/image_generation/index.md"]
+        steps_gallery_page_path = src_dir / paths[0]
+        steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Create detail page for each `ImageGenerationModel`
+        for igm in image_generation_models:
+            content = _LLM_DETAIL_TEMPLATE.render(llm=igm)
+
+            ilm_path = f"components-gallery/image_generation/{igm['name'].lower()}.md"
+            path = src_dir / ilm_path
+            with open(path, "w") as f:
+                f.write(content)
+
+            paths.append(ilm_path)
+
+        # Create the `components-gallery/ilms/index.md` file
+        content = _COMPONENTS_LIST_TEMPLATE.render(
+            title="Image Generation Gallery",
+            description="",
+            components=image_generation_models,
+            component_group="image_generation_models",
+            default_icon=":material-image:",
+        )
+
+        with open(steps_gallery_page_path, "w") as f:
+            f.write(content)
+
+        return paths
+
     def _generate_embeddings_pages(self, src_dir: Path, embeddings: list) -> List[str]:
         """Generates the files for the `Embeddings` subsection of the components gallery.
 
@@ -488,6 +543,10 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         steps_file = files.get_file_from_path(self.file_paths["steps"][0])
         tasks_file = files.get_file_from_path(self.file_paths["tasks"][0])
         llms_file = files.get_file_from_path(self.file_paths["llms"][0])
+        image_generation_file = files.get_file_from_path(
+            self.file_paths["image_generation_models"][0]
+        )
+
         steps_files = [
             files.get_file_from_path(path) for path in self.file_paths["steps"][0:]
         ]
@@ -496,6 +555,10 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         ]
         llms_files = [
             files.get_file_from_path(path) for path in self.file_paths["llms"][0:]
+        ]
+        image_generation_files = [
+            files.get_file_from_path(path)
+            for path in self.file_paths["image_generation_models"][0:]
         ]
 
         # Create subsections
@@ -508,13 +571,19 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         llms_page = SectionPage(
             "LLMs", file=llms_file, config=config, children=llms_files
         )  # type: ignore
+        igms_page = SectionPage(
+            "ImageGenerationModels",
+            file=image_generation_file,
+            config=config,
+            children=image_generation_files,
+        )  # type: ignore
 
         # Create the gallery section
         page = SectionPage(
             title=self.config.page_title,
             file=components_gallery_file,
             config=config,
-            children=[steps_page, tasks_page, llms_page],
+            children=[steps_page, tasks_page, llms_page, igms_page],
         )
 
         # Add the page

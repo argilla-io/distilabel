@@ -24,8 +24,7 @@ from distilabel.steps.tasks.apigen.utils import remove_fences
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import ChatType, StepColumns
 
 
 SYSTEM_PROMPT_SEMANTIC_CHECKER: Final[str] = """\
@@ -80,7 +79,7 @@ class APIGenSemanticChecker(Task):
 
         ```python
         from distilabel.steps.tasks import APIGenSemanticChecker
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         llm=InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
@@ -125,7 +124,7 @@ class APIGenSemanticChecker(Task):
 
         ```python
         from distilabel.steps.tasks import APIGenSemanticChecker
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         llm=InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",

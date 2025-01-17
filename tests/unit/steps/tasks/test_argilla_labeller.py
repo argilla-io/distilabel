@@ -19,7 +19,7 @@ import pytest
 
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.argilla_labeller import ArgillaLabeller
-from distilabel.steps.tasks.typing import ChatItem
+from distilabel.typing import ChatItem
 from tests.unit.conftest import DummyAsyncLLM
 
 
@@ -28,8 +28,6 @@ def fields() -> Dict[str, Any]:
     return [
         {
             "name": "text",
-            "description": "The text of the question",
-            "title": "The text of the question",
             "settings": {"type": "text"},
         }
     ]
@@ -40,8 +38,6 @@ def questions() -> List[Dict[str, Any]]:
     return [
         {
             "name": "label_selection",
-            "description": "The class of the question",
-            "title": "Is the question a question?",
             "settings": {
                 "type": "label_selection",
                 "options": [
@@ -52,8 +48,6 @@ def questions() -> List[Dict[str, Any]]:
         },
         {
             "name": "multi_label_selection",
-            "description": "The class of the question",
-            "title": "Is the question a question?",
             "settings": {
                 "type": "multi_label_selection",
                 "options": [
@@ -64,8 +58,6 @@ def questions() -> List[Dict[str, Any]]:
         },
         {
             "name": "rating",
-            "description": "The class of the question",
-            "title": "Is the question a question?",
             "settings": {
                 "type": "rating",
                 "options": [
@@ -75,8 +67,6 @@ def questions() -> List[Dict[str, Any]]:
         },
         {
             "name": "text",
-            "description": "The class of the question",
-            "title": "Is the question a question?",
             "settings": {
                 "type": "text",
             },
@@ -141,12 +131,9 @@ class TestArgillaLabeller:
                     "record": records[0],
                 }
             )
-            assert question["description"] in result[-1]["content"]
-            assert question["title"] in result[-1]["content"]
             if question["settings"]["type"] in [
                 "label_selection",
                 "multi_label_selection",
-                "span",
                 "rating",
             ]:
                 assert (

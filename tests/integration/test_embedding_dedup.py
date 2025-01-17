@@ -22,7 +22,7 @@ from distilabel.steps import FaissNearestNeighbour, LoadDataFromDicts, StepInput
 from distilabel.steps.filtering.embedding import EmbeddingDedup
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 SAMPLE_DATA = [

@@ -21,8 +21,7 @@ from pydantic import PrivateAttr
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import ChatType, StepColumns
 
 
 SYSTEM_PROMPT: Final[str] = (
@@ -58,7 +57,7 @@ class CLAIR(Task):
 
         ```python
         from distilabel.steps.tasks import CLAIR
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         llm=InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",

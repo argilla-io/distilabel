@@ -28,7 +28,7 @@ from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class TextGenerationToArgilla(ArgillaBase):

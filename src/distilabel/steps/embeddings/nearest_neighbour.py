@@ -23,7 +23,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps import GlobalStep, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class FaissNearestNeighbour(GlobalStep):
@@ -84,7 +84,7 @@ class FaissNearestNeighbour(GlobalStep):
         Generating embeddings and getting the nearest neighbours:
 
         ```python
-        from distilabel.embeddings.sentence_transformers import SentenceTransformerEmbeddings
+        from distilabel.models import SentenceTransformerEmbeddings
         from distilabel.pipeline import Pipeline
         from distilabel.steps import EmbeddingGeneration, FaissNearestNeighbour, LoadDataFromHub
 
@@ -163,7 +163,7 @@ class FaissNearestNeighbour(GlobalStep):
         if importlib.util.find_spec("faiss") is None:
             raise ImportError(
                 "`faiss` package is not installed. Please install it using `pip install"
-                " faiss-cpu` or `pip install faiss-gpu`."
+                " 'distilabel[faiss-cpu]' or 'distilabel[faiss-gpu]'`."
             )
 
     @property

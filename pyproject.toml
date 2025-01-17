@@ -48,7 +48,7 @@ distilabel = "distilabel.cli.app:app"
 "distilabel/components-gallery" = "distilabel.utils.mkdocs.components_gallery:ComponentsGalleryPlugin"
 
 [project.optional-dependencies]
-dev = ["ruff == 0.6.2", "pre-commit >= 3.5.0"]
+dev = ["ruff == 0.8.1", "pre-commit >= 3.5.0"]
 docs = [
     "mkdocs-material >=9.5.17",
     "mkdocstrings[python] >= 0.24.0",
@@ -102,6 +102,8 @@ text-clustering = [
     "scikit-learn >= 1.4.1",
     "matplotlib >= 3.8.3",   # For the figure (even though it's optional)
 ]
+mlx = ["mlx >= 0.21.0", "mlx-lm"]
+vision = ["Pillow >= 10.3.0"]  # To work with images.
 
 # minhash
 minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]
@@ -121,6 +123,7 @@ exclude = ["docs"]
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B"]
 ignore = ["E501", "B905", "B008"]
+extend-select = ["RUF022"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

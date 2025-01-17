@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.embeddings.sentence_transformers import SentenceTransformerEmbeddings
+from distilabel.models.embeddings.sentence_transformers import (
+    SentenceTransformerEmbeddings,
+)
 from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
 
 

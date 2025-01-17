@@ -28,7 +28,7 @@ else:
     import importlib.resources as importlib_resources
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 GenerationAction = Literal["paraphrase", "semantically-similar", "query", "answer"]
 
@@ -108,7 +108,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -128,7 +128,7 @@ class GenerateSentencePair(Task):
         Generating semantically similar sentences:
 
         ```python
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
         from distilabel.steps.tasks import GenerateSentencePair
 
         generate_sentence_pair = GenerateSentencePair(
@@ -150,7 +150,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -171,7 +171,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -192,7 +192,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -214,7 +214,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -237,7 +237,7 @@ class GenerateSentencePair(Task):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
-        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         generate_sentence_pair = GenerateSentencePair(
             triplet=True, # `False` to generate only positive
@@ -346,7 +346,7 @@ class GenerateSentencePair(Task):
         if self.use_default_structured_output:
             return self._format_structured_output(output)
 
-        match = POSITIVE_NEGATIVE_PAIR_REGEX.match(output)
+        match = POSITIVE_NEGATIVE_PAIR_REGEX.search(output)
         if match is None:
             formatted_output = {"positive": None}
             if self.triplet:

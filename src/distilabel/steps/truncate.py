@@ -108,7 +108,7 @@ class TruncateTextColumn(Step):
             if not importlib.util.find_spec("transformers"):
                 raise ImportError(
                     "`transformers` is needed to tokenize, but is not installed. "
-                    "Please install it using `pip install transformers`."
+                    "Please install it using `pip install 'distilabel[hf-transformers]'`."
                 )
 
             from transformers import AutoTokenizer

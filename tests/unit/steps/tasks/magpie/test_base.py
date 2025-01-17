@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from distilabel.llms.openai import OpenAILLM
+from distilabel.models.llms.openai import OpenAILLM
 from distilabel.steps.tasks.magpie.base import MAGPIE_MULTI_TURN_SYSTEM_PROMPT, Magpie
 from tests.unit.conftest import DummyMagpieLLM
 
@@ -86,16 +86,34 @@ class TestMagpie:
                 "instruction": "Hello Magpie",
                 "response": "Hello Magpie",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12],
+                        "output_tokens": [12, 12],
+                    }
+                },
             },
             {
                 "instruction": "Hello Magpie",
                 "response": "Hello Magpie",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12],
+                        "output_tokens": [12, 12],
+                    }
+                },
             },
             {
                 "instruction": "Hello Magpie",
                 "response": "Hello Magpie",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12],
+                        "output_tokens": [12, 12],
+                    }
+                },
             },
         ]
 
@@ -119,6 +137,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -129,6 +153,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -139,6 +169,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
         ]
 
@@ -167,6 +203,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -177,6 +219,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -187,6 +235,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
         ]
 
@@ -194,10 +248,42 @@ class TestMagpie:
         with mock.patch(
             "tests.unit.conftest.DummyMagpieLLM.generate",
             side_effect=[
-                [["Hello Magpie"], [None], ["Hello Magpie"]],
-                [["Hello Magpie"], ["Hello Magpie"]],
-                [["Hello Magpie"], [None]],
-                [["Hello Magpie"]],
+                [
+                    {
+                        "generations": ["Hello Magpie user"],
+                        "statistics": {
+                            "input_tokens": [12],
+                            "output_tokens": [12],
+                        },
+                    }
+                ],
+                [
+                    {
+                        "generations": [None],
+                        "statistics": {
+                            "input_tokens": [],
+                            "output_tokens": [],
+                        },
+                    }
+                ],
+                [
+                    {
+                        "generations": [None],
+                        "statistics": {
+                            "input_tokens": [],
+                            "output_tokens": [],
+                        },
+                    }
+                ],
+                [
+                    {
+                        "generations": ["Hello Magpie assistant"],
+                        "statistics": {
+                            "input_tokens": [12],
+                            "output_tokens": [12],
+                        },
+                    }
+                ],
             ],
         ):
             task = Magpie(
@@ -206,26 +292,19 @@ class TestMagpie:
 
             task.load()
 
-            assert next(task.process(inputs=[{}, {}, {}])) == [
+            assert next(task.process(inputs=[{}])) == [
                 {
                     "conversation": [
-                        {"role": "user", "content": "Hello Magpie"},
-                        {"role": "assistant", "content": "Hello Magpie"},
-                        {"role": "user", "content": "Hello Magpie"},
-                        {"role": "assistant", "content": "Hello Magpie"},
+                        {"role": "user", "content": "Hello Magpie user"},
+                        {"role": "assistant", "content": "Hello Magpie assistant"},
                     ],
                     "model_name": "test",
-                },
-                {
-                    "conversation": [],
-                    "model_name": "test",
-                },
-                {
-                    "conversation": [
-                        {"role": "user", "content": "Hello Magpie"},
-                        {"role": "assistant", "content": "Hello Magpie"},
-                    ],
-                    "model_name": "test",
+                    "distilabel_metadata": {
+                        "statistics_magpie_0": {
+                            "input_tokens": [12, 12],
+                            "output_tokens": [12, 12],
+                        }
+                    },
                 },
             ]
 
@@ -243,6 +322,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -252,6 +337,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -261,6 +352,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
         ]
 
@@ -281,6 +378,12 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12],
+                        "output_tokens": [12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -289,6 +392,12 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12],
+                        "output_tokens": [12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -297,6 +406,12 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12],
+                        "output_tokens": [12, 12, 12],
+                    }
+                },
             },
         ]
 
@@ -319,6 +434,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -329,6 +450,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "conversation": [
@@ -339,6 +466,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
         ]
 
@@ -370,6 +503,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "system_prompt": "You're a florist expert assistant.",
@@ -381,6 +520,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
             {
                 "system_prompt": "You're a plumber expert assistant.",
@@ -392,6 +537,12 @@ class TestMagpie:
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12, 12, 12, 12],
+                        "output_tokens": [12, 12, 12, 12],
+                    }
+                },
             },
         ]
 
@@ -420,18 +571,36 @@ class TestMagpie:
                     "response": "Hello Magpie",
                     "system_prompt_key": "system_prompt_1",
                     "model_name": "test",
+                    "distilabel_metadata": {
+                        "statistics_magpie_0": {
+                            "input_tokens": [12, 12],
+                            "output_tokens": [12, 12],
+                        }
+                    },
                 },
                 {
                     "instruction": "Hello Magpie",
                     "response": "Hello Magpie",
                     "system_prompt_key": "system_prompt_2",
                     "model_name": "test",
+                    "distilabel_metadata": {
+                        "statistics_magpie_0": {
+                            "input_tokens": [12, 12],
+                            "output_tokens": [12, 12],
+                        }
+                    },
                 },
                 {
                     "instruction": "Hello Magpie",
                     "response": "Hello Magpie",
                     "system_prompt_key": "system_prompt_1",
                     "model_name": "test",
+                    "distilabel_metadata": {
+                        "statistics_magpie_0": {
+                            "input_tokens": [12, 12],
+                            "output_tokens": [12, 12],
+                        }
+                    },
                 },
             ]
 
@@ -447,14 +616,32 @@ class TestMagpie:
             {
                 "instruction": "Hello Magpie",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12],
+                        "output_tokens": [12],
+                    }
+                },
             },
             {
                 "instruction": "Hello Magpie",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12],
+                        "output_tokens": [12],
+                    }
+                },
             },
             {
                 "instruction": "Hello Magpie",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_magpie_0": {
+                        "input_tokens": [12],
+                        "output_tokens": [12],
+                    }
+                },
             },
         ]
 

@@ -236,3 +236,59 @@ class TestDistiset:
             "size_categories": "n<1K",
             "tags": ["synthetic", "distilabel", "rlaif"],
         }
+
+    def test_transform_columns_to_image(self):
+        import numpy as np
+        from PIL import Image
+
+        arr = np.random.randint(0, 255, (100, 100, 3))
+        image = Image.fromarray(arr, "RGB")
+        from distilabel.models.image_generation.utils import image_to_str
+
+        img_str = image_to_str(image)
+
+        distiset_with_images = Distiset(
+            {
+                "leaf_step_1": Dataset.from_dict({"image": [img_str] * 3}),
+                "leaf_step_2": Dataset.from_dict(
+                    {"image": [img_str] * 4, "column": [5, 6, 7, 8]}
+                ),
+            }
+        )
+        distiset_with_images.transform_columns_to_image("image")
+        assert all(
+            isinstance(img, Image.Image)
+            for img in distiset_with_images["leaf_step_1"]["image"]
+        )
+        assert all(
+            isinstance(img, Image.Image)
+            for img in distiset_with_images["leaf_step_2"]["image"]
+        )
+
+        distiset_with_images = Distiset(
+            {
+                "leaf_step_1": Dataset.from_dict({"image": [img_str] * 3}),
+                "leaf_step_2": Dataset.from_dict(
+                    {"image": [img_str] * 4, "column": [5, 6, 7, 8]}
+                ),
+            }
+        )
+        distiset_with_images = distiset_with_images.train_test_split(0.8)
+        print(distiset_with_images)
+        distiset_with_images.transform_columns_to_image("image")
+        assert all(
+            isinstance(img, Image.Image)
+            for img in distiset_with_images["leaf_step_1"]["train"]["image"]
+        )
+        assert all(
+            isinstance(img, Image.Image)
+            for img in distiset_with_images["leaf_step_1"]["test"]["image"]
+        )
+        assert all(
+            isinstance(img, Image.Image)
+            for img in distiset_with_images["leaf_step_2"]["train"]["image"]
+        )
+        assert all(
+            isinstance(img, Image.Image)
+            for img in distiset_with_images["leaf_step_2"]["test"]["image"]
+        )

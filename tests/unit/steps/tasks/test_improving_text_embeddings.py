@@ -17,8 +17,7 @@ from typing import Any, List
 
 import pytest
 
-from distilabel.llms import LLM
-from distilabel.llms.typing import GenerateOutput
+from distilabel.models.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.improving_text_embeddings import (
     BitextRetrievalGenerator,
@@ -29,7 +28,7 @@ from distilabel.steps.tasks.improving_text_embeddings import (
     GenerateTextRetrievalData,
     MonolingualTripletGenerator,
 )
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.typing import ChatType, GenerateOutput
 
 
 class MockLLM(LLM):
@@ -45,7 +44,15 @@ class MockLLM(LLM):
     def generate(  # type: ignore
         self, inputs: List[ChatType], num_generations: int = 1
     ) -> List[GenerateOutput]:
-        return [[self.output] for _ in range(num_generations)]
+        return [
+            {
+                "generations": [self.output for _ in range(num_generations)],
+                "statistics": {
+                    "input_tokens": [12] * num_generations,
+                    "output_tokens": [12] * num_generations,
+                },
+            }
+        ] * len(inputs)
 
 
 class TestEmbeddingTaskGenerator:
@@ -74,13 +81,54 @@ class TestEmbeddingTaskGenerator:
         assert task.outputs == ["tasks" if not flatten_tasks else "task", "model_name"]
 
         result = (
-            ([{"tasks": ["A", "B", "C"], "model_name": "test"}], True)
+            (
+                [
+                    {
+                        "tasks": ["A", "B", "C"],
+                        "model_name": "test",
+                        "distilabel_metadata": {
+                            "statistics_embedding_task_generator": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            }
+                        },
+                    }
+                ],
+                True,
+            )
             if not flatten_tasks
             else (
                 [
-                    {"task": "A", "model_name": "test"},
-                    {"task": "B", "model_name": "test"},
-                    {"task": "C", "model_name": "test"},
+                    {
+                        "task": "A",
+                        "model_name": "test",
+                        "distilabel_metadata": {
+                            "statistics_embedding_task_generator": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            }
+                        },
+                    },
+                    {
+                        "task": "B",
+                        "model_name": "test",
+                        "distilabel_metadata": {
+                            "statistics_embedding_task_generator": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            }
+                        },
+                    },
+                    {
+                        "task": "C",
+                        "model_name": "test",
+                        "distilabel_metadata": {
+                            "statistics_embedding_task_generator": {
+                                "input_tokens": 12,
+                                "output_tokens": 12,
+                            }
+                        },
+                    },
                 ],
                 True,
             )
@@ -131,7 +179,20 @@ class TestBitextRetrievalGenerator:
         assert task.outputs == ["S1", "S2", "S3", "model_name"]
 
         assert next(task.process()) == (
-            [{"S1": "A", "S2": "B", "S3": "C", "model_name": "test"}],
+            [
+                {
+                    "S1": "A",
+                    "S2": "B",
+                    "S3": "C",
+                    "model_name": "test",
+                    "distilabel_metadata": {
+                        "statistics_bitext_retrieval_generator": {
+                            "input_tokens": 12,
+                            "output_tokens": 12,
+                        }
+                    },
+                }
+            ],
             True,
         )
 
@@ -192,7 +253,20 @@ class TestMonolingualTripletGenerator:
         task.load()
         assert task.outputs == ["S1", "S2", "S3", "model_name"]
         assert next(task.process()) == (
-            [{"S1": "A", "S2": "B", "S3": "C", "model_name": "test"}],
+            [
+                {
+                    "S1": "A",
+                    "S2": "B",
+                    "S3": "C",
+                    "model_name": "test",
+                    "distilabel_metadata": {
+                        "statistics_monolingual_triplet_generator": {
+                            "input_tokens": 12,
+                            "output_tokens": 12,
+                        }
+                    },
+                }
+            ],
             True,
         )
 
@@ -241,7 +315,18 @@ class TestGenerateLongTextMatchingData:
         assert task.outputs == ["input", "positive_document", "model_name"]
 
         assert next(task.process(inputs=[{"task": "A"}])) == [
-            {"task": "A", "input": "A", "positive_document": "B", "model_name": "test"}
+            {
+                "task": "A",
+                "input": "A",
+                "positive_document": "B",
+                "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_generate_long_text_matching_data": {
+                        "input_tokens": 12,
+                        "output_tokens": 12,
+                    }
+                },
+            }
         ]
 
 
@@ -271,7 +356,18 @@ class TestGenerateShortTextMatchingData:
         task.load()
         assert task.outputs == ["input", "positive_document", "model_name"]
         assert next(task.process(inputs=[{"task": "A"}])) == [
-            {"task": "A", "input": "A", "positive_document": "B", "model_name": "test"}
+            {
+                "task": "A",
+                "input": "A",
+                "positive_document": "B",
+                "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_generate_short_text_matching_data": {
+                        "input_tokens": 12,
+                        "output_tokens": 12,
+                    }
+                },
+            }
         ]
 
     def test_reproducibility(self) -> None:
@@ -333,6 +429,12 @@ class TestGenerateTextClassificationData:
                 "label": "B",
                 "misleading_label": "C",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_generate_text_classification_data": {
+                        "input_tokens": 12,
+                        "output_tokens": 12,
+                    }
+                },
             }
         ]
 
@@ -410,5 +512,11 @@ class TestGenerateTextRetrievalData:
                 "positive_document": "B",
                 "hard_negative_document": "C",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "statistics_generate_text_retrieval_data": {
+                        "input_tokens": 12,
+                        "output_tokens": 12,
+                    }
+                },
             }
         ]

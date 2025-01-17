@@ -16,10 +16,9 @@ from typing import Any, Dict, List, Union
 
 import pytest
 
-from distilabel.llms.base import LLM
-from distilabel.llms.typing import GenerateOutput
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.models.llms.base import LLM
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
+from distilabel.typing import ChatType, GenerateOutput
 
 
 class UltraFeedbackLLM(LLM):
@@ -36,12 +35,17 @@ class UltraFeedbackLLM(LLM):
         self, inputs: List[ChatType], num_generations: int = 1, **kwargs: Any
     ) -> List[GenerateOutput]:
         return [
-            [
-                "Type: 1\nRationale: text\nRating: 1\nRationale: text\n\nType: 2\nRationale: text\nRating: 2\nRationale: text"
-                for _ in range(num_generations)
-            ]
-            for _ in inputs
-        ]
+            {
+                "generations": [
+                    "Type: 1\nRationale: text\nRating: 1\nRationale: text\n\nType: 2\nRationale: text\nRating: 2\nRationale: text"
+                    for i in range(num_generations)
+                ],
+                "statistics": {
+                    "input_tokens": [12] * num_generations,
+                    "output_tokens": [12] * num_generations,
+                },
+            }
+        ] * len(inputs)
 
 
 class TestUltraFeedback:
@@ -65,7 +69,11 @@ class TestUltraFeedback:
                 "rationales": ["text", "text"],
                 "model_name": "ultrafeedback-model",
                 "distilabel_metadata": {
-                    "raw_output_ultrafeedback": "Type: 1\nRationale: text\nRating: 1\nRationale: text\n\nType: 2\nRationale: text\nRating: 2\nRationale: text"
+                    "raw_output_ultrafeedback": "Type: 1\nRationale: text\nRating: 1\nRationale: text\n\nType: 2\nRationale: text\nRating: 2\nRationale: text",
+                    "statistics_ultrafeedback": {
+                        "input_tokens": 12,
+                        "output_tokens": 12,
+                    },
                 },
             }
         ]
@@ -92,7 +100,11 @@ class TestUltraFeedback:
                 "rationales-for-ratings": ["text", "text"],
                 "model_name": "ultrafeedback-model",
                 "distilabel_metadata": {
-                    "raw_output_ultrafeedback": "Type: 1\nRationale: text\nRating: 1\nRationale: text\n\nType: 2\nRationale: text\nRating: 2\nRationale: text"
+                    "raw_output_ultrafeedback": "Type: 1\nRationale: text\nRating: 1\nRationale: text\n\nType: 2\nRationale: text\nRating: 2\nRationale: text",
+                    "statistics_ultrafeedback": {
+                        "input_tokens": 12,
+                        "output_tokens": 12,
+                    },
                 },
             }
         ]

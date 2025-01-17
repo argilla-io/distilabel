@@ -23,7 +23,7 @@ from typing_extensions import override
 from distilabel.steps.tasks import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 
 TEXT_CLASSIFICATION_TEMPLATE: str = """\
@@ -90,7 +90,7 @@ class TextClassification(Task):
 
         ```python
         from distilabel.steps.tasks import TextClassification
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         llm = InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",

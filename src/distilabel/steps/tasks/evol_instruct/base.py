@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from collections import defaultdict
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from pydantic import Field
@@ -22,11 +23,11 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.evol_instruct.utils import MUTATION_TEMPLATES
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.typing import ChatType
 from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import LLMStatistics, StepOutput
 
 
 class EvolInstruct(Task):
@@ -75,7 +76,7 @@ class EvolInstruct(Task):
 
         ```python
         from distilabel.steps.tasks import EvolInstruct
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         evol_instruct = EvolInstruct(
@@ -96,7 +97,7 @@ class EvolInstruct(Task):
 
         ```python
         from distilabel.steps.tasks import EvolInstruct
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         evol_instruct = EvolInstruct(
@@ -124,7 +125,7 @@ class EvolInstruct(Task):
 
         ```python
         from distilabel.steps.tasks import EvolInstruct
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         evol_instruct = EvolInstruct(
@@ -267,6 +268,7 @@ class EvolInstruct(Task):
         """
 
         instructions: List[List[str]] = [[input["instruction"]] for input in inputs]
+        statistics: "LLMStatistics" = defaultdict(list)
 
         for iter_no in range(self.num_evolutions):
             formatted_prompts = []
@@ -276,12 +278,16 @@ class EvolInstruct(Task):
             formatted_prompts = [
                 self.format_input(prompt) for prompt in formatted_prompts
             ]
-            generated_prompts = flatten_responses(
-                self.llm.generate(
-                    formatted_prompts,
-                    **self.llm.generation_kwargs,  # type: ignore
-                )
+            responses = self.llm.generate(
+                formatted_prompts,
+                **self.llm.generation_kwargs,  # type: ignore
             )
+            generated_prompts = flatten_responses(
+                [response["generations"] for response in responses]
+            )
+            for response in responses:
+                for k, v in response["statistics"].items():
+                    statistics[k].append(v[0])
 
             evolved_instructions = []
             for generated_prompt in generated_prompts:
@@ -304,12 +310,11 @@ class EvolInstruct(Task):
             self._logger.info(
                 f"🔄 Ran iteration {iter_no} evolving {len(instructions)} instructions!"
             )
-
-        return instructions
+        return instructions, dict(statistics)
 
     def _generate_answers(
         self, evolved_instructions: List[List[str]]
-    ) -> List[List[str]]:
+    ) -> Tuple[List[List[str]], "LLMStatistics"]:
         """Generates the answer for the instructions in `instructions`.
 
         Args:
@@ -331,16 +336,23 @@ class EvolInstruct(Task):
             num_generations=1,
             **self.llm.generation_kwargs,  # type: ignore
         )
+        generations = [response["generations"] for response in responses]
+
+        statistics: Dict[str, Any] = defaultdict(list)
+        for response in responses:
+            for k, v in response["statistics"].items():
+                statistics[k].append(v[0])
 
         step = (
             self.num_evolutions
             if not self.include_original_instruction
             else self.num_evolutions + 1
         )
+
         return [
-            flatten_responses(responses[i : i + step])
+            flatten_responses(generations[i : i + step])
             for i in range(0, len(responses), step)
-        ]
+        ], dict(statistics)
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
@@ -353,7 +365,7 @@ class EvolInstruct(Task):
             A list of Python dictionaries with the outputs of the task.
         """
 
-        evolved_instructions = self._evolve_instructions(inputs)
+        evolved_instructions, statistics = self._evolve_instructions(inputs)
 
         if self.store_evolutions:
             # Remove the input instruction from the `evolved_instructions` list
@@ -365,6 +377,13 @@ class EvolInstruct(Task):
         if not self.generate_answers:
             for input, instruction in zip(inputs, evolved_instructions):
                 input.update(self.format_output(instruction))
+                input.update(
+                    {
+                        "distilabel_metadata": {
+                            f"statistics_instruction_{self.name}": statistics
+                        }
+                    }
+                )
             yield inputs
 
         self._logger.info(
@@ -376,7 +395,7 @@ class EvolInstruct(Task):
                 f"🧠 Generating answers for the {len(evolved_instructions)} evolved instructions!"
             )
 
-            answers = self._generate_answers(evolved_instructions)
+            answers, statistics = self._generate_answers(evolved_instructions)
 
             self._logger.info(
                 f"🎉 Finished generating answers for the {len(evolved_instructions)} evolved"
@@ -387,6 +406,13 @@ class EvolInstruct(Task):
                 zip(inputs, evolved_instructions)
             ):
                 input.update(self.format_output(instruction, answers[idx]))
+                input.update(
+                    {
+                        "distilabel_metadata": {
+                            f"statistics_answer_{self.name}": statistics
+                        }
+                    }
+                )
             yield inputs
 
     @override

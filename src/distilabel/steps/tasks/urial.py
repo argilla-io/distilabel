@@ -20,8 +20,7 @@ from jinja2 import Template
 from distilabel.steps.tasks import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import ChatType, StepColumns
 
 
 class URIAL(Task):
@@ -50,7 +49,7 @@ class URIAL(Task):
         Generate text from an instruction:
 
         ```python
-        from distilabel.llms import vLLM
+        from distilabel.models import vLLM
         from distilabel.steps.tasks import URIAL
 
         step = URIAL(

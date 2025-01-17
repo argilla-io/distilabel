@@ -94,6 +94,7 @@ In addition, the following extras are available:
 - `vertexai`: for using [Google Vertex AI](https://cloud.google.com/vertex-ai) proprietary models via the `VertexAILLM` integration.
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
 - `sentence-transformers`: for generating sentence embeddings using [sentence-transformers](https://github.com/UKPLab/sentence-transformers).
+- `mlx`: for using [MLX](https://github.com/ml-explore/mlx) models via the `MlxLLM` integration.
 
 ### Structured generation
 
@@ -118,7 +119,7 @@ pip install "distilabel[hf-inference-endpoints]" --upgrade
 Then run:
 
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration

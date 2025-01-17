@@ -85,7 +85,7 @@ Next, we will use `prompt` column from the dataset obtained through `LoadDataFro
     The order of the execution of the steps will be determined by the connections of the steps. In this case, the `TextGeneration` tasks will be executed after the `LoadDataFromHub` step.
 
 ```python
-from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
@@ -110,7 +110,7 @@ For each row of the dataset, the `TextGeneration` task will generate a text base
     In this case, the `GroupColumns` tasks will be executed after all `TextGeneration` steps.
 
 ```python
-from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import GroupColumns, LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
@@ -143,7 +143,7 @@ Besides the `Step.connect` method: `step1.connect(step2)`, there's an alternativ
     Each call to `step1.connect(step2)` has been exchanged by `step1 >> step2` within the loop.
 
     ```python
-    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+    from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline
     from distilabel.steps import GroupColumns, LoadDataFromHub
     from distilabel.steps.tasks import TextGeneration
@@ -171,7 +171,7 @@ Besides the `Step.connect` method: `step1.connect(step2)`, there's an alternativ
     Each task is first appended to a list, and then all the calls to connections are done in a single call.
 
     ```python
-    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+    from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline
     from distilabel.steps import GroupColumns, LoadDataFromHub
     from distilabel.steps.tasks import TextGeneration
@@ -206,7 +206,7 @@ Let's update the example above to route the batches loaded by the `LoadDataFromH
 
 ```python
 import random
-from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
 from distilabel.pipeline import Pipeline, routing_batch_function
 from distilabel.steps import GroupColumns, LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
@@ -338,7 +338,7 @@ Note that in most cases if you don't need the extra flexibility the [`GeneratorS
 
 ```python hl_lines="11-14 33 38"
 import random
-from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
 from distilabel.pipeline import Pipeline, routing_batch_function
 from distilabel.steps import GroupColumns
 from distilabel.steps.tasks import TextGeneration
@@ -403,7 +403,7 @@ if __name__ == "__main__":
 Memory issues can arise when processing large datasets or when using large models. To avoid this, we can use the `input_batch_size` argument of individual tasks. `TextGeneration` task will receive 5 dictionaries, while the `LoadDataFromHub` step will send 10 dictionaries per batch:
 
 ```python
-from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import GroupColumns, LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
@@ -489,7 +489,7 @@ To sum up, here is the full code of the pipeline we have created in this section
 
 ??? Code
     ```python
-    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+    from distilabel.models import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline
     from distilabel.steps import GroupColumns, LoadDataFromHub
     from distilabel.steps.tasks import TextGeneration

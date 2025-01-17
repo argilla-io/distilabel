@@ -28,7 +28,7 @@ from pydantic import PrivateAttr
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 
 _PARSE_GENSTRUCT_OUTPUT_REGEX = r"(.+?)\[\[\[Assistant\]\]\](.+)$"
@@ -73,7 +73,7 @@ class Genstruct(Task):
 
         ```python
         from distilabel.steps.tasks import Genstruct
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.models import InferenceEndpointsLLM
 
         # Consider this as a placeholder for your actual LLM.
         genstruct = Genstruct(
