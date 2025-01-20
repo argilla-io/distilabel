@@ -40,7 +40,6 @@ def test_imports() -> None:
 
     from distilabel.steps import (
         StepResources,
-        CombineColumns,
         GroupColumns,
         MergeColumns,
         ConversationTemplate,

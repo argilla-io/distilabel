@@ -31,7 +31,7 @@ from distilabel.errors import DistilabelNotImplementedError, DistilabelUserError
 from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
-    RuntimeParametersMixin,
+    RuntimeParametersModelMixin,
 )
 from distilabel.utils.docstring import parse_google_docstring
 from distilabel.utils.notebook import in_notebook
@@ -40,16 +40,13 @@ from distilabel.utils.serialization import _Serializable
 if TYPE_CHECKING:
     from logging import Logger
 
-    from distilabel.mixins.runtime_parameters import (
-        RuntimeParameterInfo,
-        RuntimeParametersNames,
-    )
-    from distilabel.models.llms.typing import GenerateOutput, HiddenState
-    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
-    from distilabel.steps.tasks.typing import (
+    from distilabel.typing import (
         FormattedInput,
+        GenerateOutput,
+        HiddenState,
         InstructorStructuredOutputType,
         StandardInput,
+        StructuredOutputType,
     )
     from distilabel.utils.docstring import Docstring
 
@@ -59,7 +56,7 @@ if in_notebook():
     nest_asyncio.apply()
 
 
-class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
+class LLM(RuntimeParametersModelMixin, BaseModel, _Serializable, ABC):
     """Base class for `LLM`s to be used in `distilabel` framework.
 
     To implement an `LLM` subclass, you need to subclass this class and implement:
@@ -220,7 +217,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                     f" for {self.offline_batch_generation_block_until_done} seconds before"
                     " trying to get the results again."
                 )
-                # When running a `Step` in a child process, SIGINT is overriden so the child
+                # When running a `Step` in a child process, SIGINT is overridden so the child
                 # process doesn't stop when the parent process receives a SIGINT signal.
                 # The new handler sets an environment variable that is checked here to stop
                 # the polling.
@@ -241,81 +238,6 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                     jobs_ids=self.jobs_ids  # type: ignore
                 ) from e
 
-    @property
-    def generate_parameters(self) -> List["inspect.Parameter"]:
-        """Returns the parameters of the `generate` method.
-
-        Returns:
-            A list containing the parameters of the `generate` method.
-        """
-        return list(inspect.signature(self.generate).parameters.values())
-
-    @property
-    def runtime_parameters_names(self) -> "RuntimeParametersNames":
-        """Returns the runtime parameters of the `LLM`, which are combination of the
-        attributes of the `LLM` type hinted with `RuntimeParameter` and the parameters
-        of the `generate` method that are not `input` and `num_generations`.
-
-        Returns:
-            A dictionary with the name of the runtime parameters as keys and a boolean
-            indicating if the parameter is optional or not.
-        """
-        runtime_parameters = super().runtime_parameters_names
-        runtime_parameters["generation_kwargs"] = {}
-
-        # runtime parameters from the `generate` method
-        for param in self.generate_parameters:
-            if param.name in ["input", "inputs", "num_generations"]:
-                continue
-            is_optional = param.default != inspect.Parameter.empty
-            runtime_parameters["generation_kwargs"][param.name] = is_optional
-
-        return runtime_parameters
-
-    def get_runtime_parameters_info(self) -> List["RuntimeParameterInfo"]:
-        """Gets the information of the runtime parameters of the `LLM` such as the name
-        and the description. This function is meant to include the information of the runtime
-        parameters in the serialized data of the `LLM`.
-
-        Returns:
-            A list containing the information for each runtime parameter of the `LLM`.
-        """
-        runtime_parameters_info = super().get_runtime_parameters_info()
-
-        generation_kwargs_info = next(
-            (
-                runtime_parameter_info
-                for runtime_parameter_info in runtime_parameters_info
-                if runtime_parameter_info["name"] == "generation_kwargs"
-            ),
-            None,
-        )
-
-        # If `generation_kwargs` attribute is present, we need to include the `generate`
-        # method arguments as the information for this attribute.
-        if generation_kwargs_info:
-            generate_docstring_args = self.generate_parsed_docstring["args"]
-
-            generation_kwargs_info["keys"] = []
-            for key, value in generation_kwargs_info["optional"].items():
-                info = {"name": key, "optional": value}
-                if description := generate_docstring_args.get(key):
-                    info["description"] = description
-                generation_kwargs_info["keys"].append(info)
-
-            generation_kwargs_info.pop("optional")
-
-        return runtime_parameters_info
-
-    @cached_property
-    def generate_parsed_docstring(self) -> "Docstring":
-        """Returns the parsed docstring of the `generate` method.
-
-        Returns:
-            The parsed docstring of the `generate` method.
-        """
-        return parse_google_docstring(self.generate)
-
     def get_last_hidden_states(
         self, inputs: List["StandardInput"]
     ) -> List["HiddenState"]:
@@ -334,7 +256,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         )
 
     def _prepare_structured_output(
-        self, structured_output: Optional["StructuredOutputType"] = None
+        self, structured_output: "StructuredOutputType"
     ) -> Union[Any, None]:
         """Method in charge of preparing the structured output generator.
 
@@ -431,7 +353,7 @@ class AsyncLLM(LLM):
     @abstractmethod
     async def agenerate(
         self, input: "FormattedInput", num_generations: int = 1, **kwargs: Any
-    ) -> List[Union[str, None]]:
+    ) -> "GenerateOutput":
         """Method to generate a `num_generations` responses for a given input asynchronously,
         and executed concurrently in `generate` method.
         """
@@ -591,8 +513,8 @@ class AsyncLLM(LLM):
 
 
 def merge_responses(
-    responses: List[Dict[str, Any]], n: int = 1
-) -> List[Dict[str, Any]]:
+    responses: List["GenerateOutput"], n: int = 1
+) -> List["GenerateOutput"]:
     """Helper function to group the responses from `LLM.agenerate` method according
     to the number of generations requested.
 
@@ -612,19 +534,27 @@ def merge_responses(
         for i in range(0, len(lst), n):
             yield list(islice(lst, i, i + n))
 
-    # Split responses into groups of size n
-    grouped_responses = list(chunks(responses, n))
+    extra_keys = [
+        key for key in responses[0].keys() if key not in ("generations", "statistics")
+    ]
 
     result = []
-    for group in grouped_responses:
-        first = group[0]
+    for group in chunks(responses, n):
         merged = {
-            "generations": sum((r["generations"] for r in group), []),
-            "statistics": {
-                key: sum((r["statistics"][key] for r in group), [])
-                for key in first["statistics"]
-            },
+            "generations": [],
+            "statistics": {"input_tokens": [], "output_tokens": []},
         }
+        for response in group:
+            merged["generations"].append(response["generations"][0])
+            # Merge statistics
+            for key in response["statistics"]:
+                if key not in merged["statistics"]:
+                    merged["statistics"][key] = []
+                merged["statistics"][key].append(response["statistics"][key][0])
+            # Merge extra keys returned by the `LLM`
+            for extra_key in extra_keys:
+                if extra_key not in merged:
+                    merged[extra_key] = []
+                merged[extra_key].append(response[extra_key][0])
         result.append(merged)
-
     return result

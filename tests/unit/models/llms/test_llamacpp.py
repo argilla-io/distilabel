@@ -23,13 +23,17 @@ from distilabel.models.llms.llamacpp import LlamaCppLLM
 from .utils import DummyUserDetail
 
 
-@pytest.fixture(scope="module")
-def llm() -> Generator[LlamaCppLLM, None, None]:
+def download_tinyllama() -> None:
     if not os.path.exists("tinyllama.gguf"):
         urllib.request.urlretrieve(
             "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
             "tinyllama.gguf",
         )
+
+
+@pytest.fixture(scope="module")
+def llm() -> Generator[LlamaCppLLM, None, None]:
+    download_tinyllama()
 
     llm = LlamaCppLLM(model_path="tinyllama.gguf", n_gpu_layers=0)  # type: ignore
     llm.load()
@@ -38,6 +42,19 @@ def llm() -> Generator[LlamaCppLLM, None, None]:
 
 
 class TestLlamaCppLLM:
+    def test_no_tokenizer_magpie_raise_value_error(self) -> None:
+        download_tinyllama()
+
+        with pytest.raises(
+            ValueError,
+            match="`use_magpie_template` cannot be `True` if `tokenizer_id` is `None`",
+        ):
+            LlamaCppLLM(
+                model_path="tinyllama.gguf",
+                use_magpie_template=True,
+                magpie_pre_query_template="llama3",
+            )
+
     def test_model_name(self, llm: LlamaCppLLM) -> None:
         assert llm.model_name == "tinyllama.gguf"
 
@@ -83,6 +100,9 @@ class TestLlamaCppLLM:
                         "name": "LlamaCppLLM",
                     },
                     "verbose": False,
+                    "magpie_pre_query_template": None,
+                    "tokenizer_id": None,
+                    "use_magpie_template": False,
                 },
             ),
             (
@@ -110,6 +130,9 @@ class TestLlamaCppLLM:
                         "name": "LlamaCppLLM",
                     },
                     "verbose": False,
+                    "magpie_pre_query_template": None,
+                    "tokenizer_id": None,
+                    "use_magpie_template": False,
                 },
             ),
         ],

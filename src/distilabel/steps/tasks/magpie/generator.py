@@ -24,8 +24,7 @@ from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.magpie.base import MagpieBase
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import GeneratorStepOutput, StepColumns
+    from distilabel.typing import ChatType, GeneratorStepOutput, StepColumns
 
 
 class MagpieGenerator(GeneratorTask, MagpieBase):

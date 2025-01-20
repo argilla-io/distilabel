@@ -30,7 +30,7 @@ from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 
 _DEFAULT_RUBRICS = {

@@ -23,7 +23,7 @@ from distilabel.models.llms.base import LLM
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 
 @pytest.fixture

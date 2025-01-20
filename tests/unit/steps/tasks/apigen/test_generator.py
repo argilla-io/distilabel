@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import random
 from typing import TYPE_CHECKING, List, Union
 
@@ -21,10 +22,7 @@ from distilabel.steps.tasks.apigen.generator import APIGenGenerator
 from tests.unit.conftest import DummyLLM
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import FormattedInput
-
-import json
+    from distilabel.typing import FormattedInput, GenerateOutput
 
 
 class DummyAPIGenLLM(DummyLLM):

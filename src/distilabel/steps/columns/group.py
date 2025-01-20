@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from typing_extensions import override
 
@@ -21,7 +20,7 @@ from distilabel.steps.base import Step, StepInput
 from distilabel.steps.columns.utils import group_columns
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import StepOutput
 
 
 class GroupColumns(Step):
@@ -96,12 +95,12 @@ class GroupColumns(Step):
     output_columns: Optional[List[str]] = None
 
     @property
-    def inputs(self) -> "StepColumns":
+    def inputs(self) -> List[str]:
         """The inputs for the task are the column names in `columns`."""
         return self.columns
 
     @property
-    def outputs(self) -> "StepColumns":
+    def outputs(self) -> List[str]:
         """The outputs for the task are the column names in `output_columns` or
         `grouped_{column}` for each column in `columns`."""
         return (
@@ -125,15 +124,3 @@ class GroupColumns(Step):
             group_columns=self.inputs,
             output_group_columns=self.outputs,
         )
-
-
-class CombineColumns(GroupColumns):
-    """`CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead."""
-
-    def __init__(self, **data: Any) -> None:
-        warnings.warn(
-            "`CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return super().__init__(**data)

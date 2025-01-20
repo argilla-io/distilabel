@@ -21,7 +21,7 @@ The [`LLM`][distilabel.models.llms.LLM] has an argument named `structured_output
 We will start with a JSON example, where we initially define a `pydantic.BaseModel` schema to guide the generation of the structured output.
 
 !!! NOTE
-    Take a look at [`StructuredOutputType`][distilabel.steps.tasks.structured_outputs.outlines.StructuredOutputType] to see the expected format
+    Take a look at [`StructuredOutputType`][distilabel.typing.models.StructuredOutputType] to see the expected format
     of the `structured_output` dict variable.
 
 ```python
@@ -139,7 +139,7 @@ For other LLM providers behind APIs, there's no direct way of accessing the inte
     ```
 
 !!! Note
-    Take a look at [`InstructorStructuredOutputType`][distilabel.steps.tasks.typing.InstructorStructuredOutputType] to see the expected format
+    Take a look at [`InstructorStructuredOutputType`][distilabel.typing.models.InstructorStructuredOutputType] to see the expected format
     of the `structured_output` dict variable.
 
 The following is the same example you can see with `outlines`'s `JSON` section for comparison purposes.

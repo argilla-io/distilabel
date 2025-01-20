@@ -40,6 +40,21 @@ class TestTransformersLLM:
             == "distilabel-internal-testing/tiny-random-mistral"
         )
 
+    def test_prepare_input(self, transformers_llm: TransformersLLM) -> None:
+        assert (
+            transformers_llm.prepare_input([{"role": "user", "content": "Hello"}])
+            == "<s> [INST] Hello [/INST]"
+        )
+
+    def test_prepare_input_no_chat_template(
+        self, transformers_llm: TransformersLLM
+    ) -> None:
+        transformers_llm._pipeline.tokenizer.chat_template = None
+        assert (
+            transformers_llm.prepare_input([{"role": "user", "content": "Hello"}])
+            == "Hello"
+        )
+
     def test_generate(self, transformers_llm: TransformersLLM) -> None:
         responses = transformers_llm.generate(
             inputs=[

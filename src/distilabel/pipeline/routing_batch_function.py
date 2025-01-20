@@ -28,8 +28,8 @@ from distilabel.utils.serialization import (
 
 if TYPE_CHECKING:
     from distilabel.pipeline.batch import _Batch
-    from distilabel.pipeline.typing import DownstreamConnectableSteps
     from distilabel.steps.base import _Step
+    from distilabel.typing import DownstreamConnectableSteps
 
 RoutingBatchFunc = Callable[[List[str]], List[str]]
 """Type alias for a routing batch function. It takes a list of all the downstream steps and

@@ -22,7 +22,7 @@ from pydantic import PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.typing import ChatType
 from distilabel.utils.dicts import group_dicts
 
 

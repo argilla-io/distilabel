@@ -28,10 +28,10 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import compute_tokens, prepare_output
-from distilabel.steps.tasks.typing import (
+from distilabel.typing import (
     FormattedInput,
+    GenerateOutput,
     InstructorStructuredOutputType,
 )
 
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from pydantic import BaseModel
     from tokenizers import Tokenizer
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.typing import LLMStatistics
 
 
 _COHERE_API_KEY_ENV_VAR_NAME = "COHERE_API_KEY"

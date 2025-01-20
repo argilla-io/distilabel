@@ -27,7 +27,7 @@ from distilabel.steps import (
 
 if TYPE_CHECKING:
     from distilabel.pipeline.batch import _Batch
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 routing_batch_function = sample_n_steps(2)

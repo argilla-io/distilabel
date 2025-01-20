@@ -40,8 +40,7 @@ if TYPE_CHECKING:
         TextQuestion,
     )
 
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import ChatType, StepOutput
 
 
 class ArgillaLabeller(Task):

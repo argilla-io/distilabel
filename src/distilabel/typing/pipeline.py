@@ -12,7 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Dict, List, Literal, TypedDict, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Literal,
+    TypeVar,
+    Union,
+)
+
+from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -53,3 +63,12 @@ PipelineRuntimeParametersInfo = Dict[
 
 InputDataset = Union["Dataset", "pd.DataFrame", List[Dict[str, str]]]
 """Alias for the types we can process as input dataset."""
+
+LoadGroups = Union[List[List[Any]], Literal["sequential_step_execution"]]
+"""Alias for the types that can be used as load groups.
+
+- if `List[List[Any]]`, it's a list containing lists of steps that have to be loaded in
+isolation.
+- if "sequential_step_execution", each step will be loaded in a different stage i.e. only
+one step will be executed at a time.
+"""

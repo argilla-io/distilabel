@@ -31,7 +31,7 @@ from distilabel.steps.base import Step, StepInput
 if TYPE_CHECKING:
     from argilla import Argilla, Dataset
 
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import StepColumns, StepOutput
 
 
 _ARGILLA_API_URL_ENV_VAR_NAME = "ARGILLA_API_URL"
@@ -94,8 +94,7 @@ class ArgillaBase(Step, ABC):
 
         if importlib.util.find_spec("argilla") is None:
             raise ImportError(
-                "Argilla is not installed. Please install it using `pip install argilla"
-                " --upgrade`."
+                "Argilla is not installed. Please install it using `pip install 'distilabel[argilla]'`."
             )
 
     def _client_init(self) -> None:

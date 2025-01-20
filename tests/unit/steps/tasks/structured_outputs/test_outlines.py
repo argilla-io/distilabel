@@ -19,9 +19,10 @@ from pydantic import BaseModel
 
 from distilabel.models.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
+    _is_outlines_version_below_0_1_0,
     model_to_schema,
 )
-from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
+from distilabel.typing import OutlinesStructuredOutputType
 
 
 class DummyUserTest(BaseModel):
@@ -135,7 +136,7 @@ class TestOutlinesIntegration:
         prompt = [
             [{"role": "system", "content": ""}, {"role": "user", "content": prompt}]
         ]
-        result = llm.generate(prompt, max_new_tokens=30)
+        result = llm.generate(prompt, max_new_tokens=30, temperature=0.7)
         assert isinstance(result, list)
         assert isinstance(result[0], dict)
         assert "generations" in result[0] and "statistics" in result[0]
@@ -171,6 +172,7 @@ class TestOutlinesIntegration:
             structured_output=OutlinesStructuredOutputType(
                 format=format, schema=schema
             ),
+            token=None,
         )
         llm.load()
         assert llm.dump() == dump
@@ -179,4 +181,9 @@ class TestOutlinesIntegration:
         llm = TransformersLLM.from_dict(DUMP_JSON)
         assert isinstance(llm, TransformersLLM)
         llm.load()
-        assert llm._prefix_allowed_tokens_fn is not None
+        if _is_outlines_version_below_0_1_0():
+            assert llm._prefix_allowed_tokens_fn is not None
+            assert llm._logits_processor is None
+        else:
+            assert llm._prefix_allowed_tokens_fn is None
+            assert llm._logits_processor is not None

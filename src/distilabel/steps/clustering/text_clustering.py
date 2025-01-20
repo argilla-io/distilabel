@@ -28,7 +28,7 @@ from distilabel.steps.tasks.base import GlobalTask
 from distilabel.utils.itertools import batched
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class TextClustering(TextClassification, GlobalTask):

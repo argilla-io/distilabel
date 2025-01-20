@@ -12,18 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import atexit
+import os
 from typing import TYPE_CHECKING, Any, Dict, List, Union
+from urllib.request import urlretrieve
 
 import pytest
 from pydantic import PrivateAttr
 
+from distilabel.models.image_generation.base import AsyncImageGenerationModel
 from distilabel.models.llms.base import LLM, AsyncLLM
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.models.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType, FormattedInput
+    from distilabel.typing import ChatType, FormattedInput, GenerateOutput
 
 
 # Defined here too, so that the serde still works
@@ -98,6 +101,29 @@ class DummyMagpieLLM(LLM, MagpieChatTemplateMixin):
         ]
 
 
+class DummyAsyncImageGenerationModel(AsyncImageGenerationModel):
+    def load(self) -> None:
+        pass
+
+    @property
+    def model_name(self) -> str:
+        return "test"
+
+    async def agenerate(  # type: ignore
+        self, input: str, num_generations: int = 1
+    ) -> list[dict[str, Any]]:
+        import numpy as np
+        from PIL import Image
+
+        np.random.seed(42)
+        arr = np.random.randint(0, 255, (100, 100, 3))
+        random_image = Image.fromarray(arr, "RGB")
+        from distilabel.models.image_generation.utils import image_to_str
+
+        img_str = image_to_str(random_image)
+        return [{"images": [img_str]} for _ in range(num_generations)]
+
+
 class DummyTask(Task):
     @property
     def inputs(self) -> List[str]:
@@ -126,3 +152,35 @@ class DummyTaskOfflineBatchGeneration(DummyTask):
 @pytest.fixture
 def dummy_llm() -> AsyncLLM:
     return DummyAsyncLLM()
+
+
+@pytest.fixture(scope="session")
+def local_llamacpp_model_path(tmp_path_factory):
+    """
+    Session-scoped fixture that provides the local model path for LlamaCpp testing.
+
+    Download a small test model to a temporary directory.
+    The model is downloaded once per test session and cleaned up after all tests.
+
+    Args:
+        tmp_path_factory: Pytest fixture providing a temporary directory factory.
+
+    Returns:
+        str: The path to the local LlamaCpp model file.
+    """
+    model_name = "all-MiniLM-L6-v2-Q2_K.gguf"
+    model_url = f"https://huggingface.co/second-state/All-MiniLM-L6-v2-Embedding-GGUF/resolve/main/{model_name}"
+    tmp_path = tmp_path_factory.getbasetemp()
+    model_path = tmp_path / model_name
+
+    if not model_path.exists():
+        urlretrieve(model_url, model_path)
+
+    def cleanup():
+        if model_path.exists():
+            os.remove(model_path)
+
+    # Register the cleanup function to be called at exit
+    atexit.register(cleanup)
+
+    return str(tmp_path)

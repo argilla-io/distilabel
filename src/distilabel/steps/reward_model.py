@@ -25,8 +25,7 @@ if TYPE_CHECKING:
     import torch
     from transformers import PreTrainedModel, PreTrainedTokenizer
 
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns, StepOutput
+    from distilabel.typing import ChatType, StepColumns, StepOutput
 
 
 class RewardModelScore(Step, CudaDevicePlacementMixin):
@@ -156,7 +155,7 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
             from transformers import AutoModelForSequenceClassification, AutoTokenizer
         except ImportError as e:
             raise ImportError(
-                "`transformers` is not installed. Please install it using `pip install transformers`."
+                "`transformers` is not installed. Please install it using `pip install 'distilabel[hf-transformers]'`."
             ) from e
 
         token = self.token.get_secret_value() if self.token is not None else self.token

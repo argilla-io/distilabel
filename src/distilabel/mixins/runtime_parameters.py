@@ -13,11 +13,14 @@
 # limitations under the License.
 
 import difflib
+import inspect
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
+from distilabel.utils.docstring import parse_google_docstring
 from distilabel.utils.typing_ import (
     extract_annotation_inner_type,
     is_type_pydantic_secret_field,
@@ -25,6 +28,9 @@ from distilabel.utils.typing_ import (
 
 if TYPE_CHECKING:
     from pydantic.fields import FieldInfo
+
+    from distilabel.utils.docstring import Docstring
+
 
 _T = TypeVar("_T")
 _RUNTIME_PARAMETER_ANNOTATION = "distilabel_step_runtime_parameter"
@@ -218,3 +224,84 @@ def _is_runtime_parameter(field: "FieldInfo") -> Tuple[bool, bool]:
             return True, is_optional
 
     return False, False
+
+
+class RuntimeParametersModelMixin(RuntimeParametersMixin):
+    """Specific mixin for RuntimeParameters that affect the model classes, LLM,
+    ImageGenerationModel, etc.
+    """
+
+    @property
+    def generate_parameters(self) -> list["inspect.Parameter"]:
+        """Returns the parameters of the `generate` method.
+
+        Returns:
+            A list containing the parameters of the `generate` method.
+        """
+        return list(inspect.signature(self.generate).parameters.values())
+
+    @property
+    def runtime_parameters_names(self) -> "RuntimeParametersNames":
+        """Returns the runtime parameters of the `ImageGenerationModel`, which are combination of the
+        attributes of the `ImageGenerationModel` type hinted with `RuntimeParameter` and the parameters
+        of the `generate` method that are not `input` and `num_generations`.
+
+        Returns:
+            A dictionary with the name of the runtime parameters as keys and a boolean
+            indicating if the parameter is optional or not.
+        """
+        runtime_parameters = super().runtime_parameters_names
+        runtime_parameters["generation_kwargs"] = {}
+
+        # runtime parameters from the `generate` method
+        for param in self.generate_parameters:
+            if param.name in ["input", "inputs", "num_generations"]:
+                continue
+            is_optional = param.default != inspect.Parameter.empty
+            runtime_parameters["generation_kwargs"][param.name] = is_optional
+
+        return runtime_parameters
+
+    def get_runtime_parameters_info(self) -> List["RuntimeParameterInfo"]:
+        """Gets the information of the runtime parameters of the `LLM` such as the name
+        and the description. This function is meant to include the information of the runtime
+        parameters in the serialized data of the `LLM`.
+
+        Returns:
+            A list containing the information for each runtime parameter of the `LLM`.
+        """
+        runtime_parameters_info = super().get_runtime_parameters_info()
+
+        generation_kwargs_info = next(
+            (
+                runtime_parameter_info
+                for runtime_parameter_info in runtime_parameters_info
+                if runtime_parameter_info["name"] == "generation_kwargs"
+            ),
+            None,
+        )
+
+        # If `generation_kwargs` attribute is present, we need to include the `generate`
+        # method arguments as the information for this attribute.
+        if generation_kwargs_info:
+            generate_docstring_args = self.generate_parsed_docstring["args"]
+            generation_kwargs_info["keys"] = []
+
+            for key, value in generation_kwargs_info["optional"].items():
+                info = {"name": key, "optional": value}
+                if description := generate_docstring_args.get(key):
+                    info["description"] = description
+                generation_kwargs_info["keys"].append(info)
+
+            generation_kwargs_info.pop("optional")
+
+        return runtime_parameters_info
+
+    @cached_property
+    def generate_parsed_docstring(self) -> "Docstring":
+        """Returns the parsed docstring of the `generate` method.
+
+        Returns:
+            The parsed docstring of the `generate` method.
+        """
+        return parse_google_docstring(self.generate)

@@ -16,7 +16,7 @@ We can define a custom step by creating a new subclass of the [`GlobalStep`][dis
     The default signature for the `process` method is `process(self, *inputs: StepInput) -> StepOutput`. The argument `inputs` should be respected, no more arguments can be provided, and the type-hints and return type-hints should be respected too because it should be able to receive any number of inputs by default i.e. more than one [`Step`][distilabel.steps.Step] at a time could be connected to the current one.
 
 !!! WARNING
-    For the custom [`GlobalStep`][distilabel.steps.GlobalStep] subclasses to work properly with `distilabel` and with the validation and serialization performed by default over each [`Step`][distilabel.steps.Step] in the [`Pipeline`][distilabel.pipeline.Pipeline], the type-hint for both [`StepInput`][distilabel.steps.StepInput] and [`StepOutput`][distilabel.steps.typing.StepOutput] should be used and not surrounded with double-quotes or imported under `typing.TYPE_CHECKING`, otherwise, the validation and/or serialization will fail.
+    For the custom [`GlobalStep`][distilabel.steps.GlobalStep] subclasses to work properly with `distilabel` and with the validation and serialization performed by default over each [`Step`][distilabel.steps.Step] in the [`Pipeline`][distilabel.pipeline.Pipeline], the type-hint for both [`StepInput`][distilabel.steps.StepInput] and [`StepOutput`][distilabel.typing.StepOutput] should be used and not surrounded with double-quotes or imported under `typing.TYPE_CHECKING`, otherwise, the validation and/or serialization will fail.
 
 === "Inherit from `GlobalStep`"
 
@@ -27,7 +27,7 @@ We can define a custom step by creating a new subclass of the [`GlobalStep`][dis
     from distilabel.steps import GlobalStep, StepInput
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepColumns, StepOutput
+        from distilabel.typing import StepColumns, StepOutput
 
     class CustomStep(Step):
         @property
@@ -61,7 +61,7 @@ We can define a custom step by creating a new subclass of the [`GlobalStep`][dis
     from distilabel.steps import StepInput, step
 
     if TYPE_CHECKING:
-        from distilabel.steps.typing import StepOutput
+        from distilabel.typing import StepOutput
 
     @step(inputs=[...], outputs=[...], step_type="global")
     def CustomStep(inputs: StepInput) -> "StepOutput":

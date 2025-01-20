@@ -131,7 +131,7 @@ class AzureOpenAILLM(OpenAILLM):
         except ImportError as ie:
             raise ImportError(
                 "OpenAI Python client is not installed. Please install it using"
-                " `pip install openai`."
+                " `pip install 'distilabel[openai]'`."
             ) from ie
 
         if self.api_key is None:
