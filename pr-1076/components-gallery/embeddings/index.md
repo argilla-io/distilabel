@@ -10,6 +10,14 @@ hide:
 <div class="grid cards" markdown>
 
 
+-   :material-vector-line:{ .lg .middle } __LlamaCppEmbeddings__
+
+    ---
+
+    `LlamaCpp` library implementation for embedding generation.
+
+    [:octicons-arrow-right-24: LlamaCppEmbeddings](llamacppembeddings.md){ .bottom }
+
 -   :material-vector-line:{ .lg .middle } __SentenceTransformerEmbeddings__
 
     ---
