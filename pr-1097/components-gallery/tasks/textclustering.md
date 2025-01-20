@@ -93,7 +93,7 @@ graph TD
 
 #### Generate labels for a set of texts using clustering
 ```python
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 from distilabel.steps import UMAP, DBSCAN, TextClustering
 from distilabel.pipeline import Pipeline
 

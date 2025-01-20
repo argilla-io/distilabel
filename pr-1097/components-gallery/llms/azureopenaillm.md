@@ -34,7 +34,7 @@ Azure OpenAI LLM implementation running the async API client.
 
 #### Generate text
 ```python
-from distilabel.llms import AzureOpenAILLM
+from distilabel.models.llms import AzureOpenAILLM
 
 llm = AzureOpenAILLM(model="gpt-4-turbo", api_key="api.key")
 
@@ -45,7 +45,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 
 #### Generate text from a custom endpoint following the OpenAI API
 ```python
-from distilabel.llms import AzureOpenAILLM
+from distilabel.models.llms import AzureOpenAILLM
 
 llm = AzureOpenAILLM(
     model="prometheus-eval/prometheus-7b-v2.0",
@@ -60,7 +60,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 #### Generate structured data
 ```python
 from pydantic import BaseModel
-from distilabel.llms import AzureOpenAILLM
+from distilabel.models.llms import AzureOpenAILLM
 
 class User(BaseModel):
     name: str

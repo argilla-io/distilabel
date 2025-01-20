@@ -101,7 +101,7 @@ graph TD
 #### Evolve an instruction using an LLM
 ```python
 from distilabel.steps.tasks import EvolInstruct
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 evol_instruct = EvolInstruct(
@@ -121,7 +121,7 @@ result = next(evol_instruct.process([{"instruction": "common instruction"}]))
 #### Keep the iterations of the evolutions
 ```python
 from distilabel.steps.tasks import EvolInstruct
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 evol_instruct = EvolInstruct(
@@ -148,7 +148,7 @@ result = next(evol_instruct.process([{"instruction": "common instruction"}]))
 #### Generate answers for the instructions in a single step
 ```python
 from distilabel.steps.tasks import EvolInstruct
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 evol_instruct = EvolInstruct(

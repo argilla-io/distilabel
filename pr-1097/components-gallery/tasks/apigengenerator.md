@@ -94,7 +94,7 @@ graph TD
 #### Generate without structured output (original implementation)
 ```python
 from distilabel.steps.tasks import ApiGenGenerator
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 llm=InferenceEndpointsLLM(
     model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
@@ -173,7 +173,7 @@ The output MUST strictly adhere to the following JSON format, and NO other text 
 #### Generate with structured output
 ```python
 from distilabel.steps.tasks import ApiGenGenerator
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 llm=InferenceEndpointsLLM(
     model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",

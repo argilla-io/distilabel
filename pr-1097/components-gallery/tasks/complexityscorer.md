@@ -77,7 +77,7 @@ graph TD
 #### Evaluate the complexity of your instructions
 ```python
 from distilabel.steps.tasks import ComplexityScorer
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 scorer = ComplexityScorer(
@@ -100,7 +100,7 @@ result = next(
 #### Generate structured output with default schema
 ```python
 from distilabel.steps.tasks import ComplexityScorer
-from distilabel.llms.huggingface import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 # Consider this as a placeholder for your actual LLM.
 scorer = ComplexityScorer(

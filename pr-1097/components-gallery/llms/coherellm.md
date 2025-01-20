@@ -53,7 +53,7 @@ Cohere API implementation using the async client for concurrent text generation.
 
 #### Generate text
 ```python
-from distilabel.llms import CohereLLM
+from distilabel.models.llms import CohereLLM
 
 llm = CohereLLM(model="CohereForAI/c4ai-command-r-plus")
 

@@ -81,7 +81,7 @@ graph TD
 #### Generate structured output from a JSON schema
 ```python
 from distilabel.steps.tasks import StructuredGeneration
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 structured_gen = StructuredGeneration(
     llm=InferenceEndpointsLLM(
@@ -137,7 +137,7 @@ result = next(
 #### Generate structured output from a regex pattern (only works with LLMs that support regex, the providers using outlines)
 ```python
 from distilabel.steps.tasks import StructuredGeneration
-from distilabel.llms import InferenceEndpointsLLM
+from distilabel.models import InferenceEndpointsLLM
 
 structured_gen = StructuredGeneration(
     llm=InferenceEndpointsLLM(

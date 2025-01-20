@@ -37,7 +37,7 @@ LiteLLM implementation running the async API client.
 
 #### Generate text
 ```python
-from distilabel.llms import LiteLLM
+from distilabel.models.llms import LiteLLM
 
 llm = LiteLLM(model="gpt-3.5-turbo")
 

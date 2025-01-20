@@ -26,6 +26,8 @@ hide:
     | :material-file-download:        | load                | Load steps are used to load the data.                                                              |
     | :octicons-code-16:              | execution           | Executes python functions.                                                                         |
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
+    | :material-image:                | image-generation    | Image generation steps are used to generate images based on a given prompt.                        |
+    | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
 
 <div class="grid cards" markdown>
 
@@ -45,14 +47,6 @@ hide:
     Creates a text generation dataset in Argilla.
 
     [:octicons-arrow-right-24: TextGenerationToArgilla](textgenerationtoargilla.md){ .bottom }
-
--   :material-step-forward:{ .lg .middle } __CombineColumns__
-
-    ---
-
-    `CombineColumns` is deprecated and will be removed in version 1.5.0, use `GroupColumns` instead.
-
-    [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
 
 -   :material-content-save:{ .lg .middle } __PushToHub__
 
@@ -261,6 +255,14 @@ hide:
     Assign a score to a response using a Reward Model.
 
     [:octicons-arrow-right-24: RewardModelScore](rewardmodelscore.md){ .bottom }
+
+-   :material-receipt-text-edit:{ .lg .middle } __FormatPRM__
+
+    ---
+
+    Helper step to transform the data into the format expected by the PRM model.
+
+    [:octicons-arrow-right-24: FormatPRM](formatprm.md){ .bottom }
 
 -   :material-receipt-text-edit:{ .lg .middle } __TruncateTextColumn__
 

@@ -53,7 +53,7 @@ Groq API implementation using the async client for concurrent text generation.
 
 #### Generate text
 ```python
-from distilabel.llms import GroqLLM
+from distilabel.models.llms import GroqLLM
 
 llm = GroqLLM(model="llama3-70b-8192")
 

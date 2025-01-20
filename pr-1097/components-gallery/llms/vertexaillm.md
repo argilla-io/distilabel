@@ -39,7 +39,7 @@ VertexAI LLM implementation running the async API clients for Gemini.
 
 #### Generate text
 ```python
-from distilabel.llms import VertexAILLM
+from distilabel.models.llms import VertexAILLM
 
 llm = VertexAILLM(model="gemini-1.5-pro")
 
