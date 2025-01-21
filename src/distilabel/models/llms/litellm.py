@@ -29,6 +29,8 @@ from distilabel.typing import (
 
 if TYPE_CHECKING:
     from litellm import Choices
+    from litellm.types.utils import ModelResponse
+    from pydantic import BaseModel
 
 
 class LiteLLM(AsyncLLM):
@@ -124,7 +126,7 @@ class LiteLLM(AsyncLLM):
                 client=self._aclient,
                 framework="litellm",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client").messages.create
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
 
@@ -209,7 +211,7 @@ class LiteLLM(AsyncLLM):
                 client=self._aclient,
                 framework="litellm",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client").messages.create
 
         if structured_output is None and self.structured_output is not None:
             structured_output = self.structured_output
@@ -244,8 +246,11 @@ class LiteLLM(AsyncLLM):
         async def _call_aclient_until_n_choices() -> List["Choices"]:
             choices = []
             while len(choices) < num_generations:
-                completion = await self._aclient(**kwargs)  # type: ignore
-                if not self.structured_output:
+                completion: Union["ModelResponse", "BaseModel"] = await self._aclient(**kwargs)  # type: ignore
+                if self.structured_output:
+                    # Prevent pydantic model from being cast to list during list extension
+                    completion = [completion]
+                else:
                     completion = completion.choices
                 choices.extend(completion)
             return choices
