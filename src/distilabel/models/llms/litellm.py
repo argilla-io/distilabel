@@ -246,7 +246,9 @@ class LiteLLM(AsyncLLM):
         async def _call_aclient_until_n_choices() -> List["Choices"]:
             choices = []
             while len(choices) < num_generations:
-                completion: Union["ModelResponse", "BaseModel"] = await self._aclient(**kwargs)  # type: ignore
+                completion: Union["ModelResponse", "BaseModel"] = await self._aclient(
+                    **kwargs
+                )  # type: ignore
                 if self.structured_output:
                     # Prevent pydantic model from being cast to list during list extension
                     completion = [completion]
