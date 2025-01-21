@@ -85,7 +85,9 @@ def resolve_refs(schema_element: Any, defs: Optional[Dict[str, Any]] = None) -> 
             return resolve_refs(resolved, defs)  # Resolve recursively
         else:
             # Recursively resolve properties of the dictionary
-            return {key: resolve_refs(value, defs) for key, value in schema_element.items()}
+            return {
+                key: resolve_refs(value, defs) for key, value in schema_element.items()
+            }
     elif isinstance(schema_element, list):
         # Resolve each item in the list
         return [resolve_refs(item, defs) for item in schema_element]
@@ -139,6 +141,29 @@ def json_schema_to_pydantic_field(
     )
 
 
+def handle_any_of(json_schema: Dict[str, Any]) -> Any:
+    """Handle 'anyOf' in JSON schema."""
+    types = [json_schema_to_pydantic_type(schema) for schema in json_schema["anyOf"]]
+    return Union[tuple(types)]
+
+
+def handle_array(json_schema: Dict[str, Any]) -> Any:
+    """Handle 'array' type in JSON schema."""
+    items_schema = json_schema.get("items")
+    if items_schema:
+        item_type = json_schema_to_pydantic_type(items_schema)
+        return List[item_type]
+    return List
+
+
+def handle_object(json_schema: Dict[str, Any]) -> Any:
+    """Handle 'object' type in JSON schema."""
+    properties = json_schema.get("properties")
+    if properties:
+        return json_schema_to_model(json_schema)
+    return Dict
+
+
 def json_schema_to_pydantic_type(json_schema: Dict[str, Any]) -> Any:
     """Converts a JSON schema type to a Pydantic type.
 
@@ -149,37 +174,24 @@ def json_schema_to_pydantic_type(json_schema: Dict[str, Any]) -> Any:
         A Pydantic type.
     """
     if "anyOf" in json_schema:
-        types = [json_schema_to_pydantic_type(schema) for schema in json_schema["anyOf"]]
-        return Union[tuple(types)]
+        return handle_any_of(json_schema)
 
     type_ = json_schema.get("type")
 
     if type_ == "string":
-        type_val = str
+        return str
     elif type_ == "integer":
-        type_val = int
+        return int
     elif type_ == "number":
-        type_val = float
+        return float
     elif type_ == "boolean":
-        type_val = bool
+        return bool
     elif type_ == "array":
-        items_schema = json_schema.get("items")
-        if items_schema:
-            item_type = json_schema_to_pydantic_type(items_schema)
-            type_val = List[item_type]
-        else:
-            type_val = List
+        return handle_array(json_schema)
     elif type_ == "object":
         # Handle nested models.
-        properties = json_schema.get("properties")
-        if properties:
-            nested_model = json_schema_to_model(json_schema)
-            type_val = nested_model
-        else:
-            type_val = Dict
+        return handle_object(json_schema)
     elif type_ == "null":
-        type_val = Optional[Any]  # Use Optional[Any] for nullable fields
+        return Optional[Any]  # Use Optional[Any] for nullable fields
     else:
         raise ValueError(f"Unsupported JSON schema type: {type_}")
-
-    return type_val
