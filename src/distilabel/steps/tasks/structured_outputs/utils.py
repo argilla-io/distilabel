@@ -67,6 +67,32 @@ def json_schema_to_model(json_schema: Dict[str, Any]) -> Type[BaseModel]:
     return create_model(model_name, **field_definitions)
 
 
+def resolve_refs(schema_element: Any, defs: Optional[Dict[str, Any]] = None) -> Any:
+    """Resolves JSON schema references.
+
+    Args:
+        schema_element: The JSON schema or part of it to resolve.
+        defs: The definitions of the JSON schema.
+
+    Returns:
+        The resolved JSON schema.
+    """
+    if isinstance(schema_element, dict):
+        # If the schema contains a $ref, resolve it
+        if "$ref" in schema_element and len(schema_element) == 1:
+            ref_key = schema_element["$ref"].split("/")[-1]
+            resolved = defs.get(ref_key, {})
+            return resolve_refs(resolved, defs)  # Resolve recursively
+        else:
+            # Recursively resolve properties of the dictionary
+            return {key: resolve_refs(value, defs) for key, value in schema_element.items()}
+    elif isinstance(schema_element, list):
+        # Resolve each item in the list
+        return [resolve_refs(item, defs) for item in schema_element]
+    # Return other types as-is
+    return schema_element
+
+
 def json_schema_to_pydantic_field(
     name: str,
     json_schema: Dict[str, Any],
@@ -90,13 +116,7 @@ def json_schema_to_pydantic_field(
     # NOTE(plaguss): This needs more testing, nested classes need extra work to be converted
     # here if we pass a reference to another class it will crash, we have to find the original
     # definition and insert it here
-    # This takes into account single items referred to other classes
-    if ref := json_schema.get("$ref"):
-        json_schema = defs.get(ref.split("/")[-1])
-
-    # This takes into account lists of items referred to other classes
-    if "items" in json_schema and (ref := json_schema["items"].get("$ref")):
-        json_schema["items"] = defs.get(ref.split("/")[-1])
+    json_schema = resolve_refs(json_schema, defs)
 
     # Get the field type.
     type_ = json_schema_to_pydantic_type(json_schema)
@@ -128,6 +148,10 @@ def json_schema_to_pydantic_type(json_schema: Dict[str, Any]) -> Any:
     Returns:
         A Pydantic type.
     """
+    if "anyOf" in json_schema:
+        types = [json_schema_to_pydantic_type(schema) for schema in json_schema["anyOf"]]
+        return Union[tuple(types)]
+
     type_ = json_schema.get("type")
 
     if type_ == "string":
