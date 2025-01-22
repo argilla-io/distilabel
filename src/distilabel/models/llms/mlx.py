@@ -65,6 +65,8 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             sent to the LLM to generate an instruction or a follow up user message. Valid
             values are "llama3", "qwen2" or another pre-query template provided. Defaults
             to `None`.
+        structured_output: a dictionary containing the structured output configuration or if more
+            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
 
     Icon:
         `:apple:`
@@ -81,6 +83,28 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
 
         # Call the model
         output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        ```
+
+        Generate structured data:
+
+        ```python
+        from pathlib import Path
+        from distilabel.models.llms import MlxLLM
+        from pydantic import BaseModel
+
+        class User(BaseModel):
+            first_name: str
+            last_name: str
+
+        llm = MlxLLM(
+            path_or_hf_repo="mlx-community/Meta-Llama-3.1-8B-Instruct-4bit",
+            structured_output={"format": "json", "schema": User},
+        )
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for John Smith"}]])
         ```
     """
 
