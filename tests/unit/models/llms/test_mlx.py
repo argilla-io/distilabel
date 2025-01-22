@@ -65,22 +65,17 @@ class TestMlxLLM:
         assert "output_tokens" in statistics
 
     def test_structured_generation_json(self, llm: MlxLLM) -> None:
-
         class User(BaseModel):
             first_name: str
             last_name: str
 
-        llm.structured_output = {
-            "format": "json",
-            "schema": User.model_json_schema()
-        }
+        llm.structured_output = {"format": "json", "schema": User.model_json_schema()}
 
         responses = llm.generate(
             inputs=[
-                [{"role": "user",
-                  "content": "Create a user profile for John Smith"}],
+                [{"role": "user", "content": "Create a user profile for John Smith"}],
             ],
-            num_generations=1
+            num_generations=1,
         )
 
         assert len(responses) == 1
@@ -92,7 +87,7 @@ class TestMlxLLM:
         # Clean and parse the generation
         for generation in generations:
             # Remove the <|im_end|> tokens and clean up the string
-            cleaned_json = generation.replace('<|im_end|>', '').strip()
+            cleaned_json = generation.replace("<|im_end|>", "").strip()
             try:
                 user_data = json.loads(cleaned_json)
                 parsed_user = User(**user_data)
