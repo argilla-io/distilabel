@@ -33,9 +33,9 @@ from distilabel.models.llms.base import LLM
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.typing import (
-    StandardInput,
     GenerateOutput,
     OutlinesStructuredOutputType,
+    StandardInput,
 )
 
 if TYPE_CHECKING:
@@ -218,10 +218,11 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
 
             output: List[str] = []
             for _ in range(num_generations):
-
                 configured_processors = list(logits_processors or [])
                 if self.structured_output:
-                    structured_processors = self._prepare_structured_output(self.structured_output)
+                    structured_processors = self._prepare_structured_output(
+                        self.structured_output
+                    )
                     configured_processors.extend(structured_processors)
 
                 prompt = self.prepare_input(input)
@@ -257,15 +258,17 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             )
         return result
 
-
     def _prepare_structured_output(
-            self, structured_output: Optional[OutlinesStructuredOutputType] = None
+        self, structured_output: Optional[OutlinesStructuredOutputType] = None
     ) -> List[Callable]:
         """Creates the appropriate function to filter tokens to generate structured outputs."""
         if structured_output is None:
             return []
 
-        from distilabel.steps.tasks.structured_outputs.outlines import prepare_guided_output
+        from distilabel.steps.tasks.structured_outputs.outlines import (
+            prepare_guided_output,
+        )
+
         result = prepare_guided_output(structured_output, "mlx", self._wrapped_model)
         if (schema := result.get("schema")) and self.structured_output:
             self.structured_output["schema"] = schema

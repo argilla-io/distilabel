@@ -1,3 +1,17 @@
+# Copyright 2023-present, Argilla, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import importlib
 import importlib.util
 import inspect
@@ -15,17 +29,18 @@ from typing import (
 )
 
 from pydantic import BaseModel
-from distilabel.errors import DistilabelUserError
 
+from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
 
 if TYPE_CHECKING:  # noqa
     from llama_cpp import Llama  # noqa
     from transformers import Pipeline  # noqa
     from vllm import LLM as _vLLM  # noqa
-    from distilabel.models.llms.mlx import MlxModel #noqa
+    from distilabel.models.llms.mlx import MlxModel  # noqa
 
 from distilabel.typing import OutlinesStructuredOutputType  # noqa
+
 Frameworks = Literal["transformers", "llamacpp", "vllm", "mlx"]
 
 
@@ -106,20 +121,24 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
 
 
 def _get_tokenizer_from_model(
-        llm: Union["_vLLM", "Pipeline", "Llama", "MlxModel"],
-        framework: Frameworks,
+    llm: Union["_vLLM", "Pipeline", "Llama", "MlxModel"],
+    framework: Frameworks,
 ) -> Callable:
     if framework == "llamacpp":
         from outlines.models.llamacpp import LlamaCppTokenizer
+
         return LlamaCppTokenizer(llm)
     if framework == "transformers":
         from outlines.models.transformers import TransformerTokenizer
+
         return TransformerTokenizer(llm.tokenizer)
     if framework == "vllm":
         from outlines.models.vllm import adapt_tokenizer
+
         return adapt_tokenizer(llm.get_tokenizer())
     if framework == "mlx":
         from outlines.models.transformers import TransformerTokenizer
+
         return TransformerTokenizer(llm.tokenizer)
 
 
