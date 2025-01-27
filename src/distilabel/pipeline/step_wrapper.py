@@ -117,10 +117,10 @@ class _StepWrapper:
             self._non_generator_process_loop()
 
         # Just in case `None` sentinel was sent
-        try:
-            self.input_queue.get(block=False)
-        except Exception:
-            pass
+        # try:
+        #     self.input_queue.get(block=False)
+        # except Exception:
+        #     pass
 
         self.step.unload()
 
@@ -218,7 +218,8 @@ class _StepWrapper:
         while True:
             if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
-                    f"🛑 Stopping processing batches from step '{self.step.name}'"
+                    f"🛑 Stopping processing batches from step '{self.step.name}' (replica"
+                    f" ID: {self.replica})"
                 )
                 break
 
