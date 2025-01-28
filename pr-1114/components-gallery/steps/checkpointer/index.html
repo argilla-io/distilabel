@@ -1110,6 +1110,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../sections/how_to_guides/advanced/checkpointing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Push data to the hub while the pipeline is running
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../sections/how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
         
   
@@ -5225,11 +5246,44 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attributes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#input-output-columns" class="md-nav__link">
     <span class="md-ellipsis">
       Input &amp; Output Columns
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#do-checkpoints-of-the-data-generated-in-a-hugging-face-hub-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Do checkpoints of the data generated in a Hugging Face Hub dataset
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -5249,6 +5303,26 @@
 
 
 <h1 id="checkpointer">Checkpointer<a class="headerlink" href="#checkpointer" title="Permanent link">&para;</a></h1>
+<p>Special type of step that uploads the data to a Hugging Face Hub dataset.</p>
+<p>A <code>Step</code> that uploads the data to a Hugging Face Hub dataset. The data is uploaded in JSONL format
+    in a specific Hugging Face Dataset, which can be different to the one where the main distiset
+    pipeline is saved. The data is checked every <code>input_batch_size</code> inputs, and a new file is created
+    in the <code>repo_id</code> repository. There will be different config files depending on the leaf steps
+    as in the pipeline, and each file will be numbered sequentially. As there will be writes every
+    <code>input_batch_size</code> inputs, it's advisable not to set a small number on this step, as that
+    will slow down the process.</p>
+<h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>repo_id</strong>: The ID of the repository to push to in the following format: <code>&lt;user&gt;/&lt;dataset_name&gt;</code> or  <code>&lt;org&gt;/&lt;dataset_name&gt;</code>. Also accepts <code>&lt;dataset_name&gt;</code>, which will default to the namespace  of the logged-in user.</p>
+</li>
+<li>
+<p><strong>private</strong>: Whether the dataset repository should be set to private or not. Only affects repository creation:  a repository that already exists will not be affected by that parameter.</p>
+</li>
+<li>
+<p><strong>token</strong>: An optional authentication token for the Hugging Face Hub. If no token is passed, will default  to the token saved locally when logging in with <code>huggingface-cli login</code>. Will raise an error  if no token is passed and the user is not logged-in.</p>
+</li>
+</ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>graph TD
     subgraph Dataset
@@ -5258,6 +5332,36 @@
     end
 
 </code></pre>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<h4 id="do-checkpoints-of-the-data-generated-in-a-hugging-face-hub-dataset">Do checkpoints of the data generated in a Hugging Face Hub dataset<a class="headerlink" href="#do-checkpoints-of-the-data-generated-in-a-hugging-face-hub-dataset" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">Checkpointer</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">StepInput</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepOutput</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># Create a dummy dataset</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tell me lies&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">})</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;pipeline-with-checkpoints&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">text_generation</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="p">),</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="n">template</span><span class="o">=</span><span class="s2">&quot;Follow the following instruction: {{ instruction }}&quot;</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="p">)</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpointer</span><span class="p">(</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;username/streaming_checkpoint&quot;</span><span class="p">,</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        <span class="n">private</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        <span class="n">input_batch_size</span><span class="o">=</span><span class="mi">50</span>  <span class="c1"># Will save write the data to the dataset every 50 inputs</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="p">)</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="n">text_generation</span> <span class="o">&gt;&gt;</span> <span class="n">checkpoint</span>
+</span></code></pre></div>
 
 
 

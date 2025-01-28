@@ -28,6 +28,7 @@ hide:
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
     | :material-image:                | image-generation    | Image generation steps are used to generate images based on a given prompt.                        |
     | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
+    | :fontawesome-solid-kit-medical: | helper              | Helper steps are used to do extra tasks during the pipeline execution.                             |
 
 <div class="grid cards" markdown>
 
