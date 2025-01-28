@@ -21,6 +21,7 @@ from distilabel.steps.base import (
     StepInput,
     StepResources,
 )
+from distilabel.steps.checkpointer import Checkpointer
 from distilabel.steps.clustering.dbscan import DBSCAN
 from distilabel.steps.clustering.text_clustering import TextClustering
 from distilabel.steps.clustering.umap import UMAP
@@ -60,6 +61,7 @@ from distilabel.typing import GeneratorStepOutput, StepOutput
 __all__ = [
     "DBSCAN",
     "UMAP",
+    "Checkpointer",
     "CombineOutputs",
     "ConversationTemplate",
     "DataSampler",
