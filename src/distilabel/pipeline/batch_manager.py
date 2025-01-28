@@ -803,10 +803,10 @@ class _BatchManager(_Serializable):
         """
         step_name = batch.step_name
         seq_no = batch.seq_no
-        self._received_batch_seq_nos[batch.step_name].append(seq_no)
+        self._received_batch_seq_nos[step_name].append(seq_no)
 
         last_batch = self._last_batch_received[step_name]
-        if not last_batch or (last_batch and last_batch.seq_no < batch.seq_no):
+        if not last_batch or (last_batch and last_batch.seq_no < seq_no):
             self._last_batch_received[step_name] = batch
 
         if steps_data_path:
