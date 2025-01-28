@@ -38,6 +38,7 @@ class _WriteBuffer:
         path: "PathLike",
         leaf_steps: Set[str],
         steps_cached: Optional[Dict[str, bool]] = None,
+        dump_batch_size: int = 50,
     ) -> None:
         """
         Args:
@@ -48,6 +49,9 @@ class _WriteBuffer:
                 use_cache. We will use this to determine whether we have to read
                 a previous parquet table to concatenate before saving the cached
                 datasets.
+            dump_batch_size: Determines the frequency of writing the buffer to the file,
+                as it will determine when the buffer is full and we should write to the file.
+                Defaults to 50 (every 50 elements in the buffer we can check for writes).
 
         Raises:
             ValueError: If the path is not a directory.
@@ -64,9 +68,8 @@ class _WriteBuffer:
         self._buffers: Dict[str, List[Dict[str, Any]]] = {
             step: [] for step in leaf_steps
         }
-        # TODO: make this configurable
         self._buffers_dump_batch_size: Dict[str, int] = {
-            step: 50 for step in leaf_steps
+            step: dump_batch_size for step in leaf_steps
         }
         self._buffer_last_schema = {}
         self._buffers_last_file: Dict[str, int] = {step: 1 for step in leaf_steps}
