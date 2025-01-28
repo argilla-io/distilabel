@@ -44,7 +44,7 @@ class DatasetInstructionResponsePipeline:
 
         pipeline = DatasetInstructionResponsePipeline(num_instructions=5)
 
-        distiset = pipeline.pipeline.run(
+        distiset = pipeline.run(
             use_cache=False,
             dataset=Dataset.from_list(
                 mapping=[
