@@ -325,11 +325,16 @@
     "aliases": []
   },
   {
-    "version": "1.5.2",
-    "title": "1.5.2",
+    "version": "1.5.3",
+    "title": "1.5.3",
     "aliases": [
       "latest"
     ]
+  },
+  {
+    "version": "1.5.2",
+    "title": "1.5.2",
+    "aliases": []
   },
   {
     "version": "1.5.1",
