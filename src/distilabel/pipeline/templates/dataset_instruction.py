@@ -17,7 +17,6 @@ from typing import Optional
 
 from distilabel.distiset import Distiset
 from distilabel.llms import LLM, InferenceEndpointsLLM
-from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import ExpandColumns, KeepColumns
 from distilabel.steps.tasks import SelfInstruct, TextGeneration
