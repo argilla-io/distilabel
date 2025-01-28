@@ -286,9 +286,15 @@ class Distiset(dict):
         Returns:
             The metadata extracted from the README.md file of the dataset repository as a dict.
         """
-        readme_path = Path(
-            hf_hub_download(repo_id, "README.md", repo_type="dataset", token=token)
-        )
+        import requests
+
+        try:
+            readme_path = Path(
+                hf_hub_download(repo_id, "README.md", repo_type="dataset", token=token)
+            )
+        except requests.exceptions.HTTPError:
+            # This can fail when using the checkpoint step
+            return {}
         # Remove the '---' from the metadata
         metadata = re.findall(r"---\n(.*?)\n---", readme_path.read_text(), re.DOTALL)[0]
         metadata = yaml.safe_load(metadata)

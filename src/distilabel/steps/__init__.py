@@ -21,6 +21,7 @@ from distilabel.steps.base import (
     StepInput,
     StepResources,
 )
+from distilabel.steps.checkpointer import HuggingFaceHubCheckpointer
 from distilabel.steps.clustering.dbscan import DBSCAN
 from distilabel.steps.clustering.text_clustering import TextClustering
 from distilabel.steps.clustering.umap import UMAP
@@ -76,6 +77,7 @@ __all__ = [
     "GeneratorStepOutput",
     "GlobalStep",
     "GroupColumns",
+    "HuggingFaceHubCheckpointer",
     "KeepColumns",
     "LoadDataFromDicts",
     "LoadDataFromDisk",
