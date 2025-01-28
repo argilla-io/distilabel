@@ -95,6 +95,7 @@ _STEPS_CATEGORY_TO_ICON = {
     "save": ":material-content-save:",
     "image-generation": ":material-image:",
     "labelling": ":label:",
+    "helper": ":fontawesome-solid-kit-medical:",
 }
 
 _STEP_CATEGORY_TO_DESCRIPTION = {
@@ -116,6 +117,7 @@ _STEP_CATEGORY_TO_DESCRIPTION = {
     "save": "Save steps are used to save the data.",
     "image-generation": "Image generation steps are used to generate images based on a given prompt.",
     "labelling": "Labelling steps are used to label the data.",
+    "helper": "Helper steps are used to do extra tasks during the pipeline execution.",
 }
 
 
