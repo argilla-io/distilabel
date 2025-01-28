@@ -127,7 +127,7 @@ class Checkpointer(Step):
                     repo_type="dataset",
                     commit_message=f"Checkpoint {i}-{self._counter}",
                 )
-                self._logger.info(f"Uploaded checkpoint {i}-{self._counter}")
+                self._logger.info(f"⬆️ Uploaded checkpoint {i}-{self._counter}")
             finally:
                 Path(temp_file.name).unlink()
                 self._counter += 1
