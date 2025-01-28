@@ -760,6 +760,7 @@ class TestBasePipeline:
             last_batch_received={step_name: None},
             last_batch_sent={step_name: None},
             last_batch_flag_sent_to=[],
+            received_batch_seq_nos={},
         )
 
         with mock.patch.object(pipeline, "_send_to_step") as mock_sent_to_step:
