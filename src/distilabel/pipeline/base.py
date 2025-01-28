@@ -413,19 +413,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._setup_write_buffer(use_cache)
 
-        self._prepare_checkpointer()
-
         self._print_load_stages_info()
-
-    def _prepare_checkpointer(self) -> None:
-        """Method to add the data directory to the Checkpointer step."""
-        # NOTE: We have to pass the _cache_location["data"] data path once it's set, the
-        # implementation is not the best, but does the job for now.
-        for name in self.dag:
-            step: "_Step" = self.dag.get_step(name)[constants.STEP_ATTR_NAME]
-            if type(step).__name__ == "Checkpointer":
-                self._logger.debug("Setting data dir for Checkpointer")
-                step._data_dir = self._cache_location["data"]
 
     def dry_run(
         self,
