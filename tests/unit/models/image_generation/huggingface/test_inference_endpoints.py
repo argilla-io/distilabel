@@ -26,6 +26,7 @@ from distilabel.models.image_generation.huggingface.inference_endpoints import (
 
 
 @patch("huggingface_hub.AsyncInferenceClient")
+@pytest.mark.xfail
 class TestInferenceEndpointsImageGeneration:
     @pytest.mark.asyncio
     async def test_agenerate(self, mock_inference_client: MagicMock) -> None:

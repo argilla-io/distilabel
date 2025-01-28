@@ -728,6 +728,7 @@ class _BatchManager(_Serializable):
         last_batch_received: Dict[str, Union[_Batch, None]],
         last_batch_sent: Dict[str, Union[_Batch, None]],
         last_batch_flag_sent_to: List[str],
+        received_batch_seq_nos: Dict[str, List[int]],
     ) -> None:
         """Initialize the `_BatchManager` instance.
 
@@ -740,12 +741,31 @@ class _BatchManager(_Serializable):
                 `_Batch` sent to the step.
             last_batch_flag_sent_to: A list with the names of the steps to which `LAST_BATCH_SENT_FLAG`
                 was sent.
+            received_batch_seq_nos: a dictionary containing the list of batches sequence
+                numbers received per step.
         """
 
         self._steps = steps
         self._last_batch_received = last_batch_received
         self._last_batch_sent = last_batch_sent
         self._last_batch_flag_sent_to = last_batch_flag_sent_to
+        self._received_batch_seq_nos = received_batch_seq_nos
+
+    def _missing_seq_no(self, last_batch: _Batch) -> bool:
+        """Checks if there's any missing sequence number in the batches received from the
+        step.
+
+        Args:
+            last_batch: the batch with `last_batch==True` received from the step.
+
+        Returns:
+            `True` if there's any missing sequence number, `False` otherwise.
+        """
+        received_batch_seq_nos = self._received_batch_seq_nos[last_batch.step_name]
+        for i in range(last_batch.seq_no + 1):
+            if i not in received_batch_seq_nos:
+                return True
+        return False
 
     def can_generate(self) -> bool:
         """Checks if there are still batches to be processed by the steps.
@@ -757,6 +777,9 @@ class _BatchManager(_Serializable):
         for step_name, batch in self._last_batch_received.items():
             if step_name not in self._last_batch_flag_sent_to:
                 if not batch:
+                    return True
+
+                if batch.last_batch and self._missing_seq_no(batch):
                     return True
 
                 if not batch.last_batch:
@@ -778,9 +801,13 @@ class _BatchManager(_Serializable):
             steps_data_path: The path where the outputs of each `Step` (considering its
                 signature) will be saved for later reuse in another pipelines executions.
         """
-        last_batch = self._last_batch_received[batch.step_name]
-        if not last_batch or (last_batch and last_batch.seq_no < batch.seq_no):
-            self._last_batch_received[batch.step_name] = batch
+        step_name = batch.step_name
+        seq_no = batch.seq_no
+        self._received_batch_seq_nos[step_name].append(seq_no)
+
+        last_batch = self._last_batch_received[step_name]
+        if not last_batch or (last_batch and last_batch.seq_no < seq_no):
+            self._last_batch_received[step_name] = batch
 
         if steps_data_path:
             self.write_batch_data(batch, steps_data_path)
@@ -955,6 +982,7 @@ class _BatchManager(_Serializable):
         last_batch_received = {}
         last_batch_sent = {}
         last_batch_flag_sent_to = []
+        received_batch_seq_nos = {}
 
         load_batches = {}
         steps_to_load_data_from_previous_executions: Dict[str, Union[Path, None]] = {}
@@ -962,6 +990,7 @@ class _BatchManager(_Serializable):
             step: "_Step" = dag.get_step(step_name)[STEP_ATTR_NAME]
             last_batch_received[step.name] = None
             last_batch_sent[step.name] = None
+            received_batch_seq_nos[step.name] = []
             predecessors = list(dag.get_step_predecessors(step_name))
             convergence_step = all(
                 dag.get_step(predecessor).get(RECEIVES_ROUTED_BATCHES_ATTR_NAME, False)
@@ -1020,7 +1049,13 @@ class _BatchManager(_Serializable):
                     )
                     batch_manager_step.last_batch_received.append(predecessor)
 
-        return cls(steps, last_batch_received, last_batch_sent, last_batch_flag_sent_to)
+        return cls(
+            steps,
+            last_batch_received,
+            last_batch_sent,
+            last_batch_flag_sent_to,
+            received_batch_seq_nos,
+        )
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the `_BatchManager` to a dictionary.
@@ -1043,6 +1078,7 @@ class _BatchManager(_Serializable):
                 for step_name, batch in self._last_batch_sent.items()
             },
             "last_batch_flag_sent_to": self._last_batch_flag_sent_to,
+            "received_batch_seq_nos": self._received_batch_seq_nos,
         }
 
     def cache(self, path: Path, steps_data_path: Path) -> None:  # noqa: C901
