@@ -23,7 +23,10 @@ import pytest
 from huggingface_hub import (
     ChatCompletionOutput,
     ChatCompletionOutputComplete,
+    ChatCompletionOutputLogprob,
+    ChatCompletionOutputLogprobs,
     ChatCompletionOutputMessage,
+    ChatCompletionOutputTopLogprob,
     ChatCompletionOutputUsage,
 )
 
@@ -134,6 +137,7 @@ class TestInferenceEndpointsLLM:
                 generated_text="Aenean hendrerit aliquam velit...",
                 details=MagicMock(
                     generated_tokens=66,
+                    top_tokens=None,
                 ),
             )
         )
@@ -146,12 +150,72 @@ class TestInferenceEndpointsLLM:
                 },
             ]
         )
+
         assert result == {
             "generations": ["Aenean hendrerit aliquam velit..."],
             "statistics": {
                 "input_tokens": [31],
                 "output_tokens": [66],
             },
+        }
+
+    @pytest.mark.asyncio
+    async def test_agenerate_with_text_generation_and_top_n_tokens(
+        self, mock_inference_client: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
+        )
+        llm.load()
+
+        llm._aclient.text_generation = AsyncMock(
+            return_value=MagicMock(
+                generated_text="Aenean hendrerit aliquam velit...",
+                details=MagicMock(
+                    generated_tokens=66,
+                    top_tokens=[
+                        [
+                            {"logprob": 0, "text": "Aenean"},
+                            {"logprob": -2, "text": "Hello"},
+                        ],
+                        [
+                            {"logprob": 0, "text": " "},
+                            {"logprob": -2, "text": ","},
+                        ],
+                    ],
+                ),
+            )
+        )
+
+        result = await llm.agenerate(
+            input=[
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ],
+            top_n_tokens=2,
+        )
+
+        assert result == {
+            "generations": ["Aenean hendrerit aliquam velit..."],
+            "statistics": {
+                "input_tokens": [31],
+                "output_tokens": [66],
+            },
+            "logprobs": [
+                [
+                    [
+                        {"logprob": 0, "token": "Aenean"},
+                        {"logprob": -2, "token": "Hello"},
+                    ],
+                    [
+                        {"logprob": 0, "token": " "},
+                        {"logprob": -2, "token": ","},
+                    ],
+                ]
+            ],
         }
 
     @pytest.mark.asyncio
@@ -199,6 +263,107 @@ class TestInferenceEndpointsLLM:
                 "input_tokens": [18],
                 "output_tokens": [66],
             },
+        }
+
+    @pytest.mark.asyncio
+    async def test_agenerate_with_chat_completion_and_logprobs_and_top_logprobs(
+        self, mock_inference_client: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+        )
+        llm.load()
+
+        llm._aclient.chat_completion = AsyncMock(  # type: ignore
+            return_value=ChatCompletionOutput(  # type: ignore
+                choices=[
+                    ChatCompletionOutputComplete(
+                        finish_reason="length",
+                        index=0,
+                        message=ChatCompletionOutputMessage(
+                            role="assistant",
+                            content=" Aenean hendrerit aliquam velit. ...",
+                        ),
+                        logprobs=ChatCompletionOutputLogprobs(
+                            content=[
+                                ChatCompletionOutputLogprob(
+                                    logprob=0,
+                                    token=" ",
+                                    top_logprobs=[
+                                        ChatCompletionOutputTopLogprob(
+                                            logprob=0, token=" "
+                                        ),
+                                        ChatCompletionOutputTopLogprob(
+                                            logprob=-1, token="Hello"
+                                        ),
+                                    ],
+                                ),
+                                ChatCompletionOutputLogprob(
+                                    logprob=0,
+                                    token="Aenean",
+                                    top_logprobs=[
+                                        ChatCompletionOutputTopLogprob(
+                                            logprob=0, token="Aenean"
+                                        ),
+                                        ChatCompletionOutputTopLogprob(
+                                            logprob=-1, token="miau"
+                                        ),
+                                    ],
+                                ),
+                            ]
+                        ),
+                    )
+                ],
+                created=1721045246,
+                id="",
+                model="meta-llama/Meta-Llama-3-70B-Instruct",
+                system_fingerprint="2.1.1-dev0-sha-4327210",
+                usage=ChatCompletionOutputUsage(
+                    completion_tokens=66, prompt_tokens=18, total_tokens=84
+                ),
+            )
+        )
+
+        result = await llm.agenerate(
+            input=[
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ],
+            logprobs=True,
+            top_logprobs=2,
+        )
+        assert result == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {
+                "input_tokens": [18],
+                "output_tokens": [66],
+            },
+            "logprobs": [
+                [
+                    [
+                        {
+                            "logprob": 0,
+                            "token": " ",
+                        },
+                        {
+                            "logprob": -1,
+                            "token": "Hello",
+                        },
+                    ],
+                    [
+                        {
+                            "logprob": 0,
+                            "token": "Aenean",
+                        },
+                        {
+                            "logprob": -1,
+                            "token": "miau",
+                        },
+                    ],
+                ]
+            ],
         }
 
     @pytest.mark.asyncio
@@ -338,9 +503,7 @@ class TestInferenceEndpointsLLM:
         llm._aclient.text_generation = AsyncMock(
             return_value=MagicMock(
                 generated_text="Aenean hendrerit aliquam velit...",
-                details=MagicMock(
-                    generated_tokens=66,
-                ),
+                details=MagicMock(generated_tokens=66, top_tokens=None),
             )
         )
         # Since there's a pseudo-random number within the generation kwargs, we set the seed

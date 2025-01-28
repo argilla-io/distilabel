@@ -26,8 +26,7 @@ from distilabel.steps.tasks.apigen.utils import remove_fences
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepColumns
+    from distilabel.typing import ChatType, StepColumns
 
 
 SYSTEM_PROMPT_API_GEN: Final[str] = """\

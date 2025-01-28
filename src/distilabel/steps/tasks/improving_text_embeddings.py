@@ -23,8 +23,7 @@ from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import GeneratorTask, Task
-from distilabel.steps.tasks.typing import ChatType
-from distilabel.steps.typing import GeneratorStepOutput
+from distilabel.typing import ChatType, GeneratorStepOutput
 
 
 # BASE CLASSES

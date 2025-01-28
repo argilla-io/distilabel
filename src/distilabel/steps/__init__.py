@@ -26,7 +26,7 @@ from distilabel.steps.clustering.text_clustering import TextClustering
 from distilabel.steps.clustering.umap import UMAP
 from distilabel.steps.columns.combine import CombineOutputs
 from distilabel.steps.columns.expand import ExpandColumns
-from distilabel.steps.columns.group import CombineColumns, GroupColumns
+from distilabel.steps.columns.group import GroupColumns
 from distilabel.steps.columns.keep import KeepColumns
 from distilabel.steps.columns.merge import MergeColumns
 from distilabel.steps.decorator import step
@@ -55,45 +55,44 @@ from distilabel.steps.generators.utils import make_generator_step
 from distilabel.steps.globals.huggingface import PushToHub
 from distilabel.steps.reward_model import RewardModelScore
 from distilabel.steps.truncate import TruncateTextColumn
-from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+from distilabel.typing import GeneratorStepOutput, StepOutput
 
 __all__ = [
-    "PreferenceToArgilla",
-    "TextGenerationToArgilla",
-    "GeneratorStep",
-    "GlobalStep",
-    "Step",
-    "StepInput",
-    "StepResources",
-    "CombineOutputs",
-    "ExpandColumns",
-    "CombineColumns",
-    "GroupColumns",
-    "KeepColumns",
-    "MergeColumns",
     "DBSCAN",
     "UMAP",
-    "TextClustering",
-    "step",
-    "DeitaFiltering",
-    "EmbeddingGeneration",
-    "FaissNearestNeighbour",
+    "CombineOutputs",
     "ConversationTemplate",
-    "FormatChatGenerationDPO",
-    "FormatTextGenerationDPO",
-    "FormatChatGenerationSFT",
-    "FormatTextGenerationSFT",
-    "LoadDataFromDicts",
     "DataSampler",
+    "DeitaFiltering",
+    "EmbeddingDedup",
+    "EmbeddingGeneration",
+    "ExpandColumns",
+    "FaissNearestNeighbour",
+    "FormatChatGenerationDPO",
+    "FormatChatGenerationSFT",
+    "FormatTextGenerationDPO",
+    "FormatTextGenerationSFT",
+    "GeneratorStep",
+    "GeneratorStepOutput",
+    "GlobalStep",
+    "GroupColumns",
+    "KeepColumns",
+    "LoadDataFromDicts",
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
-    "EmbeddingDedup",
+    "MergeColumns",
     "MinHashDedup",
-    "make_generator_step",
+    "PreferenceToArgilla",
     "PushToHub",
     "RewardModelScore",
-    "TruncateTextColumn",
-    "GeneratorStepOutput",
+    "Step",
+    "StepInput",
     "StepOutput",
+    "StepResources",
+    "TextClustering",
+    "TextGenerationToArgilla",
+    "TruncateTextColumn",
+    "make_generator_step",
+    "step",
 ]

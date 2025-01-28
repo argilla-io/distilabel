@@ -13,11 +13,9 @@
 # limitations under the License.
 
 
-import pytest
-
 from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.columns.group import CombineColumns, GroupColumns
+from distilabel.steps.columns.group import GroupColumns
 
 
 class TestGroupColumns:
@@ -58,16 +56,3 @@ class TestGroupColumns:
                 DISTILABEL_METADATA_KEY: {"model": ["model-1", "model-2"]},
             }
         ]
-
-
-def test_CombineColumns_deprecation_warning():
-    with pytest.deprecated_call():
-        CombineColumns(
-            name="combine_columns",
-            columns=["generation", "model_name"],
-        )
-    from packaging.version import Version
-
-    import distilabel
-
-    assert Version(distilabel.__version__) <= Version("1.5.0")

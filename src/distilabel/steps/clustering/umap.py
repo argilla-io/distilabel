@@ -27,7 +27,7 @@ from distilabel.steps import (
 if TYPE_CHECKING:
     from umap import UMAP as _UMAP
 
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 class UMAP(GlobalStep):
@@ -112,7 +112,7 @@ class UMAP(GlobalStep):
         super().load()
         if importlib.util.find_spec("umap") is None:
             raise ImportError(
-                "`umap` package is not installed. Please install it using `pip install umap-learn`."
+                "`umap` package is not installed. Please install it using `pip install 'distilabel[text-clustering]'`."
             )
         from umap import UMAP as _UMAP
 

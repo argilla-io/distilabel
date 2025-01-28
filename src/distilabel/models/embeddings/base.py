@@ -50,7 +50,9 @@ class Embeddings(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
     def load(self) -> None:
         """Method to be called to initialize the `Embeddings`"""
-        self._logger = logging.getLogger(f"distilabel.llm.{self.model_name}")
+        self._logger = logging.getLogger(
+            f"distilabel.models.embeddings.{self.model_name}"
+        )
 
     def unload(self) -> None:
         """Method to be called to unload the `Embeddings` and release any resources."""

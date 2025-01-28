@@ -20,9 +20,12 @@ from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import prepare_output
-from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
+from distilabel.typing import (
+    FormattedInput,
+    GenerateOutput,
+    InstructorStructuredOutputType,
+)
 
 if TYPE_CHECKING:
     from litellm import Choices
@@ -104,7 +107,7 @@ class LiteLLM(AsyncLLM):
         except ImportError as e:
             raise ImportError(
                 "LiteLLM Python client is not installed. Please install it using"
-                " `pip install litellm`."
+                " `pip install 'distilabel[litellm]'`."
             ) from e
         self._aclient = litellm.acompletion
 

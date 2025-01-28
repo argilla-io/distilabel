@@ -33,9 +33,7 @@ from distilabel.steps.tasks.evol_instruct.utils import GENERATION_MUTATION_TEMPL
 from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import LLMStatistics
-    from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.typing import ChatType, GeneratorStepOutput, LLMStatistics
 
 
 class EvolInstructGenerator(GeneratorTask):

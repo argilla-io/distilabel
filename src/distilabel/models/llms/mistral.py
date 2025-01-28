@@ -19,10 +19,10 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import prepare_output
-from distilabel.steps.tasks.typing import (
+from distilabel.typing import (
     FormattedInput,
+    GenerateOutput,
     InstructorStructuredOutputType,
 )
 
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from mistralai import Mistral
     from mistralai.models.chatcompletionresponse import ChatCompletionResponse
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.typing import LLMStatistics
 
 
 _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
@@ -140,7 +140,7 @@ class MistralLLM(AsyncLLM):
         except ImportError as ie:
             raise ImportError(
                 "MistralAI Python client is not installed. Please install it using"
-                " `pip install mistralai`."
+                " `pip install 'distilabel[mistralai]'`."
             ) from ie
 
         if self.api_key is None:

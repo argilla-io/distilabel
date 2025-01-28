@@ -24,10 +24,10 @@ from distilabel.pipeline.templates import (
 )
 
 __all__ = [
+    "DatasetInstructionResponsePipeline",
+    "InstructionResponsePipeline",
     "Pipeline",
     "RayPipeline",
-    "InstructionResponsePipeline",
-    "DatasetInstructionResponsePipeline",
     "routing_batch_function",
     "sample_n_steps",
 ]

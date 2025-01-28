@@ -12,15 +12,14 @@ from typing import Any, Dict, List, Union
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import GeneratorTask
-from distilabel.steps.tasks.typing import ChatType
-from distilabel.steps.typing import GeneratorOutput
+from distilabel.typing import ChatType, GeneratorOutput
 
 
 class MyCustomTask(GeneratorTask):
     instruction: str
 
     @override
-    def process(self, offset: int = 0) -> GeneratorOutput:
+    def process(self, offset: int = 0) -> GeneratorStepOutput:
         output = self.llm.generate(
             inputs=[
                 [
@@ -78,12 +77,12 @@ We can define a custom generator task by creating a new subclass of the [`Genera
 from typing import Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import GeneratorTask
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.typing import ChatType
 
 
 class MyCustomTask(GeneratorTask):
     @override
-    def process(self, offset: int = 0) -> GeneratorOutput:
+    def process(self, offset: int = 0) -> GeneratorStepOutput:
         output = self.llm.generate(
             inputs=[
                 [{"role": "user", "content": "Tell me a joke."}],

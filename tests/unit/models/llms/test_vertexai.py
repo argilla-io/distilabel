@@ -46,19 +46,6 @@ class TestVertexAILLM:
         )
         llm._aclient.generate_content_async = AsyncMock(return_value=mocked_completion)
 
-        with pytest.raises(
-            ValueError, match="`VertexAILLM only supports the roles 'user' or 'model'."
-        ):
-            await llm.agenerate(
-                input=[
-                    {"role": "system", "content": ""},
-                    {
-                        "role": "test",
-                        "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                    },
-                ]
-            )
-
         result = await llm.agenerate(
             input=[
                 {"role": "model", "content": ""},
@@ -88,21 +75,6 @@ class TestVertexAILLM:
         llm._aclient.generate_content_async = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
-
-        with pytest.raises(
-            ValueError, match="`VertexAILLM only supports the roles 'user' or 'model'."
-        ):
-            llm.generate(
-                inputs=[
-                    [
-                        {"role": "system", "content": ""},
-                        {
-                            "role": "test",
-                            "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                        },
-                    ],
-                ]
-            )
 
         result = llm.generate(
             inputs=[

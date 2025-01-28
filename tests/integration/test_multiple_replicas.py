@@ -22,7 +22,7 @@ from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts, StepInput, StepResources, step
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 @step(outputs=["generation"])

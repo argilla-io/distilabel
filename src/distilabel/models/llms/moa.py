@@ -19,12 +19,11 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union, cast
 from pydantic import Field
 
 from distilabel.models.llms.base import LLM, AsyncLLM
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.typing import StandardInput
 
 if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
-    from distilabel.models.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import FormattedInput
+    from distilabel.typing import FormattedInput, GenerateOutput
 
 # Mixture-of-Agents system prompt from the paper with the addition instructing the LLM
 # to not mention that it used responses from previous models to avoid having texts like

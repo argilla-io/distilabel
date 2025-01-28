@@ -44,9 +44,8 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
-    from distilabel.pipeline.typing import InputDataset
     from distilabel.steps.base import _Step
-
+    from distilabel.typing import InputDataset, LoadGroups
 
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
@@ -148,6 +147,7 @@ class Pipeline(BasePipeline):
     def run(
         self,
         parameters: Optional[Dict[Any, Dict[str, Any]]] = None,
+        load_groups: Optional["LoadGroups"] = None,
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
@@ -160,6 +160,14 @@ class Pipeline(BasePipeline):
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
                 the runtime parameters for the step as the value. Defaults to `None`.
+            load_groups: A list containing lists of steps that have to be loaded together
+                and in isolation with respect to the rest of the steps of the pipeline.
+                This argument also allows passing the following modes:
+
+                - "sequential_step_execution": each step will be executed in a stage i.e.
+                    the execution of the steps will be sequential.
+
+                Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
                 `True`.
             storage_parameters: A dictionary with the storage parameters (`fsspec` and path)
@@ -203,6 +211,7 @@ class Pipeline(BasePipeline):
 
         if distiset := super().run(
             parameters=parameters,
+            load_groups=load_groups,
             use_cache=use_cache,
             storage_parameters=storage_parameters,
             use_fs_to_pass_data=use_fs_to_pass_data,

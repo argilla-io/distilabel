@@ -14,10 +14,19 @@
 
 
 from distilabel.models.embeddings.base import Embeddings
+from distilabel.models.embeddings.llamacpp import LlamaCppEmbeddings
 from distilabel.models.embeddings.sentence_transformers import (
     SentenceTransformerEmbeddings,
 )
 from distilabel.models.embeddings.vllm import vLLMEmbeddings
+from distilabel.models.image_generation.base import (
+    AsyncImageGenerationModel,
+    ImageGenerationModel,
+)
+from distilabel.models.image_generation.huggingface.inference_endpoints import (
+    InferenceEndpointsImageGeneration,
+)
+from distilabel.models.image_generation.openai import OpenAIImageGeneration
 from distilabel.models.llms.anthropic import AnthropicLLM
 from distilabel.models.llms.anyscale import AnyscaleLLM
 from distilabel.models.llms.azure import AzureOpenAILLM
@@ -28,39 +37,46 @@ from distilabel.models.llms.huggingface import InferenceEndpointsLLM, Transforme
 from distilabel.models.llms.litellm import LiteLLM
 from distilabel.models.llms.llamacpp import LlamaCppLLM
 from distilabel.models.llms.mistral import MistralLLM
+from distilabel.models.llms.mlx import MlxLLM
 from distilabel.models.llms.moa import MixtureOfAgentsLLM
 from distilabel.models.llms.ollama import OllamaLLM
 from distilabel.models.llms.openai import OpenAILLM
 from distilabel.models.llms.together import TogetherLLM
-from distilabel.models.llms.typing import GenerateOutput, HiddenState
 from distilabel.models.llms.vertexai import VertexAILLM
 from distilabel.models.llms.vllm import ClientvLLM, vLLM
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.typing import GenerateOutput, HiddenState
 
 __all__ = [
+    "LLM",
     "AnthropicLLM",
     "AnyscaleLLM",
-    "AzureOpenAILLM",
-    "LLM",
+    "AsyncImageGenerationModel",
     "AsyncLLM",
+    "AzureOpenAILLM",
+    "ClientvLLM",
     "CohereLLM",
+    "CudaDevicePlacementMixin",
+    "Embeddings",
+    "GenerateOutput",
     "GroqLLM",
+    "HiddenState",
+    "ImageGenerationModel",
+    "InferenceEndpointsImageGeneration",
     "InferenceEndpointsLLM",
     "LiteLLM",
+    "LlamaCppEmbeddings",
     "LlamaCppLLM",
     "MistralLLM",
-    "CudaDevicePlacementMixin",
     "MixtureOfAgentsLLM",
+    "MlxLLM",
     "OllamaLLM",
+    "OpenAIImageGeneration",
     "OpenAILLM",
+    "SentenceTransformerEmbeddings",
     "TogetherLLM",
     "TransformersLLM",
-    "GenerateOutput",
-    "HiddenState",
     "VertexAILLM",
-    "ClientvLLM",
     "vLLM",
-    "Embeddings",
-    "SentenceTransformerEmbeddings",
     "vLLMEmbeddings",
 ]

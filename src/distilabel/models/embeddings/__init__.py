@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from distilabel.models.embeddings.base import Embeddings
+from distilabel.models.embeddings.llamacpp import LlamaCppEmbeddings
 from distilabel.models.embeddings.sentence_transformers import (
     SentenceTransformerEmbeddings,
 )
@@ -20,6 +21,7 @@ from distilabel.models.embeddings.vllm import vLLMEmbeddings
 
 __all__ = [
     "Embeddings",
+    "LlamaCppEmbeddings",
     "SentenceTransformerEmbeddings",
     "vLLMEmbeddings",
 ]

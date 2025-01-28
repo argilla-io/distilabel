@@ -29,20 +29,19 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import AsyncLLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import prepare_output
-from distilabel.steps.tasks.typing import (
+from distilabel.typing import (
     FormattedInput,
+    GenerateOutput,
     InstructorStructuredOutputType,
 )
 
 if TYPE_CHECKING:
-    from typing import BaseModel
-
     from anthropic import AsyncAnthropic
     from anthropic.types import Message
+    from pydantic import BaseModel
 
-    from distilabel.llms.typing import LLMStatistics
+    from distilabel.typing import LLMStatistics
 
 
 _ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
@@ -176,7 +175,7 @@ class AnthropicLLM(AsyncLLM):
         except ImportError as ie:
             raise ImportError(
                 "Anthropic Python client is not installed. Please install it using"
-                " `pip install anthropic`."
+                " `pip install 'distilabel[anthropic]'`."
             ) from ie
 
         if self.api_key is None:

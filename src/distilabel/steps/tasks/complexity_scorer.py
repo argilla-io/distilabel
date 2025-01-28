@@ -30,7 +30,7 @@ from typing_extensions import override
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 
 _PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
@@ -185,7 +185,7 @@ class ComplexityScorer(Task):
         scores = []
         score_lines = output.split("\n")
         for i, line in enumerate(score_lines):
-            match = _PARSE_SCORE_LINE_REGEX.match(line)
+            match = _PARSE_SCORE_LINE_REGEX.search(line)
             score = float(match.group(1)) if match else None
             scores.append(score)
             if i == len(input["instructions"]) - 1:

@@ -19,11 +19,17 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
-from distilabel.models.llms.typing import GenerateOutput
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
+from distilabel.steps.tasks.structured_outputs.outlines import (
+    _is_outlines_version_below_0_1_0,
+)
+from distilabel.typing import (
+    GenerateOutput,
+    OutlinesStructuredOutputType,
+    StandardInput,
+)
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
 if TYPE_CHECKING:
@@ -31,7 +37,7 @@ if TYPE_CHECKING:
     from transformers.modeling_utils import PreTrainedModel
     from transformers.tokenization_utils import PreTrainedTokenizer
 
-    from distilabel.models.llms.typing import HiddenState
+    from distilabel.typing import HiddenState
 
 
 class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
@@ -111,6 +117,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     _pipeline: Optional["Pipeline"] = PrivateAttr(...)
     _prefix_allowed_tokens_fn: Union[Callable, None] = PrivateAttr(default=None)
+    _logits_processor: Union[Callable, None] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
@@ -122,7 +129,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             from transformers import pipeline
         except ImportError as ie:
             raise ImportError(
-                "Transformers is not installed. Please install it using `pip install transformers`."
+                "Transformers is not installed. Please install it using `pip install 'distilabel[hf-transformers]'`."
             ) from ie
 
         token = self.token.get_secret_value() if self.token is not None else self.token
@@ -149,9 +156,11 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token  # type: ignore
 
         if self.structured_output:
-            self._prefix_allowed_tokens_fn = self._prepare_structured_output(
-                self.structured_output
-            )
+            processor = self._prepare_structured_output(self.structured_output)
+            if _is_outlines_version_below_0_1_0():
+                self._prefix_allowed_tokens_fn = processor
+            else:
+                self._logits_processor = [processor]
 
         super().load()
 
@@ -175,7 +184,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
-        if self._pipeline.tokenizer.chat_template:  # type: ignore
+        if self._pipeline.tokenizer.chat_template is None:  # type: ignore
             return input[0]["content"]
 
         prompt: str = (
@@ -232,7 +241,8 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             do_sample=do_sample,
             num_return_sequences=num_generations,
             prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
-            pad_token_id=self._pipeline.tokenizer.eos_token_id,  # type: ignore
+            pad_token_id=self._pipeline.tokenizer.eos_token_id,
+            logits_processor=self._logits_processor,
         )
         llm_output = [
             [generation["generated_text"] for generation in output]
@@ -292,7 +302,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     def _prepare_structured_output(
         self, structured_output: Optional[OutlinesStructuredOutputType] = None
-    ) -> Union[Callable, None]:
+    ) -> Union[Callable, List[Callable]]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
 
         Args:

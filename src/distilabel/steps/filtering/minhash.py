@@ -36,7 +36,7 @@ from distilabel.steps.base import Step, StepInput
 if TYPE_CHECKING:
     from datasketch import MinHash, MinHashLSH
 
-    from distilabel.steps.typing import StepOutput
+    from distilabel.typing import StepOutput
 
 
 # Copied from: https://github.com/huggingface/datatrove/blob/main/src/datatrove/utils/text.py#L89C1-L95C65
@@ -176,7 +176,7 @@ class MinHashDedup(Step):
         if not importlib.import_module("datasketch"):
             raise ImportError(
                 "`datasketch` is needed to deduplicate with MinHash, but is not installed. "
-                "Please install it using `pip install datasketch`."
+                "Please install it using `pip install 'distilabel[minhash]'`."
             )
         from datasketch import MinHash
 
@@ -193,7 +193,7 @@ class MinHashDedup(Step):
             if not importlib.import_module("nltk"):
                 raise ImportError(
                     "`nltk` is needed to tokenize based on words, but is not installed. "
-                    "Please install it using `pip install nltk`. Then run `nltk.download('punkt_tab')`."
+                    "Please install it using `pip install 'distilabel[minhash]'`. Then run `nltk.download('punkt_tab')`."
                 )
             self._tokenizer = tokenized_on_words
         else:

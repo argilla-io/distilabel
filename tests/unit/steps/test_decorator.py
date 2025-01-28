@@ -25,7 +25,7 @@ from distilabel.steps.base import (
     StepInput,
 )
 from distilabel.steps.decorator import step
-from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+from distilabel.typing import GeneratorStepOutput, StepOutput
 
 
 class TestStepDecorator:

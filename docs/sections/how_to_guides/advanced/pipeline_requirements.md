@@ -9,7 +9,7 @@ from typing import List
 
 from distilabel.steps import Step
 from distilabel.steps.base import StepInput
-from distilabel.steps.typing import StepOutput
+from distilabel.typing import StepOutput
 from distilabel.steps import LoadDataFromDicts
 from distilabel.utils.requirements import requirements
 from distilabel.pipeline import Pipeline

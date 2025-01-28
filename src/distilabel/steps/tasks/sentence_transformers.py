@@ -28,7 +28,7 @@ else:
     import importlib.resources as importlib_resources
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.typing import ChatType
 
 GenerationAction = Literal["paraphrase", "semantically-similar", "query", "answer"]
 
@@ -346,7 +346,7 @@ class GenerateSentencePair(Task):
         if self.use_default_structured_output:
             return self._format_structured_output(output)
 
-        match = POSITIVE_NEGATIVE_PAIR_REGEX.match(output)
+        match = POSITIVE_NEGATIVE_PAIR_REGEX.search(output)
         if match is None:
             formatted_output = {"positive": None}
             if self.triplet:
