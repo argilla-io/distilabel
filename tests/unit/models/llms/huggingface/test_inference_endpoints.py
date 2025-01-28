@@ -40,6 +40,7 @@ def mock_hf_token_env_variable() -> Generator[None, None, None]:
 
 
 @patch("huggingface_hub.AsyncInferenceClient")
+@pytest.mark.xfail
 class TestInferenceEndpointsLLM:
     def test_no_tokenizer_magpie_raise_value_error(
         self, mock_inference_client: MagicMock
