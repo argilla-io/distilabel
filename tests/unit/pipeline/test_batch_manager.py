@@ -1461,6 +1461,7 @@ class TestBatchManager:
             last_batch_received={"step3": None},
             last_batch_sent={"step3": None},
             last_batch_flag_sent_to=[],
+            received_batch_seq_nos={},
         )
 
         batch_from_step_1 = _Batch(
@@ -1505,6 +1506,7 @@ class TestBatchManager:
             },
             last_batch_sent={"step1": None, "step2": None, "step3": None},
             last_batch_flag_sent_to=["step2"],
+            received_batch_seq_nos={},
         )
 
         assert batch_manager.step_has_finished("step1") is True
@@ -1533,6 +1535,7 @@ class TestBatchManager:
             last_batch_received={"step3": None},
             last_batch_sent={"step3": None},
             last_batch_flag_sent_to=[],
+            received_batch_seq_nos={},
         )
         batch_0 = _Batch(
             seq_no=0,
@@ -1562,6 +1565,7 @@ class TestBatchManager:
             },
             last_batch_sent={"step1": None},
             last_batch_flag_sent_to=[],
+            received_batch_seq_nos={},
         )
 
         batch_manager.add_batch_to_recover_offline_batch_generation(
@@ -1675,17 +1679,6 @@ class TestBatchManager:
                     )
                     assert batch_path.exists() and batch_path.is_file()
 
-                # for buffered_step_name in step.data:
-                #     buffered_step_dir = batch_manager_step_dir / buffered_step_name
-                #     assert buffered_step_dir.exists() and buffered_step_dir.is_dir()
-
-                #     for batch in step.data[buffered_step_name]:
-                #         batch_path = (
-                #             buffered_step_dir
-                #             / f"batch_{batch.seq_no}_{batch.data_hash}.json"
-                #         )
-                #         assert batch_path.exists() and batch_path.is_file()
-
     def test_load_from_cache(
         self, dummy_dag: DAG, dummy_batch_manager: _BatchManager
     ) -> None:
@@ -1712,10 +1705,12 @@ class TestBatchManager:
             },
             last_batch_sent={"step_1": None, "step_2": None, "step_3": None},
             last_batch_flag_sent_to=[],
+            received_batch_seq_nos={"step_1": [0], "step_2": [0], "step_3": [0]},
         )
 
         assert batch_manager.can_generate()
 
+    def test_can_generate_last_batch(self) -> None:
         batch_1 = _Batch(seq_no=0, step_name="step_1", last_batch=True)
         batch_2 = _Batch(seq_no=0, step_name="step_2", last_batch=True)
         batch_3 = _Batch(seq_no=0, step_name="step_3", last_batch=True)
@@ -1729,9 +1724,29 @@ class TestBatchManager:
             },
             last_batch_sent={"step_1": batch_1, "step_2": batch_2, "step_3": batch_3},
             last_batch_flag_sent_to=[],
+            received_batch_seq_nos={"step_1": [0], "step_2": [0], "step_3": [0]},
         )
 
         assert not batch_manager.can_generate()
+
+    def test_can_generate_last_batch_missing_seq_no(self) -> None:
+        batch_1 = _Batch(seq_no=0, step_name="step_1", last_batch=True)
+        batch_2 = _Batch(seq_no=0, step_name="step_2", last_batch=True)
+        batch_3 = _Batch(seq_no=1, step_name="step_3", last_batch=True)
+
+        batch_manager = _BatchManager(
+            steps={},
+            last_batch_received={
+                "step_1": batch_1,
+                "step_2": batch_2,
+                "step_3": batch_3,
+            },
+            last_batch_sent={"step_1": batch_1, "step_2": batch_2, "step_3": batch_3},
+            last_batch_flag_sent_to=[],
+            received_batch_seq_nos={"step_1": [0], "step_2": [0], "step_3": [1]},
+        )
+
+        assert batch_manager.can_generate()
 
     def test_invalidate_cache_for(self) -> None:
         with Pipeline() as pipeline:
@@ -1788,6 +1803,7 @@ class TestBatchManager:
                 "step1": _Batch(seq_no=0, step_name="step1", last_batch=True)
             },
             last_batch_flag_sent_to=["step1"],
+            received_batch_seq_nos={},
         )
 
         dag = DAG()
@@ -1874,6 +1890,7 @@ class TestBatchManager:
                 )
             },
             last_batch_flag_sent_to=["step99"],
+            received_batch_seq_nos={"step3": [0]},
         )
         assert batch_manager.dump() == {
             "steps": {
@@ -1952,6 +1969,7 @@ class TestBatchManager:
                 }
             },
             "last_batch_flag_sent_to": ["step99"],
+            "received_batch_seq_nos": {"step3": [0]},
             "type_info": {
                 "module": "distilabel.pipeline.batch_manager",
                 "name": "_BatchManager",
@@ -2106,6 +2124,7 @@ class TestBatchManager:
                     },
                 },
                 "last_batch_flag_sent_to": ["step3"],
+                "received_batch_seq_nos": {"step3": [0]},
                 "type_info": {
                     "module": "distilabel.pipeline.batch_manager",
                     "name": "_BatchManager",
@@ -2128,3 +2147,5 @@ class TestBatchManager:
             assert isinstance(step, _Batch)
 
         assert batch_manager._last_batch_flag_sent_to == ["step3"]
+
+        assert batch_manager._received_batch_seq_nos == {"step3": [0]}
