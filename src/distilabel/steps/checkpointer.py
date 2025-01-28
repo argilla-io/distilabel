@@ -53,7 +53,7 @@ class Checkpointer(Step):
             try:
                 self._api.upload_file(
                     path_or_fileobj=temp_file.name,
-                    path_in_repo=f"data/config-{i}-{self._counter}.jsonl",
+                    path_in_repo=f"config-{i}/train-{str(self._counter).zfill(5)}.jsonl",
                     repo_id=self.repo_id,
                     repo_type="dataset",
                     commit_message=f"Checkpoint {i}-{self._counter}",
