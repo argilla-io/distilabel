@@ -1,5 +1,3 @@
-# TODO: This license is not consistent with the license used in the project.
-#       Delete the inconsistent license and above line and rerun pre-commit to insert a good license.
 # Copyright 2023-present, Argilla, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from typing import Optional
 
 from distilabel.distiset import Distiset
