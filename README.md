@@ -28,7 +28,6 @@
   </a>
 </p>
 
-
 Distilabel is the framework for synthetic data and AI feedback for engineers who need fast, reliable and scalable pipelines based on verified research papers.
 
 If you just want to get started, we recommend you check the [documentation](http://distilabel.argilla.io/). Curious, and want to know more? Keep reading!
@@ -119,43 +118,23 @@ pip install "distilabel[hf-inference-endpoints]" --upgrade
 Then run:
 
 ```python
+from datasets import load_dataset
+
 from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
 
-with Pipeline(
-    name="simple-text-generation-pipeline",
-    description="A simple text generation pipeline",
-) as pipeline:
-    load_dataset = LoadDataFromHub(output_mappings={"prompt": "instruction"})
-
-    text_generation = TextGeneration(
+with Pipeline() as pipeline:
+    TextGeneration(
         llm=InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
-            tokenizer_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+            generation_kwargs={"temperature": 0.7, "max_new_tokens": 512},
         ),
     )
 
-    load_dataset >> text_generation
-
 if __name__ == "__main__":
-    distiset = pipeline.run(
-        parameters={
-            load_dataset.name: {
-                "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
-                "split": "test",
-            },
-            text_generation.name: {
-                "llm": {
-                    "generation_kwargs": {
-                        "temperature": 0.7,
-                        "max_new_tokens": 512,
-                    }
-                }
-            },
-        },
-    )
+    dataset = load_dataset("distilabel-internal-testing/instructions", split="test")
+    distiset = pipeline.run(dataset=dataset)
     distiset.push_to_hub(repo_id="distilabel-example")
 ```
 

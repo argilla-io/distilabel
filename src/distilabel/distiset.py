@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib.util
 import json
 import logging
 import os.path as posixpath
@@ -50,6 +51,19 @@ from distilabel.utils.huggingface import get_hf_token
 
 if TYPE_CHECKING:
     from distilabel.pipeline._dag import DAG
+
+
+def is_PIL_available() -> bool:
+    """Checks if the PIL library is available.
+
+    Returns:
+        True if the PIL library is available, False otherwise.
+    """
+    try:
+        importlib.util.find_spec("PIL")
+    except ImportError:
+        return False
+    return True
 
 
 class Distiset(dict):
@@ -187,11 +201,14 @@ class Distiset(dict):
             record = (
                 dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
             )
-            from PIL import ImageFile
+            if is_PIL_available():
+                from PIL import ImageFile
+            else:
+                ImageFile = None
 
             for key, value in record.items():
                 # If the value is an image, we set it to an empty string to avoid the `README.md` to huge
-                if isinstance(value, ImageFile.ImageFile):
+                if ImageFile and isinstance(value, ImageFile.ImageFile):
                     value = ""
                 # If list is too big, the `README.md` generated will be huge so we truncate it
                 elif isinstance(value, list):
@@ -269,9 +286,15 @@ class Distiset(dict):
         Returns:
             The metadata extracted from the README.md file of the dataset repository as a dict.
         """
-        readme_path = Path(
-            hf_hub_download(repo_id, "README.md", repo_type="dataset", token=token)
-        )
+        import requests
+
+        try:
+            readme_path = Path(
+                hf_hub_download(repo_id, "README.md", repo_type="dataset", token=token)
+            )
+        except requests.exceptions.HTTPError:
+            # This can fail when using the checkpoint step
+            return {}
         # Remove the '---' from the metadata
         metadata = re.findall(r"---\n(.*?)\n---", readme_path.read_text(), re.DOTALL)[0]
         metadata = yaml.safe_load(metadata)
