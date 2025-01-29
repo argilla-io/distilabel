@@ -18,23 +18,45 @@ from typing import Optional
 from distilabel.distiset import Distiset
 from distilabel.llms import LLM, InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
+from distilabel.pipeline.templates.base import BasePipelineTemplate
 from distilabel.steps import ExpandColumns, KeepColumns
 from distilabel.steps.tasks import SelfInstruct, TextGeneration
 
 MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
 
-class DatasetInstructionResponsePipeline:
+class DatasetInstructionResponsePipeline(BasePipelineTemplate):
     """Generates instructions and responses for a dataset with input documents.
 
     This example pipeline can be used for a Supervised Fine-Tuning dataset which you
     could use to train or evaluate a model. The pipeline generates instructions using the
     SelfInstruct step and TextGeneration step.
 
+    Attributes:
+        llm: The LLM to use for generating instructions and responses. Defaults to
+            InferenceEndpointsLLM with Meta-Llama-3.1-8B-Instruct.
+        system_prompt: The system prompt to use for generating instructions and responses.
+            Defaults to "You are a creative AI Assistant writer."
+        hf_token: The Hugging Face token to use for accessing the model. Defaults to None.
+        num_instructions: The number of instructions to generate. Defaults to 2.
+        batch_size: The batch size to use for generation. Defaults to 1.
+
+    Input columns:
+        - input (`str`): The input document to generate instructions and responses for.
+
+    Output columns:
+        - conversation (`ChatType`): the generated conversation which is a list of chat
+            items with a role and a message.
+        - instruction (`str`): the generated instructions if `only_instruction=True`.
+        - response (`str`): the generated response if `n_turns==1`.
+        - system_prompt_key (`str`, optional): the key of the system prompt used to generate
+            the conversation or instruction. Only if `system_prompt` is a dictionary.
+        - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
+
     References:
         - [Self-Instruct: Aligning Language Models with Self-Generated Instructions](https://arxiv.org/abs/2212.10560)
 
-    Example:
+    Examples:
 
         Generate instructions and responses for a given system prompt:
 
