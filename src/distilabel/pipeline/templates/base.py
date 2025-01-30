@@ -12,22 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.ray import RayPipeline
-from distilabel.pipeline.routing_batch_function import (
-    routing_batch_function,
-    sample_n_steps,
-)
-from distilabel.pipeline.templates import (
-    DatasetInstructionResponsePipeline,
-    InstructionResponsePipeline,
-)
 
-__all__ = [
-    "DatasetInstructionResponsePipeline",
-    "InstructionResponsePipeline",
-    "Pipeline",
-    "RayPipeline",
-    "routing_batch_function",
-    "sample_n_steps",
-]
+class BasePipelineTemplate:  # defined for recursive subclass finder mkdocs
+    pass

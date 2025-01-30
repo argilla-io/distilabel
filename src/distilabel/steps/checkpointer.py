@@ -16,14 +16,13 @@ import json
 import tempfile
 from typing import TYPE_CHECKING, Optional
 
+from huggingface_hub import HfApi
 from pydantic import PrivateAttr
 
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
     from distilabel.typing import StepOutput
-
-from huggingface_hub import HfApi
 
 
 class HuggingFaceHubCheckpointer(Step):

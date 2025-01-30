@@ -1,14 +1,14 @@
 # Push data to the hub while the pipeline is running
 
-Long-running pipelines can be resource-intensive, and ensuring everything is functioning as expected is crucial. To make this process seamless, the [HuggingFaceHubCheckpointer][distilabel.steps.checkpointer.HuggingFaceHubCheckpointer] step has been designed to integrate directly into the pipeline workflow.
+Long-running pipelines can be resource-intensive, and ensuring everything is functioning as expected is crucial. To make this process seamless, the [`HuggingFaceHubCheckpointer`][distilabel.steps.HuggingFaceHubCheckpointer] step has been designed to integrate directly into the pipeline workflow.
 
-The [`HuggingFaceHubCheckpointer`](https://distilabel.argilla.io/dev/sections/getting_started/quickstart/) allows you to periodically save your generated data as a Hugging Face Dataset at configurable intervals (every `input_batch_size` examples generated).
+The [`HuggingFaceHubCheckpointer`][distilabel.steps.HuggingFaceHubCheckpointer] allows you to periodically save your generated data as a Hugging Face Dataset at configurable intervals (every `input_batch_size` examples generated).
 
-Just add the [`HuggingFaceHubCheckpointer`](https://distilabel.argilla.io/dev/sections/getting_started/quickstart/) as any other step in your pipeline.
+Just add the [`HuggingFaceHubCheckpointer`][distilabel.steps.HuggingFaceHubCheckpointer] as any other step in your pipeline.
 
 ## Sample pipeline with dummy data to see the checkpoint strategy in action
 
-The following pipeline starts from a fake dataset with dummy data, passes that through a fake `DoNothing` step (any other step/s work here, but this can be useful to explore the behavior), and makes use of the [`HuggingFaceHubCheckpointer`](https://distilabel.argilla.io/dev/sections/getting_started/quickstart/) step to push the data to the hub.
+The following pipeline starts from a fake dataset with dummy data, passes that through a fake `DoNothing` step (any other step/s work here, but this can be useful to explore the behavior), and makes use of the [`HuggingFaceHubCheckpointer`][distilabel.steps.HuggingFaceHubCheckpointer] step to push the data to the hub.
 
 ```python
 from datasets import Dataset
