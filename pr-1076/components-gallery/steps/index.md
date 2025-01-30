@@ -28,6 +28,7 @@ hide:
     | :material-content-save:         | save                | Save steps are used to save the data.                                                              |
     | :material-image:                | image-generation    | Image generation steps are used to generate images based on a given prompt.                        |
     | :label:                         | labelling           | Labelling steps are used to label the data.                                                        |
+    | :fontawesome-solid-kit-medical: | helper              | Helper steps are used to do extra tasks during the pipeline execution.                             |
 
 <div class="grid cards" markdown>
 
@@ -47,6 +48,14 @@ hide:
     Creates a text generation dataset in Argilla.
 
     [:octicons-arrow-right-24: TextGenerationToArgilla](textgenerationtoargilla.md){ .bottom }
+
+-   :fontawesome-solid-kit-medical:{ .lg .middle } __HuggingFaceHubCheckpointer__
+
+    ---
+
+    Special type of step that uploads the data to a Hugging Face Hub dataset.
+
+    [:octicons-arrow-right-24: HuggingFaceHubCheckpointer](huggingfacehubcheckpointer.md){ .bottom }
 
 -   :material-content-save:{ .lg .middle } __PushToHub__
 
