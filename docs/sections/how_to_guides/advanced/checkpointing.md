@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
 1. The name of the dataset for the checkpoints, can be different to the final distiset. This dataset
 will contain less information than the final distiset to make it faster while the pipeline is running.
-1. The `input_batch_size` determines how often the data is pushed to the Hugging Face Hub. If the process is really slow, say for a big model, a value like 100 may be on point, for smaller models or pipelines that generate data faster, 10.000 maybe more relevant. It's better to explore the value for a given use case.
+2. The `input_batch_size` determines how often the data is pushed to the Hugging Face Hub. If the process is really slow, say for a big model, a value like 100 may be on point, for smaller models or pipelines that generate data faster, 10.000 maybe more relevant. It's better to explore the value for a given use case.
 
 The final datasets can be found in the following links:
 
