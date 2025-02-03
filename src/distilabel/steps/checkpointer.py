@@ -101,7 +101,9 @@ class HuggingFaceHubCheckpointer(Step):
             self.token = get_hf_token(self.__class__.__name__, "token")
 
         self._api = HfApi(token=self.token)
-        # Create the repo if it doesn't exist
+        self._maybe_create_repo()
+
+    def _maybe_create_repo(self) -> None:
         if not self._api.repo_exists(repo_id=self.repo_id, repo_type="dataset"):
             self._logger.info(f"Creating repo {self.repo_id}")
             self._api.create_repo(
@@ -115,6 +117,8 @@ class HuggingFaceHubCheckpointer(Step):
                 for item in input:
                     json_line = json.dumps(item, ensure_ascii=False)
                     temp_file.write(json_line + "\n")
+                temp_file.flush()  # Make sure it's written
+                temp_file.seek(0)  # Go back to the beginning
                 try:
                     self._api.upload_file(
                         path_or_fileobj=temp_file.name,
