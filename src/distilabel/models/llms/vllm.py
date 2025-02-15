@@ -243,7 +243,10 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         destroy_model_parallel()
         destroy_distributed_environment()
-        del self._model.llm_engine.model_executor
+
+        # Don't delete model_executor if it does not exist, e.g. when VLLM_USE_V1 is set
+        if hasattr(self._model.llm_engine, "model_executor"):
+            del self._model.llm_engine.model_executor
         del self._model
         with contextlib.suppress(AssertionError):
             torch.distributed.destroy_process_group()
