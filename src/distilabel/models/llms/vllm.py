@@ -245,7 +245,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         destroy_distributed_environment()
 
         # Don't delete model_executor if it does not exist, e.g. when VLLM_USE_V1 is set
-        if hasattr(self._model.llm_engine, 'model_executor'):
+        if hasattr(self._model.llm_engine, "model_executor"):
             del self._model.llm_engine.model_executor
         del self._model
         with contextlib.suppress(AssertionError):
