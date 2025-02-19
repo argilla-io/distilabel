@@ -59,7 +59,7 @@ with Pipeline(name="ExamGenerator") as pipeline:
         name="load_instructions",
         data=[
             {
-                "page": page.content,
+                "instruction": page.content,
             }
         ],
     )
@@ -67,7 +67,7 @@ with Pipeline(name="ExamGenerator") as pipeline:
     text_generation = TextGeneration(
         name="exam_generation",
         system_prompt=SYSTEM_PROMPT,
-        template="Generate a list of answers and questions about the document. Document:\n\n{{ page }}",
+        template="Generate a list of answers and questions about the document. Document:\n\n{{ instruction }}",
         llm=InferenceEndpointsLLM(
             model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
             tokenizer_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
@@ -95,4 +95,4 @@ if __name__ == "__main__":
         },
         use_cache=False,
     )
-    distiset.push_to_hub("USERNAME/exam_questions")
+    # distiset.push_to_hub("USERNAME/exam_questions")

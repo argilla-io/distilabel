@@ -108,9 +108,7 @@ class InferenceEndpointsBaseClient(BaseModel):
                     f"Model {self.model_id} is not currently deployed or is not running the TGI framework"
                 )
 
-            self.base_url = client._resolve_url(
-                model=self.model_id, task="text-generation"
-            )
+            self._base_url = client.base_url
 
         if self.endpoint_name is not None:
             client = get_inference_endpoint(
