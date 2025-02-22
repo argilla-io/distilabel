@@ -79,10 +79,8 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         quantization: the quantization mode to use for the model. Defaults to `None`.
         revision: the revision of the model to load. Defaults to `None`.
         tokenizer: the tokenizer Hugging Face Hub repo id or a path to a directory containing
-            the tokenizer files. If not provided, the tokenizer will be loaded from the
-            model directory. Defaults to `None`.
+            the tokenizer files. Defaults to `model`.
         tokenizer_mode: the mode to use for the tokenizer. Defaults to `auto`.
-        tokenizer_revision: the revision of the tokenizer to load. Defaults to `None`.
         skip_tokenizer_init: whether to skip the initialization of the tokenizer. Defaults
             to `False`.
         chat_template: a chat template that will be used to build the prompts before
@@ -93,12 +91,11 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         seed: the seed to use for the random number generator. Defaults to `0`.
         extra_kwargs: additional dictionary of keyword arguments that will be passed to the
-            `LLM` class of `vllm` library. Defaults to `{}`.
-        _model: the `vLLM` model instance. This attribute is meant to be used internally
+            `Engine` class of `sglang` library. Defaults to `{}`.
+        _model: the `SGLang` model instance. This attribute is meant to be used internally
             and should not be accessed directly. It will be set in the `load` method.
         _tokenizer: the tokenizer instance used to format the prompt before passing it to
-            the `LLM`. This attribute is meant to be used internally and should not be
-            accessed directly. It will be set in the `load` method.
+            the `LLM`. It will be set in the `load` method.
         use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
             template. Defaults to `False`.
         magpie_pre_query_template: the pre-query template to be applied to the prompt or
@@ -117,40 +114,39 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Generate text:
 
         ```python
-        from distilabel.models.llms import vLLM
+        from distilabel.models.llms import SGLang
+        if __name__ == "__main__":
+            llm = SGLang(
+                model="prometheus-eval/prometheus-7b-v2.0",
+                chat_template="[INST] {{ messages[0]['content']}} [/INST]"
+            )
 
-        # You can pass a custom chat_template to the model
-        llm = vLLM(
-            model="prometheus-eval/prometheus-7b-v2.0",
-            chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
-        )
-
-        llm.load()
-
-        # Call the model
-        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
+            llm.load()
+            # Call the model
+            output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Generate structured data:
 
         ```python
-        from pathlib import Path
         from distilabel.models.llms import vLLM
+        from pydantic import BaseModel
 
-        class User(BaseModel):
-            name: str
-            last_name: str
-            id: int
+        if __name__ == "__main__":
 
-        llm = vLLM(
-            model="prometheus-eval/prometheus-7b-v2.0"
-            structured_output={"format": "json", "schema": Character},
-        )
+            class User(BaseModel):
+                name: str
+                last_name: str
+                id: int
 
-        llm.load()
+            llm = vLLM(
+                model="prometheus-eval/prometheus-7b-v2.0",
+                structured_output={"format": "json", "schema": User},
+            )
 
-        # Call the model
-        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+            llm.load()
+            # Call the model
+            output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
         ```
     """
 
@@ -170,8 +166,8 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     extra_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
         default_factory=dict,
         description="Additional dictionary of keyword arguments that will be passed to the"
-        " `vLLM` class of `vllm` library. See all the supported arguments at: "
-        "https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/llm.py",
+        " `Engine` class of `sglang` library. See all the supported arguments at: "
+        "https://github.com/sgl-project/sglang/blob/main/python/sglang/srt/entrypoints/engine.py",
     )
     structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
         default=None,
@@ -184,7 +180,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     _structured_output_logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
-        """Loads the `vLLM` model using either the path or the Hugging Face Hub repository id.
+        """Loads the `SGLang` model using either the path or the Hugging Face Hub repository id.
         Additionally, this method also sets the `chat_template` for the tokenizer, so as to properly
         parse the list of OpenAI formatted inputs using the expected format by the model, otherwise, the
         default value is ChatML format, unless explicitly provided.
@@ -197,7 +193,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             from sglang import Engine as _SGLang
         except ImportError as err:
             raise ImportError(
-                "sglang is not installed. Please install it with sglang document."
+                "sglang is not installed. Please install it with sglang document https://docs.sglang.ai/start/install.html."
             ) from err
 
         self._model = _SGLang(
@@ -343,7 +339,6 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         spaces_between_special_tokens: bool = True,
         json_schema: Optional[str] = None,
         regex: Optional[str] = None,
-        ebnf: Optional[str] = None,
         no_stop_trim: bool = False,
         ignore_eos: bool = False,
         skip_special_tokens: bool = True,
@@ -360,31 +355,36 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            presence_penalty: the presence penalty to use for the generation. Defaults to
-                `0.0`.
-            frequency_penalty: the repetition penalty to use for the generation. Defaults
-                to `0.0`.
-            repetition_penalty: the repetition penalty to use for the generation Defaults to
-                `1.0`.
-            temperature: the temperature to use for the generation. Defaults to `0.1`.
-            top_p: the top-p value to use for the generation. Defaults to `1.0`.
-            top_k: the top-k value to use for the generation. Defaults to `0`.
-            min_p: the minimum probability to use for the generation. Defaults to `0.0`.
-            logprobs: number of log probabilities to return per output token. If `None`,
-                then no log probability won't be returned. Defaults to `None`.
             stop: a list of strings that will be used to stop the generation when found.
                 Defaults to `None`.
             stop_token_ids: a list of token ids that will be used to stop the generation
                 when found. Defaults to `None`.
-            include_stop_str_in_output: whether to include the stop string in the output.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            top_k: the top-k value to use for the generation. Defaults to `0`.
+            min_p: the minimum probability to use for the generation. Defaults to `0.0`.
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            repetition_penalty: the repetition penalty to use for the generation Defaults to
+                `1.0`.
+            min_new_tokens: Forces the model to generate at least `min_new_tokens` until
+                a stop word or EOS token is sampled. Defaults to `0`.
+            spaces_between_special_tokens:  Whether or not to add spaces between special
+                tokens during detokenization. Defaults to `True`.
+            json_schema: json structure output. Defaults to `None`.
+            regex: regex structure output. Defaults to `None`.
+            no_stop_trim: Don't trim stop words or EOS token from the generated text.
                 Defaults to `False`.
-            skip_special_tokens: whether to exclude special tokens from the output. Defaults
+            ignore_eos: Don't stop generation when EOS token is sampled. Defaults to `False`.
+            skip_special_tokens: Whether to exclude special tokens from the output. Defaults
                 to `False`.
-            logits_processors: a list of functions to process the logits before sampling.
-                Defaults to `None`.
-            extra_sampling_params: dictionary with additional arguments to be passed to
-                the `SamplingParams` class from `vllm`.
-            echo: whether to echo the include the prompt in the response or not. Defaults
+            custom_params: Used when employing `CustomLogitProcessor`. Defaults to `None`.
+            return_logprob: Whether to return log probabilities for tokens. Defaults to `False`.
+            top_logprobs_num: If returning log probabilities, specifies the number of
+                top logprobs to return at each position. Defaults to `0`.
+            echo: Whether to echo the include the prompt in the response or not. Defaults
                 to `False`.
 
         Returns:
@@ -447,7 +447,6 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 "n": num_generations,
                 "json_schema": json_schema,
                 "regex": regex,
-                "ebnf": ebnf,
                 "no_stop_trim": no_stop_trim,
                 "ignore_eos": ignore_eos,
                 "skip_special_tokens": skip_special_tokens,
@@ -616,11 +615,11 @@ class ClientSGLang(OpenAILLM, MagpieChatTemplateMixin):
         Generate text:
 
         ```python
-        from distilabel.models.llms import ClientvLLM
+        from distilabel.models.llms import ClientSGLang
 
-        llm = ClientvLLM(
-            base_url="http://localhost:30000/v1",
-            tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct"
+        llm = ClientSGLang(
+            base_url="http://localhost:8070/v1",
+            tokenizer="Qwen/Qwen2-7B-Instruct"
         )
 
         llm.load()
@@ -631,13 +630,6 @@ class ClientSGLang(OpenAILLM, MagpieChatTemplateMixin):
             top_p=1.0,
             max_new_tokens=256,
         )
-        # [
-        #     [
-        #         "I'm functioning properly, thank you for asking. How can I assist you today?",
-        #         "I'm doing well, thank you for asking. I'm a large language model, so I don't have feelings or emotions like humans do, but I'm here to help answer any questions or provide information you might need. How can I assist you today?",
-        #         "I'm just a computer program, so I don't have feelings like humans do, but I'm functioning properly and ready to help you with any questions or tasks you have. What's on your mind?"
-        #     ]
-        # ]
         ```
     """
 
