@@ -14,6 +14,7 @@
 
 import contextlib
 import gc
+import inspect
 import json
 from functools import cached_property
 from typing import (
@@ -36,6 +37,7 @@ from distilabel.models.llms.openai import OpenAILLM
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
+from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
 from distilabel.typing import (
     FormattedInput,
     GenerateOutput,
@@ -187,9 +189,9 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         parse the list of OpenAI formatted inputs using the expected format by the model, otherwise, the
         default value is ChatML format, unless explicitly provided.
         """
-        # super().load()
+        super().load()
 
-        # CudaDevicePlacementMixin.load(self)
+        CudaDevicePlacementMixin.load(self)
 
         try:
             from sglang import Engine as _SGLang
@@ -221,10 +223,10 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if self.chat_template is not None:
             self._tokenizer.chat_template = self.chat_template  # type: ignore
 
-        if self.structured_output:
-            self._structured_output_logits_processor = self._prepare_structured_output(
-                self.structured_output
-            )
+        # if self.structured_output:
+        #     self._structured_output_logits_processor = self._prepare_structured_output(
+        #         self.structured_output
+        #     )
 
     def unload(self) -> None:
         """Unloads the `SGLang` model."""
@@ -345,7 +347,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         no_stop_trim: bool = False,
         ignore_eos: bool = False,
         skip_special_tokens: bool = True,
-        custom_params: Optional[Dict[str, Any]] = None,
+        custom_params: Optional[Dict[str, Any]] = None,  # no use?
         return_logprob: bool = False,
         top_logprobs_num: int = 0,
         echo: bool = False,
@@ -389,8 +391,6 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             A list of lists of strings containing the generated responses for each input.
         """
 
-        # structured_output = None
-
         if isinstance(inputs[0], tuple):
             # Prepare the batches for structured generation
             prepared_batches, sorted_indices = self._prepare_batches(inputs)  # type: ignore
@@ -401,8 +401,36 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         batched_outputs: List["LLMOutput"] = []
         generations = []
+        # import pdb
+        # pdb.set_trace()
+        for prepared_inputs, structured_output in prepared_batches:
+            if self.structured_output is not None and structured_output is not None:
+                self._logger.warning(
+                    "An `structured_output` was provided in the model configuration, but"
+                    " one was also provided in the input. The input structured output will"
+                    " be used."
+                )
 
-        for prepared_inputs, _structured_output in prepared_batches:
+            temp_structure = None
+            if structured_output is not None:
+                temp_structure = structured_output
+            elif self.structured_output is not None:
+                temp_structure = self.structured_output
+
+            if temp_structure is not None:
+                format = temp_structure.get("format")
+                schema = temp_structure.get("schema")
+                if not format:
+                    if isinstance(schema, dict) or inspect.isclass(schema):
+                        format = "json"
+                    elif isinstance(schema, str):
+                        format = "regex"
+
+                if format == "json":
+                    json_schema = json.dumps(schema_as_dict(schema))
+                elif format == "regex":
+                    regex = schema
+
             sampling_params = {
                 "max_new_tokens": max_new_tokens,
                 "stop": stop,
@@ -433,8 +461,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 logprob_start_len=0 if echo else -1,
                 top_logprobs_num=top_logprobs_num if return_logprob else 0,
             )
-            # import pdb
-            # pdb.set_trace()
+
             for input, outputs in zip(prepared_inputs, batch_outputs):
                 processed_prompt_logprobs = []
                 meta_info = outputs["meta_info"]
@@ -499,27 +526,27 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             raise ValueError("lens is not 1 when _process_outputs")
         return texts, statistics, outputs_logprobs
 
-    def _prepare_structured_output(  # type: ignore
-        self, structured_output: "OutlinesStructuredOutputType"
-    ) -> Union[Callable, None]:
-        """Creates the appropriate function to filter tokens to generate structured outputs.
+    # def _prepare_structured_output(  # type: ignore
+    #     self, structured_output: "OutlinesStructuredOutputType"
+    # ) -> Union[Callable, None]:
+    #     """Creates the appropriate function to filter tokens to generate structured outputs.
 
-        Args:
-            structured_output: the configuration dict to prepare the structured output.
+    #     Args:
+    #         structured_output: the configuration dict to prepare the structured output.
 
-        Returns:
-            The callable that will be used to guide the generation of the model.
-        """
-        from distilabel.steps.tasks.structured_outputs.outlines import (
-            prepare_guided_output,
-        )
+    #     Returns:
+    #         The callable that will be used to guide the generation of the model.
+    #     """
+    #     from distilabel.steps.tasks.structured_outputs.outlines import (
+    #         prepare_guided_output,
+    #     )
 
-        assert structured_output is not None, "`structured_output` cannot be `None`"
+    #     assert structured_output is not None, "`structured_output` cannot be `None`"
 
-        result = prepare_guided_output(structured_output, "vllm", self._model)
-        if (schema := result.get("schema")) and self.structured_output:
-            self.structured_output["schema"] = schema
-        return result["processor"]
+    #     result = prepare_guided_output(structured_output, "sglang", self._model)
+    #     if (schema := result.get("schema")) and self.structured_output:
+    #         self.structured_output["schema"] = schema
+    #     return result["processor"]
 
     def _get_llm_logprobs(
         self,
@@ -559,10 +586,10 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
 
 class ClientSGLang(OpenAILLM, MagpieChatTemplateMixin):
-    """A client for the `vLLM` server implementing the OpenAI API specification.
+    """A client for the `SGLang` server implementing the OpenAI API specification.
 
     Attributes:
-        base_url: the base URL of the `vLLM` server. Defaults to `"http://localhost:8000"`.
+        base_url: the base URL of the `SGLang` server. Defaults to `"http://localhost:30000"`.
         max_retries: the maximum number of times to retry the request to the API before
             failing. Defaults to `6`.
         timeout: the maximum time in seconds to wait for a response from the API. Defaults
@@ -577,7 +604,7 @@ class ClientSGLang(OpenAILLM, MagpieChatTemplateMixin):
             to `None`.
 
     Runtime parameters:
-        - `base_url`: the base url of the `vLLM` server. Defaults to `"http://localhost:8000"`.
+        - `base_url`: the base url of the `vLLM` server. Defaults to `"http://localhost:30000"`.
         - `max_retries`: the maximum number of times to retry the request to the API before
             failing. Defaults to `6`.
         - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
@@ -592,7 +619,7 @@ class ClientSGLang(OpenAILLM, MagpieChatTemplateMixin):
         from distilabel.models.llms import ClientvLLM
 
         llm = ClientvLLM(
-            base_url="http://localhost:8000/v1",
+            base_url="http://localhost:30000/v1",
             tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct"
         )
 
@@ -737,7 +764,7 @@ class ClientSGLang(OpenAILLM, MagpieChatTemplateMixin):
             text = choice.text
             if text == "":
                 self._logger.warning(  # type: ignore
-                    f"Received no response from vLLM server (model: '{self.model_name}')."
+                    f"Received no response from SGLang server (model: '{self.model_name}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(text)
