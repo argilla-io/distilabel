@@ -26,6 +26,7 @@ from distilabel.models.llms.mlx import MlxLLM
 from distilabel.models.llms.moa import MixtureOfAgentsLLM
 from distilabel.models.llms.ollama import OllamaLLM
 from distilabel.models.llms.openai import OpenAILLM
+from distilabel.models.llms.sglang import ClientSGLang, SGLang
 from distilabel.models.llms.together import TogetherLLM
 from distilabel.models.llms.vertexai import VertexAILLM
 from distilabel.models.llms.vllm import ClientvLLM, vLLM
@@ -38,6 +39,7 @@ __all__ = [
     "AnyscaleLLM",
     "AsyncLLM",
     "AzureOpenAILLM",
+    "ClientSGLang",
     "ClientvLLM",
     "CohereLLM",
     "CudaDevicePlacementMixin",
@@ -52,6 +54,7 @@ __all__ = [
     "MlxLLM",
     "OllamaLLM",
     "OpenAILLM",
+    "SGLang",
     "TogetherLLM",
     "TransformersLLM",
     "VertexAILLM",
