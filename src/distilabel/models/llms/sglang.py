@@ -401,8 +401,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         batched_outputs: List["LLMOutput"] = []
         generations = []
-        # import pdb
-        # pdb.set_trace()
+
         for prepared_inputs, structured_output in prepared_batches:
             if self.structured_output is not None and structured_output is not None:
                 self._logger.warning(
@@ -461,9 +460,12 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 top_logprobs_num=top_logprobs_num if return_logprob else 0,
             )
 
-            for input, outputs in zip(prepared_inputs, batch_outputs):
+            group = int(len(batch_outputs) / len(prepared_inputs))
+            for num in range(len(prepared_inputs)):
+                input = prepared_inputs[num]
+                outputs = batch_outputs[num * group : (num + 1) * group]
                 processed_prompt_logprobs = []
-                meta_info = outputs["meta_info"]
+                meta_info = outputs[0]["meta_info"]
                 if "input_top_logprobs" in meta_info:
                     processed_prompt_logprobs = self._get_llm_logprobs(
                         top_logprob=meta_info["input_top_logprobs"],
@@ -508,21 +510,19 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             "input_tokens": [compute_tokens(input, self._tokenizer.encode)] * lens,
             "output_tokens": [],
         }
-        if lens == 1:
-            text = outputs["text"]
+
+        for output in outputs:
+            text = output["text"]
             if echo:
                 text = input + text
             texts.append(text)
-            statistics["output_tokens"].append(
-                outputs["meta_info"]["completion_tokens"]
-            )
-            if "output_top_logprobs" in outputs["meta_info"]:
+            statistics["output_tokens"].append(output["meta_info"]["completion_tokens"])
+            if "output_top_logprobs" in output["meta_info"]:
                 processed_output_logprobs = self._get_llm_logprobs(
-                    outputs["meta_info"]["output_top_logprobs"]
+                    output["meta_info"]["output_top_logprobs"]
                 )
                 outputs_logprobs.append(prompt_logprobs + processed_output_logprobs)
-        else:
-            raise ValueError("lens is not 1 when _process_outputs")
+
         return texts, statistics, outputs_logprobs
 
     # def _prepare_structured_output(  # type: ignore
