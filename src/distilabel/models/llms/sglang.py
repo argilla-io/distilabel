@@ -618,7 +618,7 @@ class ClientSGLang(OpenAILLM, MagpieChatTemplateMixin):
         from distilabel.models.llms import ClientSGLang
 
         llm = ClientSGLang(
-            base_url="http://localhost:8070/v1",
+            base_url="http://localhost:30000/v1",
             tokenizer="Qwen/Qwen2-7B-Instruct"
         )
 

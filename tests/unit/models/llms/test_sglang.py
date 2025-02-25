@@ -182,26 +182,17 @@ class TestSGLang:
         llm._model = sglang_mock
 
         mocked_requests_output = [
-            mock.Mock(  # RequestOutput
-                prompt_logprobs=[],
-                outputs=[
-                    mock.Mock(  # CompletionOutput
-                        text="I'm fine thank you",
-                        token_ids=[1, 2, 3, 4, 5, 7],
-                        logprobs=[
-                            {
-                                1: mock.Mock(decoded_token="I'm", logprob=-1),
-                                2: mock.Mock(decoded_token="Hello", logprob=-3),
-                            },
-                            {
-                                1: mock.Mock(decoded_token="I'm", logprob=-1),
-                                2: mock.Mock(decoded_token="Hello", logprob=-3),
-                            },
-                        ],
-                    )
-                ]
-                * num_generations,
-            )
+            {
+                "text": "I'm fine thank you",
+                "meta_info": {
+                    "completion_tokens": 6,
+                    "output_top_logprobs": [
+                        [(-1, 1, "I'm"), (-3, 2, "Hello")],
+                        [(-1, 1, "I'm"), (-3, 2, "Hello")],
+                    ],
+                },
+            }
+            for _ in range(num_generations)
         ]
 
         llm._model.generate = mock.MagicMock(return_value=mocked_requests_output)
@@ -239,8 +230,8 @@ class TestSGLang:
 
 @mock.patch("openai.OpenAI")
 @mock.patch("openai.AsyncOpenAI")
-class TestClientvLLM:
-    def test_clientvllm_model_name(
+class TestClientSGLang:
+    def test_clientsglang_model_name(
         self, _: mock.MagicMock, openai_mock: mock.MagicMock
     ) -> None:
         llm = ClientSGLang(
