@@ -18,6 +18,7 @@ from distilabel.models.embeddings.llamacpp import LlamaCppEmbeddings
 from distilabel.models.embeddings.sentence_transformers import (
     SentenceTransformerEmbeddings,
 )
+from distilabel.models.embeddings.sglang import SGLangEmbeddings
 from distilabel.models.embeddings.vllm import vLLMEmbeddings
 from distilabel.models.image_generation.base import (
     AsyncImageGenerationModel,
@@ -76,6 +77,7 @@ __all__ = [
     "OpenAIImageGeneration",
     "OpenAILLM",
     "SGLang",
+    "SGLangEmbeddings",
     "SentenceTransformerEmbeddings",
     "TogetherLLM",
     "TransformersLLM",

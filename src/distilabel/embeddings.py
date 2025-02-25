@@ -27,10 +27,11 @@ from distilabel.models.embeddings.base import Embeddings
 from distilabel.models.embeddings.sentence_transformers import (
     SentenceTransformerEmbeddings,
 )
-from distilabel.models.embeddings.vllm import vLLMEmbeddings
+from distilabel.models.embeddings.vllm import SGLangEmbeddings, vLLMEmbeddings
 
 __all__ = [
     "Embeddings",
+    "SGLangEmbeddings",
     "SentenceTransformerEmbeddings",
     "vLLMEmbeddings",
 ]
