@@ -129,7 +129,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Generate structured data:
 
         ```python
-        from distilabel.models.llms import vLLM
+        from distilabel.models.llms import SGLang
         from pydantic import BaseModel
 
         if __name__ == "__main__":
@@ -139,7 +139,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 last_name: str
                 id: int
 
-            llm = vLLM(
+            llm = SGLang(
                 model="prometheus-eval/prometheus-7b-v2.0",
                 structured_output={"format": "json", "schema": User},
             )
@@ -176,8 +176,6 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     _model: "_SGLang" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
-    # Jayon: I don't know
-    _structured_output_logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the `SGLang` model using either the path or the Hugging Face Hub repository id.
