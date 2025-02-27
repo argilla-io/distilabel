@@ -57,3 +57,33 @@ The final datasets can be found in the following links:
 - Checkpoint dataset: [distilabel-internal-testing/streaming_test_1](https://huggingface.co/datasets/distilabel-internal-testing/streaming_test_1)
 
 - Final distiset: [distilabel-internal-testing/streaming_test](https://huggingface.co/datasets/distilabel-internal-testing/streaming_test)
+
+### Read back the data
+
+In case we want to take a look at a given filename we can take advantage of the `huggingface_hub` library. We will use the `HfFileSystem` to list all the `jsonl` files in the dataset repository, and download onle of them to show how it works:
+
+```python
+from huggingface_hub import HfFileSystem, hf_hub_download
+
+dataset_name = "distilabel-internal-testing/streaming_test_1"
+fs = HfFileSystem()
+filenames = fs.glob(f"datasets/{dataset_name}/**/*.jsonl")
+
+filename = hf_hub_download(repo_id="distilabel-internal-testing/streaming_test_1", filename="config-0/train-00000.jsonl", repo_type="dataset")
+```
+
+The filename will be downloaded to the default cache, and to read the data we can just proceed as with any other jsonlines file:
+
+```python
+import json
+data = []
+
+with open(filename, "r") as f:
+    data = [json.loads(line) for line in f.readlines()]
+
+# [{'a': 1, 'b': 5},
+#  {'a': 2, 'b': 6},
+#  {'a': 3, 'b': 7},
+# ...
+```
+
