@@ -104,8 +104,7 @@ class SGLangEmbeddings(Embeddings, CudaDevicePlacementMixin):
 
     def unload(self) -> None:
         """Unloads the `SGLang` model."""
-        self._cleanup_sglang_model()
-        self._model = None  # type: ignore
+        self._model = None
         CudaDevicePlacementMixin.unload(self)
         super().unload()
 
