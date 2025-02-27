@@ -734,7 +734,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
-            the parameter name as the key and the parameter value as the value.
+                the parameter name as the key and the parameter value as the value.
         """
         step_names = set(self.dag.G)
         for step_name, step_parameters in parameters.items():
