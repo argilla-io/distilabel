@@ -44,11 +44,13 @@ class QualityScorer(Task):
     are scored in terms of quality, obtaining a quality score for each instruction.
 
     Attributes:
+        system_prompt: The system prompt for the quality scorer task.
         _template: a Jinja2 template used to format the input for the LLM.
 
     Input columns:
         - instruction (`str`): The instruction that was used to generate the `responses`.
         - responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
+        - system_prompt (`Optional[str]`): The system prompt for the quality scorer task.
 
     Output columns:
         - scores (`List[float]`): The score for each instruction.
@@ -166,19 +168,25 @@ class QualityScorer(Task):
     @property
     def inputs(self) -> List[str]:
         """The inputs for the task are `instruction` and `responses`."""
-        return ["instruction", "responses"]
+        return {"instruction": True, "responses": True, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        return [
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.append({"role": "system", "content": self.system_prompt})
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
                     instruction=input["instruction"], responses=input["responses"]
                 ),
             }
-        ]
+        )
+        return messages
 
     @property
     def outputs(self):

@@ -35,9 +35,13 @@ class CLAIR(Task):
     CLAIR uses an AI system to minimally revise a solution A→A´ such that the resulting
     preference A `preferred` A’ is much more contrastive and precise.
 
+    Attributes:
+        system_prompt: The system prompt for the CLAIR task.
+
     Input columns:
         - task (`str`): The task or instruction.
         - student_solution (`str`): An answer to the task that is to be revised.
+        - system_prompt (`Optional[str]`): The system prompt for the CLAIR task.
 
     Output columns:
         - revision (`str`): The revised text.
@@ -126,7 +130,7 @@ class CLAIR(Task):
 
     @property
     def inputs(self) -> "StepColumns":
-        return ["task", "student_solution"]
+        return {"task": True, "student_solution": True, "system_prompt": False}
 
     @property
     def outputs(self) -> "StepColumns":
@@ -135,15 +139,20 @@ class CLAIR(Task):
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        return [
-            {"role": "system", "content": self.system_prompt},
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.append({"role": "system", "content": self.system_prompt})
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(
                     task=input["task"], student_solution=input["student_solution"]
                 ),
-            },
-        ]
+            }
+        )
+        return messages
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
