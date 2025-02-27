@@ -176,8 +176,6 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     _model: "_SGLang" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
-    # Jayon: I don't know
-    _structured_output_logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the `SGLang` model using either the path or the Hugging Face Hub repository id.
