@@ -28,7 +28,11 @@ To install the latest release with `hf-inference-endpoints` extra of the package
 pip install distilabel[hf-inference-endpoints] --upgrade
 ```
 
-## Use a generic pipeline
+## Use a generic pipeline template
+
+Distilabel comes with some built in templates for taks like Supervised Fine-Tuning. You can use these templates to generate data for your tasks. The templates are built using the `InstructionResponsePipeline` class, which uses the `InferenceEndpointsLLM` class to generate data based on the input data and the model.
+
+### Generate Instructions and Responses
 
 To use a generic pipeline for an ML task, you can use the `InstructionResponsePipeline` class. This class is a generic pipeline that can be used to generate data for supervised fine-tuning tasks. It uses the `InferenceEndpointsLLM` class to generate data based on the input data and the model.
 
@@ -40,6 +44,31 @@ dataset = pipeline.run()
 ```
 
 The `InstructionResponsePipeline` class will use the `InferenceEndpointsLLM` class with the model `meta-llama/Meta-Llama-3.1-8B-Instruct` to generate data based on the system prompt. The output data will be a dataset with the columns `instruction` and `response`. The class uses a generic system prompt, but you can customize it by passing the `system_prompt` parameter to the class.
+
+### Generate based on seed data
+
+You can also use distilabel to generate data based on seed data. This is useful when you have an unstructured dataset that represents your domain and you want instruction response pairs for fine-tuning a model. You can use the `DatasetInstructionResponsePipeline` class with the `dataset` parameter to generate data based on the seed data.
+
+```python
+from datasets import Dataset
+from distilabel.pipeline import DatasetInstructionResponsePipeline
+
+pipeline = DatasetInstructionResponsePipeline(num_instructions=5) # define the number of instructions to generate per sample
+
+distiset = pipeline.run(
+    use_cache=False,
+    dataset=Dataset.from_list(
+        mapping=[
+            {
+                "input": "<document>",
+            }
+        ]
+    ),
+)
+
+```
+
+
 
 !!! note
     We're actively working on building more pipelines for different tasks. If you have any suggestions or requests, please let us know! We're currently working on pipelines for classification, Direct Preference Optimization, and Information Retrieval tasks.

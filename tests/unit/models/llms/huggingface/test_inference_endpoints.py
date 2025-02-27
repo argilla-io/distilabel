@@ -39,11 +39,19 @@ def mock_hf_token_env_variable() -> Generator[None, None, None]:
         yield
 
 
-@patch("huggingface_hub.AsyncInferenceClient")
+return_value = MagicMock()
+return_value.get_model_status.return_value = MagicMock(
+    state="Loaded", framework="text-generation-inference"
+)
+return_value._resolve_url.return_value = "http://localhost:8000"
+
+
+@patch("huggingface_hub.AsyncInferenceClient", return_value=return_value)
+@patch("huggingface_hub.InferenceClient", return_value=return_value)
 @pytest.mark.xfail
 class TestInferenceEndpointsLLM:
     def test_no_tokenizer_magpie_raise_value_error(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         with pytest.raises(
             ValueError,
@@ -56,7 +64,7 @@ class TestInferenceEndpointsLLM:
             )
 
     def test_tokenizer_id_set_if_model_id_and_structured_output(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
@@ -65,7 +73,9 @@ class TestInferenceEndpointsLLM:
 
         assert llm.tokenizer_id == llm.model_id
 
-    def test_load_no_api_key(self, mock_inference_client: MagicMock) -> None:
+    def test_load_no_api_key(
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
+    ) -> None:
         del os.environ["HF_TOKEN"]
 
         llm = InferenceEndpointsLLM(
@@ -75,7 +85,9 @@ class TestInferenceEndpointsLLM:
 
         assert llm.tokenizer_id == llm.model_id
 
-    def test_load_with_cached_token(self, mock_inference_client: MagicMock) -> None:
+    def test_load_with_cached_token(
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
+    ) -> None:
         llm = InferenceEndpointsLLM(base_url="http://localhost:8000")
 
         # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to exist
@@ -89,7 +101,7 @@ class TestInferenceEndpointsLLM:
             llm.load()
 
     def test_serverless_inference_endpoints_llm(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral"
@@ -99,7 +111,7 @@ class TestInferenceEndpointsLLM:
         assert llm.model_name == "distilabel-internal-testing/tiny-random-mistral"
 
     def test_dedicated_inference_endpoints_llm(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             endpoint_name="tiny-random-mistral",
@@ -110,7 +122,7 @@ class TestInferenceEndpointsLLM:
         assert llm.model_name == "tiny-random-mistral"
 
     def test_dedicated_inference_endpoints_llm_via_url(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             base_url="https://api-inference.huggingface.co/models/distilabel-internal-testing/tiny-random-mistral"
@@ -125,7 +137,7 @@ class TestInferenceEndpointsLLM:
 
     @pytest.mark.asyncio
     async def test_agenerate_with_text_generation(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
@@ -162,7 +174,7 @@ class TestInferenceEndpointsLLM:
 
     @pytest.mark.asyncio
     async def test_agenerate_with_text_generation_and_top_n_tokens(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
@@ -221,7 +233,7 @@ class TestInferenceEndpointsLLM:
 
     @pytest.mark.asyncio
     async def test_agenerate_with_chat_completion(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
@@ -268,7 +280,7 @@ class TestInferenceEndpointsLLM:
 
     @pytest.mark.asyncio
     async def test_agenerate_with_chat_completion_and_logprobs_and_top_logprobs(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
@@ -369,7 +381,7 @@ class TestInferenceEndpointsLLM:
 
     @pytest.mark.asyncio
     async def test_agenerate_with_chat_completion_fails(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
@@ -444,6 +456,7 @@ class TestInferenceEndpointsLLM:
     async def test_generate(
         self,
         mock_inference_client: MagicMock,
+        mock_async_inference_client: MagicMock,
         num_generations: int,
         expected_result: List[Dict[str, Any]],
     ) -> None:
@@ -492,7 +505,7 @@ class TestInferenceEndpointsLLM:
 
     @pytest.mark.asyncio
     async def test_agenerate_with_structured_output(
-        self, mock_inference_client: MagicMock
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
@@ -527,7 +540,9 @@ class TestInferenceEndpointsLLM:
             },
         }
 
-    def test_serialization(self, mock_inference_client: MagicMock) -> None:
+    def test_serialization(
+        self, mock_inference_client: MagicMock, mock_async_inference_client: MagicMock
+    ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
             tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
