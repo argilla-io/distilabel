@@ -219,11 +219,6 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if self.chat_template is not None:
             self._tokenizer.chat_template = self.chat_template  # type: ignore
 
-        # if self.structured_output:
-        #     self._structured_output_logits_processor = self._prepare_structured_output(
-        #         self.structured_output
-        #     )
-
     def unload(self) -> None:
         """Unloads the `SGLang` model."""
         self._cleanup_sglang_model()
@@ -525,28 +520,6 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         return texts, statistics, outputs_logprobs
 
-    # def _prepare_structured_output(  # type: ignore
-    #     self, structured_output: "OutlinesStructuredOutputType"
-    # ) -> Union[Callable, None]:
-    #     """Creates the appropriate function to filter tokens to generate structured outputs.
-
-    #     Args:
-    #         structured_output: the configuration dict to prepare the structured output.
-
-    #     Returns:
-    #         The callable that will be used to guide the generation of the model.
-    #     """
-    #     from distilabel.steps.tasks.structured_outputs.outlines import (
-    #         prepare_guided_output,
-    #     )
-
-    #     assert structured_output is not None, "`structured_output` cannot be `None`"
-
-    #     result = prepare_guided_output(structured_output, "sglang", self._model)
-    #     if (schema := result.get("schema")) and self.structured_output:
-    #         self.structured_output["schema"] = schema
-    #     return result["processor"]
-
     def _get_llm_logprobs(
         self,
         top_logprob,
@@ -562,25 +535,28 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 else:
                     token_logprobs.append(
                         {
-                            "token": choose_logprob[num][2],
+                            "token": self._tokenizer.decode(choose_logprob[num][1]),
                             "logprob": choose_logprob[num][0],
                         }
                     )
                 for top_num in range(len(top_logprob[num]) - 1):
                     token_logprobs.append(
                         {
-                            "token": top_logprob[num][top_num][2],
+                            "token": self._tokenizer.decode(
+                                top_logprob[num][top_num][1]
+                            ),
                             "logprob": top_logprob[num][top_num][0],
                         }
                     )
-            processed_logprobs.append(token_logprobs)
+                processed_logprobs.append(token_logprobs)
         else:
             for probs in top_logprob:
                 token_logprobs = []
                 for item in probs:
-                    token_logprobs.append({"token": item[2], "logprob": item[0]})
+                    token_logprobs.append(
+                        {"token": self._tokenizer.decode(item[1]), "logprob": item[0]}
+                    )
                 processed_logprobs.append(token_logprobs)
-
         return processed_logprobs
 
 
