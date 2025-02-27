@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.a40c8224.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -5925,18 +5925,18 @@
 
 <h1 id="execute-steps-and-tasks-in-a-pipeline">Execute Steps and Tasks in a Pipeline<a class="headerlink" href="#execute-steps-and-tasks-in-a-pipeline" title="Permanent link">&para;</a></h1>
 <h2 id="how-to-create-a-pipeline">How to create a pipeline<a class="headerlink" href="#how-to-create-a-pipeline" title="Permanent link">&para;</a></h2>
-<p><a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> organise the Steps and Tasks in a sequence, where the output of one step is the input of the next one.
-A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> should be created by making use of the context manager along with passing a <strong>name</strong>, and optionally a <strong>description</strong>.</p>
+<p><a class="autorefs autorefs-internal" title=" Pipeline" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> organise the Steps and Tasks in a sequence, where the output of one step is the input of the next one.
+A <a class="autorefs autorefs-internal" title=" Pipeline" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> should be created by making use of the context manager along with passing a <strong>name</strong>, and optionally a <strong>description</strong>.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;pipe-name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;My first pipe&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">...</span>
 </span></code></pre></div>
 <h3 id="connecting-steps-with-the-stepconnect-method">Connecting steps with the <code>Step.connect</code> method<a class="headerlink" href="#connecting-steps-with-the-stepconnect-method" title="Permanent link">&para;</a></h3>
-<p>Now, we can define the steps of our <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>.</p>
+<p>Now, we can define the steps of our <a class="autorefs autorefs-internal" title=" Pipeline" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Steps without predecessors (i.e. root steps), need to be <a class="autorefs autorefs-internal" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a>s such as <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/extra/#distilabel.steps.LoadDataFromDicts"><code>LoadDataFromDicts</code></a> or <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a>. After this, other steps can be defined.</p>
+<p>Steps without predecessors (i.e. root steps), need to be <a class="autorefs autorefs-internal" title=" GeneratorStep" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a>s such as <a class="autorefs autorefs-internal" title=" LoadDataFromDicts" href="../../../../api/step_gallery/extra/#distilabel.steps.LoadDataFromDicts"><code>LoadDataFromDicts</code></a> or <a class="autorefs autorefs-internal" title=" LoadDataFromHub" href="../../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a>. After this, other steps can be defined.</p>
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoadDataFromHub</span>
@@ -5947,7 +5947,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Easily load your datasets</p>
-<p>If you are already used to work with Hugging Face's <code>Dataset</code> via <code>load_dataset</code> or <code>pd.DataFrame</code>, you can create the <code>GeneratorStep</code> directly from the dataset (or dataframe), and create the step with the help of <a class="autorefs autorefs-internal" href="../../../../api/step/generator_step/#distilabel.steps.generators.utils.make_generator_step"><code>make_generator_step</code></a>:</p>
+<p>If you are already used to work with Hugging Face's <code>Dataset</code> via <code>load_dataset</code> or <code>pd.DataFrame</code>, you can create the <code>GeneratorStep</code> directly from the dataset (or dataframe), and create the step with the help of <a class="autorefs autorefs-internal" title=" make_generator_step" href="../../../../api/step/generator_step/#distilabel.steps.generators.utils.make_generator_step"><code>make_generator_step</code></a>:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">From a list of dicts</label><label for="__tabbed_1_2">From <code>datasets.Dataset</code></label><label for="__tabbed_1_3">From <code>pd.DataFrame</code></label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -6106,7 +6106,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 </div>
 <h3 id="routing-batches-to-specific-downstream-steps">Routing batches to specific downstream steps<a class="headerlink" href="#routing-batches-to-specific-downstream-steps" title="Permanent link">&para;</a></h3>
 <p>In some pipelines, you may want to send batches from a single upstream step to specific downstream steps based on certain conditions. To achieve this, you can use a <code>routing_batch_function</code>. This function takes a list of downstream steps and returns a list of step names to which each batch should be routed.</p>
-<p>Let's update the example above to route the batches loaded by the <code>LoadDataFromHub</code> step to just 2 of the <code>TextGeneration</code> tasks. First, we will create our custom <a class="autorefs autorefs-internal" href="../../../../api/pipeline/routing_batch_function/#distilabel.pipeline.routing_batch_function.routing_batch_function"><code>routing_batch_function</code></a>, and then we will update the pipeline to use it:</p>
+<p>Let's update the example above to route the batches loaded by the <code>LoadDataFromHub</code> step to just 2 of the <code>TextGeneration</code> tasks. First, we will create our custom <a class="autorefs autorefs-internal" title=" routing_batch_function" href="../../../../api/pipeline/routing_batch_function/#distilabel.pipeline.routing_batch_function.routing_batch_function"><code>routing_batch_function</code></a>, and then we will update the pipeline to use it:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">routing_batch_function</span>
@@ -6213,7 +6213,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini-with-generations&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="pipelinerun-with-a-dataset">Pipeline.run with a dataset<a class="headerlink" href="#pipelinerun-with-a-dataset" title="Permanent link">&para;</a></h4>
-<p>Note that in most cases if you don't need the extra flexibility the <a class="autorefs autorefs-internal" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorSteps</code></a> bring you, you can create a dataset as you would normally do and pass it to the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.base.BasePipeline.run">Pipeline.run</a> method directly. Look at the highlighted lines to see the updated lines:</p>
+<p>Note that in most cases if you don't need the extra flexibility the <a class="autorefs autorefs-internal" title=" GeneratorStep" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorSteps</code></a> bring you, you can create a dataset as you would normally do and pass it to the <a class="autorefs autorefs-internal" title=" run" href="../../../../api/pipeline/#distilabel.pipeline.base.BasePipeline.run">Pipeline.run</a> method directly. Look at the highlighted lines to see the updated lines:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">routing_batch_function</span>
@@ -6598,7 +6598,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.5090c770.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.a40c8224.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -5640,8 +5640,8 @@
 
 <h1 id="tasks-for-generating-and-judging-with-llms">Tasks for generating and judging with LLMs<a class="headerlink" href="#tasks-for-generating-and-judging-with-llms" title="Permanent link">&para;</a></h1>
 <h2 id="working-with-tasks">Working with Tasks<a class="headerlink" href="#working-with-tasks" title="Permanent link">&para;</a></h2>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> is a special kind of <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> that includes the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> as a mandatory argument. As with a <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>, it is normally used within a <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> but can also be used standalone.</p>
-<p>For example, the most basic task is the <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task, which generates text based on a given instruction.</p>
+<p>The <a class="autorefs autorefs-internal" title=" Task" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> is a special kind of <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> that includes the <a class="autorefs autorefs-internal" title=" LLM" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> as a mandatory argument. As with a <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>, it is normally used within a <a class="autorefs autorefs-internal" title=" Pipeline" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> but can also be used standalone.</p>
+<p>For example, the most basic task is the <a class="autorefs autorefs-internal" title=" TextGeneration" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task, which generates text based on a given instruction.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -5683,12 +5683,12 @@
 <p class="admonition-title">Note</p>
 <p>The <code>Step.load()</code> always needs to be executed when being used as a standalone. Within a pipeline, this will be done automatically during pipeline execution.</p>
 </div>
-<p>As shown above, the <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task adds a <code>generation</code> based on the <code>instruction</code>.</p>
+<p>As shown above, the <a class="autorefs autorefs-internal" title=" TextGeneration" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task adds a <code>generation</code> based on the <code>instruction</code>.</p>
 <div class="admonition tip">
 <p class="admonition-title">New in version 1.2.0</p>
 <p>Since version <code>1.2.0</code>, we provide some metadata about the LLM call through <code>distilabel_metadata</code>. This can be disabled by setting the <code>add_raw_output</code> attribute to <code>False</code> when creating the task.</p>
 <p>Additionally, since version <code>1.4.0</code>, the formatted input can also be included, which can be helpful when testing
-custom templates (testing the pipeline using the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.base.BasePipeline.dry_run"><code>dry_run</code></a> method).</p>
+custom templates (testing the pipeline using the <a class="autorefs autorefs-internal" title=" dry_run" href="../../../../api/pipeline/#distilabel.pipeline.base.BasePipeline.dry_run"><code>dry_run</code></a> method).</p>
 <div class="language-python highlight"><span class="filename">disable raw input and output</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">task</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
@@ -5706,9 +5706,9 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 <h3 id="taskprint">Task.print<a class="headerlink" href="#taskprint" title="Permanent link">&para;</a></h3>
 <div class="admonition info">
 <p class="admonition-title">New in version 1.4.0</p>
-<p>New since version <code>1.4.0</code>, <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base._Task.print"><code>Task.print</code></a> <code>Task.print</code> method.</p>
+<p>New since version <code>1.4.0</code>, <a class="autorefs autorefs-internal" title=" print" href="../../../../api/task/#distilabel.steps.tasks.base._Task.print"><code>Task.print</code></a> <code>Task.print</code> method.</p>
 </div>
-<p>The <code>Tasks</code> include a handy method to show what the prompt formatted for an <code>LLM</code> would look like, let's see an example with <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.UltraFeedback"><code>UltraFeedback</code></a>, but it applies to any other <code>Task</code>.</p>
+<p>The <code>Tasks</code> include a handy method to show what the prompt formatted for an <code>LLM</code> would look like, let's see an example with <a class="autorefs autorefs-internal" title=" UltraFeedback" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.UltraFeedback"><code>UltraFeedback</code></a>, but it applies to any other <code>Task</code>.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">UltraFeedback</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
@@ -5757,7 +5757,7 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 </details>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>When creating a custom task, the <code>print</code> method will be available by default, but it is limited to the most common scenarios for the inputs. If you test your new task and find it's not working as expected (for example, if your task contains one input consisting of a list of texts instead of a single one), you should override the <code>_sample_input</code> method. You can inspect the <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.UltraFeedback"><code>UltraFeedback</code></a> source code for this.</p>
+<p>When creating a custom task, the <code>print</code> method will be available by default, but it is limited to the most common scenarios for the inputs. If you test your new task and find it's not working as expected (for example, if your task contains one input consisting of a list of texts instead of a single one), you should override the <code>_sample_input</code> method. You can inspect the <a class="autorefs autorefs-internal" title=" UltraFeedback" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.UltraFeedback"><code>UltraFeedback</code></a> source code for this.</p>
 </div>
 <h2 id="specifying-the-number-of-generations-and-grouping-generations">Specifying the number of generations and grouping generations<a class="headerlink" href="#specifying-the-number-of-generations-and-grouping-generations" title="Permanent link">&para;</a></h2>
 <p>All the <code>Task</code>s have a <code>num_generations</code> attribute that allows defining the number of generations that we want to have per input. We can update the example above to generate 3 completions per input:</p>
@@ -5826,25 +5826,25 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 </span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a><span class="c1"># ]</span>
 </span></code></pre></div>
 <h2 id="defining-custom-tasks">Defining custom Tasks<a class="headerlink" href="#defining-custom-tasks" title="Permanent link">&para;</a></h2>
-<p>We can define a custom step by creating a new subclass of the <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> and defining the following:</p>
+<p>We can define a custom step by creating a new subclass of the <a class="autorefs autorefs-internal" title=" Task" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> and defining the following:</p>
 <ul>
 <li>
 <p><code>inputs</code>: is a property that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.</p>
 </li>
 <li>
-<p><code>format_input</code>: is a method that receives a dictionary with the input data and returns a <a class="autorefs autorefs-internal" href="../../../../api/typing/#distilabel.typing.base.ChatType"><code>ChatType</code></a> following <a href="https://platform.openai.com/docs/guides/text-generation">the chat-completion OpenAI message formatting</a>.</p>
+<p><code>format_input</code>: is a method that receives a dictionary with the input data and returns a <a class="autorefs autorefs-internal" title=" ChatType" href="../../../../api/typing/#distilabel.typing.base.ChatType"><code>ChatType</code></a> following <a href="https://platform.openai.com/docs/guides/text-generation">the chat-completion OpenAI message formatting</a>.</p>
 </li>
 <li>
 <p><code>outputs</code>: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not. This property should always include <code>model_name</code> as one of the outputs since that's automatically injected from the LLM.</p>
 </li>
 <li>
-<p><code>format_output</code>: is a method that receives the output from the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in <code>outputs</code>. Note that there's no need to include the <code>model_name</code> in the output.</p>
+<p><code>format_output</code>: is a method that receives the output from the <a class="autorefs autorefs-internal" title=" LLM" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in <code>outputs</code>. Note that there's no need to include the <code>model_name</code> in the output.</p>
 </li>
 </ul>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Inherit from <code>Task</code></label><label for="__tabbed_1_2">Using the <code>@task</code> decorator</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>When using the <code>Task</code> class inheritance method for creating a custom task, we can also optionally override the <code>Task.process</code> method to define a more complex processing logic involving an <code>LLM</code>, as the default one just calls the <code>LLM.generate</code> method once previously formatting the input and subsequently formatting the output. For example, <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.EvolInstruct">EvolInstruct</a> task overrides this method to call the <code>LLM.generate</code> multiple times (one for each evolution).</p>
+<p>When using the <code>Task</code> class inheritance method for creating a custom task, we can also optionally override the <code>Task.process</code> method to define a more complex processing logic involving an <code>LLM</code>, as the default one just calls the <code>LLM.generate</code> method once previously formatting the input and subsequently formatting the output. For example, <a class="autorefs autorefs-internal" title=" EvolInstruct" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.EvolInstruct">EvolInstruct</a> task overrides this method to call the <code>LLM.generate</code> multiple times (one for each evolution).</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
@@ -5901,7 +5901,7 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Most <code>Tasks</code> reuse the <code>Task.process</code> method to process the generations, but if a new <code>Task</code> defines a custom <code>process</code> method, like happens for example with <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.Magpie"><code>Magpie</code></a>, one hast to deal with the <code>statistics</code> returned by the <code>LLM</code>.</p>
+<p>Most <code>Tasks</code> reuse the <code>Task.process</code> method to process the generations, but if a new <code>Task</code> defines a custom <code>process</code> method, like happens for example with <a class="autorefs autorefs-internal" title=" Magpie" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.Magpie"><code>Magpie</code></a>, one hast to deal with the <code>statistics</code> returned by the <code>LLM</code>.</p>
 </div>
 
 
@@ -6093,7 +6093,7 @@ custom templates (testing the pipeline using the <a class="autorefs autorefs-int
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.5090c770.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

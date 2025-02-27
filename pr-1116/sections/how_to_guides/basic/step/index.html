@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.a40c8224.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -5649,8 +5649,8 @@
 
 <h1 id="steps-for-processing-data">Steps for processing data<a class="headerlink" href="#steps-for-processing-data" title="Permanent link">&para;</a></h1>
 <h2 id="working-with-steps">Working with Steps<a class="headerlink" href="#working-with-steps" title="Permanent link">&para;</a></h2>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> is intended to be used within the scope of a <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>, which will orchestrate the different steps defined but can also be used standalone.</p>
-<p>Assuming that we have a <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> already defined as it follows:</p>
+<p>The <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> is intended to be used within the scope of a <a class="autorefs autorefs-internal" title=" Pipeline" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>, which will orchestrate the different steps defined but can also be used standalone.</p>
+<p>Assuming that we have a <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> already defined as it follows:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">StepInput</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -5706,20 +5706,20 @@
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="p">)</span>
 </span></code></pre></div>
 <h2 id="types-of-steps">Types of Steps<a class="headerlink" href="#types-of-steps" title="Permanent link">&para;</a></h2>
-<p>There are two special types of <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> in <code>distilabel</code>:</p>
+<p>There are two special types of <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> in <code>distilabel</code>:</p>
 <ul>
 <li>
-<p><a class="autorefs autorefs-internal" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a>: is a step that only generates data, and it doesn't need any input data from previous steps and normally is the first node in a <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>. More information: <a href="generator_step/">Components -&gt; Step - GeneratorStep</a>.</p>
+<p><a class="autorefs autorefs-internal" title=" GeneratorStep" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a>: is a step that only generates data, and it doesn't need any input data from previous steps and normally is the first node in a <a class="autorefs autorefs-internal" title=" Pipeline" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>. More information: <a href="generator_step/">Components -&gt; Step - GeneratorStep</a>.</p>
 </li>
 <li>
-<p><a class="autorefs autorefs-internal" href="../../../../api/step/global_step/#distilabel.steps.base.GlobalStep"><code>GlobalStep</code></a>: is a step with the standard interface i.e. receives inputs and generates outputs, but it processes all the data at once, and often is the final step in the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>. The fact that a <a class="autorefs autorefs-internal" href="../../../../api/step/global_step/#distilabel.steps.base.GlobalStep"><code>GlobalStep</code></a> requires the previous steps  to finish before being able to start. More information: <a href="global_step/">Components - Step - GlobalStep</a>.</p>
+<p><a class="autorefs autorefs-internal" title=" GlobalStep" href="../../../../api/step/global_step/#distilabel.steps.base.GlobalStep"><code>GlobalStep</code></a>: is a step with the standard interface i.e. receives inputs and generates outputs, but it processes all the data at once, and often is the final step in the <a class="autorefs autorefs-internal" title=" Pipeline" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>. The fact that a <a class="autorefs autorefs-internal" title=" GlobalStep" href="../../../../api/step/global_step/#distilabel.steps.base.GlobalStep"><code>GlobalStep</code></a> requires the previous steps  to finish before being able to start. More information: <a href="global_step/">Components - Step - GlobalStep</a>.</p>
 </li>
 <li>
-<p><a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a>, is essentially the same as a default <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>, but it relies on an <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> as an attribute, and the <code>process</code> method will be in charge of calling that LLM. More information: <a href="../task/">Components - Task</a>.</p>
+<p><a class="autorefs autorefs-internal" title=" Task" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a>, is essentially the same as a default <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>, but it relies on an <a class="autorefs autorefs-internal" title=" LLM" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> as an attribute, and the <code>process</code> method will be in charge of calling that LLM. More information: <a href="../task/">Components - Task</a>.</p>
 </li>
 </ul>
 <h2 id="defining-custom-steps">Defining custom Steps<a class="headerlink" href="#defining-custom-steps" title="Permanent link">&para;</a></h2>
-<p>We can define a custom step by creating a new subclass of the <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> and defining the following:</p>
+<p>We can define a custom step by creating a new subclass of the <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> and defining the following:</p>
 <ul>
 <li>
 <p><code>inputs</code>: is a property that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.</p>
@@ -5733,11 +5733,11 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The default signature for the <code>process</code> method is <code>process(self, *inputs: StepInput) -&gt; StepOutput</code>. The argument <code>inputs</code> should be respected, no more arguments can be provided, and the type-hints and return type-hints should be respected too because it should be able to receive any number of inputs by default i.e. more than one <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> at a time could be connected to the current one.</p>
+<p>The default signature for the <code>process</code> method is <code>process(self, *inputs: StepInput) -&gt; StepOutput</code>. The argument <code>inputs</code> should be respected, no more arguments can be provided, and the type-hints and return type-hints should be respected too because it should be able to receive any number of inputs by default i.e. more than one <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> at a time could be connected to the current one.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>For the custom <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses to work properly with <code>distilabel</code> and with the validation and serialization performed by default over each <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> in the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>, the type-hint for both <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.StepInput"><code>StepInput</code></a> and <a class="autorefs autorefs-internal" href="../../../../api/typing/#distilabel.typing.steps.StepOutput"><code>StepOutput</code></a> should be used and not surrounded with double-quotes or imported under <code>typing.TYPE_CHECKING</code>, otherwise, the validation and/or serialization will fail.</p>
+<p>For the custom <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses to work properly with <code>distilabel</code> and with the validation and serialization performed by default over each <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> in the <a class="autorefs autorefs-internal" title=" Pipeline" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>, the type-hint for both <a class="autorefs autorefs-internal" title=" StepInput" href="../../../../api/step/#distilabel.steps.base.StepInput"><code>StepInput</code></a> and <a class="autorefs autorefs-internal" title=" StepOutput" href="../../../../api/typing/#distilabel.typing.steps.StepOutput"><code>StepOutput</code></a> should be used and not surrounded with double-quotes or imported under <code>typing.TYPE_CHECKING</code>, otherwise, the validation and/or serialization will fail.</p>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Inherit from <code>Step</code></label><label for="__tabbed_1_2">Using the <code>@step</code> decorator</label></div>
 <div class="tabbed-content">
@@ -5772,7 +5772,7 @@
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<p>The <code>@step</code> decorator will take care of the boilerplate code, and will allow to define the <code>inputs</code>, <code>outputs</code>, and <code>process</code> methods in a more straightforward way. One downside is that it won't let you access the <code>self</code> attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclass.</p>
+<p>The <code>@step</code> decorator will take care of the boilerplate code, and will allow to define the <code>inputs</code>, <code>outputs</code>, and <code>process</code> methods in a more straightforward way. One downside is that it won't let you access the <code>self</code> attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom <a class="autorefs autorefs-internal" title=" Step" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclass.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepInput</span><span class="p">,</span> <span class="n">step</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
@@ -5980,7 +5980,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.5090c770.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

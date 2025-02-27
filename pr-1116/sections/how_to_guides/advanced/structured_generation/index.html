@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.a40c8224.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -5738,10 +5738,10 @@
 
 
 <h1 id="structured-data-generation">Structured data generation<a class="headerlink" href="#structured-data-generation" title="Permanent link">&para;</a></h1>
-<p><code>Distilabel</code> has integrations with relevant libraries to generate structured text i.e. to guide the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> towards the generation of structured outputs following a JSON schema, a regex, etc.</p>
+<p><code>Distilabel</code> has integrations with relevant libraries to generate structured text i.e. to guide the <a class="autorefs autorefs-internal" title=" LLM" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> towards the generation of structured outputs following a JSON schema, a regex, etc.</p>
 <h2 id="outlines">Outlines<a class="headerlink" href="#outlines" title="Permanent link">&para;</a></h2>
-<p><code>Distilabel</code> integrates <a href="https://outlines-dev.github.io/outlines/welcome/"><code>outlines</code></a> within some <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> subclasses. At the moment, the following LLMs integrated with <code>outlines</code> are supported in <code>distilabel</code>: <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.TransformersLLM"><code>TransformersLLM</code></a>, <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.vLLM"><code>vLLM</code></a> or <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a>, so that anyone can generate structured outputs in the form of <em>JSON</em> or a parseable <em>regex</em>.</p>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> has an argument named <code>structured_output</code><sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> that determines how we can generate structured outputs with it, let's see an example using <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a>.</p>
+<p><code>Distilabel</code> integrates <a href="https://outlines-dev.github.io/outlines/welcome/"><code>outlines</code></a> within some <a class="autorefs autorefs-internal" title=" LLM" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> subclasses. At the moment, the following LLMs integrated with <code>outlines</code> are supported in <code>distilabel</code>: <a class="autorefs autorefs-internal" title=" TransformersLLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.TransformersLLM"><code>TransformersLLM</code></a>, <a class="autorefs autorefs-internal" title=" vLLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.vLLM"><code>vLLM</code></a> or <a class="autorefs autorefs-internal" title=" LlamaCppLLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a>, so that anyone can generate structured outputs in the form of <em>JSON</em> or a parseable <em>regex</em>.</p>
+<p>The <a class="autorefs autorefs-internal" title=" LLM" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> has an argument named <code>structured_output</code><sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> that determines how we can generate structured outputs with it, let's see an example using <a class="autorefs autorefs-internal" title=" LlamaCppLLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.LlamaCppLLM"><code>LlamaCppLLM</code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For <code>outlines</code> integration to work you may need to install the corresponding dependencies:</p>
@@ -5752,7 +5752,7 @@
 <p>We will start with a JSON example, where we initially define a <code>pydantic.BaseModel</code> schema to guide the generation of the structured output.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Take a look at <a class="autorefs autorefs-internal" href="../../../../api/typing/#distilabel.typing.models.StructuredOutputType"><code>StructuredOutputType</code></a> to see the expected format
+<p>Take a look at <a class="autorefs autorefs-internal" title=" StructuredOutputType" href="../../../../api/typing/#distilabel.typing.models.StructuredOutputType"><code>StructuredOutputType</code></a> to see the expected format
 of the <code>structured_output</code> dict variable.</p>
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
@@ -5830,7 +5830,7 @@ of the <code>structured_output</code> dict variable.</p>
 <a href="../../../pipeline_samples/examples/llama_cpp_with_outlines/"><code>examples/structured_generation_with_outlines.py</code></a></p>
 </div>
 <h2 id="instructor">Instructor<a class="headerlink" href="#instructor" title="Permanent link">&para;</a></h2>
-<p>For other LLM providers behind APIs, there's no direct way of accessing the internal logit processor like <code>outlines</code> does, but thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> we can generate structured output from LLM providers based on <code>pydantic.BaseModel</code> objects. We have integrated <code>instructor</code> to deal with the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.AsyncLLM"><code>AsyncLLM</code></a>.</p>
+<p>For other LLM providers behind APIs, there's no direct way of accessing the internal logit processor like <code>outlines</code> does, but thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> we can generate structured output from LLM providers based on <code>pydantic.BaseModel</code> objects. We have integrated <code>instructor</code> to deal with the <a class="autorefs autorefs-internal" title=" AsyncLLM" href="../../../../api/models/llm/#distilabel.models.llms.base.AsyncLLM"><code>AsyncLLM</code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For <code>instructor</code> integration to work you may need to install the corresponding dependencies:</p>
@@ -5839,7 +5839,7 @@ of the <code>structured_output</code> dict variable.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Take a look at <a class="autorefs autorefs-internal" href="../../../../api/typing/#distilabel.typing.models.InstructorStructuredOutputType"><code>InstructorStructuredOutputType</code></a> to see the expected format
+<p>Take a look at <a class="autorefs autorefs-internal" title=" InstructorStructuredOutputType" href="../../../../api/typing/#distilabel.typing.models.InstructorStructuredOutputType"><code>InstructorStructuredOutputType</code></a> to see the expected format
 of the <code>structured_output</code> dict variable.</p>
 </div>
 <p>The following is the same example you can see with <code>outlines</code>'s <code>JSON</code> section for comparison purposes.</p>
@@ -6117,7 +6117,7 @@ of the <code>structured_output</code> dict variable.</p>
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.5090c770.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

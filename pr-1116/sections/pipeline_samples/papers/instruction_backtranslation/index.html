@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.a40c8224.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -5743,16 +5743,16 @@
 <p>To replicate Self Alignment with Instruction Backtranslation one will need to install <code>distilabel</code> as it follows:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;distilabel[hf-inference-endpoints,openai]&gt;=1.0.0&quot;</span>
 </span></code></pre></div>
-<p>And since we will be using <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> (installed via the extra <code>hf-inference-endpoints</code>) we will need deploy those in advance either locally or in the Hugging Face Hub (alternatively also the serverless endpoints can be used, but most of the times the inference times are slower, and there's a limited quota to use those as those are free) and set both the <code>HF_TOKEN</code> (to use the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a>) and the <code>OPENAI_API_KEY</code> environment variable value (to use the <a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.OpenAILLM"><code>OpenAILLM</code></a>).</p>
+<p>And since we will be using <a class="autorefs autorefs-internal" title=" InferenceEndpointsLLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a> (installed via the extra <code>hf-inference-endpoints</code>) we will need deploy those in advance either locally or in the Hugging Face Hub (alternatively also the serverless endpoints can be used, but most of the times the inference times are slower, and there's a limited quota to use those as those are free) and set both the <code>HF_TOKEN</code> (to use the <a class="autorefs autorefs-internal" title=" InferenceEndpointsLLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a>) and the <code>OPENAI_API_KEY</code> environment variable value (to use the <a class="autorefs autorefs-internal" title=" OpenAILLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.OpenAILLM"><code>OpenAILLM</code></a>).</p>
 <h4 id="building-blocks">Building blocks<a class="headerlink" href="#building-blocks" title="Permanent link">&para;</a></h4>
 <ul>
-<li><a class="autorefs autorefs-internal" href="../../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a>: Generator Step to load a dataset from the Hugging Face Hub.</li>
-<li><a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a>: Task to generate responses for a given instruction using an LLM.<ul>
-<li><a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a>: LLM that runs a model from an Inference Endpoint in the Hugging Face Hub.</li>
+<li><a class="autorefs autorefs-internal" title=" LoadDataFromHub" href="../../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a>: Generator Step to load a dataset from the Hugging Face Hub.</li>
+<li><a class="autorefs autorefs-internal" title=" TextGeneration" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a>: Task to generate responses for a given instruction using an LLM.<ul>
+<li><a class="autorefs autorefs-internal" title=" InferenceEndpointsLLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.InferenceEndpointsLLM"><code>InferenceEndpointsLLM</code></a>: LLM that runs a model from an Inference Endpoint in the Hugging Face Hub.</li>
 </ul>
 </li>
-<li><a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.InstructionBacktranslation"><code>InstructionBacktranslation</code></a>: Task that generates a score and a reason for a response for a given instruction using the Self Alignment with Instruction Backtranslation prompt.<ul>
-<li><a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.OpenAILLM"><code>OpenAILLM</code></a>: LLM that loads a model from OpenAI.</li>
+<li><a class="autorefs autorefs-internal" title=" InstructionBacktranslation" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.InstructionBacktranslation"><code>InstructionBacktranslation</code></a>: Task that generates a score and a reason for a response for a given instruction using the Self Alignment with Instruction Backtranslation prompt.<ul>
+<li><a class="autorefs autorefs-internal" title=" OpenAILLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.OpenAILLM"><code>OpenAILLM</code></a>: LLM that loads a model from OpenAI.</li>
 </ul>
 </li>
 </ul>
@@ -5828,7 +5828,7 @@
 </span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>    <span class="p">},</span>
 </span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>Finally, we can optionally push the generated dataset, named <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a>, to the Hugging Face Hub via the <code>push_to_hub</code> method, so that each subset generated in the leaf steps is pushed to the Hub.</p>
+<p>Finally, we can optionally push the generated dataset, named <a class="autorefs autorefs-internal" title=" Distiset" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a>, to the Hugging Face Hub via the <code>push_to_hub</code> method, so that each subset generated in the leaf steps is pushed to the Hub.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="s2">&quot;instruction-backtranslation-instruction-dataset&quot;</span><span class="p">,</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">private</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -6024,7 +6024,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.5090c770.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

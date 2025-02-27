@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.a40c8224.min.css">
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -5675,7 +5675,7 @@
 
 <h1 id="generatortask-that-produces-output">GeneratorTask that produces output<a class="headerlink" href="#generatortask-that-produces-output" title="Permanent link">&para;</a></h1>
 <h2 id="working-with-generatortasks">Working with GeneratorTasks<a class="headerlink" href="#working-with-generatortasks" title="Permanent link">&para;</a></h2>
-<p>The <a class="autorefs autorefs-internal" href="../../../../../api/task/generator_task/#distilabel.steps.tasks.base.GeneratorTask"><code>GeneratorTask</code></a> is a custom implementation of a <a class="autorefs autorefs-internal" href="../../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> based on the <a class="autorefs autorefs-internal" href="../../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a>. As with a <a class="autorefs autorefs-internal" href="../../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a>, it is normally used within a <a class="autorefs autorefs-internal" href="../../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> but can also be used standalone.</p>
+<p>The <a class="autorefs autorefs-internal" title=" GeneratorTask" href="../../../../../api/task/generator_task/#distilabel.steps.tasks.base.GeneratorTask"><code>GeneratorTask</code></a> is a custom implementation of a <a class="autorefs autorefs-internal" title=" Task" href="../../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> based on the <a class="autorefs autorefs-internal" title=" GeneratorStep" href="../../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a>. As with a <a class="autorefs autorefs-internal" title=" Task" href="../../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a>, it is normally used within a <a class="autorefs autorefs-internal" title=" Pipeline" href="../../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> but can also be used standalone.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This task is still experimental and may be subject to changes in the future.</p>
@@ -5727,23 +5727,23 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Most of the times you would need to override the default <code>process</code> method, as it's suited for the standard <a class="autorefs autorefs-internal" href="../../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> and not for the <a class="autorefs autorefs-internal" href="../../../../../api/task/generator_task/#distilabel.steps.tasks.base.GeneratorTask"><code>GeneratorTask</code></a>. But within the context of the <code>process</code> function you can freely use the <code>llm</code> to generate data in any way.</p>
+<p>Most of the times you would need to override the default <code>process</code> method, as it's suited for the standard <a class="autorefs autorefs-internal" title=" Task" href="../../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> and not for the <a class="autorefs autorefs-internal" title=" GeneratorTask" href="../../../../../api/task/generator_task/#distilabel.steps.tasks.base.GeneratorTask"><code>GeneratorTask</code></a>. But within the context of the <code>process</code> function you can freely use the <code>llm</code> to generate data in any way.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code>Step.load()</code> always needs to be executed when being used as a standalone. Within a pipeline, this will be done automatically during pipeline execution.</p>
 </div>
 <h2 id="defining-custom-generatortasks">Defining custom GeneratorTasks<a class="headerlink" href="#defining-custom-generatortasks" title="Permanent link">&para;</a></h2>
-<p>We can define a custom generator task by creating a new subclass of the <a class="autorefs autorefs-internal" href="../../../../../api/task/#distilabel.steps.tasks.base.Task"><code>GeneratorTask</code></a> and defining the following:</p>
+<p>We can define a custom generator task by creating a new subclass of the <a class="autorefs autorefs-internal" title=" Task" href="../../../../../api/task/#distilabel.steps.tasks.base.Task"><code>GeneratorTask</code></a> and defining the following:</p>
 <ul>
 <li>
-<p><code>process</code>: is a method that generates the data based on the <a class="autorefs autorefs-internal" href="../../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> and the <code>instruction</code> provided within the class instance, and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in <code>outputs</code>. Note that the <code>inputs</code> argument is not allowed in this function since this is a <a class="autorefs autorefs-internal" href="../../../../../api/task/generator_task/#distilabel.steps.tasks.base.GeneratorTask"><code>GeneratorTask</code></a>. The signature only expects the <code>offset</code> argument, which is used to keep track of the current iteration in the generator.</p>
+<p><code>process</code>: is a method that generates the data based on the <a class="autorefs autorefs-internal" title=" LLM" href="../../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> and the <code>instruction</code> provided within the class instance, and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in <code>outputs</code>. Note that the <code>inputs</code> argument is not allowed in this function since this is a <a class="autorefs autorefs-internal" title=" GeneratorTask" href="../../../../../api/task/generator_task/#distilabel.steps.tasks.base.GeneratorTask"><code>GeneratorTask</code></a>. The signature only expects the <code>offset</code> argument, which is used to keep track of the current iteration in the generator.</p>
 </li>
 <li>
 <p><code>outputs</code>: is a property that returns a list of strings with the names of the output fields, this property should always include <code>model_name</code> as one of the outputs since that's automatically injected from the LLM.</p>
 </li>
 <li>
-<p><code>format_output</code>: is a method that receives the output from the <a class="autorefs autorefs-internal" href="../../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in <code>outputs</code>. Note that there's no need to include the <code>model_name</code> in the output.</p>
+<p><code>format_output</code>: is a method that receives the output from the <a class="autorefs autorefs-internal" title=" LLM" href="../../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> and optionally also the input data (which may be useful to build the output in some scenarios), and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in <code>outputs</code>. Note that there's no need to include the <code>model_name</code> in the output.</p>
 </li>
 </ul>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
@@ -5965,7 +5965,7 @@
     <script id="__config" type="application/json">{"base": "../../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../../assets/javascripts/bundle.5090c770.min.js"></script>
+      <script src="../../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../../javascripts/mathjax.js"></script>
       

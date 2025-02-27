@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.a40c8224.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -5741,9 +5741,9 @@
 <h3 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The section is named <code>Replication</code> but in this case we're not replicating the Prometheus 2 paper per se, but rather showing how to use the <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a> task implemented within <code>distilabel</code> to evaluate the quality of the responses from a given instruction using the Prometheus 2 model.</p>
+<p>The section is named <code>Replication</code> but in this case we're not replicating the Prometheus 2 paper per se, but rather showing how to use the <a class="autorefs autorefs-internal" title=" PrometheusEval" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a> task implemented within <code>distilabel</code> to evaluate the quality of the responses from a given instruction using the Prometheus 2 model.</p>
 </div>
-<p>To showcase Prometheus 2 we will be using the <a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a> task implemented in <code>distilabel</code> and a smaller dataset created by the Hugging Face H4 team named <a href="https://hf.co/datasets/HuggingFaceH4/instruction-dataset"><code>HuggingFaceH4/instruction-dataset</code></a> for testing purposes.</p>
+<p>To showcase Prometheus 2 we will be using the <a class="autorefs autorefs-internal" title=" PrometheusEval" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a> task implemented in <code>distilabel</code> and a smaller dataset created by the Hugging Face H4 team named <a href="https://hf.co/datasets/HuggingFaceH4/instruction-dataset"><code>HuggingFaceH4/instruction-dataset</code></a> for testing purposes.</p>
 <h4 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h4>
 <p>To reproduce the code below, one will need to install <code>distilabel</code> as it follows:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;distilabel[vllm]&gt;=1.1.0&quot;</span>
@@ -5758,12 +5758,12 @@
 <h4 id="building-blocks">Building blocks<a class="headerlink" href="#building-blocks" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
-<p><a class="autorefs autorefs-internal" href="../../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a> to load a dataset from the Hugging Face Hub.</p>
+<p><a class="autorefs autorefs-internal" title=" LoadDataFromHub" href="../../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a>: <a class="autorefs autorefs-internal" title=" GeneratorStep" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a> to load a dataset from the Hugging Face Hub.</p>
 </li>
 <li>
-<p><a class="autorefs autorefs-internal" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> that assesses the quality of a response for a given instruction using any of the Prometheus 2 models.</p>
+<p><a class="autorefs autorefs-internal" title=" PrometheusEval" href="../../../../api/task/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a>: <a class="autorefs autorefs-internal" title=" Task" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> that assesses the quality of a response for a given instruction using any of the Prometheus 2 models.</p>
 <ul>
-<li><a class="autorefs autorefs-internal" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.vLLM"><code>vLLM</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> that loads a model from the Hugging Face Hub via <a href="https://github.com/vllm-project/vllm">vllm-project/vllm</a>.</li>
+<li><a class="autorefs autorefs-internal" title=" vLLM" href="../../../../api/models/llm/llm_gallery/#distilabel.models.llms.vLLM"><code>vLLM</code></a>: <a class="autorefs autorefs-internal" title=" LLM" href="../../../../api/models/llm/#distilabel.models.llms.base.LLM"><code>LLM</code></a> that loads a model from the Hugging Face Hub via <a href="https://github.com/vllm-project/vllm">vllm-project/vllm</a>.</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -5771,7 +5771,7 @@
 </div>
 </li>
 <li>
-<p>(Optional) <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/columns/#distilabel.steps.columns.keep.KeepColumns"><code>KeepColumns</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> that keeps only the specified columns in the dataset, used to remove the undesired columns.</p>
+<p>(Optional) <a class="autorefs autorefs-internal" title=" KeepColumns" href="../../../../api/step_gallery/columns/#distilabel.steps.columns.keep.KeepColumns"><code>KeepColumns</code></a>: <a class="autorefs autorefs-internal" title=" Task" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> that keeps only the specified columns in the dataset, used to remove the undesired columns.</p>
 </li>
 </ul>
 <h4 id="code">Code<a class="headerlink" href="#code" title="Permanent link">&para;</a></h4>
@@ -5824,7 +5824,7 @@
 </span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="p">},</span>
 </span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>Finally, we can optionally push the generated dataset, named <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a>, to the Hugging Face Hub via the <code>push_to_hub</code> method, so that each subset generated in the leaf steps is pushed to the Hub.</p>
+<p>Finally, we can optionally push the generated dataset, named <a class="autorefs autorefs-internal" title=" Distiset" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a>, to the Hugging Face Hub via the <code>push_to_hub</code> method, so that each subset generated in the leaf steps is pushed to the Hub.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">&quot;instruction-dataset-prometheus&quot;</span><span class="p">,</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">private</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -6020,7 +6020,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.5090c770.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       
