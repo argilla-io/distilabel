@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.2">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.d7758b05.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
@@ -5620,7 +5620,7 @@
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="n">group_generations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="p">)</span>
 </span></code></pre></div>
-<p>In the example above, we're creating a <code>PrometheusEval</code> task (remember that <code>Task</code>s are <code>Step</code>s) that will use <code>vLLM</code> to serve <code>prometheus-eval/prometheus-7b-v2.0</code> model. This task is resource intensive as it requires an LLM, which in turn requires a GPU to run fast. With that in mind, we have specified the <code>resources</code> required for the task using the <a class="autorefs autorefs-internal" href="../../../../api/step/resources/#distilabel.steps.base.StepResources"><code>StepResources</code></a> class, and we have defined that we need <code>1</code> GPU and <code>1</code> CPU per replica of the task. In addition, we have defined that we need <code>2</code> replicas i.e. we will run two instances of the task so the computation for the whole dataset runs faster. In addition, <code>StepResources</code> uses the <a class="autorefs autorefs-internal" href="../../../../api/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParametersMixin">RuntimeParametersMixin</a>, so we can also specify the resources for each step when running the pipeline:</p>
+<p>In the example above, we're creating a <code>PrometheusEval</code> task (remember that <code>Task</code>s are <code>Step</code>s) that will use <code>vLLM</code> to serve <code>prometheus-eval/prometheus-7b-v2.0</code> model. This task is resource intensive as it requires an LLM, which in turn requires a GPU to run fast. With that in mind, we have specified the <code>resources</code> required for the task using the <a class="autorefs autorefs-internal" title=" StepResources" href="../../../../api/step/resources/#distilabel.steps.base.StepResources"><code>StepResources</code></a> class, and we have defined that we need <code>1</code> GPU and <code>1</code> CPU per replica of the task. In addition, we have defined that we need <code>2</code> replicas i.e. we will run two instances of the task so the computation for the whole dataset runs faster. In addition, <code>StepResources</code> uses the <a class="autorefs autorefs-internal" title=" RuntimeParametersMixin" href="../../../../api/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParametersMixin">RuntimeParametersMixin</a>, so we can also specify the resources for each step when running the pipeline:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">...</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -5821,7 +5821,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.f13b1293.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       
