@@ -26,6 +26,14 @@ hide:
 
     [:octicons-arrow-right-24: SentenceTransformerEmbeddings](sentencetransformerembeddings.md){ .bottom }
 
+-   :material-vector-line:{ .lg .middle } __SGLangEmbeddings__
+
+    ---
+
+    `sglang` library implementation for embedding generation.
+
+    [:octicons-arrow-right-24: SGLangEmbeddings](sglangembeddings.md){ .bottom }
+
 -   :material-vector-line:{ .lg .middle } __vLLMEmbeddings__
 
     ---

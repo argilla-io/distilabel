@@ -629,6 +629,10 @@
          <lastmod>2025-02-27</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/clientsglang/</loc>
+         <lastmod>2025-02-27</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/togetherllm/</loc>
          <lastmod>2025-02-27</lastmod>
     </url>
@@ -681,6 +685,10 @@
          <lastmod>2025-02-27</lastmod>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/sglang/</loc>
+         <lastmod>2025-02-27</lastmod>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/vllm/</loc>
          <lastmod>2025-02-27</lastmod>
     </url>
@@ -706,6 +714,10 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/embeddings/sentencetransformerembeddings/</loc>
+         <lastmod>2025-02-27</lastmod>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/embeddings/sglangembeddings/</loc>
          <lastmod>2025-02-27</lastmod>
     </url>
     <url>

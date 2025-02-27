@@ -42,6 +42,14 @@ hide:
 
     [:octicons-arrow-right-24: AzureOpenAILLM](azureopenaillm.md){ .bottom }
 
+-   :material-brain:{ .lg .middle } __ClientSGLang__
+
+    ---
+
+    A client for the `SGLang` server implementing the OpenAI API specification.
+
+    [:octicons-arrow-right-24: ClientSGLang](clientsglang.md){ .bottom }
+
 -   :material-brain:{ .lg .middle } __TogetherLLM__
 
     ---
@@ -145,6 +153,14 @@ hide:
     Apple MLX LLM implementation.
 
     [:octicons-arrow-right-24: MlxLLM](mlxllm.md){ .bottom }
+
+-   :material-brain:{ .lg .middle } __SGLang__
+
+    ---
+
+    `SGLang` library LLM implementation.
+
+    [:octicons-arrow-right-24: SGLang](sglang.md){ .bottom }
 
 -   :material-brain:{ .lg .middle } __vLLM__
 
