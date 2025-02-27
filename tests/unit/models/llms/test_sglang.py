@@ -121,12 +121,12 @@ class TestSGLang:
                         "logprobs": [
                             [
                                 [
-                                    {"token": "I'm", "logprob": -1},
-                                    {"token": "Hello", "logprob": -3},
+                                    {"token": "thank", "logprob": -1},
+                                    {"token": "you", "logprob": -3},
                                 ],
                                 [
-                                    {"token": "I'm", "logprob": -1},
-                                    {"token": "Hello", "logprob": -3},
+                                    {"token": "thank", "logprob": -1},
+                                    {"token": "you", "logprob": -3},
                                 ],
                             ]
                         ],
@@ -145,12 +145,12 @@ class TestSGLang:
                         "logprobs": [
                             [
                                 [
-                                    {"token": "I'm", "logprob": -1},
-                                    {"token": "Hello", "logprob": -3},
+                                    {"token": "thank", "logprob": -1},
+                                    {"token": "you", "logprob": -3},
                                 ],
                                 [
-                                    {"token": "I'm", "logprob": -1},
-                                    {"token": "Hello", "logprob": -3},
+                                    {"token": "thank", "logprob": -1},
+                                    {"token": "you", "logprob": -3},
                                 ],
                             ]
                         ]
@@ -187,8 +187,8 @@ class TestSGLang:
                 "meta_info": {
                     "completion_tokens": 6,
                     "output_top_logprobs": [
-                        [(-1, 1, "I'm"), (-3, 2, "Hello")],
-                        [(-1, 1, "I'm"), (-3, 2, "Hello")],
+                        [(-1, 6979, "thank"), (-3, 368, "you")],
+                        [(-1, 6979, "thank"), (-3, 368, "you")],
                     ],
                 },
             }
