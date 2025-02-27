@@ -17,11 +17,13 @@ from distilabel.models.embeddings.llamacpp import LlamaCppEmbeddings
 from distilabel.models.embeddings.sentence_transformers import (
     SentenceTransformerEmbeddings,
 )
+from distilabel.models.embeddings.sglang import SGLangEmbeddings
 from distilabel.models.embeddings.vllm import vLLMEmbeddings
 
 __all__ = [
     "Embeddings",
     "LlamaCppEmbeddings",
+    "SGLangEmbeddings",
     "SentenceTransformerEmbeddings",
     "vLLMEmbeddings",
 ]
