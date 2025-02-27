@@ -21,7 +21,7 @@ from distilabel.models.embeddings.base import Embeddings
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 
 if TYPE_CHECKING:
-    from sglang import Engine as _SGLang
+    from sglang import Engine
 
 
 class SGLangEmbeddings(Embeddings, CudaDevicePlacementMixin):
@@ -77,7 +77,7 @@ class SGLangEmbeddings(Embeddings, CudaDevicePlacementMixin):
         "https://github.com/sgl-project/sglang/blob/main/python/sglang/srt/entrypoints/engine.py",
     )
 
-    _model: "_SGLang" = PrivateAttr(None)
+    _model: "Engine" = PrivateAttr(None)
 
     def load(self) -> None:
         """Loads the `sglang` model using either the path or the Hugging Face Hub repository id."""
@@ -86,13 +86,13 @@ class SGLangEmbeddings(Embeddings, CudaDevicePlacementMixin):
         CudaDevicePlacementMixin.load(self)
 
         try:
-            from sglang import Engine as _SGLang
+            from sglang import Engine
         except ImportError as err:
             raise ImportError(
                 "sglang is not installed. Please install it with sglang document https://docs.sglang.ai/start/install.html."
             ) from err
 
-        self._model = _SGLang(
+        self._model = Engine(
             model_path=self.model,
             dtype=self.dtype,
             trust_remote_code=self.trust_remote_code,

@@ -48,7 +48,7 @@ from distilabel.typing import (
 if TYPE_CHECKING:
     from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
-    from sglang import Engine as _SGLang
+    from sglang import Engine
 
     from distilabel.typing import (
         StandardInput,
@@ -117,7 +117,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         from distilabel.models.llms import SGLang
         if __name__ == "__main__":
             llm = SGLang(
-                model="prometheus-eval/prometheus-7b-v2.0",
+                model="Qwen/Qwen2.5-Coder-3B-Instruct",
                 chat_template="[INST] {{ messages[0]['content']}} [/INST]"
             )
 
@@ -140,7 +140,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 id: int
 
             llm = SGLang(
-                model="prometheus-eval/prometheus-7b-v2.0",
+                model="Qwen/Qwen2.5-Coder-3B-Instruct",
                 structured_output={"format": "json", "schema": User},
             )
 
@@ -174,7 +174,7 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         description="The structured output format to use across all the generations.",
     )
 
-    _model: "_SGLang" = PrivateAttr(None)
+    _model: "Engine" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
 
     def load(self) -> None:
@@ -188,13 +188,13 @@ class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         CudaDevicePlacementMixin.load(self)
 
         try:
-            from sglang import Engine as _SGLang
+            from sglang import Engine
         except ImportError as err:
             raise ImportError(
                 "sglang is not installed. Please install it with sglang document https://docs.sglang.ai/start/install.html."
             ) from err
 
-        self._model = _SGLang(
+        self._model = Engine(
             model_path=self.model,
             dtype=self.dtype,
             trust_remote_code=self.trust_remote_code,
