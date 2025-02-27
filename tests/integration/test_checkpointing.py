@@ -14,6 +14,7 @@
 
 from typing import TYPE_CHECKING
 
+import pytest
 from datasets import Dataset
 
 from distilabel.pipeline import Pipeline
@@ -33,6 +34,7 @@ class DoNothing(Step):
             yield input
 
 
+@pytest.mark.skip(reason="Currently cannot obtain the correct HF_TOKEN from the CI")
 def test_checkpointing() -> None:
     with Pipeline(name="simple-text-generation-pipeline") as pipeline:
         text_generation = DoNothing(input_batch_size=60)
