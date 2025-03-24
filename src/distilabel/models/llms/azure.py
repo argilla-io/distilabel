@@ -122,8 +122,8 @@ class AzureOpenAILLM(OpenAILLM):
         # This is a workaround to avoid the `OpenAILLM` calling the _prepare_structured_output
         # in the load method before we have the proper client.
         with patch(
-            "distilabel.models.llms.openai.OpenAILLM._prepare_structured_output",
-            lambda x: x,
+            "distilabel.models.openai.OpenAILLM._prepare_structured_output",
+            lambda *args, **kwargs: {"client": None, "structured_output": None},
         ):
             super().load()
 
@@ -152,4 +152,9 @@ class AzureOpenAILLM(OpenAILLM):
         )
 
         if self.structured_output:
-            self._prepare_structured_output(self.structured_output)
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
+                framework="azure_openai",
+            )
+            self._aclient = result.get("client")  # type: ignore
