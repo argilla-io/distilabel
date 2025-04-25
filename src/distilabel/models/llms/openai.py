@@ -207,7 +207,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
         if seed is not None:
             if extra_body is None:
                 extra_body = {}
-            extra_body['seed'] = seed
+            extra_body["seed"] = seed
 
         if isinstance(input, str):
             return await self._generate_completion(
