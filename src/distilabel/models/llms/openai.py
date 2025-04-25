@@ -167,6 +167,7 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
         stop: Optional[Union[str, List[str]]] = None,
         response_format: Optional[Dict[str, str]] = None,
         extra_body: Optional[Dict[str, Any]] = None,
+        seed: Optional[int] = None,
     ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
         client.
@@ -196,10 +197,17 @@ class OpenAILLM(OpenAIBaseClient, AsyncLLM):
                 which returns text. To return JSON, use {"type": "json_object"}.
             extra_body: an optional dictionary containing extra body parameters that will
                 be sent to the OpenAI API endpoint. Defaults to `None`.
+            seed: an optional integer to seed the generation process for deterministic
+                outcomes. Defaults to `None`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+
+        if seed is not None:
+            if extra_body is None:
+                extra_body = {}
+            extra_body["seed"] = seed
 
         if isinstance(input, str):
             return await self._generate_completion(
