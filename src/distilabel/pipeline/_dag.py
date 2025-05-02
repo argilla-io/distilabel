@@ -792,6 +792,7 @@ class DAG(_Serializable):
             routing_batch_function = RoutingBatchFunction.from_dict(
                 routing_batch_function
             )
+            routing_batch_function._step = dag.get_step(step_name)[STEP_ATTR_NAME]
             dag.set_step_attr(
                 name=step_name,
                 attr=ROUTING_BATCH_FUNCTION_ATTR_NAME,
