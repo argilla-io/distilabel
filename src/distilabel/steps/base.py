@@ -199,7 +199,7 @@ class _Step(
     )
 
     name: Optional[str] = Field(default=None, pattern=r"^[a-zA-Z0-9_-]+$")
-    resources: StepResources = StepResources()
+    resources: StepResources = Field(default_factory=StepResources, exclude=True)  # ignore this in caching and signature, imo the pipeline should be independent of the gpus, etc.
     pipeline: Any = Field(default=None, exclude=True, repr=False)
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
