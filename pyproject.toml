@@ -38,6 +38,8 @@ dependencies = [
     "orjson >= 3.10.0",
     "universal_pathlib >= 0.2.2",
     "portalocker >= 2.8.2",
+    "vllm >= 0.8.1",
+    "pdf2image >= 1.17.0",
     "setuptools",
 ]
 dynamic = ["version"]
@@ -89,10 +91,6 @@ openai = ["openai >= 1.0.0"]
 outlines = ["outlines >= 0.0.40", "numba >= 0.54.0"]
 ray = ["ray[default] >= 2.31.0"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
-vllm = [
-    "vllm >= 0.5.3",
-    "filelock >= 3.13.4"
-]
 sentence-transformers = ["sentence-transformers >= 3.0.0"]
 faiss-cpu = ["faiss-cpu >= 1.8.0"]
 faiss-gpu = ["faiss-gpu >= 1.7.2"]
@@ -116,7 +114,7 @@ Source = "https://github.com/argilla/distilabel"
 path = "src/distilabel/__init__.py"
 
 [tool.ruff]
-line-length = 88
+line-length = 130
 exclude = ["docs"]
 
 [tool.ruff.lint]

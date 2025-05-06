@@ -49,6 +49,9 @@ PIPELINE_LOG_FILENAME: Final[str] = "pipeline.log"
 DISTILABEL_DOCS_URL: Final[str] = "https://distilabel.argilla.io/latest/"
 
 
+STRUCTURED_OUTPUT_RETRIES = 1
+
+
 __all__ = [
     "BASE_CACHE_DIR",
     "CONVERGENCE_STEP_ATTR_NAME",

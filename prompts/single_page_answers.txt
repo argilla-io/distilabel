@@ -1,0 +1,8 @@
+You are given a page and a question from a user, your goal is to generate an answer for the user in the same language as the provided question.
+
+Think carefully about your answer and be as helpful and accurate (according to the source page) as possible.
+
+Here is the output format:
+{{
+    "answer": str
+}}

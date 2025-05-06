@@ -29,11 +29,14 @@ from distilabel.steps.columns.expand import ExpandColumns
 from distilabel.steps.columns.group import GroupColumns
 from distilabel.steps.columns.keep import KeepColumns
 from distilabel.steps.columns.merge import MergeColumns
+from distilabel.steps.columns.pydantic_to_cols import LoadPydanticAsColumns
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
+from distilabel.steps.list_to_rows import ListToRows
 from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
 from distilabel.steps.embeddings.nearest_neighbour import FaissNearestNeighbour
 from distilabel.steps.filtering.embedding import EmbeddingDedup
+from distilabel.steps.filtering.filter_rows import FilterRows
 from distilabel.steps.filtering.minhash import MinHashDedup
 from distilabel.steps.formatting.conversation import ConversationTemplate
 from distilabel.steps.formatting.dpo import (
@@ -68,6 +71,7 @@ __all__ = [
     "EmbeddingGeneration",
     "ExpandColumns",
     "FaissNearestNeighbour",
+    "FilterRows",
     "FormatChatGenerationDPO",
     "FormatChatGenerationSFT",
     "FormatTextGenerationDPO",
@@ -81,6 +85,8 @@ __all__ = [
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
+    "LoadPydanticAsColumns",
+    "ListToRows",
     "MergeColumns",
     "MinHashDedup",
     "PreferenceToArgilla",

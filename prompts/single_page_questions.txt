@@ -1,0 +1,14 @@
+Your goal is to generate a list of {n_questions} different questions for the reader in the same language as the provided pages.
+
+First note the key ideas (central ideas, main overall things to think about) and key details, quoting or paraphrase specific items from the page.
+
+If there is a table, plot or diagram: make sure to include questions involving it.
+
+{side_by_side_prefix}
+{side_by_side}
+Here is the output format:
+{{
+    "key_ideas": str (full sentences, not a list, think about the main concepts and facts/ideas),
+    "key_details": str (think about at least 4 informative details that are in the page or in plots/tables on the page),
+    "questions": list[str],
+}}
