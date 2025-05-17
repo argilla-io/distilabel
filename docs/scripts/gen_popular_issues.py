@@ -58,6 +58,11 @@ def fetch_data_from_github(repository, auth_token):
         while issues_url:
             response = session.get(issues_url)
             issues = response.json()
+            print(f"Fetched batch of issues... {len(issues)}")
+
+            if not issues:
+                print("No issues returned from API")
+                return EMPTY_FRAME
 
             for issue in issues:
                 if "pull_request" in issue:
