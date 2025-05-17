@@ -15,7 +15,7 @@ which python
 
 echo "Installing Python build dependencies..."
 python -m pip install --upgrade pip
-python -m pip install wheel packaging ninja "setuptools>=49.4.0" numpy setuptools-scm
+python -m pip install wheel packaging ninja "setuptools>=69.5.1" numpy setuptools-scm
 
 echo "Cloning 'vllm-project/vllm' GitHub repository..."
 git clone https://github.com/vllm-project/vllm.git
