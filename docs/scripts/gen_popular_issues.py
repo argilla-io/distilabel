@@ -54,18 +54,18 @@ def fetch_data_from_github(repository, auth_token):
 
         owner, repo_name = repository.split("/")
         issues_url = f"https://api.github.com/repos/{owner}/{repo_name}/issues?state=all"
+        filtered_count = 0
+        total_count = 0
 
         while issues_url:
             response = session.get(issues_url)
             issues = response.json()
             print(f"Fetched batch of issues... {len(issues)}")
 
-            if not issues:
-                print("No issues returned from API")
-                return EMPTY_FRAME
-
             for issue in issues:
+                total_count = total_count + 1
                 if "pull_request" in issue:
+                    filtered_count = filtered_count + 1
                     continue
                 issues_data.append(
                     {
@@ -83,6 +83,12 @@ def fetch_data_from_github(repository, auth_token):
 
             issues_url = response.links.get("next", {}).get("url", None)
 
+    print(f"Filtered out {filtered_count} issues from {total_count}")
+
+    if not issues_data:
+        print("No issues data collected (all items were filtered out)")
+        return EMPTY_FRAME
+    
     return pd.DataFrame(issues_data)
 
 
