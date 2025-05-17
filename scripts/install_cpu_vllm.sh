@@ -28,7 +28,7 @@ echo "Checking out to '$latest_tag' tag..."
 git checkout "$latest_tag"
 
 echo "Installing vLLM CPU requirements..."
-python -m pip install -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
+python -m pip install -r requirements/cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 echo "Installing vLLM for CPU..."
 export CMAKE_ARGS="-DPYTHON_EXECUTABLE=$(which python) -DPYTHON_INCLUDE_DIR=$(python -c "from sysconfig import get_path; print(get_path('include'))") -DPYTHON_LIBRARY=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")"
