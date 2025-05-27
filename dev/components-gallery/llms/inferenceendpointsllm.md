@@ -27,6 +27,8 @@ This LLM will internally use `huggingface_hub.AsyncInferenceClient`.
 
 - **api_key**: the API key to authenticate the requests to the Inference Endpoints API.
 
+- **provider**: the name of the provider to use for inference. Defaults to `None`.
+
 - **tokenizer_id**: the tokenizer ID to use for the LLM as available in the Hugging Face Hub.  Defaults to `None`, but defining one is recommended to properly format the prompt.
 
 - **model_display_name**: the model display name to use for the LLM. Defaults to `None`.
