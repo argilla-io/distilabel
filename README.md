@@ -1,5 +1,5 @@
 > [!IMPORTANT]  
-The original authors have moved on to other projects. While the code might still be functional for its original purpose, please be aware that the original team does not plan to develop new features, bug fixes, or updates. If you'd like to become a maintainer, please open an issue to discuss it.
+The original authors have moved on to other projects. A group of community members have recently joined the GitHub project as collaborators to maintain the project and are actively working towards the next release. Check out the `develop` branch for access to the latest fixes and improvements in the meantime.
 > 
 <div align="center">
   <picture>
