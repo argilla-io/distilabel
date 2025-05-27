@@ -206,8 +206,9 @@ class TextGenerationWithImage(TextGeneration):
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
         messages = self._prepare_message_content(input)
-
-        if self.system_prompt:
+        if "system_prompt" in input:
+            messages.insert(0, {"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
             messages.insert(0, {"role": "system", "content": self.system_prompt})
 
-        return messages  # type: ignore
+        return messages

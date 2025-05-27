@@ -46,10 +46,12 @@ class SelfInstruct(Task):
             to the criteria defined within the paper.
         application_description: The description of the AI application that one want
             to build with these instructions. Defaults to `AI assistant`.
+        system_prompt: The system prompt for the SelfInstruct task.
 
     Input columns:
         - input (`str`): The input to generate the instructions. It's also called seed in
             the paper.
+        - system_prompt (`Optional[str]`): The system prompt for the SelfInstruct task.
 
     Output columns:
         - instructions (`List[str]`): The generated instructions.
@@ -131,12 +133,17 @@ class SelfInstruct(Task):
     @property
     def inputs(self) -> List[str]:
         """The input for the task is the `input` i.e. seed text."""
-        return ["input"]
+        return {"input": True, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        return [
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.append({"role": "system", "content": self.system_prompt})
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(
@@ -146,7 +153,8 @@ class SelfInstruct(Task):
                     num_instructions=self.num_instructions,
                 ),
             }
-        ]
+        )
+        return messages
 
     @property
     def outputs(self):

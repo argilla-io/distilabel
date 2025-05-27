@@ -105,6 +105,7 @@ class PrometheusEval(Task):
         reference: a boolean flag to indicate whether a reference answer / completion will be provided, so
             that the model critique is based on the comparison with it. It implies that the column `reference`
             needs to be provided within the input data in addition to the rest of the inputs.
+        system_prompt: The system prompt for the PrometheusEval task.
         _template: a Jinja2 template used to format the input for the LLM.
 
     Input columns:
@@ -115,6 +116,7 @@ class PrometheusEval(Task):
             contain 2 generations only. This column is required if `mode=relative`.
         - reference (`str`, optional): The reference / golden answer for the `instruction`, to be used by the LLM
             for comparison against.
+        - system_prompt (`Optional[str]`): The system prompt for the PrometheusEval task.
 
     Output columns:
         - feedback (`str`): The feedback explaining the result below, as critiqued by the LLM using the
@@ -371,12 +373,22 @@ class PrometheusEval(Task):
         `reference`."""
         if self.mode == "absolute":
             if self.reference:
-                return ["instruction", "generation", "reference"]
-            return ["instruction", "generation"]
+                return {
+                    "instruction": True,
+                    "generation": True,
+                    "reference": True,
+                    "system_prompt": False,
+                }
+            return {"instruction": True, "generation": True, "system_prompt": False}
         else:
             if self.reference:
-                return ["instruction", "generations", "reference"]
-            return ["instruction", "generations"]
+                return {
+                    "instruction": True,
+                    "generations": True,
+                    "reference": True,
+                    "system_prompt": False,
+                }
+            return {"instruction": True, "generations": True, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` where the prompt is formatted according
@@ -423,16 +435,18 @@ class PrometheusEval(Task):
                 " same cohort."
             )
 
-        return [
-            {
-                "role": "system",
-                "content": system_message,
-            },
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        else:
+            messages.append({"role": "system", "content": system_message})
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(**template_kwargs),  # type: ignore
             },
-        ]
+        )
+        return messages
 
     @property
     def outputs(self) -> List[str]:
