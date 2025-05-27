@@ -37,10 +37,11 @@ if TYPE_CHECKING:  # noqa
     from llama_cpp import Llama  # noqa
     from transformers import Pipeline  # noqa
     from vllm import LLM as _vLLM  # noqa
+    from distilabel.models.llms.mlx import MlxModel  # noqa
 
-    from distilabel.typing import OutlinesStructuredOutputType  # noqa
+from distilabel.typing import OutlinesStructuredOutputType  # noqa
 
-Frameworks = Literal["transformers", "llamacpp", "vllm"]
+Frameworks = Literal["transformers", "llamacpp", "vllm", "mlx"]
 
 
 def _is_outlines_version_below_0_1_0() -> bool:
@@ -101,6 +102,11 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
                 "JSONLogitsProcessor",
                 "RegexLogitsProcessor",
             ),
+            "mlx": (
+                "outlines.processors",
+                "JSONLogitsProcessor",
+                "RegexLogitsProcessor",
+            ),
         }
 
     if framework not in processors:
@@ -115,7 +121,7 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
 
 
 def _get_tokenizer_from_model(
-    llm: Union["_vLLM", "Pipeline", "Llama"],
+    llm: Union["_vLLM", "Pipeline", "Llama", "MlxModel"],
     framework: Frameworks,
 ) -> Callable:
     if framework == "llamacpp":
@@ -130,12 +136,16 @@ def _get_tokenizer_from_model(
         from outlines.models.vllm import adapt_tokenizer
 
         return adapt_tokenizer(llm.get_tokenizer())
+    if framework == "mlx":
+        from outlines.models.transformers import TransformerTokenizer
+
+        return TransformerTokenizer(llm.tokenizer)
 
 
 def prepare_guided_output(
     structured_output: "OutlinesStructuredOutputType",
     framework: Frameworks,
-    llm: Union["_vLLM", "Pipeline", "Llama"],
+    llm: Union["_vLLM", "Pipeline", "Llama", "MlxModel"],
 ) -> Dict[str, Any]:
     """Prepares the `LLM` to generate guided output using `outlines`.
 
@@ -156,7 +166,6 @@ def prepare_guided_output(
         case of "json" will also include the schema as a dict, to simplify serialization
         and deserialization.
     """
-
     json_processor, regex_processor = _get_logits_processor(framework)
 
     format = structured_output.get("format")
