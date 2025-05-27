@@ -30,7 +30,7 @@ from distilabel.typing import StructuredOutputType
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR, get_hf_token
 
 if TYPE_CHECKING:
-    from huggingface_hub import AsyncInferenceClient
+    from huggingface_hub import AsyncInferenceClient, InferenceClient
     from transformers import PreTrainedTokenizer
 
 
@@ -52,6 +52,10 @@ class InferenceEndpointsBaseClient(BaseModel):
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
         default_factory=lambda: os.getenv(HF_TOKEN_ENV_VAR),
         description="The API key to authenticate the requests to the Inference Endpoints API.",
+    )
+    provider: Optional[str] = Field(
+        default=None,
+        description="The provider to use for inference. Can be 'auto', 'hf-inference' or third-party providers.",
     )
 
     tokenizer_id: Optional[str] = None
@@ -96,19 +100,11 @@ class InferenceEndpointsBaseClient(BaseModel):
 
         if self.model_id is not None:
             client = InferenceClient(
-                model=self.model_id, token=self.api_key.get_secret_value()
+                model=self.model_id,
+                token=self.api_key.get_secret_value(),
+                provider=self.provider,
             )
-            status = client.get_model_status()
-
-            if (
-                status.state not in {"Loadable", "Loaded"}
-                and status.framework != "text-generation-inference"
-            ):
-                raise ValueError(
-                    f"Model {self.model_id} is not currently deployed or is not running the TGI framework"
-                )
-
-            self._base_url = client.base_url
+            self._validate_model_status(client)
 
         if self.endpoint_name is not None:
             client = get_inference_endpoint(
@@ -124,10 +120,18 @@ class InferenceEndpointsBaseClient(BaseModel):
             self.base_url = client.url
             self._model_name = client.repository
 
-        self._aclient = AsyncInferenceClient(
-            base_url=self.base_url,
-            token=self.api_key.get_secret_value(),
-        )
+        if self.model_id is not None:
+            self._aclient = AsyncInferenceClient(
+                model=self.model_id,
+                token=self.api_key.get_secret_value(),
+                provider=self.provider,
+            )
+        else:
+            self._aclient = AsyncInferenceClient(
+                base_url=self.base_url,
+                token=self.api_key.get_secret_value(),
+                provider=self.provider,
+            )
 
         if self.tokenizer_id:
             try:
@@ -138,6 +142,34 @@ class InferenceEndpointsBaseClient(BaseModel):
                     " `pip install 'distilabel[hf-inference-endpoints]'`."
                 ) from ie
             self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
+
+    def _validate_model_status(self, client: "InferenceClient"):
+        """Checks the status of the model from the Inference API.
+
+        Args:
+            client: The InferenceClient to use.
+
+        Returns:
+            void
+        """
+        try:
+            from huggingface_hub import HfApi
+
+            api = HfApi(token=self.api_key)
+            status = api.model_info(client.model)
+
+            if not hasattr(status, "inference") or status.inference not in [
+                "warm",
+                "cold",
+            ]:
+                raise ValueError(
+                    f"Model {self.model_id} is currently not running the TGI framework"
+                )
+
+        except Exception as ex:
+            raise ValueError(
+                f"Model {self.model_id} is not currently deployed or is not running the TGI framework"
+            ) from ex
 
     @property
     def model_name(self) -> str:
