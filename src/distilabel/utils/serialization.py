@@ -41,7 +41,7 @@ from typing import (
 )
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr, field_serializer
 from typing_extensions import Self
 
 T = TypeVar("T")
@@ -175,6 +175,13 @@ def read_yaml(filename: StrOrPath) -> Dict[str, Any]:
 class _Serializable:
     """Base class for serializable classes. It provides the means to serialize and deserialize."""
 
+    @field_serializer("*", when_used="always", return_type=Any)
+    def exclude_secretstr(self, value: Any, _info) -> Any:
+        """Custom serializer that excludes SecretStr fields."""
+        if isinstance(value, SecretStr):
+            return "********"
+        return value
+
     _type_info: Dict[str, Any] = {}
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
@@ -194,7 +201,7 @@ class _Serializable:
         """
         # Any parameter named api_key or token will be excluded from the dump
         # (those are supposed to be SecretStr anyway, and will remove them afterwards)
-        dump = obj.model_dump(exclude=("api_key", "token"), **kwargs)
+        dump = obj.model_dump(exclude="api_key", **kwargs)
 
         # Check if any attribute in value within the `dump` is an `EnumType`,
         # as it needs a specific serialization.

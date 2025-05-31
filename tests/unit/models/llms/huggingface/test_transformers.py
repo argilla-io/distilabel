@@ -121,6 +121,7 @@ class TestTransformersLLM:
             "offline_batch_generation_block_until_done": None,
             "revision": "main",
             "structured_output": None,
+            "token": "********",
             "tokenizer": None,
             "torch_dtype": "float16",
             "trust_remote_code": False,
@@ -135,7 +136,6 @@ class TestTransformersLLM:
 
         actual_dump = llm.dump()
         assert actual_dump == expected_dump
-        assert "token" not in actual_dump
 
         # Test round-trip deserialization works (without token)
         reconstructed = TransformersLLM.from_dict(actual_dump)
