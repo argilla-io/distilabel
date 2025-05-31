@@ -95,3 +95,49 @@ class TestTransformersLLM:
 
         assert last_hidden_states[0].shape == (7, 128)
         assert last_hidden_states[1].shape == (10, 128)
+
+    def test_serialization_excludes_token(self) -> None:
+        """Test that SecretStr token field is excluded from serialization."""
+        from pydantic import SecretStr
+
+        llm = TransformersLLM(
+            model="distilabel-internal-testing/tiny-random-mistral",
+            token=SecretStr("hf_secrettoken123456789"),
+            model_kwargs={"is_decoder": True},
+            cuda_devices=[],
+            torch_dtype="float16",
+        )
+        expected_dump = {
+            "chat_template": None,
+            "cuda_devices": [],
+            "device": None,
+            "device_map": None,
+            "disable_cuda_device_placement": False,
+            "generation_kwargs": {},
+            "jobs_ids": None,
+            "magpie_pre_query_template": None,
+            "model": "distilabel-internal-testing/tiny-random-mistral",
+            "model_kwargs": {"is_decoder": True},
+            "offline_batch_generation_block_until_done": None,
+            "revision": "main",
+            "structured_output": None,
+            "tokenizer": None,
+            "torch_dtype": "float16",
+            "trust_remote_code": False,
+            "type_info": {
+                "module": "distilabel.models.llms.huggingface.transformers",
+                "name": "TransformersLLM",
+            },
+            "use_fast": True,
+            "use_magpie_template": False,
+            "use_offline_batch_generation": False,
+        }
+
+        actual_dump = llm.dump()
+        assert actual_dump == expected_dump
+        assert "token" not in actual_dump
+
+        # Test round-trip deserialization works (without token)
+        reconstructed = TransformersLLM.from_dict(actual_dump)
+        assert reconstructed.model == "distilabel-internal-testing/tiny-random-mistral"
+        assert reconstructed.model_kwargs == {"is_decoder": True}
