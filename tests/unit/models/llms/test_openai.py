@@ -126,7 +126,7 @@ class TestOpenAILLM:
 
     @pytest.mark.asyncio
     async def test_agenerate_with_seed(
-            self, async_openai_mock: MagicMock, _openai_mock: MagicMock
+        self, async_openai_mock: MagicMock, _openai_mock: MagicMock
     ) -> None:
         llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
         llm._aclient = async_openai_mock
