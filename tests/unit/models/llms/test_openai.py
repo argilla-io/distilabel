@@ -125,6 +125,55 @@ class TestOpenAILLM:
         }
 
     @pytest.mark.asyncio
+    async def test_agenerate_with_seed(
+        self, async_openai_mock: MagicMock, _openai_mock: MagicMock
+    ) -> None:
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
+        llm._aclient = async_openai_mock
+
+        mocked_completion = Mock(
+            choices=[
+                Mock(
+                    message=Mock(content=" Aenean hendrerit aliquam velit. ..."),
+                    logprobs=Mock(
+                        content=[
+                            Mock(top_logprobs=[Mock(token=" ", logprob=-1)]),
+                            Mock(top_logprobs=[Mock(token="Aenean", logprob=-2)]),
+                        ]
+                    ),
+                )
+            ],
+            usage=Mock(prompt_tokens=100, completion_tokens=100),
+        )
+        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
+
+        result = await llm.agenerate(
+            input=[
+                {"role": "system", "content": ""},
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ],
+            seed=42,
+        )
+
+        # Verify the result
+        assert result == {
+            "generations": [" Aenean hendrerit aliquam velit. ..."],
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
+            "logprobs": [
+                [[{"token": " ", "logprob": -1}], [{"token": "Aenean", "logprob": -2}]]
+            ],
+        }
+
+        # Verify that the seed was passed to the OpenAI API call via extra_body
+        llm._aclient.chat.completions.create.assert_called_once()
+        call_kwargs = llm._aclient.chat.completions.create.call_args[1]
+        assert "extra_body" in call_kwargs
+        assert call_kwargs["extra_body"]["seed"] == 42
+
+    @pytest.mark.asyncio
     async def test_agenerate_structured(
         self, async_openai_mock: MagicMock, _openai_mock: MagicMock
     ) -> None:
