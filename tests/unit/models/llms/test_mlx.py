@@ -11,11 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import json
 import platform
 from typing import Any, Dict, Generator
 
 import pytest
+from pydantic import BaseModel
 
 from distilabel.models.llms.mlx import MlxLLM
 
@@ -60,6 +61,47 @@ class TestMlxLLM:
         generations = responses[0]["generations"]
         statistics = responses[0]["statistics"]
         assert len(generations) == 3
+        assert "input_tokens" in statistics
+        assert "output_tokens" in statistics
+
+    def test_structured_generation_json(self, llm: MlxLLM) -> None:
+        class User(BaseModel):
+            first_name: str
+            last_name: str
+
+        llm.structured_output = {"format": "json", "schema": User.model_json_schema()}
+
+        responses = llm.generate(
+            inputs=[
+                [{"role": "user", "content": "Create a user profile for John Smith"}],
+            ],
+            num_generations=1,
+        )
+
+        assert len(responses) == 1
+        assert "generations" in responses[0]
+        assert "statistics" in responses[0]
+        generations = responses[0]["generations"]
+        assert len(generations) == 1
+
+        # Clean and parse the generation
+        for generation in generations:
+            # Remove the <|im_end|> tokens and clean up the string
+            cleaned_json = generation.replace("<|im_end|>", "").strip()
+            try:
+                user_data = json.loads(cleaned_json)
+                parsed_user = User(**user_data)
+                assert isinstance(parsed_user, User)
+                assert parsed_user.first_name == "John"
+                assert parsed_user.last_name == "Smith"
+            except json.JSONDecodeError as e:
+                print(f"JSON parsing error: {e}")
+                print(f"Raw generation: {cleaned_json}")
+                raise
+            except ValueError as e:
+                print(f"Validation error: {e}")
+                raise
+        statistics = responses[0]["statistics"]
         assert "input_tokens" in statistics
         assert "output_tokens" in statistics
 
