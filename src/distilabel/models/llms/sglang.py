@@ -14,6 +14,7 @@
 
 import contextlib
 import gc
+import inspect
 import json
 from functools import cached_property
 from typing import (
@@ -28,7 +29,7 @@ from typing import (
     Union,
 )
 
-from pydantic import Field, PositiveInt, PrivateAttr, SecretStr, validate_call
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
@@ -36,6 +37,7 @@ from distilabel.models.llms.openai import OpenAILLM
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
+from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
 from distilabel.typing import (
     FormattedInput,
     GenerateOutput,
@@ -46,9 +48,7 @@ from distilabel.typing import (
 if TYPE_CHECKING:
     from openai import OpenAI  # noqa
     from transformers import PreTrainedTokenizer
-    from vllm import LLM as _vLLM
-    from vllm.outputs import RequestOutput
-    from vllm.sequence import SampleLogprobs, PromptLogprobs
+    from sglang import Engine
 
     from distilabel.typing import (
         StandardInput,
@@ -67,8 +67,8 @@ LogitsProcessorFn = Union[
 LogitsProcessors = List[LogitsProcessorFn]
 
 
-class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
-    """`vLLM` library LLM implementation.
+class SGLang(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
+    """`SGLang` library LLM implementation.
 
     Attributes:
         model: the model Hugging Face Hub repo id or a path to a directory containing the
@@ -79,10 +79,8 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         quantization: the quantization mode to use for the model. Defaults to `None`.
         revision: the revision of the model to load. Defaults to `None`.
         tokenizer: the tokenizer Hugging Face Hub repo id or a path to a directory containing
-            the tokenizer files. If not provided, the tokenizer will be loaded from the
-            model directory. Defaults to `None`.
+            the tokenizer files. Defaults to `model`.
         tokenizer_mode: the mode to use for the tokenizer. Defaults to `auto`.
-        tokenizer_revision: the revision of the tokenizer to load. Defaults to `None`.
         skip_tokenizer_init: whether to skip the initialization of the tokenizer. Defaults
             to `False`.
         chat_template: a chat template that will be used to build the prompts before
@@ -93,12 +91,11 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         seed: the seed to use for the random number generator. Defaults to `0`.
         extra_kwargs: additional dictionary of keyword arguments that will be passed to the
-            `LLM` class of `vllm` library. Defaults to `{}`.
-        _model: the `vLLM` model instance. This attribute is meant to be used internally
+            `Engine` class of `sglang` library. Defaults to `{}`.
+        _model: the `SGLang` model instance. This attribute is meant to be used internally
             and should not be accessed directly. It will be set in the `load` method.
         _tokenizer: the tokenizer instance used to format the prompt before passing it to
-            the `LLM`. This attribute is meant to be used internally and should not be
-            accessed directly. It will be set in the `load` method.
+            the `LLM`. It will be set in the `load` method.
         use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
             template. Defaults to `False`.
         magpie_pre_query_template: the pre-query template to be applied to the prompt or
@@ -107,50 +104,49 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             to `None`.
 
     References:
-        - https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/llm.py
+        - https://github.com/sgl-project/sglang/blob/main/python/sglang/srt/server_args.py
 
     Runtime parameters:
         - `extra_kwargs`: additional dictionary of keyword arguments that will be passed to
-            the `LLM` class of `vllm` library.
+            the `LLM` class of `SGLang` library.
 
     Examples:
         Generate text:
 
         ```python
-        from distilabel.models.llms import vLLM
+        from distilabel.models.llms import SGLang
+        if __name__ == "__main__":
+            llm = SGLang(
+                model="Qwen/Qwen2.5-Coder-3B-Instruct",
+                chat_template="[INST] {{ messages[0]['content']}} [/INST]"
+            )
 
-        # You can pass a custom chat_template to the model
-        llm = vLLM(
-            model="prometheus-eval/prometheus-7b-v2.0",
-            chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
-        )
-
-        llm.load()
-
-        # Call the model
-        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
+            llm.load()
+            # Call the model
+            output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
 
         Generate structured data:
 
         ```python
-        from pathlib import Path
-        from distilabel.models.llms import vLLM
+        from distilabel.models.llms import SGLang
+        from pydantic import BaseModel
 
-        class User(BaseModel):
-            name: str
-            last_name: str
-            id: int
+        if __name__ == "__main__":
 
-        llm = vLLM(
-            model="prometheus-eval/prometheus-7b-v2.0"
-            structured_output={"format": "json", "schema": Character},
-        )
+            class User(BaseModel):
+                name: str
+                last_name: str
+                id: int
 
-        llm.load()
+            llm = SGLang(
+                model="Qwen/Qwen2.5-Coder-3B-Instruct",
+                structured_output={"format": "json", "schema": User},
+            )
 
-        # Call the model
-        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+            llm.load()
+            # Call the model
+            output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
         ```
     """
 
@@ -162,7 +158,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     tokenizer: Optional[str] = None
     tokenizer_mode: Literal["auto", "slow"] = "auto"
-    tokenizer_revision: Optional[str] = None
     skip_tokenizer_init: bool = False
     chat_template: Optional[str] = None
 
@@ -171,20 +166,19 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     extra_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
         default_factory=dict,
         description="Additional dictionary of keyword arguments that will be passed to the"
-        " `vLLM` class of `vllm` library. See all the supported arguments at: "
-        "https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/llm.py",
+        " `Engine` class of `sglang` library. See all the supported arguments at: "
+        "https://github.com/sgl-project/sglang/blob/main/python/sglang/srt/entrypoints/engine.py",
     )
     structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
         default=None,
         description="The structured output format to use across all the generations.",
     )
 
-    _model: "_vLLM" = PrivateAttr(None)
+    _model: "Engine" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
-    _structured_output_logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
-        """Loads the `vLLM` model using either the path or the Hugging Face Hub repository id.
+        """Loads the `SGLang` model using either the path or the Hugging Face Hub repository id.
         Additionally, this method also sets the `chat_template` for the tokenizer, so as to properly
         parse the list of OpenAI formatted inputs using the expected format by the model, otherwise, the
         default value is ChatML format, unless explicitly provided.
@@ -194,60 +188,50 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         CudaDevicePlacementMixin.load(self)
 
         try:
-            from vllm import LLM as _vLLM
-        except ImportError as ie:
+            from sglang import Engine
+        except ImportError as err:
             raise ImportError(
-                "vLLM is not installed. Please install it using `pip install 'distilabel[vllm]'`."
-            ) from ie
+                "sglang is not installed. Please install it with sglang document https://docs.sglang.ai/start/install.html."
+            ) from err
 
-        self._model = _vLLM(
-            self.model,
+        self._model = Engine(
+            model_path=self.model,
             dtype=self.dtype,
             trust_remote_code=self.trust_remote_code,
             quantization=self.quantization,
             revision=self.revision,
-            tokenizer=self.tokenizer,
+            tokenizer_path=self.tokenizer,
             tokenizer_mode=self.tokenizer_mode,
-            tokenizer_revision=self.tokenizer_revision,
             skip_tokenizer_init=self.skip_tokenizer_init,
-            seed=self.seed,
+            random_seed=self.seed,
             **self.extra_kwargs,  # type: ignore
         )
+        from sglang.srt.hf_transformers_utils import get_tokenizer
 
-        self._tokenizer = self._model.get_tokenizer()  # type: ignore
+        self._tokenizer = get_tokenizer(
+            self.model,
+            tokenizer_mode=self.tokenizer_mode,
+            trust_remote_code=self.trust_remote_code,
+            tokenizer_revision="main",
+        )  # type: ignore
         if self.chat_template is not None:
             self._tokenizer.chat_template = self.chat_template  # type: ignore
 
-        if self.structured_output:
-            self._structured_output_logits_processor = self._prepare_structured_output(
-                self.structured_output
-            )
-
     def unload(self) -> None:
-        """Unloads the `vLLM` model."""
-        self._cleanup_vllm_model()
+        """Unloads the `SGLang` model."""
+        self._cleanup_sglang_model()
         self._model = None  # type: ignore
         self._tokenizer = None  # type: ignore
         CudaDevicePlacementMixin.unload(self)
         super().unload()
 
-    def _cleanup_vllm_model(self) -> None:
+    def _cleanup_sglang_model(self) -> None:
         if self._model is None:
             return
 
         import torch  # noqa
-        from vllm.distributed.parallel_state import (
-            destroy_distributed_environment,
-            destroy_model_parallel,
-        )
 
-        destroy_model_parallel()
-        destroy_distributed_environment()
-
-        # Don't delete model_executor if it does not exist, e.g. when VLLM_USE_V1 is set
-        if hasattr(self._model.llm_engine, "model_executor"):
-            del self._model.llm_engine.model_executor
-        del self._model
+        self._model.shutdown()
         with contextlib.suppress(AssertionError):
             torch.distributed.destroy_process_group()
         gc.collect()
@@ -335,20 +319,25 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         inputs: List[FormattedInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
-        presence_penalty: float = 0.0,
-        frequency_penalty: float = 0.0,
-        repetition_penalty: float = 1.0,
+        stop: Optional[Union[str, List[str]]] = None,
+        stop_token_ids: Optional[List[int]] = None,
         temperature: float = 1.0,
         top_p: float = 1.0,
         top_k: int = -1,
         min_p: float = 0.0,
-        logprobs: Optional[PositiveInt] = None,
-        stop: Optional[List[str]] = None,
-        stop_token_ids: Optional[List[int]] = None,
-        include_stop_str_in_output: bool = False,
+        frequency_penalty: float = 0.0,
+        presence_penalty: float = 0.0,
+        repetition_penalty: float = 1.0,
+        min_new_tokens: int = 0,
+        spaces_between_special_tokens: bool = True,
+        json_schema: Optional[str] = None,
+        regex: Optional[str] = None,
+        no_stop_trim: bool = False,
+        ignore_eos: bool = False,
         skip_special_tokens: bool = True,
-        logits_processors: Optional[LogitsProcessors] = None,
-        extra_sampling_params: Optional[Dict[str, Any]] = None,
+        custom_params: Optional[Dict[str, Any]] = None,  # no use?
+        return_logprob: bool = False,
+        top_logprobs_num: int = 0,
         echo: bool = False,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input.
@@ -359,45 +348,41 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            presence_penalty: the presence penalty to use for the generation. Defaults to
-                `0.0`.
-            frequency_penalty: the repetition penalty to use for the generation. Defaults
-                to `0.0`.
-            repetition_penalty: the repetition penalty to use for the generation Defaults to
-                `1.0`.
-            temperature: the temperature to use for the generation. Defaults to `0.1`.
-            top_p: the top-p value to use for the generation. Defaults to `1.0`.
-            top_k: the top-k value to use for the generation. Defaults to `0`.
-            min_p: the minimum probability to use for the generation. Defaults to `0.0`.
-            logprobs: number of log probabilities to return per output token. If `None`,
-                then no log probability won't be returned. Defaults to `None`.
             stop: a list of strings that will be used to stop the generation when found.
                 Defaults to `None`.
             stop_token_ids: a list of token ids that will be used to stop the generation
                 when found. Defaults to `None`.
-            include_stop_str_in_output: whether to include the stop string in the output.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            top_k: the top-k value to use for the generation. Defaults to `0`.
+            min_p: the minimum probability to use for the generation. Defaults to `0.0`.
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            repetition_penalty: the repetition penalty to use for the generation Defaults to
+                `1.0`.
+            min_new_tokens: Forces the model to generate at least `min_new_tokens` until
+                a stop word or EOS token is sampled. Defaults to `0`.
+            spaces_between_special_tokens:  Whether or not to add spaces between special
+                tokens during detokenization. Defaults to `True`.
+            json_schema: json structure output. Defaults to `None`.
+            regex: regex structure output. Defaults to `None`.
+            no_stop_trim: Don't trim stop words or EOS token from the generated text.
                 Defaults to `False`.
-            skip_special_tokens: whether to exclude special tokens from the output. Defaults
+            ignore_eos: Don't stop generation when EOS token is sampled. Defaults to `False`.
+            skip_special_tokens: Whether to exclude special tokens from the output. Defaults
                 to `False`.
-            logits_processors: a list of functions to process the logits before sampling.
-                Defaults to `None`.
-            extra_sampling_params: dictionary with additional arguments to be passed to
-                the `SamplingParams` class from `vllm`.
-            echo: whether to echo the include the prompt in the response or not. Defaults
+            custom_params: Used when employing `CustomLogitProcessor`. Defaults to `None`.
+            return_logprob: Whether to return log probabilities for tokens. Defaults to `False`.
+            top_logprobs_num: If returning log probabilities, specifies the number of
+                top logprobs to return at each position. Defaults to `0`.
+            echo: Whether to echo the include the prompt in the response or not. Defaults
                 to `False`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        from vllm import SamplingParams
-
-        if not logits_processors:
-            logits_processors = []
-
-        if extra_sampling_params is None:
-            extra_sampling_params = {}
-
-        structured_output = None
 
         if isinstance(inputs[0], tuple):
             # Prepare the batches for structured generation
@@ -406,10 +391,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             # Simulate a batch without the structured output content
             prepared_batches = [([self.prepare_input(input) for input in inputs], None)]  # type: ignore
             sorted_indices = None
-
-        # Case in which we have a single structured output for the dataset
-        if self._structured_output_logits_processor:
-            logits_processors.append(self._structured_output_logits_processor)
 
         batched_outputs: List["LLMOutput"] = []
         generations = []
@@ -422,47 +403,66 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                     " be used."
                 )
 
+            temp_structure = None
             if structured_output is not None:
-                logits_processors.append(
-                    self._prepare_structured_output(structured_output)  # type: ignore
-                )
+                temp_structure = structured_output
+            elif self.structured_output is not None:
+                temp_structure = self.structured_output
 
-            sampling_params = SamplingParams(  # type: ignore
-                n=num_generations,
-                presence_penalty=presence_penalty,
-                frequency_penalty=frequency_penalty,
-                repetition_penalty=repetition_penalty,
-                temperature=temperature,
-                top_p=top_p,
-                top_k=top_k,
-                min_p=min_p,
-                max_tokens=max_new_tokens,
-                prompt_logprobs=logprobs if echo else None,
-                logprobs=logprobs,
-                stop=stop,
-                stop_token_ids=stop_token_ids,
-                include_stop_str_in_output=include_stop_str_in_output,
-                skip_special_tokens=skip_special_tokens,
-                logits_processors=logits_processors,
-                **extra_sampling_params,
-            )
+            if temp_structure is not None:
+                format = temp_structure.get("format")
+                schema = temp_structure.get("schema")
+                if not format:
+                    if isinstance(schema, dict) or inspect.isclass(schema):
+                        format = "json"
+                    elif isinstance(schema, str):
+                        format = "regex"
 
-            batch_outputs: List["RequestOutput"] = self._model.generate(
-                prompts=prepared_inputs,
+                if format == "json":
+                    json_schema = json.dumps(schema_as_dict(schema))
+                elif format == "regex":
+                    regex = schema
+
+            sampling_params = {
+                "max_new_tokens": max_new_tokens,
+                "stop": stop,
+                "stop_token_ids": stop_token_ids,
+                "temperature": temperature,
+                "top_p": top_p,
+                "top_k": top_k,
+                "min_p": min_p,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+                "repetition_penalty": repetition_penalty,
+                "min_new_tokens": min_new_tokens,
+                "spaces_between_special_tokens": spaces_between_special_tokens,
+                "n": num_generations,
+                "json_schema": json_schema,
+                "regex": regex,
+                "no_stop_trim": no_stop_trim,
+                "ignore_eos": ignore_eos,
+                "skip_special_tokens": skip_special_tokens,
+                "custom_params": custom_params,
+            }
+
+            batch_outputs = self._model.generate(
+                prompt=prepared_inputs,
                 sampling_params=sampling_params,
-                use_tqdm=False,
+                return_logprob=return_logprob,
+                logprob_start_len=0 if echo else -1,
+                top_logprobs_num=top_logprobs_num if return_logprob else 0,
             )
 
-            # Remove structured output logit processor to avoid stacking structured output
-            # logits processors that leads to non-sense generations
-            if structured_output is not None:
-                logits_processors.pop(-1)
-
-            for input, outputs in zip(prepared_inputs, batch_outputs):
+            group = int(len(batch_outputs) / len(prepared_inputs))
+            for num in range(len(prepared_inputs)):
+                input = prepared_inputs[num]
+                outputs = batch_outputs[num * group : (num + 1) * group]
                 processed_prompt_logprobs = []
-                if outputs.prompt_logprobs is not None:
+                meta_info = outputs[0]["meta_info"]
+                if "input_top_logprobs" in meta_info:
                     processed_prompt_logprobs = self._get_llm_logprobs(
-                        outputs.prompt_logprobs
+                        top_logprob=meta_info["input_top_logprobs"],
+                        choose_logprob=meta_info["input_token_logprobs"],
                     )
                 texts, statistics, outputs_logprobs = self._process_outputs(
                     input=input,
@@ -490,72 +490,79 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     def _process_outputs(
         self,
         input: str,
-        outputs: "RequestOutput",
+        outputs,
         prompt_logprobs: List[List["Logprob"]],
         echo: bool = False,
     ) -> Tuple["LLMOutput", "LLMStatistics", "LLMLogprobs"]:
         texts = []
         outputs_logprobs = []
+        lens = 1
+        if isinstance(outputs, list):
+            lens = len(outputs)
         statistics = {
-            "input_tokens": [compute_tokens(input, self._tokenizer.encode)]
-            * len(outputs.outputs),
+            "input_tokens": [compute_tokens(input, self._tokenizer.encode)] * lens,
             "output_tokens": [],
         }
-        for output in outputs.outputs:
-            text = output.text
+
+        for output in outputs:
+            text = output["text"]
             if echo:
                 text = input + text
             texts.append(text)
-            statistics["output_tokens"].append(len(output.token_ids))
-            if output.logprobs is not None:
-                processed_output_logprobs = self._get_llm_logprobs(output.logprobs)
+            statistics["output_tokens"].append(output["meta_info"]["completion_tokens"])
+            if "output_top_logprobs" in output["meta_info"]:
+                processed_output_logprobs = self._get_llm_logprobs(
+                    output["meta_info"]["output_top_logprobs"]
+                )
                 outputs_logprobs.append(prompt_logprobs + processed_output_logprobs)
+
         return texts, statistics, outputs_logprobs
 
-    def _prepare_structured_output(  # type: ignore
-        self, structured_output: "OutlinesStructuredOutputType"
-    ) -> Union[Callable, None]:
-        """Creates the appropriate function to filter tokens to generate structured outputs.
-
-        Args:
-            structured_output: the configuration dict to prepare the structured output.
-
-        Returns:
-            The callable that will be used to guide the generation of the model.
-        """
-        from distilabel.steps.tasks.structured_outputs.outlines import (
-            prepare_guided_output,
-        )
-
-        assert structured_output is not None, "`structured_output` cannot be `None`"
-
-        result = prepare_guided_output(structured_output, "vllm", self._model)
-        if (schema := result.get("schema")) and self.structured_output:
-            self.structured_output["schema"] = schema
-        return result["processor"]
-
     def _get_llm_logprobs(
-        self, logprobs: Union["PromptLogprobs", "SampleLogprobs"]
+        self,
+        top_logprob,
+        choose_logprob=None,
     ) -> List[List["Logprob"]]:
         processed_logprobs = []
-        for token_logprob in logprobs:  # type: ignore
+        if choose_logprob is not None:
             token_logprobs = []
-            if token_logprob is None:
-                processed_logprobs.append(None)
-                continue
-            for logprob in token_logprob.values():
-                token_logprobs.append(
-                    {"token": logprob.decoded_token, "logprob": logprob.logprob}
-                )
-            processed_logprobs.append(token_logprobs)
+            for num in range(len(choose_logprob)):
+                if choose_logprob[num][0] is None:
+                    processed_logprobs.append(None)
+                    continue
+                else:
+                    token_logprobs.append(
+                        {
+                            "token": self._tokenizer.decode(choose_logprob[num][1]),
+                            "logprob": choose_logprob[num][0],
+                        }
+                    )
+                for top_num in range(len(top_logprob[num]) - 1):
+                    token_logprobs.append(
+                        {
+                            "token": self._tokenizer.decode(
+                                top_logprob[num][top_num][1]
+                            ),
+                            "logprob": top_logprob[num][top_num][0],
+                        }
+                    )
+                processed_logprobs.append(token_logprobs)
+        else:
+            for probs in top_logprob:
+                token_logprobs = []
+                for item in probs:
+                    token_logprobs.append(
+                        {"token": self._tokenizer.decode(item[1]), "logprob": item[0]}
+                    )
+                processed_logprobs.append(token_logprobs)
         return processed_logprobs
 
 
-class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
-    """A client for the `vLLM` server implementing the OpenAI API specification.
+class ClientSGLang(OpenAILLM, MagpieChatTemplateMixin):
+    """A client for the `SGLang` server implementing the OpenAI API specification.
 
     Attributes:
-        base_url: the base URL of the `vLLM` server. Defaults to `"http://localhost:8000"`.
+        base_url: the base URL of the `SGLang` server. Defaults to `"http://localhost:30000"`.
         max_retries: the maximum number of times to retry the request to the API before
             failing. Defaults to `6`.
         timeout: the maximum time in seconds to wait for a response from the API. Defaults
@@ -570,7 +577,7 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             to `None`.
 
     Runtime parameters:
-        - `base_url`: the base url of the `vLLM` server. Defaults to `"http://localhost:8000"`.
+        - `base_url`: the base url of the `vLLM` server. Defaults to `"http://localhost:30000"`.
         - `max_retries`: the maximum number of times to retry the request to the API before
             failing. Defaults to `6`.
         - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
@@ -582,11 +589,11 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
         Generate text:
 
         ```python
-        from distilabel.models.llms import ClientvLLM
+        from distilabel.models.llms import ClientSGLang
 
-        llm = ClientvLLM(
-            base_url="http://localhost:8000/v1",
-            tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct"
+        llm = ClientSGLang(
+            base_url="http://localhost:30000/v1",
+            tokenizer="Qwen/Qwen2-7B-Instruct"
         )
 
         llm.load()
@@ -597,13 +604,6 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             top_p=1.0,
             max_new_tokens=256,
         )
-        # [
-        #     [
-        #         "I'm functioning properly, thank you for asking. How can I assist you today?",
-        #         "I'm doing well, thank you for asking. I'm a large language model, so I don't have feelings or emotions like humans do, but I'm here to help answer any questions or provide information you might need. How can I assist you today?",
-        #         "I'm just a computer program, so I don't have feelings like humans do, but I'm functioning properly and ready to help you with any questions or tasks you have. What's on your mind?"
-        #     ]
-        # ]
         ```
     """
 
@@ -730,7 +730,7 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             text = choice.text
             if text == "":
                 self._logger.warning(  # type: ignore
-                    f"Received no response from vLLM server (model: '{self.model_name}')."
+                    f"Received no response from SGLang server (model: '{self.model_name}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(text)
