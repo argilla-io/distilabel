@@ -29,7 +29,7 @@ class OpenRouterLLM(OpenAILLM):
     Attributes:
         model: the model name to use for the LLM, e.g., `google/gemma-7b-it`. See the
             supported models under the "Models" section
-            [here](https://openrouter.ai/models).
+            [here](https://openrouter.ai/models?fmt=cards&supported_parameters=tools).
         base_url: the base URL to use for the OpenRouter API requests. Defaults to `None`, which
             means that the value set for the environment variable `OPENROUTER_BASE_URL` will be used, or
             "https://api.endpoints.anyscale.com/v1" if not set.
