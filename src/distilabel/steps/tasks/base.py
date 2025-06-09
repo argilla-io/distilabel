@@ -211,7 +211,7 @@ class _Task(_Step, ABC):
         a new field `distilabel_meta` with the raw output of the LLM.
         """
         # Create a dictionary with the outputs of the task (every output set to None)
-        outputs = {output: None for output in self.outputs}
+        outputs = dict.fromkeys(self.outputs)
         outputs["model_name"] = self.llm.model_name  # type: ignore
         outputs = self._create_metadata(
             outputs,

@@ -65,11 +65,9 @@ class _WriteBuffer:
             step: [] for step in leaf_steps
         }
         # TODO: make this configurable
-        self._buffers_dump_batch_size: Dict[str, int] = {
-            step: 50 for step in leaf_steps
-        }
+        self._buffers_dump_batch_size: Dict[str, int] = dict.fromkeys(leaf_steps, 50)
         self._buffer_last_schema = {}
-        self._buffers_last_file: Dict[str, int] = {step: 1 for step in leaf_steps}
+        self._buffers_last_file: Dict[str, int] = dict.fromkeys(leaf_steps, 1)
         self._steps_cached = steps_cached or {}
         self._logger = logging.getLogger("distilabel.write_buffer")
 
