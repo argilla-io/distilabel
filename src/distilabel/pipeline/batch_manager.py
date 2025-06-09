@@ -231,10 +231,10 @@ class _BatchManagerStep(_Serializable):
             input_batch_size=getattr(step, "input_batch_size", None),
             data={predecessor: [] for predecessor in predecessors},
             convergence_step=convergence_step,
-            next_expected_seq_no={predecessor: (0, 0) for predecessor in predecessors},
+            next_expected_seq_no=dict.fromkeys(predecessors, (0, 0)),
             step_signature=step.signature,
             use_cache=step.use_cache,
-            step_offset={predecessor: (0, 0) for predecessor in predecessors},
+            step_offset=dict.fromkeys(predecessors, (0, 0)),
         )
 
     def _get_seq_no(self) -> int:
@@ -314,10 +314,9 @@ class _BatchManagerStep(_Serializable):
         seq_no, batches = grouped_batches[0]
         str_seq_no = str(seq_no)
 
-        remaining_rows_per_step: Dict[str, int] = {
-            step_name: self.input_batch_size
-            for step_name in self.data  # type: ignore
-        }
+        remaining_rows_per_step: Dict[str, int] = dict.fromkeys(
+            self.data, self.input_batch_size
+        )
         batches_used = defaultdict(list)
         data = defaultdict(list)
         for batch, batch_size in batches:
