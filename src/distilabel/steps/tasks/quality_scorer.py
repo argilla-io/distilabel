@@ -187,7 +187,7 @@ class QualityScorer(Task):
         return ["scores", "model_name"]
 
     def format_output(
-            self, output: Union[str, None], input: Dict[str, Any]
+        self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
         """The output is formatted as a list with the score of each instruction-response pair.
 
@@ -250,7 +250,7 @@ class QualityScorer(Task):
         }
 
     def _format_structured_output(
-            self, output: str, input: Dict[str, Any]
+        self, output: str, input: Dict[str, Any]
     ) -> Dict[str, str]:
         """Parses the structured response, which should correspond to a dictionary
         with the scores, and a list with them.
