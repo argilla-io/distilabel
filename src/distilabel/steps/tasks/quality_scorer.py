@@ -20,7 +20,7 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import orjson
 from jinja2 import Template
@@ -187,7 +187,7 @@ class QualityScorer(Task):
         return ["scores", "model_name"]
 
     def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
+            self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
         """The output is formatted as a list with the score of each instruction-response pair.
 
@@ -204,15 +204,18 @@ class QualityScorer(Task):
         if self.use_default_structured_output:
             return self._format_structured_output(output, input)
 
-        scores = []
-        score_lines = output.split("\n")
+        num_responses = len(input["responses"])
+        # Find all occurrences of the score pattern in the entire output.
+        # This is more robust to extra text or reasoning from the LLM.
+        matches = _PARSE_SCORE_LINE_REGEX.findall(output)
 
-        for i, line in enumerate(score_lines):
-            match = _PARSE_SCORE_LINE_REGEX.match(line)
-            score = float(match.group(1)) if match else None
-            scores.append(score)
-            if i == len(input["responses"]) - 1:
-                break
+        # Convert found scores (strings) to floats.
+        scores: List[Optional[int]] = [int(score) for score in matches]
+
+        # Pad with None if the number of scores is less than expected.
+        if len(scores) < num_responses:
+            scores.extend([None] * (num_responses - len(scores)))
+
         return {"scores": scores}
 
     @override
@@ -247,7 +250,7 @@ class QualityScorer(Task):
         }
 
     def _format_structured_output(
-        self, output: str, input: Dict[str, Any]
+            self, output: str, input: Dict[str, Any]
     ) -> Dict[str, str]:
         """Parses the structured response, which should correspond to a dictionary
         with the scores, and a list with them.
