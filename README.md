@@ -73,7 +73,7 @@ The Argilla community uses distilabel to create amazing [datasets](https://huggi
 pip install distilabel --upgrade
 ```
 
-Requires Python 3.9+
+Requires Python 3.10+
 
 In addition, the following extras are available:
 
