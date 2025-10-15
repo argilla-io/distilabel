@@ -23,7 +23,7 @@ from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.steps.tasks.structured_outputs.outlines import (
-    _is_outlines_version_below_0_1_0,
+    _check_outlines_available,
 )
 from distilabel.typing import (
     GenerateOutput,
@@ -156,11 +156,10 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token  # type: ignore
 
         if self.structured_output:
+            _check_outlines_available()
             processor = self._prepare_structured_output(self.structured_output)
-            if _is_outlines_version_below_0_1_0():
-                self._prefix_allowed_tokens_fn = processor
-            else:
-                self._logits_processor = [processor]
+            # outlines >= 1.0.0 uses logits processors
+            self._logits_processor = [processor]
 
         super().load()
 
