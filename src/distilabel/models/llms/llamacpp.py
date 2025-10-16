@@ -343,15 +343,13 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
 
             outputs = []
             output_tokens = []
+
+            if structured_output:
+                self._logits_processor = self._prepare_structured_output(
+                    structured_output
+                )
+
             for _ in range(num_generations):
-                # NOTE(plaguss): There seems to be a bug in how the logits processor
-                # is used. Basically it consumes the FSM internally, and it isn't reinitialized
-                # after each generation, so subsequent calls yield nothing. This is a workaround
-                # until is fixed in the `llama_cpp` or `outlines` libraries.
-                if structured_output:
-                    self._logits_processor = self._prepare_structured_output(
-                        structured_output
-                    )
                 if self.tokenizer_id is None:
                     completion = self._generate_chat_completion(
                         input,
@@ -378,6 +376,12 @@ class LlamaCppLLM(LLM, MagpieChatTemplateMixin):
                     )
                     outputs.append(completion["choices"][0]["text"])
                     output_tokens.append(completion["usage"]["completion_tokens"])
+
+                if self._logits_processor:
+                    for processor in self._logits_processor:
+                        if hasattr(processor, "reset"):
+                            processor.reset()
+
             batch_outputs.append(
                 prepare_output(
                     outputs,

@@ -158,7 +158,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if self.structured_output:
             _check_outlines_available()
             processor = self._prepare_structured_output(self.structured_output)
-            # outlines >= 1.0.0 uses logits processors
+            # outlines uses logits processors
             self._logits_processor = [processor]
 
         super().load()
@@ -228,21 +228,49 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        # When using structured output, we need to process inputs sequentially
+        # because the logits processor maintains FSM state
         prepared_inputs = [self.prepare_input(input=input) for input in inputs]
 
-        outputs: List[List[Dict[str, str]]] = self._pipeline(  # type: ignore
-            prepared_inputs,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            repetition_penalty=repetition_penalty,
-            top_p=top_p,
-            top_k=top_k,
-            do_sample=do_sample,
-            num_return_sequences=num_generations,
-            prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
-            pad_token_id=self._pipeline.tokenizer.eos_token_id,
-            logits_processor=self._logits_processor,
-        )
+        if self._logits_processor:
+            outputs: List[List[Dict[str, str]]] = []
+            for prepared_input in prepared_inputs:
+                input_outputs: List[Dict[str, str]] = []
+                for _ in range(num_generations):
+                    output = self._pipeline(  # type: ignore
+                        prepared_input,
+                        max_new_tokens=max_new_tokens,
+                        temperature=temperature,
+                        repetition_penalty=repetition_penalty,
+                        top_p=top_p,
+                        top_k=top_k,
+                        do_sample=do_sample,
+                        num_return_sequences=1,
+                        prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
+                        pad_token_id=self._pipeline.tokenizer.eos_token_id,
+                        logits_processor=self._logits_processor,
+                    )
+                    input_outputs.extend(output)
+
+                    for processor in self._logits_processor:  # type: ignore
+                        if hasattr(processor, "reset"):
+                            processor.reset()
+
+                outputs.append(input_outputs)
+        else:
+            outputs: List[List[Dict[str, str]]] = self._pipeline(  # type: ignore
+                prepared_inputs,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                repetition_penalty=repetition_penalty,
+                top_p=top_p,
+                top_k=top_k,
+                do_sample=do_sample,
+                num_return_sequences=num_generations,
+                prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
+                pad_token_id=self._pipeline.tokenizer.eos_token_id,
+                logits_processor=self._logits_processor,
+            )
         llm_output = [
             [generation["generated_text"] for generation in output]
             for output in outputs
