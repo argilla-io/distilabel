@@ -132,6 +132,7 @@ def prepare_guided_output(
     outlines_model = _create_outlines_model(llm, framework)
     if format == "json":
         from outlines.backends import get_json_schema_logits_processor
+
         if inspect.isclass(schema):
             schema_str = model_to_schema(schema)
         elif isinstance(schema, dict):
@@ -139,12 +140,15 @@ def prepare_guided_output(
         else:
             schema_str = schema
         return {
-            "processor": get_json_schema_logits_processor(None, outlines_model, schema_str),
+            "processor": get_json_schema_logits_processor(
+                None, outlines_model, schema_str
+            ),
             "schema": schema_as_dict(schema),
         }
 
     if format == "regex":
         from outlines.backends import get_regex_logits_processor
+
         return {"processor": get_regex_logits_processor(None, outlines_model, schema)}
 
     raise DistilabelUserError(
