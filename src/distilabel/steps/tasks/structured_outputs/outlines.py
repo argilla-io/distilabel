@@ -87,9 +87,10 @@ def _create_outlines_model(
 
         return from_llamacpp(llm)
     elif framework == "vllm":
-        from outlines import from_vllm
+        from outlines import from_vllm_offline
 
-        return from_vllm(llm)
+        # distilabel uses vLLM in offline mode, so we use from_vllm_offline
+        return from_vllm_offline(llm)
 
 
 def prepare_guided_output(
