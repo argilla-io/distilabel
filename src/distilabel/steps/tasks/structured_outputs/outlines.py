@@ -38,7 +38,7 @@ if TYPE_CHECKING:  # noqa
 
     from distilabel.typing import OutlinesStructuredOutputType  # noqa
 
-Frameworks = Literal["transformers", "llamacpp", "vllm"]
+Frameworks = Literal["transformers", "llamacpp"]
 
 
 def _check_outlines_available() -> None:
@@ -59,7 +59,7 @@ def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
 
 
 def _create_outlines_model(
-    llm: Union["_vLLM", "Pipeline", "Llama"],
+    llm: Union["Pipeline", "Llama"],
     framework: Frameworks,
 ) -> Any:
     """Create an outlines model wrapper for the given framework.
@@ -86,11 +86,6 @@ def _create_outlines_model(
         from outlines import from_llamacpp
 
         return from_llamacpp(llm)
-    elif framework == "vllm":
-        from outlines import from_vllm_offline
-
-        # distilabel uses vLLM in offline mode, so we use from_vllm_offline
-        return from_vllm_offline(llm)
 
 
 def prepare_guided_output(
@@ -98,7 +93,7 @@ def prepare_guided_output(
     framework: Frameworks,
     llm: Union["_vLLM", "Pipeline", "Llama"],
 ) -> Dict[str, Any]:
-    """Prepares the `LLM` to generate guided output using `outlines` >= 1.0.0.
+    """Prepares the `LLM` to generate guided output using `outlines` >= 1.2.6.
 
     It allows to generate JSON or Regex structured outputs for the integrated
     frameworks using the outlines model API.

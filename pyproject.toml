@@ -90,7 +90,7 @@ outlines = ["outlines >= 1.2.6", "numba >= 0.54.0"]
 ray = ["ray[default] >= 2.31.0"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 vllm = [
-    "vllm >= 0.5.3",
+    "vllm >= 0.11.0",
     "filelock >= 3.13.4"
 ]
 sentence-transformers = ["sentence-transformers >= 3.0.0"]

@@ -171,14 +171,25 @@ class TestvLLM:
             "distilabel-internal-testing/tiny-random-mistral"
         )
         llm._tokenizer = tokenizer
-        vllm_mock = mock.MagicMock()
-        vllm_mock.get_tokenizer = mock.MagicMock(return_value=tokenizer)
+
         # mock the import by hacking sys.modules
         # https://stackoverflow.com/questions/60919705/how-to-mock-in-a-python-unittest-a-library-not-installed-locally
         import sys
 
+        vllm_mock = mock.MagicMock()
+        vllm_mock.get_tokenizer = mock.MagicMock(return_value=tokenizer)
+
+        sampling_params_mock = mock.MagicMock()
+        sampling_params_mock.StructuredOutputsParams = mock.MagicMock()
+
+        sampling_params_class_mock = mock.MagicMock()
+        vllm_mock.SamplingParams = sampling_params_class_mock
+
         if "vllm" not in sys.modules:
             sys.modules["vllm"] = vllm_mock
+        if "vllm.sampling_params" not in sys.modules:
+            sys.modules["vllm.sampling_params"] = sampling_params_mock
+
         llm._model = vllm_mock
 
         mocked_requests_output = [
