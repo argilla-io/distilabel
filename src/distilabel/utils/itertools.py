@@ -13,19 +13,21 @@
 # limitations under the License.
 
 import sys
-from itertools import zip_longest
-from typing import Any, Iterable, Literal, Tuple, TypeVar
+from itertools import islice, zip_longest
+from typing import Any, Iterable, Iterator, Literal, Tuple, TypeVar
 
 T = TypeVar("T")
 
 # https://docs.python.org/3/library/itertools.html#itertools.batched
 if sys.version_info >= (3, 12):
-    from itertools import batched
-else:
-    from itertools import islice
+    from itertools import batched as _batched_impl
 
-    def batched(iterable: Iterable[T], n: int) -> Iterable[T]:
-        # batched('ABCDEFG', 3) → ABC DEF G
+    def batched(iterable: Iterable[T], n: int) -> Iterator[Tuple[T, ...]]:
+        yield from _batched_impl(iterable, n)
+
+else:
+
+    def batched(iterable: Iterable[T], n: int) -> Iterator[Tuple[T, ...]]:
         if n < 1:
             raise ValueError("n must be at least one")
         iterator = iter(iterable)

@@ -116,7 +116,7 @@ class DummyAsyncImageGenerationModel(AsyncImageGenerationModel):
         from PIL import Image
 
         np.random.seed(42)
-        arr = np.random.randint(0, 255, (100, 100, 3))
+        arr = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
         random_image = Image.fromarray(arr, "RGB")
         from distilabel.models.image_generation.utils import image_to_str
 

@@ -241,7 +241,7 @@ class TestDistiset:
         import numpy as np
         from PIL import Image
 
-        arr = np.random.randint(0, 255, (100, 100, 3))
+        arr = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
         image = Image.fromarray(arr, "RGB")
         from distilabel.models.image_generation.utils import image_to_str
 

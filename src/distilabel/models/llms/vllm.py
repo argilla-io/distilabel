@@ -14,6 +14,7 @@
 
 import contextlib
 import gc
+import inspect
 import json
 from functools import cached_property
 from typing import (
@@ -28,7 +29,14 @@ from typing import (
     Union,
 )
 
-from pydantic import Field, PositiveInt, PrivateAttr, SecretStr, validate_call
+from pydantic import (
+    BaseModel,
+    Field,
+    PositiveInt,
+    PrivateAttr,
+    SecretStr,
+    validate_call,
+)
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
@@ -48,6 +56,7 @@ if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
     from vllm.outputs import RequestOutput
+    from vllm.sampling_params import StructuredOutputsParams
     from vllm.sequence import SampleLogprobs, PromptLogprobs
 
     from distilabel.typing import (
@@ -181,7 +190,9 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
     _model: "_vLLM" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
-    _structured_output_logits_processor: Optional[Callable] = PrivateAttr(default=None)
+    _structured_output_params: Optional["StructuredOutputsParams"] = PrivateAttr(
+        default=None
+    )
 
     def load(self) -> None:
         """Loads the `vLLM` model using either the path or the Hugging Face Hub repository id.
@@ -219,7 +230,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             self._tokenizer.chat_template = self.chat_template  # type: ignore
 
         if self.structured_output:
-            self._structured_output_logits_processor = self._prepare_structured_output(
+            self._structured_output_params = self._prepare_structured_output_params(
                 self.structured_output
             )
 
@@ -408,8 +419,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             sorted_indices = None
 
         # Case in which we have a single structured output for the dataset
-        if self._structured_output_logits_processor:
-            logits_processors.append(self._structured_output_logits_processor)
+        structured_output_params = self._structured_output_params
 
         batched_outputs: List["LLMOutput"] = []
         generations = []
@@ -423,9 +433,9 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 )
 
             if structured_output is not None:
-                logits_processors.append(
-                    self._prepare_structured_output(structured_output)  # type: ignore
-                )
+                structured_output_params = self._prepare_structured_output_params(
+                    structured_output
+                )  # type: ignore
 
             sampling_params = SamplingParams(  # type: ignore
                 n=num_generations,
@@ -444,6 +454,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 include_stop_str_in_output=include_stop_str_in_output,
                 skip_special_tokens=skip_special_tokens,
                 logits_processors=logits_processors,
+                structured_outputs=structured_output_params,
                 **extra_sampling_params,
             )
 
@@ -453,10 +464,9 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 use_tqdm=False,
             )
 
-            # Remove structured output logit processor to avoid stacking structured output
-            # logits processors that leads to non-sense generations
+            # Reset structured output params for next batch
             if structured_output is not None:
-                logits_processors.pop(-1)
+                structured_output_params = self._structured_output_params
 
             for input, outputs in zip(prepared_inputs, batch_outputs):
                 processed_prompt_logprobs = []
@@ -512,27 +522,53 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 outputs_logprobs.append(prompt_logprobs + processed_output_logprobs)
         return texts, statistics, outputs_logprobs
 
-    def _prepare_structured_output(  # type: ignore
+    def _prepare_structured_output_params(  # type: ignore
         self, structured_output: "OutlinesStructuredOutputType"
-    ) -> Union[Callable, None]:
-        """Creates the appropriate function to filter tokens to generate structured outputs.
+    ) -> "StructuredOutputsParams":
+        """Creates the appropriate StructuredOutputsParams for native vLLM structured outputs.
 
         Args:
             structured_output: the configuration dict to prepare the structured output.
 
         Returns:
-            The callable that will be used to guide the generation of the model.
+            StructuredOutputsParams instance to be used with vLLM's native structured outputs.
         """
-        from distilabel.steps.tasks.structured_outputs.outlines import (
-            prepare_guided_output,
-        )
+        from vllm.sampling_params import StructuredOutputsParams
 
         assert structured_output is not None, "`structured_output` cannot be `None`"
 
-        result = prepare_guided_output(structured_output, "vllm", self._model)
-        if (schema := result.get("schema")) and self.structured_output:
-            self.structured_output["schema"] = schema
-        return result["processor"]
+        format_type = structured_output.get("format")
+        schema = structured_output.get("schema")
+
+        assert schema is not None, "schema cannot be `None`"
+
+        # Infer format if not provided
+        if not format_type:
+            if isinstance(schema, dict) or inspect.isclass(schema):
+                format_type = "json"
+            elif isinstance(schema, str):
+                format_type = "regex"
+
+        if format_type == "json":
+            if inspect.isclass(schema) and issubclass(schema, BaseModel):
+                json_schema = schema.model_json_schema()
+                # Update the original structured_output schema for serialization
+                if self.structured_output:
+                    self.structured_output["schema"] = json_schema
+                return StructuredOutputsParams(json=json_schema)
+            elif isinstance(schema, dict):
+                return StructuredOutputsParams(json=schema)
+            else:
+                # Assume it's a JSON string
+                return StructuredOutputsParams(json=json.loads(schema))
+
+        elif format_type == "regex":
+            return StructuredOutputsParams(regex=schema)
+
+        else:
+            raise ValueError(
+                f"Invalid format '{format_type}'. Must be either 'json' or 'regex'."
+            )
 
     def _get_llm_logprobs(
         self, logprobs: Union["PromptLogprobs", "SampleLogprobs"]
@@ -566,6 +602,8 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             to apply the chat template and tokenize the inputs before sending it to the
             server. Defaults to `None`.
         tokenizer_revision: the revision of the tokenizer to load. Defaults to `None`.
+        structured_output: a dictionary containing the structured output configuration for
+            vLLM's native structured outputs. Defaults to `None`.
         _aclient: the `httpx.AsyncClient` used to comunicate with the `vLLM` server. Defaults
             to `None`.
 
@@ -577,6 +615,8 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             to `120`.
         - `httpx_client_kwargs`: extra kwargs that will be passed to the `httpx.AsyncClient`
             created to comunicate with the `vLLM` server. Defaults to `None`.
+        - `structured_output`: a dictionary containing the structured output configuration for
+            vLLM's native structured outputs. Defaults to `None`.
 
     Examples:
         Generate text:
@@ -611,6 +651,12 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
     tokenizer: Optional[str] = None
     tokenizer_revision: Optional[str] = None
 
+    # Override structured_output from OpenAILLM to use vLLM's native format
+    structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
+        default=None,
+        description="The structured output format to use for vLLM's native structured outputs.",
+    )
+
     # We need the sync client to get the list of models
     _client: "OpenAI" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
@@ -638,7 +684,14 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             timeout=self.timeout,
         )
 
+        # Temporarily store structured_output and set to None to prevent Instructor wrapping
+        temp_structured_output = self.structured_output
+        self.structured_output = None
+
         super().load()
+
+        # Restore structured_output after parent load
+        self.structured_output = temp_structured_output
 
         try:
             from transformers import AutoTokenizer
@@ -713,6 +766,13 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             A list of lists of strings containing the generated responses for each input.
         """
 
+        # Prepare extra_body for vLLM structured outputs
+        extra_body = {}
+        if self.structured_output is not None:
+            extra_body["structured_outputs"] = (
+                self._prepare_extra_body_structured_output(self.structured_output)
+            )
+
         completion = await self._aclient.completions.create(
             model=self.model_name,
             prompt=self._prepare_input(input),  # type: ignore
@@ -723,6 +783,7 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             presence_penalty=presence_penalty,
             temperature=temperature,
             top_p=top_p,
+            extra_body=extra_body if extra_body else None,
         )
 
         generations = []
@@ -736,3 +797,46 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             generations.append(text)
 
         return prepare_output(generations, **self._get_llm_statistics(completion))
+
+    def _prepare_extra_body_structured_output(
+        self, structured_output: "OutlinesStructuredOutputType"
+    ) -> Dict[str, Any]:
+        """Prepares structured output configuration for vLLM's OpenAI API extra_body parameter.
+
+        Args:
+            structured_output: the configuration dict to prepare the structured output.
+
+        Returns:
+            Dictionary to be used in extra_body for vLLM's structured outputs.
+        """
+        import inspect
+
+        assert structured_output is not None, "`structured_output` cannot be `None`"
+
+        format_type = structured_output.get("format")
+        schema = structured_output.get("schema")
+
+        assert schema is not None, "schema cannot be `None`"
+
+        # Infer format if not provided
+        if not format_type:
+            if isinstance(schema, dict) or inspect.isclass(schema):
+                format_type = "json"
+            elif isinstance(schema, str):
+                format_type = "regex"
+
+        if format_type == "json":
+            if inspect.isclass(schema) and issubclass(schema, BaseModel):
+                return {"json": schema.model_json_schema()}
+            elif isinstance(schema, dict):
+                return {"json": schema}
+            else:
+                return {"json": json.loads(schema)}
+
+        elif format_type == "regex":
+            return {"regex": schema}
+
+        else:
+            raise ValueError(
+                f"Invalid format '{format_type}'. Must be either 'json' or 'regex'."
+            )
