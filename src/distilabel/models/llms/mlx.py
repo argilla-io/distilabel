@@ -28,10 +28,15 @@ from pydantic import (
     validate_call,
 )
 
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.base import LLM
 from distilabel.models.llms.utils import compute_tokens, prepare_output
 from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.typing import GenerateOutput, StandardInput
+from distilabel.typing import (
+    GenerateOutput,
+    OutlinesStructuredOutputType,
+    StandardInput,
+)
 
 if TYPE_CHECKING:
     import mlx.nn as nn
@@ -46,6 +51,8 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         tokenizer_config: the tokenizer configuration.
         mlx_model_config: the MLX model configuration.
         adapter_path: the path to the adapter.
+        structured_output: a dictionary containing the structured output configuration or if more
+            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
             template. Defaults to `False`.
         magpie_pre_query_template: the pre-query template to be applied to the prompt or
@@ -69,15 +76,42 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
         # Call the model
         output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!"}]])
         ```
+
+        Generate structured data:
+
+        ```python
+        from pathlib import Path
+        from distilabel.models.llms import MlxLLM
+        from pydantic import BaseModel
+
+        class User(BaseModel):
+            first_name: str
+            last_name: str
+
+        llm = MlxLLM(
+            path_or_hf_repo="mlx-community/Meta-Llama-3.1-8B-Instruct-4bit",
+            structured_output={"format": "json", "schema": User},
+        )
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Create a user profile for John Smith"}]])
+        ```
     """
 
     path_or_hf_repo: str
     tokenizer_config: Dict[str, Any] = Field(default_factory=dict)
     mlx_model_config: Dict[str, Any] = Field(default_factory=dict)
     adapter_path: Optional[str] = None
+    structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
+        default=None,
+        description="The structured output format to use across all the generations.",
+    )
 
     _model: Optional["nn.Module"] = PrivateAttr(None)
     _tokenizer: Optional["TokenizerWrapper"] = PrivateAttr(None)
+    _logits_processor: Union[Callable, None] = PrivateAttr(default=None)
     _mlx_generate: Optional[Callable] = PrivateAttr(None)
     _make_sampler: Optional[Callable] = PrivateAttr(None)
 
@@ -193,22 +227,29 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
             min_tokens_to_keep=min_tokens_to_keep,
             top_k=top_k,
         )
-        structured_output = None
         result = []
         for input in inputs:
+            structured_output = None
             if isinstance(input, tuple):
                 input, structured_output = input
+            elif self.structured_output:
+                structured_output = self.structured_output
 
             output: List[str] = []
             for _ in range(num_generations):
-                if structured_output:  # will raise a NotImplementedError
-                    self._prepare_structured_output(structured_output)
+                configured_processors = list(logits_processors or [])
+                if structured_output:
+                    structured_processors = self._prepare_structured_output(
+                        structured_output
+                    )
+                    configured_processors.append(structured_processors)
+
                 prompt = self.prepare_input(input)
                 generation = self._mlx_generate(  # type: ignore
                     prompt=prompt,
                     model=self._model,
                     tokenizer=self._tokenizer,
-                    logits_processors=logits_processors,
+                    logits_processors=configured_processors,
                     max_tokens=max_tokens,
                     sampler=sampler,
                     max_kv_size=max_kv_size,
@@ -236,3 +277,23 @@ class MlxLLM(LLM, MagpieChatTemplateMixin):
                 )
             )
         return result
+
+    def _prepare_structured_output(
+        self, structured_output: Optional[OutlinesStructuredOutputType] = None
+    ) -> Union[Callable, List[Callable]]:
+        """Creates the appropriate function to filter tokens to generate structured outputs.
+
+        Args:
+            structured_output: the configuration dict to prepare the structured output.
+
+        Returns:
+            The callable that will be used to guide the generation of the model.
+        """
+        from distilabel.steps.tasks.structured_outputs.outlines import (
+            prepare_guided_output,
+        )
+
+        result = prepare_guided_output(structured_output, "mlx", self)
+        if schema := result.get("schema"):
+            self.structured_output["schema"] = schema
+        return result["processor"]
