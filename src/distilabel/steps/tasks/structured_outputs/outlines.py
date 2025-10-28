@@ -35,10 +35,11 @@ if TYPE_CHECKING:  # noqa
     from llama_cpp import Llama  # noqa
     from transformers import Pipeline  # noqa
     from vllm import LLM as _vLLM  # noqa
+    import mlx.nn as nn  # noqa
 
     from distilabel.typing import OutlinesStructuredOutputType  # noqa
 
-Frameworks = Literal["transformers", "llamacpp"]
+Frameworks = Literal["transformers", "llamacpp", "mlx"]
 
 
 def _check_outlines_available() -> None:
@@ -59,7 +60,7 @@ def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
 
 
 def _create_outlines_model(
-    llm: Union["Pipeline", "Llama"],
+    llm: Union["Pipeline", "Llama", "nn.Module"],
     framework: Frameworks,
 ) -> Any:
     """Create an outlines model wrapper for the given framework.
@@ -86,6 +87,10 @@ def _create_outlines_model(
         from outlines import from_llamacpp
 
         return from_llamacpp(llm)
+    elif framework == "mlx":
+        from outlines import from_mlxlm
+
+        return from_mlxlm(llm._model, llm._tokenizer)
 
 
 def prepare_guided_output(
