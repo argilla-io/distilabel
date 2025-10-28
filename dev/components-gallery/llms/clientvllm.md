@@ -27,6 +27,8 @@ A client for the `vLLM` server implementing the OpenAI API specification.
 
 - **tokenizer_revision**: the revision of the tokenizer to load. Defaults to `None`.
 
+- **structured_output**: a dictionary containing the structured output configuration for  vLLM's native structured outputs. Defaults to `None`.
+
 - **_aclient**: the `httpx.AsyncClient` used to comunicate with the `vLLM` server. Defaults  to `None`.
 
 
@@ -42,6 +44,8 @@ A client for the `vLLM` server implementing the OpenAI API specification.
 - **timeout**: the maximum time in seconds to wait for a response from the API. Defaults  to `120`.
 
 - **httpx_client_kwargs**: extra kwargs that will be passed to the `httpx.AsyncClient`  created to comunicate with the `vLLM` server. Defaults to `None`.
+
+- **structured_output**: a dictionary containing the structured output configuration for  vLLM's native structured outputs. Defaults to `None`.
 
 
 

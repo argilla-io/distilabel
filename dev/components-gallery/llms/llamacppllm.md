@@ -90,6 +90,7 @@ output = llm.generate_outputs(inputs=[[{"role": "user", "content": "Hello world!
 ```python
 from pathlib import Path
 from distilabel.models.llms import LlamaCppLLM
+from pydantic import BaseModel
 
 model_path = "Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf"
 
@@ -102,7 +103,7 @@ llm = LlamaCppLLM(
     model_path=str(Path.home() / model_path),  # type: ignore
     n_gpu_layers=-1,
     n_ctx=1024,
-    structured_output={"format": "json", "schema": Character},
+    structured_output={"format": "json", "schema": User},
 )
 
 llm.load()
