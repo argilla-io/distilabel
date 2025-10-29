@@ -26,6 +26,7 @@ from distilabel.models.llms.mlx import MlxLLM
 from distilabel.models.llms.moa import MixtureOfAgentsLLM
 from distilabel.models.llms.ollama import OllamaLLM
 from distilabel.models.llms.openai import OpenAILLM
+from distilabel.models.llms.openrouter import OpenRouterLLM
 from distilabel.models.llms.sglang import ClientSGLang, SGLang
 from distilabel.models.llms.together import TogetherLLM
 from distilabel.models.llms.vertexai import VertexAILLM
@@ -54,6 +55,7 @@ __all__ = [
     "MlxLLM",
     "OllamaLLM",
     "OpenAILLM",
+    "OpenRouterLLM",
     "SGLang",
     "TogetherLLM",
     "TransformersLLM",
