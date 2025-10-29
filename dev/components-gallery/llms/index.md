@@ -42,6 +42,14 @@ hide:
 
     [:octicons-arrow-right-24: AzureOpenAILLM](azureopenaillm.md){ .bottom }
 
+-   :material-brain:{ .lg .middle } __OpenRouterLLM__
+
+    ---
+
+    OpenRouter LLM implementation running the async API client of OpenAI.
+
+    [:octicons-arrow-right-24: OpenRouterLLM](openrouterllm.md){ .bottom }
+
 -   :material-brain:{ .lg .middle } __ClientSGLang__
 
     ---
