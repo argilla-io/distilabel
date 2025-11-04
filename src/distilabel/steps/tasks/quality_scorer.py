@@ -20,7 +20,7 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import orjson
 from jinja2 import Template
@@ -51,7 +51,7 @@ class QualityScorer(Task):
         - responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
 
     Output columns:
-        - scores (`List[float]`): The score for each instruction.
+        - scores (`List[int]`): The score for each instruction.
         - model_name (`str`): The model name used to generate the scores.
 
     Categories:
@@ -204,15 +204,20 @@ class QualityScorer(Task):
         if self.use_default_structured_output:
             return self._format_structured_output(output, input)
 
-        scores = []
-        score_lines = output.split("\n")
+        num_responses = len(input["responses"])
+        # Find all occurrences of the score pattern in the entire output.
+        # This is more robust to extra text or reasoning from the LLM.
+        matches = _PARSE_SCORE_LINE_REGEX.findall(output)
 
-        for i, line in enumerate(score_lines):
-            match = _PARSE_SCORE_LINE_REGEX.match(line)
-            score = float(match.group(1)) if match else None
-            scores.append(score)
-            if i == len(input["responses"]) - 1:
-                break
+        # Convert found scores (strings) to integers.
+        scores: List[Optional[int]] = [int(score) for score in matches]
+
+        # Pad with None if the number of scores is less than expected.
+        if len(scores) < num_responses:
+            scores.extend([None] * (num_responses - len(scores)))
+        elif len(scores) > num_responses:
+            scores = scores[:num_responses]
+
         return {"scores": scores}
 
     @override
