@@ -69,7 +69,7 @@ graph TD
 #### Outputs
 
 
-- **scores** (`List[float]`): The score for each instruction.
+- **scores** (`List[int]`): The score for each instruction.
 
 - **model_name** (`str`): The model name used to generate the scores.
 

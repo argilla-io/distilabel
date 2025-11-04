@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.23">
     
     
       
@@ -6059,7 +6059,7 @@ of the <code>structured_output</code> dict variable.</p>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 </span></code></pre></div>
 <ol>
-<li>We have previously downloaded a GGUF model i.e. <code>llama.cpp</code> compatible, from the Hugging Face Hub using curl<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">3</a></sup>, but any model can be used as replacement, as long as the <code>model_path</code> argument is updated.</li>
+<li>We have previously downloaded a GGUF model i.e. <code>llama.cpp</code> compatible, from the Hugging Face Hub using curl<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>, but any model can be used as replacement, as long as the <code>model_path</code> argument is updated.</li>
 </ol>
 <p>And we are ready to pass our instruction as usual:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -6176,7 +6176,7 @@ of the <code>structured_output</code> dict variable.</p>
 <p>Bear in mind, for this to work, you must instruct the model in some way to generate JSON, either in the <code>system message</code> or in the instruction, as can be seen in the <a href="https://platform.openai.com/docs/guides/text-generation/json-mode">API reference</a>.</p>
 </div>
 <p>Contrary to what we have via <code>outlines</code>, JSON mode will not guarantee the output matches any specific schema, only that it is valid and parses without errors. More information can be found in the OpenAI documentation.</p>
-<p>Other than the reference to generating JSON, to ensure the model generates parseable JSON we can pass the argument <code>response_format="json"</code><sup id="fnref:3"><a class="footnote-ref" href="#fn:3">2</a></sup>:</p>
+<p>Other than the reference to generating JSON, to ensure the model generates parseable JSON we can pass the argument <code>response_format="json"</code><sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup>:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"gpt4-turbo"</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">"api.key"</span><span class="p">)</span>
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">response_format</span><span class="o">=</span><span class="s2">"json"</span><span class="p">)</span>
@@ -6188,6 +6188,11 @@ of the <code>structured_output</code> dict variable.</p>
 <p>You can check the variable type by importing it from:</p>
 <p></p><div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">distilabel.steps.tasks.structured_outputs.outlines</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructuredOutputType</span>
 </span></code></pre></div>&nbsp;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">↩</a><p></p>
+</li>
+<li id="fn:2">
+<p>Download the model with curl:</p>
+<p></p><div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>curl<span class="w"> </span>-L<span class="w"> </span>-o<span class="w"> </span>~/Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf<span class="w"> </span>https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/resolve/main/openhermes-2.5-mistral-7b.Q4_K_M.gguf
+</span></code></pre></div>&nbsp;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">↩</a><p></p>
 </li>
 <li id="fn:3">
 <p>Keep in mind that to interact with this <code>response_format</code> argument in a pipeline, you will have to pass it via the <code>generation_kwargs</code>:</p>
@@ -6203,12 +6208,7 @@ of the <code>structured_output</code> dict variable.</p>
 </span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>        <span class="p">}</span>
 </span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>    <span class="p">}</span>
 </span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="p">)</span>
-</span></code></pre></div>&nbsp;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 2 in the text">↩</a><p></p>
-</li>
-<li id="fn:2">
-<p>Download the model with curl:</p>
-<p></p><div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>curl<span class="w"> </span>-L<span class="w"> </span>-o<span class="w"> </span>~/Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf<span class="w"> </span>https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/resolve/main/openhermes-2.5-mistral-7b.Q4_K_M.gguf
-</span></code></pre></div>&nbsp;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 3 in the text">↩</a><p></p>
+</span></code></pre></div>&nbsp;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">↩</a><p></p>
 </li>
 </ol>
 </div>
