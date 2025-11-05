@@ -24,8 +24,15 @@ from distilabel.models.image_generation.huggingface.inference_endpoints import (
     InferenceEndpointsImageGeneration,
 )
 
+return_value = MagicMock()
+return_value.get_model_status.return_value = MagicMock(
+    state="Loaded", framework="text-generation-inference"
+)
+return_value._resolve_url.return_value = "http://localhost:8000"
 
-@patch("huggingface_hub.AsyncInferenceClient")
+
+@patch("huggingface_hub.AsyncInferenceClient", return_value=return_value)
+@patch("huggingface_hub.InferenceClient", return_value=return_value)
 @pytest.mark.xfail
 class TestInferenceEndpointsImageGeneration:
     @pytest.mark.asyncio

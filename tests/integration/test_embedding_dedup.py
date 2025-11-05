@@ -103,7 +103,7 @@ def test_embedding_deduplication() -> None:
 
         # NOTE: Guide to choose an index: https://github.com/facebookresearch/faiss/wiki/Guidelines-to-choose-an-index
         nn = FaissNearestNeighbour(
-            k=3,
+            k=5,
             metric_type=faiss.METRIC_INNER_PRODUCT,
             search_batch_size=50,
             # string_factory="IVF300_HNSW32,Flat",
@@ -122,8 +122,8 @@ def test_embedding_deduplication() -> None:
 
     ds = distiset["default"]["train"]
     ds_dedup = ds.filter(lambda x: x["keep_row_after_embedding_filtering"])
-    print(len(ds_dedup))
-    assert len(ds_dedup) == 71
+
+    assert len(ds_dedup) == 63
 
 
 if __name__ == "__main__":

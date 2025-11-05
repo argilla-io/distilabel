@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from rich import traceback as rich_traceback
 
-__version__ = "1.6.0"
-
-rich_traceback.install(show_locals=True)
+class BasePipelineTemplate:  # defined for recursive subclass finder mkdocs
+    pass

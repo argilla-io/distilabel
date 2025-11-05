@@ -1,5 +1,5 @@
 > [!IMPORTANT]  
-The original authors have moved on to other projects. A group of community members have recently joined the GitHub project as collaborators to maintain the project and are actively working towards the next release. Check out the `develop` branch for access to the latest fixes and improvements in the meantime. 
+The original authors have moved on to other projects. A group of community members have recently joined the GitHub project as collaborators to maintain the project and are actively working towards the next release. Check out the `develop` branch for access to the latest fixes and improvements in the meantime.
 > 
 <div align="center">
   <picture>
@@ -76,7 +76,7 @@ The Argilla community uses distilabel to create amazing [datasets](https://huggi
 pip install distilabel --upgrade
 ```
 
-Requires Python 3.9+
+Requires Python 3.10+
 
 In addition, the following extras are available:
 

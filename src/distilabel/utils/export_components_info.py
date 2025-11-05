@@ -18,6 +18,7 @@ from typing import Generator, List, Type, TypedDict, TypeVar
 from distilabel.models.embeddings.base import Embeddings
 from distilabel.models.image_generation.base import ImageGenerationModel
 from distilabel.models.llms.base import LLM
+from distilabel.pipeline.templates.base import BasePipelineTemplate
 from distilabel.steps.base import _Step
 from distilabel.steps.tasks.base import _Task
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
@@ -67,6 +68,13 @@ def export_components_info() -> ComponentsInfo:
                 "docstring": parse_google_docstring(embeddings_type),
             }
             for embeddings_type in _get_embeddings()
+        ],
+        "pipelines": [
+            {
+                "name": pipeline_type.__name__,
+                "docstring": parse_google_docstring(pipeline_type),
+            }
+            for pipeline_type in _get_pipelines()
         ],
     }
 
@@ -145,6 +153,19 @@ def _get_embeddings() -> List[Type["Embeddings"]]:
         embeddings_type
         for embeddings_type in _recursive_subclasses(Embeddings)
         if not inspect.isabstract(embeddings_type)
+    ]
+
+
+def _get_pipelines() -> List[Type["BasePipelineTemplate"]]:
+    """Get all `Pipeline` subclasses, that are not abstract classes.
+
+    Returns:
+        A list of `Pipeline` subclasses
+    """
+    return [
+        pipeline_type
+        for pipeline_type in _recursive_subclasses(BasePipelineTemplate)
+        if not inspect.isabstract(pipeline_type)
     ]
 
 

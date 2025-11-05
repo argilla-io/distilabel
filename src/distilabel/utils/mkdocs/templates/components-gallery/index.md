@@ -5,14 +5,6 @@ hide:
 ---
 # Components Gallery
 
-??? info "Category Overview" 
-    | Icon                       | Category   | Description                                                       |
-    |----------------------------|------------|-------------------------------------------------------------------|
-    | :material-step-forward:    | Steps      | Steps are used for data manipulation.                            |
-    | :material-check-outline:   | Tasks      | Tasks allow performing data generation, annotation, and more.    |
-    | :material-brain:           | LLMs       | Explore all available Large Language Models integrated with distilabel. |
-    | :material-vector-line:     | Embeddings | Explore all available Embeddings Models integrated with distilabel.    |
-
 <div class="grid cards" markdown>
 
 -   :material-step-forward:{ .lg .middle } __Steps__
@@ -54,5 +46,13 @@ hide:
     Explore all the available `Embeddings` models integrated with `distilabel`.
 
     [:octicons-arrow-right-24: Embeddings](embeddings/index.md){ .bottom }
+
+-   :material-rocket-launch:{ .lg .middle } __Pipelines__
+
+    ---
+
+    Explore all the available ready-to-use `Pipelines` integrated with `distilabel`.
+
+    [:octicons-arrow-right-24: Pipelines](pipelines/index.md){ .bottom }
 
 </div>
