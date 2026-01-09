@@ -48,11 +48,13 @@ class Genstruct(Task):
         for this specific task.
 
     Attributes:
+        system_prompt: The system prompt for the instruction generation task.
         _template: a Jinja2 template used to format the input for the LLM.
 
     Input columns:
         - title (`str`): The title of the document.
         - content (`str`): The content of the document.
+        - system_prompt (`Optional[str]`): The system prompt for the instruction generation task.
 
     Output columns:
         - user (`str`): The user's instruction based on the document.
@@ -136,19 +138,25 @@ class Genstruct(Task):
     @property
     def inputs(self) -> List[str]:
         """The inputs for the task are the `title` and the `content`."""
-        return ["title", "content"]
+        return {"title": True, "content": True, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        return [
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.append({"role": "system", "content": self.system_prompt})
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
                     title=input["title"], content=input["content"]
                 ),
             }
-        ]
+        )
+        return messages
 
     @property
     def outputs(self) -> List[str]:

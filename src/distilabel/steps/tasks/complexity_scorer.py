@@ -45,10 +45,12 @@ class ComplexityScorer(Task):
     in Instruction Tuning'.
 
     Attributes:
+        system_prompt: The system prompt for the complexity scorer task.
         _template: a Jinja2 template used to format the input for the LLM.
 
     Input columns:
         - instructions (`List[str]`): The list of instructions to be scored.
+        - system_prompt (`Optional[str]`): The system prompt for the complexity scorer task.
 
     Output columns:
         - scores (`List[float]`): The score for each instruction.
@@ -151,12 +153,18 @@ class ComplexityScorer(Task):
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        return [
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.append({"role": "system", "content": self.system_prompt})
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(instructions=input["instructions"]),  # type: ignore
             }
-        ]
+        )
+        return messages
 
     @property
     def outputs(self) -> List[str]:

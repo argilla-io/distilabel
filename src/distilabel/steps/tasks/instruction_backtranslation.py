@@ -33,11 +33,13 @@ class InstructionBacktranslation(Task):
     """Self-Alignment with Instruction Backtranslation.
 
     Attributes:
+        system_prompt: The system prompt for the instruction backtranslation task.
         _template: the Jinja2 template to use for the Instruction Backtranslation task.
 
     Input columns:
         - instruction (`str`): The reference instruction to evaluate the text output.
         - generation (`str`): The text output to evaluate for the given instruction.
+        - system_prompt (`Optional[str]`): The system prompt for the instruction backtranslation task.
 
     Output columns:
         - score (`str`): The score for the generation based on the given instruction.
@@ -120,19 +122,25 @@ class InstructionBacktranslation(Task):
     @property
     def inputs(self) -> List[str]:
         """The input for the task is the `instruction`, and the `generation` for it."""
-        return ["instruction", "generation"]
+        return {"instruction": True, "generation": True, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        return [
+        messages = []
+        if "system_prompt" in input:
+            messages.append({"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.append({"role": "system", "content": self.system_prompt})
+        messages.append(
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
                     instruction=input["instruction"], generation=input["generation"]
                 ),
             },
-        ]
+        )
+        return messages
 
     @property
     def outputs(self) -> List[str]:
