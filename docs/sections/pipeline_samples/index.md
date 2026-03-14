@@ -169,6 +169,14 @@ hide: toc
 
     [:octicons-arrow-right-24: Example](examples/image_generation.md)
 
+-   __Text clustering pipeline__
+
+    ---
+
+    Learn how to combine embeddings, UMAP, DBSCAN, and TextClustering in one pipeline.
+
+    [:octicons-arrow-right-24: Example](examples/text_clustering.md)
+
 -   __Text generation with images in distilabel__
 
     ---
@@ -178,7 +186,6 @@ hide: toc
     [:octicons-arrow-right-24: Example](examples/text_generation_with_image.md)
 
 </div>
-
 
 
 
