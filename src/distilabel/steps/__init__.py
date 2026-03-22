@@ -45,6 +45,7 @@ from distilabel.steps.formatting.sft import (
     FormatChatGenerationSFT,
     FormatTextGenerationSFT,
 )
+from distilabel.steps.generators.cached_output import LoadFromCachedOutput
 from distilabel.steps.generators.data import LoadDataFromDicts
 from distilabel.steps.generators.data_sampler import DataSampler
 from distilabel.steps.generators.huggingface import (
@@ -83,6 +84,7 @@ __all__ = [
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
+    "LoadFromCachedOutput",
     "MergeColumns",
     "MinHashDedup",
     "PreferenceToArgilla",
