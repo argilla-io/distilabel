@@ -206,9 +206,7 @@ def restore_cache_from_input(
     target_steps_data = target_cache_dir / pipeline_name / "steps_data"
     target_steps_data.mkdir(parents=True, exist_ok=True)
 
-    logger.info(
-        f"Restoring cache from '{source_steps_data}' to '{target_steps_data}'"
-    )
+    logger.info(f"Restoring cache from '{source_steps_data}' to '{target_steps_data}'")
 
     return _restore_cache_sequential(
         source_steps_data=source_steps_data,

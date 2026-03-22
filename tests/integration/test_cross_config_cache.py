@@ -89,9 +89,7 @@ class TestCrossConfigFullMatch:
                 upper = UpperCase()
                 suffix = AddSuffix(suffix="_v1")
                 loader >> upper >> suffix
-            distiset_b = pipe_b.run(
-                restore_cache_from=str(cache_a / "pipe_a")
-            )
+            distiset_b = pipe_b.run(restore_cache_from=str(cache_a / "pipe_a"))
 
             assert (
                 distiset_a["default"]["train"].to_list()
@@ -124,9 +122,7 @@ class TestCrossConfigPartialMatch:
                 upper = UpperCase()
                 suffix = AddSuffix(name="add_suffix", suffix="_casual")
                 loader >> upper >> suffix
-            distiset_b = pipe_b.run(
-                restore_cache_from=str(cache_a / "pipe_a")
-            )
+            distiset_b = pipe_b.run(restore_cache_from=str(cache_a / "pipe_a"))
 
             results_a = distiset_a["default"]["train"].to_list()
             results_b = distiset_b["default"]["train"].to_list()
@@ -163,9 +159,7 @@ class TestCrossConfigNoMatch:
                 )
                 upper = UpperCase()
                 loader >> upper
-            distiset_b = pipe_b.run(
-                restore_cache_from=str(cache_a / "pipe_a")
-            )
+            distiset_b = pipe_b.run(restore_cache_from=str(cache_a / "pipe_a"))
 
             # Should still produce correct results (full fresh execution)
             assert all(

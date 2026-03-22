@@ -14,9 +14,6 @@
 
 import os
 import time
-from pathlib import Path
-
-import pytest
 
 from distilabel.pipeline.snapshot_manager import CacheSnapshotManager
 

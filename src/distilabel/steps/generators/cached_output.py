@@ -56,9 +56,7 @@ class LoadFromCachedOutput(GeneratorStep):
 
         cache_path = Path(self.cache_dir)
         if not cache_path.exists():
-            raise ValueError(
-                f"Cache directory does not exist: {self.cache_dir}"
-            )
+            raise ValueError(f"Cache directory does not exist: {self.cache_dir}")
 
         self._batch_files = sorted(
             cache_path.glob("batch_*.json"),

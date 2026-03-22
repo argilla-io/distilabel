@@ -15,8 +15,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from distilabel.pipeline.cache_restore import (
     CacheRestoreResult,
     _restore_cache_sequential,
@@ -96,9 +94,7 @@ class TestRestoreCacheSequential:
 
         step_sigs = {"step_a": "sig_a", "step_b": "sig_b", "step_c": "sig_c"}
         # Only create step_a in source
-        _write_batch_file(
-            source / "step_a_sig_a", 0, [{"col1": "val1"}]
-        )
+        _write_batch_file(source / "step_a_sig_a", 0, [{"col1": "val1"}])
 
         result = _restore_cache_sequential(source, target, step_sigs)
 
@@ -133,12 +129,8 @@ class TestRestoreCacheSequential:
         target.mkdir(parents=True)
 
         step_sigs = {"step_a": "sig_a", "step_b": "sig_b"}
-        _write_batch_file(
-            source / "step_a_sig_a", 0, [{"x": 1}]
-        )
-        _write_batch_file(
-            source / "step_b_sig_b", 0, [{"y": 2}]
-        )
+        _write_batch_file(source / "step_a_sig_a", 0, [{"x": 1}])
+        _write_batch_file(source / "step_b_sig_b", 0, [{"y": 2}])
 
         result = _restore_cache_sequential(source, target, step_sigs)
 
@@ -156,14 +148,10 @@ class TestRestoreCacheFromInput:
         steps_data = snapshot / "steps_data"
 
         step_sigs = {"step_a": "sig_a"}
-        _write_batch_file(
-            steps_data / "step_a_sig_a", 0, [{"col": "val"}]
-        )
+        _write_batch_file(steps_data / "step_a_sig_a", 0, [{"col": "val"}])
 
         target = tmp_path / "target"
-        result = restore_cache_from_input(
-            source, target, "test_pipe", step_sigs
-        )
+        result = restore_cache_from_input(source, target, "test_pipe", step_sigs)
 
         assert result.success is True
         assert result.steps_restored == 1

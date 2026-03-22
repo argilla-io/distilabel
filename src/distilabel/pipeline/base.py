@@ -1093,7 +1093,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             A CacheRestoreResult or None if restoration was not attempted.
         """
         from distilabel.pipeline.cache_restore import (
-            CacheRestoreResult,
             compute_step_signatures,
             restore_cache_from_input,
         )

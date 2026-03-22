@@ -20,7 +20,9 @@ import pytest
 from distilabel.steps.generators.cached_output import LoadFromCachedOutput
 
 
-def _write_batch_json(dir_path: Path, seq_no: int, data: list, last_batch: bool = False) -> None:
+def _write_batch_json(
+    dir_path: Path, seq_no: int, data: list, last_batch: bool = False
+) -> None:
     """Write a batch JSON file matching the _Batch serialization format.
 
     Includes the type_info field required by _Serializable.from_json().
@@ -58,12 +60,14 @@ class TestLoadFromCachedOutput:
         """Write batch JSON via _Batch dump format, verify yield format."""
         cache_dir = tmp_path / "step_cache"
         _write_batch_json(
-            cache_dir, 0,
+            cache_dir,
+            0,
             [{"instruction": "hello", "result": "HELLO"}],
             last_batch=False,
         )
         _write_batch_json(
-            cache_dir, 1,
+            cache_dir,
+            1,
             [{"instruction": "world", "result": "WORLD"}],
             last_batch=True,
         )
@@ -93,7 +97,8 @@ class TestLoadFromCachedOutput:
         cache_dir = tmp_path / "step_cache"
         for i in range(3):
             _write_batch_json(
-                cache_dir, i,
+                cache_dir,
+                i,
                 [{"val": i}],
                 last_batch=(i == 2),
             )
@@ -137,7 +142,8 @@ class TestLoadFromCachedOutput:
         """When output_columns is empty, auto-detect from first batch."""
         cache_dir = tmp_path / "step_cache"
         _write_batch_json(
-            cache_dir, 0,
+            cache_dir,
+            0,
             [{"auto_col_a": 1, "auto_col_b": 2}],
             last_batch=True,
         )

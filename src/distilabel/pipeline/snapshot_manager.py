@@ -150,9 +150,7 @@ class CacheSnapshotManager:
 
         deleted: List[str] = []
 
-        snapshot_dirs = [
-            d for d in self._snapshots_dir.iterdir() if d.is_dir()
-        ]
+        snapshot_dirs = [d for d in self._snapshots_dir.iterdir() if d.is_dir()]
         if len(snapshot_dirs) <= 1:
             return deleted
 
