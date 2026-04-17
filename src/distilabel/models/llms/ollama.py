@@ -276,10 +276,12 @@ class OllamaLLM(AsyncLLM, MagpieChatTemplateMixin):
                 )
                 text = completion.response
         except Exception as e:
+            # `completion` is unbound here, so we can't build statistics
             self._logger.warning(  # type: ignore
                 f"⚠️ Received no response using Ollama client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
+            return prepare_output([text])
 
         return prepare_output([text], **self._get_llm_statistics(completion))
 
