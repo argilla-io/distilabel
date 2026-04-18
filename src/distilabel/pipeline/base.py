@@ -447,7 +447,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             if step.is_generator:
                 if not parameters:
                     parameters = {}
-                parameters[step_name] = {"batch_size": batch_size}
+                # Merge the dry-run batch_size into the user-supplied
+                # parameters for this step instead of replacing them. The
+                # previous assignment dropped every other runtime parameter
+                # the caller had set on the generator step. See #1137.
+                parameters.setdefault(step_name, {})["batch_size"] = batch_size
 
         distiset = self.run(parameters=parameters, use_cache=False, dataset=dataset)
 
