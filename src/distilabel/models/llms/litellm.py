@@ -295,6 +295,12 @@ class LiteLLM(AsyncLLM):
                     f"Received no response using LiteLLM client (model: '{self.model}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )
+                # `token_counter` raises if called with empty text, so skip it for
+                # empty responses (e.g. reasoning models that hit `max_tokens` while
+                # still reasoning and return `finish_reason="length"` with no content).
+                generations.append(content)
+                output_tokens.append(0)
+                continue
             generations.append(content)
             output_tokens.append(token_counter(model=self.model, text=content))
 
