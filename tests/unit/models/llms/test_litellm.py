@@ -103,9 +103,7 @@ class TestLiteLLM:
         )
         llm._aclient = AsyncMock(return_value=mocked_completion)
 
-        result = await llm.agenerate(
-            input=[{"role": "user", "content": "Hello"}]
-        )
+        result = await llm.agenerate(input=[{"role": "user", "content": "Hello"}])
         assert result["generations"] == [None]
         assert result["statistics"]["output_tokens"] == [0]
 
