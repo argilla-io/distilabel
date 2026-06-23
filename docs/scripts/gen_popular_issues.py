@@ -27,22 +27,24 @@ DATA_PATH = "sections/community/popular_issues.md"
 # public_repo and read:org scopes are required
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
+EMPTY_FRAME = pd.DataFrame(
+    {
+        "Issue": [],
+        "State": [],
+        "Created at": [],
+        "Milestone": [],
+        "Reactions": [],
+        "Comments": [],
+        "URL": [],
+        "Author": [],
+        "Author association": [],
+    }
+)
 
 def fetch_data_from_github(repository, auth_token):
     if auth_token is None:
-        return pd.DataFrame(
-            {
-                "Issue": [],
-                "State": [],
-                "Created at": [],
-                "Milestone": [],
-                "Reactions": [],
-                "Comments": [],
-                "URL": [],
-                "Author": [],
-                "Author association": [],
-            }
-        )
+        return EMPTY_FRAME
+
     headers = {"Authorization": f"token {auth_token}", "Accept": "application/vnd.github.v3+json"}
     issues_data = []
 
@@ -52,13 +54,18 @@ def fetch_data_from_github(repository, auth_token):
 
         owner, repo_name = repository.split("/")
         issues_url = f"https://api.github.com/repos/{owner}/{repo_name}/issues?state=all"
+        filtered_count = 0
+        total_count = 0
 
         while issues_url:
             response = session.get(issues_url)
             issues = response.json()
+            print(f"Fetched batch of issues... {len(issues)}")
 
             for issue in issues:
+                total_count = total_count + 1
                 if "pull_request" in issue:
+                    filtered_count = filtered_count + 1
                     continue
                 issues_data.append(
                     {
@@ -76,13 +83,27 @@ def fetch_data_from_github(repository, auth_token):
 
             issues_url = response.links.get("next", {}).get("url", None)
 
+    print(f"Filtered out {filtered_count} issues from {total_count}")
+
+    if not issues_data:
+        print("No issues data collected (all items were filtered out)")
+        return EMPTY_FRAME
+    
     return pd.DataFrame(issues_data)
 
 
 with mkdocs_gen_files.open(DATA_PATH, "w") as f:
     df = fetch_data_from_github(REPOSITORY, GITHUB_TOKEN)
 
-    open_issues = df.loc[df["State"] == "open"]
+    if "State" in df.columns:
+        open_issues = df.loc[df["State"] == "open"]
+    else:
+        print("WARNING: 'State' column not found in DataFrame")
+        print(f"DataFrame shape: {df.shape}")
+        print(f"DataFrame columns: {list(df.columns) if not df.empty else 'No columns (empty DataFrame)'}")
+        print(f"DataFrame first few rows: {df.head().to_dict() if not df.empty else 'Empty DataFrame'}")
+        open_issues = EMPTY_FRAME
+
     engagement_df = (
         open_issues[["URL", "Issue", "Reactions", "Comments"]]
         .sort_values(by=["Reactions", "Comments"], ascending=False)

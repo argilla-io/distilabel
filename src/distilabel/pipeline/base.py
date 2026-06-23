@@ -175,6 +175,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         cache_dir: Optional[Union[str, "PathLike"]] = None,
         enable_metadata: bool = False,
         requirements: Optional[List[str]] = None,
+        dump_batch_size: int = 50,
     ) -> None:
         """Initialize the `BasePipeline` instance.
 
@@ -189,6 +190,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             requirements: List of requirements that must be installed to run the pipeline.
                 Defaults to `None`, but can be helpful to inform in a pipeline to be shared
                 that this requirements must be installed.
+            dump_batch_size: Determines the frequency of writing the buffer to the file,
+                as it will determine when the buffer is full and we should write to the file.
+                Defaults to 50 (every 50 elements in the buffer we can check for writes).
         """
         self.name = name or _PIPELINE_DEFAULT_NAME
         self.description = description
@@ -233,6 +237,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._exception: Union[Exception, None] = None
 
         self._log_queue: Union["Queue[Any]", None] = None
+
+        self._dump_batch_size = dump_batch_size
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -728,7 +734,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
-            the parameter name as the key and the parameter value as the value.
+                the parameter name as the key and the parameter value as the value.
         """
         step_names = set(self.dag.G)
         for step_name, step_parameters in parameters.items():
@@ -1022,6 +1028,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 ].use_cache
                 for step_name in self.dag
             },
+            dump_batch_size=self._dump_batch_size,
         )
 
     def _print_load_stages_info(self) -> None:

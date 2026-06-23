@@ -75,6 +75,19 @@ _LLM_DETAIL_TEMPLATE = Template(
     ).read()
 )
 
+_PIPELINE_DETAIL_TEMPLATE = Template(
+    open(
+        str(
+            importlib_resources.files("distilabel")
+            / "utils"
+            / "mkdocs"
+            / "templates"
+            / "components-gallery"
+            / "step-detail.jinja2"
+        )
+    ).read()
+)
+
 
 _STEPS_CATEGORY_TO_ICON = {
     "text-generation": ":material-text-box-edit:",
@@ -95,6 +108,7 @@ _STEPS_CATEGORY_TO_ICON = {
     "save": ":material-content-save:",
     "image-generation": ":material-image:",
     "labelling": ":label:",
+    "helper": ":fontawesome-solid-kit-medical:",
 }
 
 _STEP_CATEGORY_TO_DESCRIPTION = {
@@ -116,6 +130,7 @@ _STEP_CATEGORY_TO_DESCRIPTION = {
     "save": "Save steps are used to save the data.",
     "image-generation": "Image generation steps are used to generate images based on a given prompt.",
     "labelling": "Labelling steps are used to label the data.",
+    "helper": "Helper steps are used to do extra tasks during the pipeline execution.",
 }
 
 
@@ -211,6 +226,9 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         self.file_paths["embeddings"] = self._generate_embeddings_pages(
             src_dir=src_dir, embeddings=components_info["embeddings"]
         )
+        self.file_paths["pipelines"] = self._generate_pipelines_pages(
+            src_dir=src_dir, pipelines=components_info["pipelines"]
+        )
 
         # Add the new files to the files collections
         for relative_file_path in [
@@ -220,6 +238,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             *self.file_paths["llms"],
             *self.file_paths["image_generation_models"],
             *self.file_paths["embeddings"],
+            *self.file_paths["pipelines"],
         ]:
             file = File(
                 path=relative_file_path,
@@ -523,6 +542,60 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
         return paths
 
+    def _generate_pipelines_pages(self, src_dir: Path, pipelines: list) -> List[str]:
+        """Generates the files for the `Pipelines` subsection of the components gallery.
+
+        Args:
+            src_dir: The path to the source directory.
+            pipelines: The list of `Pipeline` components.
+
+        Returns:
+            The relative paths to the generated files.
+        """
+
+        paths = ["components-gallery/pipelines/index.md"]
+        pipelines_gallery_page_path = src_dir / paths[0]
+        pipelines_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Create detail page for each `Pipeline`
+        for pipeline in pipelines:
+            docstring = pipeline["docstring"]
+            name = pipeline["name"]
+
+            content = _PIPELINE_DETAIL_TEMPLATE.render(
+                step=pipeline,
+                mermaid_diagram=_generate_mermaid_diagram_for_io(
+                    step_name=name,
+                    inputs=list(docstring["input_columns"].keys())
+                    if "input_columns" in docstring
+                    else [],
+                    outputs=list(docstring["output_columns"].keys())
+                    if "output_columns" in docstring
+                    else [],
+                ),
+            )
+
+            pipeline_path = f"components-gallery/pipelines/{name.lower()}.md"
+            path = src_dir / pipeline_path
+            with open(path, "w") as f:
+                f.write(content)
+
+            paths.append(pipeline_path)
+
+        # Create the `components-gallery/pipelines/index.md` file
+        content = _COMPONENTS_LIST_TEMPLATE.render(
+            title="Pipelines Gallery",
+            description="",
+            components=pipelines,
+            component_group="pipelines",
+            default_icon=":material-pipe:",
+        )
+
+        with open(pipelines_gallery_page_path, "w") as f:
+            f.write(content)
+
+        return paths
+
     def on_nav(
         self, nav: "Navigation", *, config: "MkDocsConfig", files: "Files"
     ) -> Union["Navigation", None]:
@@ -546,6 +619,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         image_generation_file = files.get_file_from_path(
             self.file_paths["image_generation_models"][0]
         )
+        pipelines_file = files.get_file_from_path(self.file_paths["pipelines"][0])
 
         steps_files = [
             files.get_file_from_path(path) for path in self.file_paths["steps"][0:]
@@ -559,6 +633,9 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         image_generation_files = [
             files.get_file_from_path(path)
             for path in self.file_paths["image_generation_models"][0:]
+        ]
+        pipelines_files = [
+            files.get_file_from_path(path) for path in self.file_paths["pipelines"][0:]
         ]
 
         # Create subsections
@@ -577,13 +654,19 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             config=config,
             children=image_generation_files,
         )  # type: ignore
+        pipelines_page = SectionPage(
+            "Pipelines",
+            file=pipelines_file,
+            config=config,
+            children=pipelines_files,
+        )  # type: ignore
 
         # Create the gallery section
         page = SectionPage(
             title=self.config.page_title,
             file=components_gallery_file,
             config=config,
-            children=[steps_page, tasks_page, llms_page, igms_page],
+            children=[steps_page, tasks_page, llms_page, igms_page, pipelines_page],
         )
 
         # Add the page

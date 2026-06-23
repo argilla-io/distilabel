@@ -24,8 +24,8 @@ from openai.types.completion_usage import CompletionUsage
 from pydantic import BaseModel
 from transformers import AutoTokenizer
 
-from distilabel.models.llms import vLLM
-from distilabel.models.llms.vllm import ClientvLLM
+from distilabel.models.llms import SGLang
+from distilabel.models.llms.sglang import ClientSGLang
 
 
 class Character(BaseModel):
@@ -102,7 +102,7 @@ SAMPLE_DATA = [
 ]
 
 
-class TestvLLM:
+class TestSGLang:
     @pytest.mark.parametrize(
         "multi_structured_output",
         # TODO:  uncomment once with update our code to work with `outlines>0.1.0`
@@ -121,12 +121,12 @@ class TestvLLM:
                         "logprobs": [
                             [
                                 [
-                                    {"token": "I'm", "logprob": -1},
-                                    {"token": "Hello", "logprob": -3},
+                                    {"token": "thank", "logprob": -1},
+                                    {"token": "you", "logprob": -3},
                                 ],
                                 [
-                                    {"token": "I'm", "logprob": -1},
-                                    {"token": "Hello", "logprob": -3},
+                                    {"token": "thank", "logprob": -1},
+                                    {"token": "you", "logprob": -3},
                                 ],
                             ]
                         ],
@@ -145,12 +145,12 @@ class TestvLLM:
                         "logprobs": [
                             [
                                 [
-                                    {"token": "I'm", "logprob": -1},
-                                    {"token": "Hello", "logprob": -3},
+                                    {"token": "thank", "logprob": -1},
+                                    {"token": "you", "logprob": -3},
                                 ],
                                 [
-                                    {"token": "I'm", "logprob": -1},
-                                    {"token": "Hello", "logprob": -3},
+                                    {"token": "thank", "logprob": -1},
+                                    {"token": "you", "logprob": -3},
                                 ],
                             ]
                         ]
@@ -166,53 +166,33 @@ class TestvLLM:
         num_generations: int,
         expected_result: List[Dict[str, Any]],
     ) -> None:
-        llm = vLLM(model="dummy")
+        llm = SGLang(model="dummy")
         tokenizer = AutoTokenizer.from_pretrained(
             "distilabel-internal-testing/tiny-random-mistral"
         )
         llm._tokenizer = tokenizer
-
+        sglang_mock = mock.MagicMock()
+        sglang_mock.get_tokenizer = mock.MagicMock(return_value=tokenizer)
         # mock the import by hacking sys.modules
         # https://stackoverflow.com/questions/60919705/how-to-mock-in-a-python-unittest-a-library-not-installed-locally
         import sys
 
-        vllm_mock = mock.MagicMock()
-        vllm_mock.get_tokenizer = mock.MagicMock(return_value=tokenizer)
-
-        sampling_params_mock = mock.MagicMock()
-        sampling_params_mock.StructuredOutputsParams = mock.MagicMock()
-
-        sampling_params_class_mock = mock.MagicMock()
-        vllm_mock.SamplingParams = sampling_params_class_mock
-
-        if "vllm" not in sys.modules:
-            sys.modules["vllm"] = vllm_mock
-        if "vllm.sampling_params" not in sys.modules:
-            sys.modules["vllm.sampling_params"] = sampling_params_mock
-
-        llm._model = vllm_mock
+        if "sglang" not in sys.modules:
+            sys.modules["sglang"] = sglang_mock
+        llm._model = sglang_mock
 
         mocked_requests_output = [
-            mock.Mock(  # RequestOutput
-                prompt_logprobs=[],
-                outputs=[
-                    mock.Mock(  # CompletionOutput
-                        text="I'm fine thank you",
-                        token_ids=[1, 2, 3, 4, 5, 7],
-                        logprobs=[
-                            {
-                                1: mock.Mock(decoded_token="I'm", logprob=-1),
-                                2: mock.Mock(decoded_token="Hello", logprob=-3),
-                            },
-                            {
-                                1: mock.Mock(decoded_token="I'm", logprob=-1),
-                                2: mock.Mock(decoded_token="Hello", logprob=-3),
-                            },
-                        ],
-                    )
-                ]
-                * num_generations,
-            )
+            {
+                "text": "I'm fine thank you",
+                "meta_info": {
+                    "completion_tokens": 6,
+                    "output_top_logprobs": [
+                        [(-1, 6979, "thank"), (-3, 368, "you")],
+                        [(-1, 6979, "thank"), (-3, 368, "you")],
+                    ],
+                },
+            }
+            for _ in range(num_generations)
         ]
 
         llm._model.generate = mock.MagicMock(return_value=mocked_requests_output)
@@ -250,11 +230,11 @@ class TestvLLM:
 
 @mock.patch("openai.OpenAI")
 @mock.patch("openai.AsyncOpenAI")
-class TestClientvLLM:
-    def test_clientvllm_model_name(
+class TestClientSGLang:
+    def test_clientsglang_model_name(
         self, _: mock.MagicMock, openai_mock: mock.MagicMock
     ) -> None:
-        llm = ClientvLLM(
+        llm = ClientSGLang(
             base_url="http://localhost:8000/v1",
             tokenizer="google-bert/bert-base-uncased",
         )
@@ -271,7 +251,7 @@ class TestClientvLLM:
     async def test_agenerate(
         self, _openai_mock: mock.MagicMock, _async_openai_mock: mock.MagicMock
     ) -> None:
-        llm = ClientvLLM(
+        llm = ClientSGLang(
             base_url="http://localhost:8000/v1",
             tokenizer="distilabel-internal-testing/tiny-random-mistral",
         )

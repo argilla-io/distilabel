@@ -50,12 +50,12 @@ class TestQualityScorer:
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\n",
                 False,
-                {"scores": [1.0, 2.0, 3.0]},
+                {"scores": [1, 2, 3]},
             ),
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\njfjfjfjjfjfjf this is noise from the llm\nlallalalala more noise\nand more noise",
                 False,
-                {"scores": [1.0, 2.0, 3.0]},
+                {"scores": [1, 2, 3]},
             ),
             (
                 None,
@@ -65,11 +65,35 @@ class TestQualityScorer:
             (
                 '{"scores":[1,2,3]}',
                 True,
-                {"scores": [1.0, 2.0, 3.0]},
+                {"scores": [1, 2, 3]},
             ),
             (
                 "wrong",
                 True,
+                {"scores": [None, None, None]},
+            ),
+            # Edge case: Extra scores (more than responses) - should truncate
+            (
+                "[1] Score: 5\n[2] Score: 4\n[3] Score: 3\n[4] Score: 2\n[5] Score: 1\n",
+                False,
+                {"scores": [5, 4, 3]},
+            ),
+            # Edge case: Fewer scores (less than responses) - should pad with None
+            (
+                "[1] Score: 5\n[2] Score: 3\n",
+                False,
+                {"scores": [5, 3, None]},
+            ),
+            # Edge case: Scores with reasoning interspersed
+            (
+                "Let me analyze:\n[1] Score: 5\nThis is great because...\n[2] Score: 2\nNeeds work\n[3] Score: 4\n",
+                False,
+                {"scores": [5, 2, 4]},
+            ),
+            # Edge case: No scores in output
+            (
+                "I cannot evaluate these responses properly.",
+                False,
                 {"scores": [None, None, None]},
             ),
         ],

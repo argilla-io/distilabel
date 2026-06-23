@@ -476,7 +476,7 @@ class AsyncLLM(LLM):
         Args:
             arguments: The arguments that would be passed to the LLM as **kwargs.
                 to update with the structured output configuration.
-            structured_outputs: The structured output configuration to update the arguments.
+            structured_output: The structured output configuration to update the arguments.
 
         Returns:
             kwargs updated with the special arguments used by `instructor`.

@@ -19,7 +19,6 @@ from pydantic import BaseModel
 
 from distilabel.models.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
-    _is_outlines_version_below_0_1_0,
     model_to_schema,
 )
 from distilabel.typing import OutlinesStructuredOutputType
@@ -61,7 +60,6 @@ DUMP_JSON = {
     "chat_template": None,
     "device": None,
     "device_map": None,
-    "token": None,
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {
@@ -91,7 +89,6 @@ DUMP_REGEX = {
     "chat_template": None,
     "device": None,
     "device_map": None,
-    "token": None,
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {
@@ -181,9 +178,6 @@ class TestOutlinesIntegration:
         llm = TransformersLLM.from_dict(DUMP_JSON)
         assert isinstance(llm, TransformersLLM)
         llm.load()
-        if _is_outlines_version_below_0_1_0():
-            assert llm._prefix_allowed_tokens_fn is not None
-            assert llm._logits_processor is None
-        else:
-            assert llm._prefix_allowed_tokens_fn is None
-            assert llm._logits_processor is not None
+        # outlines >= 1.0.0 uses logits processors
+        assert llm._prefix_allowed_tokens_fn is None
+        assert llm._logits_processor is not None

@@ -193,6 +193,7 @@ nav:
           - Exporting data to Argilla: "sections/how_to_guides/advanced/argilla.md"
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
           - Offline Batch Generation: "sections/how_to_guides/advanced/offline_batch_generation.md"
+          - Push data to the hub while the pipeline is running: "sections/how_to_guides/advanced/checkpointing.md"
           - Specifying requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
           - Load groups and execution stages: "sections/how_to_guides/advanced/load_groups_and_execution_stages.md"
           - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"

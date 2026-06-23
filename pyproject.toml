@@ -78,19 +78,19 @@ anthropic = ["anthropic >= 0.20.0"]
 argilla = ["argilla >= 2.0.0", "ipython"]
 cohere = ["cohere >= 5.2.0"]
 groq = ["groq >= 0.4.1"]
-hf-inference-endpoints = ["huggingface_hub >= 0.22.0"]
-hf-transformers = ["transformers >= 4.34.1", "torch >= 2.0.0"]
+hf-inference-endpoints = ["huggingface_hub >= 0.31.0"]
+hf-transformers = ["transformers == 4.48.3", "torch >= 2.0.0"]
 instructor = ["instructor >= 1.2.3"]
 litellm = ["litellm >= 1.30.0"]
-llama-cpp = ["llama-cpp-python >= 0.2.0"]
+llama-cpp = ["llama-cpp-python >= 0.3.9, < 0.3.10"]
 mistralai = ["mistralai >= 1.0.0"]
 ollama = ["ollama >= 0.1.7"]
 openai = ["openai >= 1.0.0"]
-outlines = ["outlines >= 0.0.40", "numba >= 0.54.0"]
+outlines = ["outlines >= 1.2.6", "numba >= 0.54.0"]
 ray = ["ray[default] >= 2.31.0"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 vllm = [
-    "vllm >= 0.5.3",
+    "vllm >= 0.11.0",
     "filelock >= 3.13.4"
 ]
 sentence-transformers = ["sentence-transformers >= 3.0.0"]
@@ -106,6 +106,16 @@ vision = ["Pillow >= 10.3.0"]  # To work with images.
 
 # minhash
 minhash = ["datasketch >= 1.6.5", "nltk>3.8.1"]
+
+sglang = ["sglang[all]>=0.4.3.post2", "transformers == 4.48.3"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "sglang[all]>=0.4.3.post2",
+    "transformers == 4.48.3",
+]
+installer = "pip"
+pip-args = ["--find-links", "https://flashinfer.ai/whl/cu124/torch2.5/flashinfer-python"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"

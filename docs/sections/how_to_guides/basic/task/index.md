@@ -107,20 +107,22 @@ uf.print(
     In case you don't want to load an LLM to render the template, you can create a dummy one like the ones we could use for testing.
 
     ```python
+    from typing import Any
+    
     from distilabel.models import LLM
-    from distilabel.models.mixins import MagpieChatTemplateMixin
-
-    class DummyLLM(AsyncLLM, MagpieChatTemplateMixin):
+    from distilabel.models.mixins.magpie import MagpieChatTemplateMixin
+    
+    class DummyLLM(LLM, MagpieChatTemplateMixin):
         structured_output: Any = None
         magpie_pre_query_template: str = "llama3"
-
+    
         def load(self) -> None:
             pass
-
+    
         @property
         def model_name(self) -> str:
             return "test"
-
+    
         def generate(
             self, input: "FormattedInput", num_generations: int = 1
         ) -> "GenerateOutput":
