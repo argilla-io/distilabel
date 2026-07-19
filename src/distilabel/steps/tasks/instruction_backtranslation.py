@@ -157,7 +157,10 @@ class InstructionBacktranslation(Task):
         matches = None
         if output is not None:
             matches = re.findall(pattern, output, re.DOTALL)
-        if matches is None:
+        # re.findall returns [] (not None) when the pattern is absent, so guard on
+        # falsiness to also cover unparseable output; otherwise matches[0] below
+        # raises IndexError and crashes the pipeline on any malformed response.
+        if not matches:
             return {"score": None, "reason": None}
 
         return {
