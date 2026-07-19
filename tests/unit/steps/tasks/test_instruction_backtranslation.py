@@ -78,6 +78,22 @@ class TestInstructionBacktranslation:
             "reason": "This is the reason.",
         }
 
+    def test_format_output_malformed(self) -> None:
+        task = InstructionBacktranslation(
+            name="instruction-backtranslation",
+            llm=InstructionBacktranslationLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.load()
+
+        # Output that doesn't contain the "Score:" pattern must degrade gracefully
+        # (re.findall returns [], which previously raised IndexError).
+        assert task.format_output("I could not evaluate this.", {}) == {
+            "score": None,
+            "reason": None,
+        }
+        assert task.format_output(None, {}) == {"score": None, "reason": None}
+
     def test_process(self) -> None:
         task = InstructionBacktranslation(
             name="instruction-backtranslation",
