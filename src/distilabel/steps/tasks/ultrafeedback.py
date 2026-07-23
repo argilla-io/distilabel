@@ -285,6 +285,20 @@ class UltraFeedback(Task):
 
         return self._format_types_ratings_rationales_output(output, input)
 
+    @staticmethod
+    def _parse_rating(rating: str) -> Union[int, None]:
+        """Extracts the integer rating from a matched `Rating:` (or `Type:`) group.
+
+        Returns `None` for the explicit `None`/`N/A` sentinels and for any other
+        text that contains no digit: `re.findall` returns `[]` in that case, and
+        indexing it would raise `IndexError`, crashing the pipeline on a malformed
+        response.
+        """
+        if rating in ["None", "N/A"]:
+            return None
+        digits = re.findall(r"\b\d+\b", rating)
+        return int(digits[0]) if digits else None
+
     def _format_ratings_rationales_output(
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, List[Any]]:
@@ -312,11 +326,7 @@ class UltraFeedback(Task):
 
             formatted_outputs.append(
                 {
-                    "ratings": (
-                        int(re.findall(r"\b\d+\b", matches.group(1))[0])
-                        if matches.group(1) not in ["None", "N/A"]
-                        else None
-                    ),
+                    "ratings": self._parse_rating(matches.group(1)),
                     "rationales": matches.group(2),
                 }
             )
@@ -359,17 +369,9 @@ class UltraFeedback(Task):
 
             formatted_outputs.append(
                 {
-                    "types": (
-                        int(re.findall(r"\b\d+\b", matches.group(1))[0])
-                        if matches.group(1) not in ["None", "N/A"]
-                        else None
-                    ),
+                    "types": self._parse_rating(matches.group(1)),
                     "rationales": matches.group(2),
-                    "ratings": (
-                        int(re.findall(r"\b\d+\b", matches.group(3))[0])
-                        if matches.group(3) not in ["None", "N/A"]
-                        else None
-                    ),
+                    "ratings": self._parse_rating(matches.group(3)),
                     "rationales-for-ratings": matches.group(4),
                 }
             )
