@@ -171,3 +171,34 @@ class TestUltraFeedback:
         )
 
         assert result == expected
+
+    def test_format_output_non_numeric_rating(self) -> None:
+        """A non-numeric rating that isn't the `None`/`N/A` sentinel must degrade
+        gracefully to `None` instead of raising `IndexError` (`re.findall` returns
+        `[]`, which previously crashed the pipeline on a malformed response)."""
+        honesty_task = UltraFeedback(
+            llm=UltraFeedbackLLM(),
+            aspect="honesty",
+            use_default_structured_output=False,
+        )
+        honesty_task.load()
+        assert honesty_task.format_output(
+            output="Rating: high\nRationale: r1\n\nRating: low\nRationale: r2",
+            input={"instruction": "x", "generations": ["a", "b"]},
+        ) == {"ratings": [None, None], "rationales": ["r1", "r2"]}
+
+        helpfulness_task = UltraFeedback(
+            llm=UltraFeedbackLLM(),
+            aspect="helpfulness",
+            use_default_structured_output=False,
+        )
+        helpfulness_task.load()
+        assert helpfulness_task.format_output(
+            output="Type: good\nRationale: r1\nRating: high\nRationale: rr1",
+            input={"instruction": "x", "generations": ["a"]},
+        ) == {
+            "types": [None],
+            "rationales": ["r1"],
+            "ratings": [None],
+            "rationales-for-ratings": ["rr1"],
+        }
