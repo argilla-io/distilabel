@@ -167,8 +167,14 @@ class LLM(RuntimeParametersModelMixin, BaseModel, _Serializable, ABC):
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
         """Generates outputs for the given inputs using either `generate` method or the
-        `offine_batch_generate` method if `use_offline_
+        `offline_batch_generate` method if `use_offline_batch_generation` is enabled.
+
+        The `generation_kwargs` set at the `LLM` level are merged with the `kwargs`
+        passed to this method, giving precedence to the latter.
         """
+        generation_kwargs = self.get_generation_kwargs() or {}
+        kwargs = {**generation_kwargs, **kwargs}
+
         if self.use_offline_batch_generation:
             if self.offline_batch_generation_block_until_done is not None:
                 return self._offline_batch_generate_polling(
