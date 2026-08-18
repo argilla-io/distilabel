@@ -275,7 +275,15 @@ class AnthropicLLM(AsyncLLM):
                 **self._get_llm_statistics(completion._raw_response),
             )
 
-        if (content := completion.content[0].text) is None:
+        # `completion.content` may be empty (e.g. `stop_reason="max_tokens"`
+        # reached while the budget was spent on extended thinking, or a refusal)
+        # or its first block may not be a text block (a `ThinkingBlock` or
+        # `ToolUseBlock` has no `.text`). Handle those gracefully with `None`
+        # instead of crashing the whole batch, mirroring `OpenAILLM`.
+        content = None
+        if completion.content:
+            content = getattr(completion.content[0], "text", None)
+        if content is None:
             self._logger.warning(
                 f"Received no response using Anthropic client (model: '{self.model}')."
                 f" Finish reason was: {completion.stop_reason}"
