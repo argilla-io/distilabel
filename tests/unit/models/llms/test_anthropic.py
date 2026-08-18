@@ -59,6 +59,60 @@ class TestAnthropicLLM:
         }
 
     @pytest.mark.asyncio
+    async def test_agenerate_empty_content(self, mock_anthropic: MagicMock) -> None:
+        # `completion.content` can be empty (e.g. `stop_reason="max_tokens"`
+        # reached during extended thinking, or a refusal). This used to raise
+        # `IndexError` and crash the whole batch; it must degrade to `None`.
+        llm = AnthropicLLM(model="claude-3-opus-20240229", api_key="api.key")  # type: ignore
+        llm._aclient = mock_anthropic
+        llm._logger = MagicMock()
+
+        mocked_completion = Mock(
+            content=[],
+            usage=Mock(input_tokens=100, output_tokens=0),
+        )
+        llm._aclient.messages.create = AsyncMock(return_value=mocked_completion)
+
+        result = await llm.agenerate(
+            input=[
+                {"role": "system", "content": ""},
+                {"role": "user", "content": "Lorem ipsum."},
+            ]
+        )
+        assert result == {
+            "generations": [None],
+            "statistics": {"input_tokens": [100], "output_tokens": [0]},
+        }
+
+    @pytest.mark.asyncio
+    async def test_agenerate_non_text_first_block(
+        self, mock_anthropic: MagicMock
+    ) -> None:
+        # A thinking / tool-use block has no `.text` attribute. This used to
+        # raise `AttributeError` and crash the batch; it must degrade to `None`.
+        llm = AnthropicLLM(model="claude-3-opus-20240229", api_key="api.key")  # type: ignore
+        llm._aclient = mock_anthropic
+        llm._logger = MagicMock()
+
+        non_text_block = Mock(spec=[])  # no `.text` attribute
+        mocked_completion = Mock(
+            content=[non_text_block],
+            usage=Mock(input_tokens=100, output_tokens=100),
+        )
+        llm._aclient.messages.create = AsyncMock(return_value=mocked_completion)
+
+        result = await llm.agenerate(
+            input=[
+                {"role": "system", "content": ""},
+                {"role": "user", "content": "Lorem ipsum."},
+            ]
+        )
+        assert result == {
+            "generations": [None],
+            "statistics": {"input_tokens": [100], "output_tokens": [100]},
+        }
+
+    @pytest.mark.asyncio
     async def test_agenerate_structured(self, mock_openai: MagicMock) -> None:
         llm = AnthropicLLM(
             model="claude-3-opus-20240229",
