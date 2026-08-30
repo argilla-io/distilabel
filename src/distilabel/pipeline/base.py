@@ -440,14 +440,16 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             Will return the `Distiset` as the main run method would do.
         """
         self._dry_run = True
+        parameters = {} if parameters is None else dict(parameters)
 
         for step_name in self.dag:
             step = self.dag.get_step(step_name)[constants.STEP_ATTR_NAME]
 
             if step.is_generator:
-                if not parameters:
-                    parameters = {}
-                parameters[step_name] = {"batch_size": batch_size}
+                parameters[step_name] = {
+                    **parameters.get(step_name, {}),
+                    "batch_size": batch_size,
+                }
 
         distiset = self.run(parameters=parameters, use_cache=False, dataset=dataset)
 
