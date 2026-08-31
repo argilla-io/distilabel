@@ -295,6 +295,9 @@ class LiteLLM(AsyncLLM):
                     f"Received no response using LiteLLM client (model: '{self.model}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )
+                generations.append(content)
+                output_tokens.append(0)
+                continue
             generations.append(content)
             output_tokens.append(token_counter(model=self.model, text=content))
 
