@@ -86,6 +86,37 @@ class TestLiteLLM:
             }
         ]
 
+    @pytest.mark.asyncio
+    async def test_agenerate_empty_content(
+        self, mock_litellm: MagicMock, model: str
+    ) -> None:
+        llm = LiteLLM(model=model)  # type: ignore
+        llm.load()
+        llm._aclient = AsyncMock(
+            return_value=Mock(
+                choices=[Mock(message=Mock(content=None), finish_reason="length")]
+            )
+        )
+
+        with patch("litellm.token_counter") as mock_token_counter:
+            mock_token_counter.side_effect = (
+                lambda model, messages=None, text=None: len(messages or text or [])
+            )
+            result = await llm.agenerate(
+                input=[
+                    {"role": "system", "content": ""},
+                    {
+                        "role": "user",
+                        "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    },
+                ]
+            )
+
+        assert result["generations"] == [None]
+        assert result["statistics"]["output_tokens"] == [0]
+        assert len(mock_token_counter.call_args_list) == 1
+        assert mock_token_counter.call_args_list[0].kwargs.get("messages") is not None
+
     def test_serialization(self, _: MagicMock, model: str) -> None:
         llm = LiteLLM(model=model)  # type: ignore
 
