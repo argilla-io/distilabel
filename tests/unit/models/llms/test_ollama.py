@@ -97,6 +97,30 @@ class TestOllamaLLM:
             }
         ]
 
+    @pytest.mark.asyncio
+    async def test_agenerate_exception_returns_none_without_crash(
+        self, mock_ollama: MagicMock
+    ) -> None:
+        llm = OllamaLLM(model="notus")  # type: ignore
+        llm._aclient = mock_ollama
+        llm._logger = MagicMock()
+        llm._aclient.chat = AsyncMock(side_effect=TimeoutError("request timed out"))
+
+        result = await llm.agenerate(
+            input=[
+                {"role": "system", "content": ""},
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        )
+        assert result == {
+            "generations": [None],
+            "statistics": {"input_tokens": [None], "output_tokens": [None]},
+        }
+        llm._logger.warning.assert_called_once()
+
     def test_serialization(self, _: MagicMock) -> None:
         llm = OllamaLLM(model="notus")  # type: ignore
 
