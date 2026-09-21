@@ -485,7 +485,7 @@ class MathShepherdCompleter(Task):
                     self._logger.info("Completer failed due to empty completion")
                     continue
                 if completion[-1] == golden_answers[instruction_i]:
-                    label = f" { self.tags[0]}"
+                    label = f" {self.tags[0]}"
                     # If we found one, it's enough as we are doing Hard Estimation
                     continue
             # In case we had no solutions from the previous step, otherwise we would have

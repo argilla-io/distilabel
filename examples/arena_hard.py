@@ -15,12 +15,12 @@
 import re
 from typing import Any, Dict, List, Optional, Union
 
+from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.typing import StepOutput
 from typing_extensions import override
 
 from distilabel.steps import GlobalStep, StepInput
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import ChatType
-from distilabel.steps.typing import StepOutput
 
 
 class ArenaHard(Task):
@@ -331,6 +331,8 @@ class ArenaHardResults(GlobalStep):
 if __name__ == "__main__":
     import json
 
+    from distilabel.steps.typing import StepOutput
+
     from distilabel.models import InferenceEndpointsLLM, OpenAILLM
     from distilabel.pipeline import Pipeline
     from distilabel.steps import (
@@ -341,7 +343,6 @@ if __name__ == "__main__":
         step,
     )
     from distilabel.steps.tasks import TextGeneration
-    from distilabel.steps.typing import StepOutput
 
     @step(inputs=["turns"], outputs=["system_prompt", "instruction"])
     def PrepareForTextGeneration(*inputs: StepInput) -> StepOutput:
