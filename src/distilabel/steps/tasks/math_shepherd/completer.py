@@ -333,7 +333,7 @@ class MathShepherdCompleter(Task):
         if parsed_output := parse_json_response(output):
             solutions = parsed_output["solutions"]
             extracted_solutions = [solution["solution"] for solution in solutions]
-            if len(output) != self.N:
+            if len(extracted_solutions) != self.N:
                 extracted_solutions = default_output
             return extracted_solutions
         return default_output
