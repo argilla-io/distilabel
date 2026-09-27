@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import textwrap
 from typing import TYPE_CHECKING, Any, Dict, List
 
@@ -84,6 +85,32 @@ DUMMY_STEPS = [
 
 
 class TestMathShepherdCompleter:
+    @pytest.mark.parametrize(
+        "num_solutions, solutions, expected",
+        [
+            (1, ["Step 1: one solution"], ["Step 1: one solution"]),
+            (
+                3,
+                ["Solution one", "Solution two", "Solution three"],
+                ["Solution one", "Solution two", "Solution three"],
+            ),
+            (3, ["Only one solution", "Only two solutions"], ["", "", ""]),
+        ],
+    )
+    def test_format_structured_output_validates_solution_count(
+        self, num_solutions: int, solutions: List[str], expected: List[str]
+    ) -> None:
+        task = MathShepherdCompleter(
+            llm=MathShepherdCompleterLLM(N=num_solutions),
+            N=num_solutions,
+            use_default_structured_output=True,
+        )
+        output = json.dumps(
+            {"solutions": [{"solution": solution} for solution in solutions]}
+        )
+
+        assert task._format_structured_output(output) == expected
+
     @pytest.mark.parametrize(
         "steps, num_completions",
         [
