@@ -21,7 +21,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.models.llms.openai import OpenAILLM
 
 if TYPE_CHECKING:
-    from distilabel.typing import GenerateOutput
+    pass
 
 _ATLASCLOUD_API_KEY_ENV_VAR_NAME = "ATLASCLOUD_API_KEY"
 
