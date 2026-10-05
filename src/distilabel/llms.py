@@ -25,6 +25,7 @@ warnings.warn(deprecation_message, DeprecationWarning, stacklevel=2)
 
 from distilabel.models.llms.anthropic import AnthropicLLM
 from distilabel.models.llms.anyscale import AnyscaleLLM
+from distilabel.models.llms.atlascloud import AtlasCloudLLM
 from distilabel.models.llms.azure import AzureOpenAILLM
 from distilabel.models.llms.base import LLM, AsyncLLM
 from distilabel.models.llms.cohere import CohereLLM
@@ -48,6 +49,7 @@ __all__ = [
     "AnthropicLLM",
     "AnyscaleLLM",
     "AsyncLLM",
+    "AtlasCloudLLM",
     "AzureOpenAILLM",
     "ClientvLLM",
     "CohereLLM",

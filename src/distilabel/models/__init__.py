@@ -29,6 +29,7 @@ from distilabel.models.image_generation.huggingface.inference_endpoints import (
 from distilabel.models.image_generation.openai import OpenAIImageGeneration
 from distilabel.models.llms.anthropic import AnthropicLLM
 from distilabel.models.llms.anyscale import AnyscaleLLM
+from distilabel.models.llms.atlascloud import AtlasCloudLLM
 from distilabel.models.llms.azure import AzureOpenAILLM
 from distilabel.models.llms.base import LLM, AsyncLLM
 from distilabel.models.llms.cohere import CohereLLM
@@ -53,6 +54,7 @@ __all__ = [
     "AnyscaleLLM",
     "AsyncImageGenerationModel",
     "AsyncLLM",
+    "AtlasCloudLLM",
     "AzureOpenAILLM",
     "ClientvLLM",
     "CohereLLM",
