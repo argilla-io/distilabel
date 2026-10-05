@@ -24,6 +24,7 @@ deprecation_message = (
 warnings.warn(deprecation_message, DeprecationWarning, stacklevel=2)
 
 from distilabel.models.llms.anthropic import AnthropicLLM
+from distilabel.models.llms.atlascloud import AtlasCloudLLM
 from distilabel.models.llms.anyscale import AnyscaleLLM
 from distilabel.models.llms.azure import AzureOpenAILLM
 from distilabel.models.llms.base import LLM, AsyncLLM
@@ -46,6 +47,7 @@ from distilabel.typing import GenerateOutput, HiddenState
 __all__ = [
     "LLM",
     "AnthropicLLM",
+    "AtlasCloudLLM",
     "AnyscaleLLM",
     "AsyncLLM",
     "AzureOpenAILLM",
