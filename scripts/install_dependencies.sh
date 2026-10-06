@@ -12,6 +12,4 @@ if [ "${python_version}" != "(3, 12)" ]; then
     uv pip install --system -e .[ray]
 fi
 
-./scripts/install_cpu_vllm.sh
-
 uv pip install --system -e ".[dev,tests]"

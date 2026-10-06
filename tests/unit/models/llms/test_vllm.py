@@ -165,6 +165,7 @@ class TestvLLM:
         multi_structured_output: bool,
         num_generations: int,
         expected_result: List[Dict[str, Any]],
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         llm = vLLM(model="dummy")
         tokenizer = AutoTokenizer.from_pretrained(
@@ -185,10 +186,8 @@ class TestvLLM:
         sampling_params_class_mock = mock.MagicMock()
         vllm_mock.SamplingParams = sampling_params_class_mock
 
-        if "vllm" not in sys.modules:
-            sys.modules["vllm"] = vllm_mock
-        if "vllm.sampling_params" not in sys.modules:
-            sys.modules["vllm.sampling_params"] = sampling_params_mock
+        monkeypatch.setitem(sys.modules, "vllm", vllm_mock)
+        monkeypatch.setitem(sys.modules, "vllm.sampling_params", sampling_params_mock)
 
         llm._model = vllm_mock
 
@@ -246,6 +245,13 @@ class TestvLLM:
             ]
         result = llm.generate(inputs=formatted_inputs, num_generations=num_generations)
         assert result == expected_result
+        assert "logits_processors" not in sampling_params_class_mock.call_args.kwargs
+
+        with pytest.raises(
+            ValueError,
+            match="no longer supports request-level logits processor callables",
+        ):
+            llm.generate(inputs=formatted_inputs, logits_processors=[mock.Mock()])
 
 
 @mock.patch("openai.OpenAI")
