@@ -53,7 +53,7 @@ As shown above, the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] ta
     Since version `1.2.0`, we provide some metadata about the LLM call through `distilabel_metadata`. This can be disabled by setting the `add_raw_output` attribute to `False` when creating the task.
 
     Additionally, since version `1.4.0`, the formatted input can also be included, which can be helpful when testing
-    custom templates (testing the pipeline using the [`dry_run`][distilabel.pipeline.local.Pipeline.dry_run] method).
+    custom templates (testing the pipeline using the [`dry_run`][distilabel.pipeline.base.BasePipeline.dry_run] method).
 
     ```python title="disable raw input and output"
     task = TextGeneration(
@@ -219,7 +219,7 @@ We can define a custom step by creating a new subclass of the [`Task`][distilabe
 
 - `inputs`: is a property that returns a list of strings with the names of the required input fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
-- `format_input`: is a method that receives a dictionary with the input data and returns a [`ChatType`][distilabel.typing.models.ChatType] following [the chat-completion OpenAI message formatting](https://platform.openai.com/docs/guides/text-generation).
+- `format_input`: is a method that receives a dictionary with the input data and returns a [`ChatType`][distilabel.typing.base.ChatType] following [the chat-completion OpenAI message formatting](https://platform.openai.com/docs/guides/text-generation).
 
 - `outputs`: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not. This property should always include `model_name` as one of the outputs since that's automatically injected from the LLM.
 
