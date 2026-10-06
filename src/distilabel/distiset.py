@@ -60,10 +60,9 @@ def is_PIL_available() -> bool:
         True if the PIL library is available, False otherwise.
     """
     try:
-        importlib.util.find_spec("PIL")
+        return importlib.util.find_spec("PIL") is not None
     except ImportError:
         return False
-    return True
 
 
 class Distiset(dict):
