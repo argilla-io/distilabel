@@ -79,11 +79,15 @@ argilla = ["argilla >= 2.0.0", "ipython"]
 cohere = ["cohere >= 5.2.0"]
 groq = ["groq >= 0.4.1"]
 hf-inference-endpoints = ["huggingface_hub >= 0.31.0"]
-hf-transformers = ["transformers == 4.48.3", "torch >= 2.0.0"]
+hf-transformers = [
+    "transformers == 4.48.3",
+    "torch >= 2.0.0",
+    "sentencepiece",
+]
 instructor = ["instructor >= 1.2.3"]
 litellm = ["litellm >= 1.30.0"]
 llama-cpp = ["llama-cpp-python >= 0.3.9, < 0.3.10"]
-mistralai = ["mistralai >= 1.0.0"]
+mistralai = ["mistralai >= 1.0.0, < 2.0.0"]
 ollama = ["ollama >= 0.1.7"]
 openai = ["openai >= 1.0.0"]
 outlines = ["outlines >= 1.2.6", "numba >= 0.54.0"]
