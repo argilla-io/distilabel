@@ -100,6 +100,8 @@ def test_vllm_cpu_generation() -> None:
             "enforce_eager": True,
             "gpu_memory_utilization": 0.1,
             "max_model_len": 64,
+            "max_num_batched_tokens": 64,
+            "max_num_seqs": 1,
         },
     )
 
