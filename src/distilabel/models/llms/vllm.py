@@ -390,7 +390,9 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 Defaults to `False`.
             skip_special_tokens: whether to exclude special tokens from the output. Defaults
                 to `False`.
-            logits_processors: a list of functions to process the logits before sampling.
+            logits_processors: a list of functions to process the logits before sampling
+                on vLLM versions that support request-level logits processors. For JSON or
+                regex generation with newer vLLM versions, use `structured_output` instead.
                 Defaults to `None`.
             extra_sampling_params: dictionary with additional arguments to be passed to
                 the `SamplingParams` class from `vllm`.
@@ -402,8 +404,16 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         """
         from vllm import SamplingParams
 
-        if not logits_processors:
-            logits_processors = []
+        logits_processors_kwargs = {}
+        if logits_processors:
+            if "logits_processors" not in inspect.signature(SamplingParams).parameters:
+                raise ValueError(
+                    "The installed vLLM version no longer supports request-level logits "
+                    "processor callables. For JSON or regex generation, use "
+                    "`structured_output`. For custom processors, register a vLLM processor "
+                    "class through `extra_kwargs` when constructing `vLLM`."
+                )
+            logits_processors_kwargs["logits_processors"] = logits_processors
 
         if extra_sampling_params is None:
             extra_sampling_params = {}
@@ -453,8 +463,8 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 stop_token_ids=stop_token_ids,
                 include_stop_str_in_output=include_stop_str_in_output,
                 skip_special_tokens=skip_special_tokens,
-                logits_processors=logits_processors,
                 structured_outputs=structured_output_params,
+                **logits_processors_kwargs,
                 **extra_sampling_params,
             )
 

@@ -162,8 +162,12 @@ class MinHashLSH(_MinHashLSH):
             raise ValueError("The number of bands are too small (b < 2)")
 
         self.prepickle = (
-            storage_config["type"] == "redis" if not prepickle else prepickle
+            storage_config["type"] == "redis" if prepickle is None else prepickle
         )
+        self._require_bytes_keys = (
+            storage_config["type"] not in ("dict", "disk") and not self.prepickle
+        )
+        self._minhash_scheme = None
 
         self.hashfunc = hashfunc
         if hashfunc:

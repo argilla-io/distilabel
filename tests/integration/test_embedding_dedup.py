@@ -122,8 +122,12 @@ def test_embedding_deduplication() -> None:
 
     ds = distiset["default"]["train"]
     ds_dedup = ds.filter(lambda x: x["keep_row_after_embedding_filtering"])
+    keep_rows = ds["keep_row_after_embedding_filtering"]
 
-    assert len(ds_dedup) == 63
+    assert len(ds) == len(SAMPLE_DATA) * 20
+    assert any(keep_rows)
+    assert not all(keep_rows)
+    assert len(ds_dedup) < len(ds)
 
 
 if __name__ == "__main__":

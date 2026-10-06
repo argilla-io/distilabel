@@ -25,10 +25,6 @@ from .utils import DummyUserDetail
 RUNS_ON_APPLE_SILICON = platform.processor() == "arm" and platform.system() == "Darwin"
 
 
-@pytest.mark.skipif(
-    not RUNS_ON_APPLE_SILICON,
-    reason="MLX only runs on Apple Silicon",
-)
 @pytest.fixture(scope="module")
 def llm() -> Generator[MlxLLM, None, None]:
     llm = MlxLLM(path_or_hf_repo="mlx-community/Qwen2.5-0.5B-4bit")
