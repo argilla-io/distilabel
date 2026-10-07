@@ -67,7 +67,9 @@ if TYPE_CHECKING:
     from pydantic import BaseModel
 
     from distilabel.distiset import Distiset
+    from distilabel.pipeline.cache_restore import CacheRestoreResult
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
+    from distilabel.pipeline.snapshot_manager import CacheSnapshotManager
     from distilabel.steps.base import Step
     from distilabel.typing import (
         InputDataset,
@@ -236,6 +238,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._exception: Union[Exception, None] = None
 
+        self._snapshot_manager: Optional["CacheSnapshotManager"] = None
+
         self._log_queue: Union["Queue[Any]", None] = None
 
         self._dump_batch_size = dump_batch_size
@@ -297,6 +301,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         dataset: Optional["InputDataset"] = None,
         dataset_batch_size: int = 50,
         logging_handlers: Optional[List[logging.Handler]] = None,
+        restore_cache_from: Optional[Union[str, "PathLike"]] = None,
+        snapshot_dir: Optional[Union[str, "PathLike"]] = None,
+        snapshot_interval_seconds: int = 57600,
+        snapshot_retention_days: Optional[int] = None,
     ) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
         the pipeline.
@@ -336,6 +344,18 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             logging_handlers: A list of logging handlers that will be used to log the
                 output of the pipeline. This argument can be useful so the logging messages
                 can be extracted and used in a different context. Defaults to `None`.
+            restore_cache_from: Path to a previous pipeline's cache directory to restore
+                matching step caches from. Enables cross-config cache restoration where
+                pipelines sharing common prefix steps can reuse cached outputs. Defaults
+                to `None`.
+            snapshot_dir: Directory where periodic cache snapshots will be stored. If
+                provided, a background thread will periodically copy the cache directory
+                to create snapshots for recovery. Defaults to `None`.
+            snapshot_interval_seconds: Interval in seconds between automatic snapshots.
+                Defaults to `57600` (16 hours).
+            snapshot_retention_days: Number of days to retain old snapshots. Snapshots
+                older than this will be automatically cleaned up. `None` means no cleanup.
+                Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -349,6 +369,23 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._set_runtime_parameters(parameters or {})
 
         self._refresh_pipeline_from_cache()
+
+        # Cross-config cache restoration: restore matching step caches from a
+        # different pipeline configuration before validation
+        cache_restore_result = None
+        if restore_cache_from is not None:
+            cache_restore_result = self._restore_cross_config_cache(
+                Path(restore_cache_from)
+            )
+            if cache_restore_result and cache_restore_result.resumption_step:
+                self._restructure_pipeline_for_resumption(cache_restore_result)
+                use_cache = False  # Prevent native cache deadlock
+            elif cache_restore_result and cache_restore_result.steps_restored > 0:
+                # All steps matched: steps_data was copied but execution data
+                # (batch_manager, data dir) doesn't exist. Disable use_cache
+                # to prevent the early-return path from failing when it tries
+                # to load from a non-existent data directory.
+                use_cache = False
 
         if dataset is not None:
             self._add_dataset_generator_step(dataset, dataset_batch_size)
@@ -389,6 +426,19 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # Setup the filesystem that will be used to pass the data of the `_Batch`es
         self._setup_fsspec(storage_parameters)
         self._use_fs_to_pass_data = use_fs_to_pass_data
+
+        # Start snapshot manager if snapshot_dir is provided
+        if snapshot_dir is not None:
+            from distilabel.pipeline.snapshot_manager import CacheSnapshotManager
+
+            self._snapshot_manager = CacheSnapshotManager(
+                cache_dir=self._cache_dir / self.name,
+                snapshots_dir=Path(snapshot_dir),
+                pipeline_name=self.name,
+                snapshot_interval_seconds=snapshot_interval_seconds,
+                retention_days=snapshot_retention_days,
+            )
+            self._snapshot_manager.start()
 
         if self._dry_run:
             self._logger.info("🌵 Dry run mode")
@@ -1030,6 +1080,68 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             },
             dump_batch_size=self._dump_batch_size,
         )
+
+    def _restore_cross_config_cache(
+        self, input_cache_path: Path
+    ) -> Optional["CacheRestoreResult"]:
+        """Compute step signatures from DAG, call restore_cache_from_input.
+
+        Args:
+            input_cache_path: Path to the source cache directory.
+
+        Returns:
+            A CacheRestoreResult or None if restoration was not attempted.
+        """
+        from distilabel.pipeline.cache_restore import (
+            compute_step_signatures,
+            restore_cache_from_input,
+        )
+
+        step_sigs = compute_step_signatures(self.dag)
+        result = restore_cache_from_input(
+            input_cache_path, self._cache_dir, self.name, step_sigs
+        )
+
+        if result.success and result.steps_restored > 0:
+            self._logger.info(
+                f"✅ Cross-config cache restoration: {result.steps_restored} steps restored"
+            )
+        elif not result.success:
+            self._logger.warning(
+                f"⚠️ Cross-config cache restoration failed: {result.error}"
+            )
+
+        return result
+
+    def _restructure_pipeline_for_resumption(
+        self, result: "CacheRestoreResult"
+    ) -> None:
+        """Replace cached prefix steps with LoadFromCachedOutput in the DAG.
+
+        This removes all steps before the resumption_step and inserts a
+        LoadFromCachedOutput generator that reads from the last cached step's
+        output files.
+
+        Args:
+            result: The CacheRestoreResult containing resumption metadata.
+        """
+        from distilabel.steps.generators.cached_output import LoadFromCachedOutput
+
+        topo_order = self.dag.step_names_in_topological_order()
+        resumption_idx = topo_order.index(result.resumption_step)
+
+        # Remove all steps before resumption_step
+        for step_name in topo_order[:resumption_idx]:
+            self.dag.remove_step(step_name)
+
+        # Create LoadFromCachedOutput generator and add to DAG
+        loader = LoadFromCachedOutput(
+            name="__cache_loader__",
+            cache_dir=result.last_cached_step_dir,
+            output_columns=result.output_columns,
+        )
+        self.dag.add_step(loader)
+        self.dag.add_edge("__cache_loader__", result.resumption_step)
 
     def _print_load_stages_info(self) -> None:
         """Prints the information about the load stages."""

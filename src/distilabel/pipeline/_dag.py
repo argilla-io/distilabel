@@ -152,6 +152,33 @@ class DAG(_Serializable):
 
         self.G.add_edge(from_step, to_step)
 
+    def remove_step(self, step_name: str) -> None:
+        """Remove a step and all its edges. Invalidates cached properties.
+
+        Args:
+            step_name: The name of the step to remove.
+
+        Raises:
+            ValueError: If the step does not exist.
+        """
+        if step_name not in self.G:
+            raise ValueError(f"Step with name '{step_name}' does not exist")
+        self.G.remove_node(step_name)
+        # Invalidate @cached_property caches stored in __dict__
+        for attr in ("root_steps", "leaf_steps"):
+            self.__dict__.pop(attr, None)
+
+    def step_names_in_topological_order(self) -> List[str]:
+        """Return step names in topological order.
+
+        Used by cache restoration and DAG restructuring to iterate steps
+        in dependency order.
+
+        Returns:
+            A list of step names in topological order.
+        """
+        return list(nx.topological_sort(self.G))
+
     def add_root_step(self, step: "GeneratorStep") -> None:
         """Adds a root step, helper method used when a pipeline receives a dataset in the run
         method.

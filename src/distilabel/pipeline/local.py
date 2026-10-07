@@ -154,6 +154,10 @@ class Pipeline(BasePipeline):
         dataset: Optional["InputDataset"] = None,
         dataset_batch_size: int = 50,
         logging_handlers: Optional[List["logging.Handler"]] = None,
+        restore_cache_from: Optional[str] = None,
+        snapshot_dir: Optional[str] = None,
+        snapshot_interval_seconds: int = 57600,
+        snapshot_retention_days: Optional[int] = None,
     ) -> "Distiset":
         """Runs the pipeline.
 
@@ -218,6 +222,10 @@ class Pipeline(BasePipeline):
             dataset=dataset,
             dataset_batch_size=dataset_batch_size,
             logging_handlers=logging_handlers,
+            restore_cache_from=restore_cache_from,
+            snapshot_dir=snapshot_dir,
+            snapshot_interval_seconds=snapshot_interval_seconds,
+            snapshot_retention_days=snapshot_retention_days,
         ):
             return distiset
 
@@ -248,6 +256,11 @@ class Pipeline(BasePipeline):
             self._output_queue_thread.join()
 
             self._teardown()
+
+            if self._snapshot_manager:
+                self._snapshot_manager.take_final_snapshot()
+                self._snapshot_manager.stop()
+                self._snapshot_manager = None
 
             if self._exception:
                 raise self._exception
