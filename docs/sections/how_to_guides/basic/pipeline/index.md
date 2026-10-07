@@ -388,7 +388,7 @@ In case you want to stop the pipeline while it's running, you can press ++ctrl+c
 
 If for some reason, the pipeline execution stops (for example by pressing `Ctrl+C`), the state of the pipeline and the outputs will be stored in the cache, so we can resume the pipeline execution from the point where it was stopped.
 
-If we want to force the pipeline to run again without can, then we can use the `use_cache` argument of the `Pipeline.run()` method:
+If we want to force the pipeline to run again without cache, then we can use the `use_cache` argument of the `Pipeline.run()` method:
 
 ```python
 if __name__ == "__main__":

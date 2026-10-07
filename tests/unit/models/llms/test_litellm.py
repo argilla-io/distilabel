@@ -86,6 +86,27 @@ class TestLiteLLM:
             }
         ]
 
+    @pytest.mark.asyncio
+    async def test_agenerate_empty_content_does_not_crash(
+        self, mock_litellm: MagicMock, model: str
+    ) -> None:
+        """token_counter must not be called with None content (regression: reasoning models)."""
+        llm = LiteLLM(model=model)  # type: ignore
+        llm.load()  # sets up self._logger used on the empty-content path
+        mocked_completion = Mock(
+            choices=[
+                Mock(
+                    message=Mock(content=None, spec=["content"]),
+                    finish_reason="length",
+                )
+            ]
+        )
+        llm._aclient = AsyncMock(return_value=mocked_completion)
+
+        result = await llm.agenerate(input=[{"role": "user", "content": "Hello"}])
+        assert result["generations"] == [None]
+        assert result["statistics"]["output_tokens"] == [0]
+
     def test_serialization(self, _: MagicMock, model: str) -> None:
         llm = LiteLLM(model=model)  # type: ignore
 
