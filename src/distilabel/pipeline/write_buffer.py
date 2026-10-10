@@ -148,7 +148,7 @@ class _WriteBuffer:
                 else:
                     new_schema = pa.unify_schemas([last_schema, table.schema])
                     self._buffer_last_schema[step_name] = new_schema
-                    table = table.cast(new_schema)
+                    table = self._align_table_to_schema(table, new_schema)
 
         next_file_number = self._buffers_last_file[step_name]
         self._buffers_last_file[step_name] = next_file_number + 1
@@ -169,6 +169,26 @@ class _WriteBuffer:
         self._logger.debug(f"Written to file '{parquet_file}'")
 
         self._clean_buffer(step_name)
+
+    @staticmethod
+    def _align_table_to_schema(table: pa.Table, schema: pa.Schema) -> pa.Table:
+        """Reorders a table to match a target schema and backfills missing columns.
+
+        When a step's columns evolve, `pyarrow.unify_schemas` preserves the existing
+        schema order and appends new fields. `Table.cast`, however, still expects the
+        table's columns to match the target schema exactly. Aligning the current table
+        before casting keeps schemas stable across parquet shards.
+        """
+
+        missing_columns = [
+            field for field in schema if field.name not in table.column_names
+        ]
+        for field in missing_columns:
+            table = table.append_column(
+                field, pa.nulls(table.num_rows, type=field.type)
+            )
+
+        return table.select(schema.names).cast(schema)
 
     def _clean_buffer(self, step_name: str) -> None:
         """Cleans the buffer by setting it's content to `None`.

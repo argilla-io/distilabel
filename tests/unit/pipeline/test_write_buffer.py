@@ -15,6 +15,9 @@
 import tempfile
 from pathlib import Path
 
+import pyarrow as pa
+import pyarrow.parquet as pq
+
 from distilabel.constants import STEPS_OUTPUTS_PATH
 from distilabel.distiset import Distiset, create_distiset
 from distilabel.pipeline.local import Pipeline
@@ -157,3 +160,28 @@ class TestWriteBuffer:
             assert len(ds.keys()) == 2
             assert len(ds["dummy_step_2"]["train"]) == 75
             assert len(ds["dummy_step_3"]["train"]) == 75
+
+    def test_write_buffer_reorders_unified_schema_before_casting(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            write_buffer = _WriteBuffer(path=Path(tmpdirname), leaf_steps={"leaf"})
+            write_buffer._buffer_last_schema["leaf"] = pa.table(
+                {"old": [1], "kept": ["previous"]}
+            ).schema
+            write_buffer._buffers["leaf"] = [
+                {"new": "value", "kept": "current", "old": 2}
+            ]
+
+            write_buffer._write("leaf")
+
+            table = pq.read_table(Path(tmpdirname) / "leaf" / "00001.parquet")
+            assert table.column_names == ["old", "kept", "new"]
+            assert table.to_pylist() == [{"old": 2, "kept": "current", "new": "value"}]
+
+    def test_align_table_to_schema_backfills_missing_columns(self) -> None:
+        table = pa.table({"new": [1]})
+        schema = pa.schema([pa.field("old", pa.string()), pa.field("new", pa.int64())])
+
+        aligned = _WriteBuffer._align_table_to_schema(table, schema)
+
+        assert aligned.schema == schema
+        assert aligned.to_pylist() == [{"old": None, "new": 1}]
