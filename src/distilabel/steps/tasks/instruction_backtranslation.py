@@ -42,7 +42,7 @@ class InstructionBacktranslation(Task):
         - generation (`str`): The text output to evaluate for the given instruction.
 
     Output columns:
-        - score (`str`): The score for the generation based on the given instruction.
+        - score (`int`): The score for the generation based on the given instruction.
         - reason (`str`): The reason for the provided score.
         - model_name (`str`): The model name used to score the generation.
 
@@ -99,6 +99,8 @@ class InstructionBacktranslation(Task):
                 model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
             ),
             use_default_structured_output=True,
+            add_raw_input=False,
+            add_raw_output=False,
         )
 
         instruction_backtranslation.load()
