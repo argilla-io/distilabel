@@ -111,6 +111,101 @@ class TestPipelineRun:
 
         assert result.exit_code == 1
 
+    @mock.patch("distilabel.pipeline.local.Pipeline.run")
+    def test_pipeline_run_with_runtime_parameters_path(
+        self, pipeline_run_mock: mock.MagicMock, tmp_path
+    ) -> None:
+        runtime_params_path = tmp_path / "runtime_params.yaml"
+        runtime_params_path.write_text(
+            "load_hub_dataset:\n"
+            "  repo_id: distilabel-internal-testing/from-yaml\n"
+            "  split: train\n"
+            "text_generation_gpt:\n"
+            "  num_generations: 2\n"
+            "  llm:\n"
+            "    generation_kwargs:\n"
+            "      top_p: 0.9\n"
+        )
+
+        result = runner.invoke(
+            app,
+            [
+                "pipeline",
+                "run",
+                "--config",
+                TEST_PIPELINE_PATH,
+                "--runtime-parameters-path",
+                str(runtime_params_path),
+                "--param",
+                "text_generation_gpt.num_generations=5",
+                "--param",
+                "text_generation_gpt.llm.generation_kwargs.top_k=10",
+            ],
+        )
+
+        pipeline_run_mock.assert_called_once_with(
+            parameters={
+                "load_hub_dataset": {
+                    "repo_id": "distilabel-internal-testing/from-yaml",
+                    "split": "train",
+                },
+                "text_generation_gpt": {
+                    "num_generations": "5",
+                    "llm": {
+                        "generation_kwargs": {
+                            "top_p": 0.9,
+                            "top_k": "10",
+                        }
+                    },
+                },
+            },
+            use_cache=True,
+        )
+        assert result.exit_code == 0
+
+    @mock.patch("distilabel.pipeline.local.Pipeline.run")
+    def test_pipeline_run_runtime_parameters_path_missing(
+        self, pipeline_run_mock: mock.MagicMock
+    ) -> None:
+        result = runner.invoke(
+            app,
+            [
+                "pipeline",
+                "run",
+                "--config",
+                TEST_PIPELINE_PATH,
+                "--runtime-parameters-path",
+                "does-not-exist-runtime-params.yaml",
+            ],
+        )
+
+        pipeline_run_mock.assert_not_called()
+        assert result.exit_code == 1
+        assert "does not exist" in result.output
+
+    @mock.patch("distilabel.pipeline.local.Pipeline.run")
+    def test_pipeline_run_runtime_parameters_path_not_mapping(
+        self, pipeline_run_mock: mock.MagicMock, tmp_path
+    ) -> None:
+        runtime_params_path = tmp_path / "runtime_params.yaml"
+        runtime_params_path.write_text("- just\n- a\n- list\n")
+
+        result = runner.invoke(
+            app,
+            [
+                "pipeline",
+                "run",
+                "--config",
+                TEST_PIPELINE_PATH,
+                "--runtime-parameters-path",
+                str(runtime_params_path),
+            ],
+        )
+
+        pipeline_run_mock.assert_not_called()
+        assert result.exit_code == 1
+        assert "mapping/dictionary" in result.output
+
 
 class TestPipelineInfo:
     def test_pipeline_info(self) -> None:

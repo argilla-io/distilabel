@@ -59,6 +59,64 @@ def parse_runtime_parameters(
     return runtime_params
 
 
+def deep_merge_runtime_parameters(
+    base: Dict[str, Any], override: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Deep-merges two runtime parameter dictionaries.
+
+    Nested dictionaries are merged recursively. Values from `override` take precedence
+    over values from `base` for non-dict leaves and when replacing a non-dict with a
+    dict (or vice versa).
+
+    Args:
+        base: The base runtime parameters (e.g. loaded from a YAML file).
+        override: The runtime parameters that should take precedence (e.g. from `--param`).
+
+    Returns:
+        A new dictionary with the merged runtime parameters.
+    """
+    merged: Dict[str, Any] = dict(base)
+    for key, value in override.items():
+        if key in merged and isinstance(merged[key], dict) and isinstance(value, dict):
+            merged[key] = deep_merge_runtime_parameters(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def load_runtime_parameters_from_yaml(path: str) -> Dict[str, Any]:
+    """Loads pipeline runtime parameters from a YAML file.
+
+    Args:
+        path: Path to the YAML file containing the runtime parameters.
+
+    Returns:
+        A dictionary with the runtime parameters in the format expected by the
+        `Pipeline.run` method.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the YAML root is not a mapping/dictionary.
+    """
+    file_path = Path(path)
+    if not file_path.is_file():
+        raise FileNotFoundError(f"Runtime parameters file '{path}' does not exist.")
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    if data is None:
+        return {}
+
+    if not isinstance(data, dict):
+        raise ValueError(
+            f"Runtime parameters file '{path}' must contain a YAML mapping/dictionary "
+            f"at the root, got {type(data).__name__}."
+        )
+
+    return data
+
+
 def valid_http_url(url: str) -> bool:
     """Check if the URL is a valid HTTP URL.
 

@@ -55,6 +55,14 @@ def run(
         default="pipeline",
         help="Name of the pipeline in a script. I.e. the 'pipeline' variable in `with Pipeline(...) as pipeline:...`.",
     ),
+    runtime_parameters_path: Optional[str] = typer.Option(
+        None,
+        "--runtime-parameters-path",
+        help=(
+            "Path to a YAML file containing the pipeline runtime parameters. "
+            "Parameters from `--param` are deep-merged on top and take precedence."
+        ),
+    ),
     ignore_cache: bool = typer.Option(
         False, help="Whether to ignore the cache and re-run the pipeline from scratch."
     ),
@@ -72,7 +80,12 @@ def run(
         None, help="The Hugging Face Hub API token to use when pushing the dataset."
     ),
 ) -> None:
-    from distilabel.cli.pipeline.utils import get_pipeline, parse_runtime_parameters
+    from distilabel.cli.pipeline.utils import (
+        deep_merge_runtime_parameters,
+        get_pipeline,
+        load_runtime_parameters_from_yaml,
+        parse_runtime_parameters,
+    )
 
     if script:
         if config:
@@ -93,13 +106,23 @@ def run(
         )
         raise typer.Exit(code=1)
 
+    parameters = {}
+    if runtime_parameters_path is not None:
+        try:
+            parameters = load_runtime_parameters_from_yaml(runtime_parameters_path)
+        except Exception as e:
+            typer.secho(str(e), fg=typer.colors.RED, bold=True)
+            raise typer.Exit(code=1) from e
+
     try:
         pipeline = get_pipeline(config or script, pipeline_name=pipeline_variable_name)
     except Exception as e:
         typer.secho(str(e), fg=typer.colors.RED, bold=True)
         raise typer.Exit(code=1) from e
 
-    parameters = parse_runtime_parameters(param)
+    parameters = deep_merge_runtime_parameters(
+        parameters, parse_runtime_parameters(param)
+    )
     distiset = pipeline.run(parameters=parameters, use_cache=not ignore_cache)
 
     if repo_id is not None:
