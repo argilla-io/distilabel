@@ -181,6 +181,30 @@ class TestPipelineRun:
 
         pipeline_run_mock.assert_not_called()
         assert result.exit_code == 1
+        assert "does not exist" in result.output
+
+    @mock.patch("distilabel.pipeline.local.Pipeline.run")
+    def test_pipeline_run_runtime_parameters_path_not_mapping(
+        self, pipeline_run_mock: mock.MagicMock, tmp_path
+    ) -> None:
+        runtime_params_path = tmp_path / "runtime_params.yaml"
+        runtime_params_path.write_text("- just\n- a\n- list\n")
+
+        result = runner.invoke(
+            app,
+            [
+                "pipeline",
+                "run",
+                "--config",
+                TEST_PIPELINE_PATH,
+                "--runtime-parameters-path",
+                str(runtime_params_path),
+            ],
+        )
+
+        pipeline_run_mock.assert_not_called()
+        assert result.exit_code == 1
+        assert "mapping/dictionary" in result.output
 
 
 class TestPipelineInfo:

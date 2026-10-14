@@ -106,12 +106,6 @@ def run(
         )
         raise typer.Exit(code=1)
 
-    try:
-        pipeline = get_pipeline(config or script, pipeline_name=pipeline_variable_name)
-    except Exception as e:
-        typer.secho(str(e), fg=typer.colors.RED, bold=True)
-        raise typer.Exit(code=1) from e
-
     parameters = {}
     if runtime_parameters_path is not None:
         try:
@@ -119,6 +113,12 @@ def run(
         except Exception as e:
             typer.secho(str(e), fg=typer.colors.RED, bold=True)
             raise typer.Exit(code=1) from e
+
+    try:
+        pipeline = get_pipeline(config or script, pipeline_name=pipeline_variable_name)
+    except Exception as e:
+        typer.secho(str(e), fg=typer.colors.RED, bold=True)
+        raise typer.Exit(code=1) from e
 
     parameters = deep_merge_runtime_parameters(
         parameters, parse_runtime_parameters(param)
