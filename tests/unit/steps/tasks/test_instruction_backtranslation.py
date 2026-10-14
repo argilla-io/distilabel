@@ -18,8 +18,9 @@ import pytest
 
 from distilabel.models.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.tasks.instruction_backtranslation import \
-    InstructionBacktranslation
+from distilabel.steps.tasks.instruction_backtranslation import (
+    InstructionBacktranslation,
+)
 from distilabel.typing import ChatType, GenerateOutput
 
 
