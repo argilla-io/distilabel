@@ -12,17 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, List
+from typing import Any, Dict, List, Union
+
+import pytest
 
 from distilabel.models.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.tasks.instruction_backtranslation import (
-    InstructionBacktranslation,
-)
+from distilabel.steps.tasks.instruction_backtranslation import \
+    InstructionBacktranslation
 from distilabel.typing import ChatType, GenerateOutput
 
 
 class InstructionBacktranslationLLM(LLM):
+    structured_output: Any = None
+
     def load(self) -> None:
         pass
 
@@ -65,17 +68,66 @@ class TestInstructionBacktranslation:
             }
         ]
 
-    def test_format_output(self) -> None:
+    @pytest.mark.parametrize(
+        "output, use_default_structured_output, expected",
+        [
+            (
+                "This is the reason. Score: 1",
+                False,
+                {"score": 1, "reason": "This is the reason."},
+            ),
+            (
+                None,
+                False,
+                {"score": None, "reason": None},
+            ),
+            (
+                "unparseable output without a score",
+                False,
+                {"score": None, "reason": None},
+            ),
+            (
+                '{"score": 5, "reason": "Perfect answer."}',
+                True,
+                {"score": 5, "reason": "Perfect answer."},
+            ),
+            (
+                "wrong",
+                True,
+                {"score": None, "reason": None},
+            ),
+        ],
+    )
+    def test_format_output(
+        self,
+        output: Union[str, None],
+        use_default_structured_output: bool,
+        expected: Dict[str, Any],
+    ) -> None:
+        task = InstructionBacktranslation(
+            name="instruction-backtranslation",
+            llm=InstructionBacktranslationLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            use_default_structured_output=use_default_structured_output,
+        )
+        task.load()
+
+        assert task.format_output(output, {}) == expected
+
+    def test_get_structured_output(self) -> None:
         task = InstructionBacktranslation(
             name="instruction-backtranslation",
             llm=InstructionBacktranslationLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
-        task.load()
-
-        assert task.format_output("This is the reason. Score: 1", {}) == {
-            "score": 1,
-            "reason": "This is the reason.",
+        assert task.get_structured_output() == {
+            "properties": {
+                "score": {"title": "Score", "type": "integer"},
+                "reason": {"title": "Reason", "type": "string"},
+            },
+            "required": ["score", "reason"],
+            "title": "SchemaInstructionBacktranslation",
+            "type": "object",
         }
 
     def test_process(self) -> None:
