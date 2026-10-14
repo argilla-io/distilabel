@@ -111,7 +111,6 @@ class TestPipelineRun:
 
         assert result.exit_code == 1
 
-
     @mock.patch("distilabel.pipeline.local.Pipeline.run")
     def test_pipeline_run_with_runtime_parameters_path(
         self, pipeline_run_mock: mock.MagicMock, tmp_path

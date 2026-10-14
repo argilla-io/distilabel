@@ -149,4 +149,3 @@ def test_load_runtime_parameters_from_yaml_not_mapping(tmp_path: Path) -> None:
     path.write_text("- just\n- a\n- list\n")
     with pytest.raises(ValueError, match="mapping/dictionary"):
         load_runtime_parameters_from_yaml(str(path))
-

@@ -77,11 +77,7 @@ def deep_merge_runtime_parameters(
     """
     merged: Dict[str, Any] = dict(base)
     for key, value in override.items():
-        if (
-            key in merged
-            and isinstance(merged[key], dict)
-            and isinstance(value, dict)
-        ):
+        if key in merged and isinstance(merged[key], dict) and isinstance(value, dict):
             merged[key] = deep_merge_runtime_parameters(merged[key], value)
         else:
             merged[key] = value
