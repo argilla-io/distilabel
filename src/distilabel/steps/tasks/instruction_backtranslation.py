@@ -22,8 +22,10 @@ else:
 
 from typing import Any, Dict, List, Optional, Union
 
+import orjson
 from jinja2 import Template
 from pydantic import PrivateAttr
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 from distilabel.typing import ChatType
@@ -40,7 +42,7 @@ class InstructionBacktranslation(Task):
         - generation (`str`): The text output to evaluate for the given instruction.
 
     Output columns:
-        - score (`str`): The score for the generation based on the given instruction.
+        - score (`int`): The score for the generation based on the given instruction.
         - reason (`str`): The reason for the provided score.
         - model_name (`str`): The model name used to score the generation.
 
@@ -82,6 +84,45 @@ class InstructionBacktranslation(Task):
         #         "score": 3,
         #         "reason": "Reason for the generation.",
         #         "model_name": "meta-llama/Meta-Llama-3.1-8B-Instruct",
+        #     }
+        # ]
+        ```
+
+        Generate structured output with default schema:
+
+        ```python
+        from distilabel.steps.tasks import InstructionBacktranslation
+        from distilabel.models import InferenceEndpointsLLM
+
+        instruction_backtranslation = InstructionBacktranslation(
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            ),
+            use_default_structured_output=True,
+            add_raw_input=False,
+            add_raw_output=False,
+        )
+
+        instruction_backtranslation.load()
+
+        result = next(
+            instruction_backtranslation.process(
+                [
+                    {
+                        "instruction": "How much is 2+2?",
+                        "generation": "4",
+                    }
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         "instruction": "How much is 2+2?",
+        #         "generation": "4",
+        #         "score": 5,
+        #         "reason": "The answer is correct and concise.",
+        #         "model_name": "meta-llama/Meta-Llama-3.1-70B-Instruct",
         #     }
         # ]
         ```
@@ -152,15 +193,61 @@ class InstructionBacktranslation(Task):
         Returns:
             A dictionary containing the `score` and the `reason` for the provided `score`.
         """
-        pattern = r"(.+?)Score: (\d)"
+        if output is None:
+            return {"score": None, "reason": None}
 
-        matches = None
-        if output is not None:
-            matches = re.findall(pattern, output, re.DOTALL)
-        if matches is None:
+        if self.use_default_structured_output:
+            return self._format_structured_output(output)
+
+        pattern = r"(.+?)Score: (\d)"
+        matches = re.findall(pattern, output, re.DOTALL)
+        if not matches:
             return {"score": None, "reason": None}
 
         return {
             "score": int(matches[0][1]),
             "reason": matches[0][0].strip(),
         }
+
+    @override
+    def get_structured_output(self) -> Dict[str, Any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        The schema corresponds to the following:
+
+        ```python
+        from pydantic import BaseModel
+
+        class SchemaInstructionBacktranslation(BaseModel):
+            score: int
+            reason: str
+        ```
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        return {
+            "properties": {
+                "score": {"title": "Score", "type": "integer"},
+                "reason": {"title": "Reason", "type": "string"},
+            },
+            "required": ["score", "reason"],
+            "title": "SchemaInstructionBacktranslation",
+            "type": "object",
+        }
+
+    def _format_structured_output(self, output: str) -> Dict[str, Any]:
+        """Parses the structured response, which should correspond to a dictionary
+        with `score` and `reason` keys.
+
+        Args:
+            output: The output from the `LLM`.
+
+        Returns:
+            Formatted output.
+        """
+        try:
+            return orjson.loads(output)
+        except orjson.JSONDecodeError:
+            return {"score": None, "reason": None}

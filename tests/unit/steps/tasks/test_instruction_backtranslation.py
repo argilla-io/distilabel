@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, List
+from typing import Any, Dict, List, Union
+
+import pytest
 
 from distilabel.models.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
@@ -23,6 +25,9 @@ from distilabel.typing import ChatType, GenerateOutput
 
 
 class InstructionBacktranslationLLM(LLM):
+    structured_output: Any = None
+    generation_text: str = "This is the reason. Score: 1"
+
     def load(self) -> None:
         pass
 
@@ -35,9 +40,7 @@ class InstructionBacktranslationLLM(LLM):
     ) -> List[GenerateOutput]:
         return [
             {
-                "generations": [
-                    "This is the reason. Score: 1" for _ in range(num_generations)
-                ],
+                "generations": [self.generation_text for _ in range(num_generations)],
                 "statistics": {
                     "input_tokens": [12] * num_generations,
                     "output_tokens": [12] * num_generations,
@@ -65,18 +68,107 @@ class TestInstructionBacktranslation:
             }
         ]
 
-    def test_format_output(self) -> None:
+    @pytest.mark.parametrize(
+        "output, use_default_structured_output, expected",
+        [
+            (
+                "This is the reason. Score: 1",
+                False,
+                {"score": 1, "reason": "This is the reason."},
+            ),
+            (
+                None,
+                False,
+                {"score": None, "reason": None},
+            ),
+            (
+                "",
+                False,
+                {"score": None, "reason": None},
+            ),
+            (
+                "unparseable output without a score",
+                False,
+                {"score": None, "reason": None},
+            ),
+            (
+                '{"score": 5, "reason": "Perfect answer."}',
+                True,
+                {"score": 5, "reason": "Perfect answer."},
+            ),
+            (
+                None,
+                True,
+                {"score": None, "reason": None},
+            ),
+            (
+                "",
+                True,
+                {"score": None, "reason": None},
+            ),
+            (
+                "wrong",
+                True,
+                {"score": None, "reason": None},
+            ),
+        ],
+    )
+    def test_format_output(
+        self,
+        output: Union[str, None],
+        use_default_structured_output: bool,
+        expected: Dict[str, Any],
+    ) -> None:
+        task = InstructionBacktranslation(
+            name="instruction-backtranslation",
+            llm=InstructionBacktranslationLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            use_default_structured_output=use_default_structured_output,
+        )
+        task.load()
+
+        assert task.format_output(output, {}) == expected
+
+    def test_get_structured_output(self) -> None:
         task = InstructionBacktranslation(
             name="instruction-backtranslation",
             llm=InstructionBacktranslationLLM(),
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
+        assert task.get_structured_output() == {
+            "properties": {
+                "score": {"title": "Score", "type": "integer"},
+                "reason": {"title": "Reason", "type": "string"},
+            },
+            "required": ["score", "reason"],
+            "title": "SchemaInstructionBacktranslation",
+            "type": "object",
+        }
+
+    def test_load_sets_default_structured_output(self) -> None:
+        task = InstructionBacktranslation(
+            name="instruction-backtranslation",
+            llm=InstructionBacktranslationLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            use_default_structured_output=True,
+        )
         task.load()
 
-        assert task.format_output("This is the reason. Score: 1", {}) == {
-            "score": 1,
-            "reason": "This is the reason.",
+        assert task.llm.structured_output == {
+            "schema": task.get_structured_output(),
         }
+
+    def test_load_preserves_existing_structured_output(self) -> None:
+        custom = {"schema": {"type": "object"}, "custom": True}
+        task = InstructionBacktranslation(
+            name="instruction-backtranslation",
+            llm=InstructionBacktranslationLLM(structured_output=custom),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            use_default_structured_output=True,
+        )
+        task.load()
+
+        assert task.llm.structured_output == custom
 
     def test_process(self) -> None:
         task = InstructionBacktranslation(
@@ -96,6 +188,36 @@ class TestInstructionBacktranslation:
                 "model_name": "instruction-backtranslation-model",
                 "distilabel_metadata": {
                     "raw_output_instruction-backtranslation": "This is the reason. Score: 1",
+                    "statistics_instruction-backtranslation": {
+                        "input_tokens": 12,
+                        "output_tokens": 12,
+                    },
+                },
+            }
+        ]
+
+    def test_process_with_structured_output(self) -> None:
+        llm = InstructionBacktranslationLLM(
+            generation_text='{"score": 5, "reason": "Perfect answer."}'
+        )
+        task = InstructionBacktranslation(
+            name="instruction-backtranslation",
+            llm=llm,
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            use_default_structured_output=True,
+            add_raw_input=False,
+        )
+        task.load()
+
+        assert next(task.process([{"instruction": "test", "generation": "A"}])) == [
+            {
+                "instruction": "test",
+                "generation": "A",
+                "score": 5,
+                "reason": "Perfect answer.",
+                "model_name": "instruction-backtranslation-model",
+                "distilabel_metadata": {
+                    "raw_output_instruction-backtranslation": '{"score": 5, "reason": "Perfect answer."}',
                     "statistics_instruction-backtranslation": {
                         "input_tokens": 12,
                         "output_tokens": 12,
