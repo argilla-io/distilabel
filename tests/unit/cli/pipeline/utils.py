@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 from unittest import mock
 
 import pytest
 
 from distilabel.cli.pipeline.utils import (
+    deep_merge_runtime_parameters,
     get_config_from_url,
+    load_runtime_parameters_from_yaml,
     parse_runtime_parameters,
     valid_http_url,
 )
@@ -84,3 +87,66 @@ def test_get_config_from_url_yaml() -> None:
 def test_get_config_from_url_raise_value_error() -> None:
     with pytest.raises(ValueError, match="Unsupported file format"):
         get_config_from_url("https://argilla.io")
+
+
+def test_deep_merge_runtime_parameters() -> None:
+    base = {
+        "step_1": {"key1": "from_yaml", "key2": "keep"},
+        "step_2": {
+            "key1": "yaml",
+            "nested": {"a": 1, "b": 2},
+        },
+    }
+    override = {
+        "step_1": {"key1": "from_cli"},
+        "step_2": {"nested": {"b": 99, "c": 3}},
+        "step_3": {"only_cli": True},
+    }
+    assert deep_merge_runtime_parameters(base, override) == {
+        "step_1": {"key1": "from_cli", "key2": "keep"},
+        "step_2": {
+            "key1": "yaml",
+            "nested": {"a": 1, "b": 99, "c": 3},
+        },
+        "step_3": {"only_cli": True},
+    }
+
+
+def test_load_runtime_parameters_from_yaml(tmp_path: Path) -> None:
+    path = tmp_path / "runtime_params.yaml"
+    path.write_text(
+        "step_1:\n"
+        "  repo_id: org/dataset\n"
+        "  split: train\n"
+        "step_2:\n"
+        "  num_generations: 3\n"
+        "  llm:\n"
+        "    generation_kwargs:\n"
+        "      top_p: 0.5\n"
+    )
+    assert load_runtime_parameters_from_yaml(str(path)) == {
+        "step_1": {"repo_id": "org/dataset", "split": "train"},
+        "step_2": {
+            "num_generations": 3,
+            "llm": {"generation_kwargs": {"top_p": 0.5}},
+        },
+    }
+
+
+def test_load_runtime_parameters_from_yaml_empty(tmp_path: Path) -> None:
+    path = tmp_path / "empty.yaml"
+    path.write_text("")
+    assert load_runtime_parameters_from_yaml(str(path)) == {}
+
+
+def test_load_runtime_parameters_from_yaml_missing() -> None:
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        load_runtime_parameters_from_yaml("does-not-exist-runtime-params.yaml")
+
+
+def test_load_runtime_parameters_from_yaml_not_mapping(tmp_path: Path) -> None:
+    path = tmp_path / "list.yaml"
+    path.write_text("- just\n- a\n- list\n")
+    with pytest.raises(ValueError, match="mapping/dictionary"):
+        load_runtime_parameters_from_yaml(str(path))
+
