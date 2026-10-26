@@ -101,7 +101,7 @@ def _infer_step_name(
         base_name = "_".join(parts[:-1])
         while name in step_names:
             idx = int(name.split("_")[-1])
-            name = f"{base_name}_{idx+1}"
+            name = f"{base_name}_{idx + 1}"
     return name
 
 
