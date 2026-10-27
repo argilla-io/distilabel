@@ -276,3 +276,36 @@ class TestExpandColumns:
                 "distilabel_metadata": stats[2],
             },
         ]
+
+    def test_process_applying_mappings_restores_overridden_columns_for_expanded_rows(
+        self,
+    ) -> None:
+        expand_columns = ExpandColumns(
+            columns=["generation"],
+            input_mappings={"generation": "candidates"},
+        )
+
+        result = next(
+            expand_columns.process_applying_mappings(
+                [
+                    {
+                        "id": 0,
+                        "candidates": ["a0", "b0"],
+                        "generation": "best-0",
+                    },
+                    {
+                        "id": 1,
+                        "candidates": ["a1", "b1", "c1"],
+                        "generation": "best-1",
+                    },
+                ]
+            )
+        )
+
+        assert result == [
+            {"id": 0, "candidates": "a0", "generation": "best-0"},
+            {"id": 0, "candidates": "b0", "generation": "best-0"},
+            {"id": 1, "candidates": "a1", "generation": "best-1"},
+            {"id": 1, "candidates": "b1", "generation": "best-1"},
+            {"id": 1, "candidates": "c1", "generation": "best-1"},
+        ]

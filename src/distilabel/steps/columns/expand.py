@@ -189,6 +189,29 @@ class ExpandColumns(Step):
             for expand_column, new_column in self.columns.items()
         ]
 
+    def process_applying_mappings(self, *args: StepInput) -> "StepOutput":
+        """Apply mappings while preserving overwritten values for each source row.
+
+        Expanded rows are emitted consecutively per input row, so the generic step
+        mapping wrapper's output-index mapping cannot identify their source row.
+        Process each input row separately to restore any overwritten columns to the
+        rows that came from that input.
+        """
+        if not self.input_mappings or len(args) != 1:
+            yield from super().process_applying_mappings(*args)
+            return
+
+        inputs, overridden_inputs = self._apply_input_mappings(args)
+        output_rows = []
+        for input_row, overridden in zip(inputs[0], overridden_inputs):
+            for rows in self.process([input_row]):
+                output_rows.extend(
+                    self._apply_mappings_and_restore_overriden(row, overridden)
+                    for row in rows
+                )
+
+        yield output_rows
+
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Expand the columns in the input data.
 
