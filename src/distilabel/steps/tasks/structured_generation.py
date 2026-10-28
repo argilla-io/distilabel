@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
 from typing import Any, Dict, List, Union
 
 from distilabel.errors import DistilabelUserError
@@ -29,15 +28,14 @@ class StructuredGeneration(Task):
     `instruction`. The `model_name` also returned as part of the output in order to enhance it.
 
     Attributes:
-        use_system_prompt: Whether to use the system prompt in the generation. Defaults to `True`,
-            which means that if the column `system_prompt` is  defined within the input batch, then
-            the `system_prompt` will be used, otherwise, it will be ignored.
+        - system_prompt (`Optional[str]`): The system prompt for the StructuredGeneration task.
 
     Input columns:
         - instruction (`str`): The instruction to generate structured content from.
         - structured_output (`Dict[str, Any]`): The structured_output to generate structured content from. It should be a
             Python dictionary with the keys `format` and `schema`, where `format` should be one of `json` or
             `regex`, and the `schema` should be either the JSON schema or the regex pattern, respectively.
+        - system_prompt (`Optional[str]`): The system prompt for the StructuredGeneration task.
 
     Output columns:
         - generation (`str`): The generated text matching the provided schema, if possible.
@@ -144,10 +142,7 @@ class StructuredGeneration(Task):
         """The input for the task are the `instruction` and the `structured_output`.
         Optionally, if the `use_system_prompt` flag is set to True, then the
         `system_prompt` will be used too."""
-        columns = ["instruction", "structured_output"]
-        if self.use_system_prompt:
-            columns = ["system_prompt"] + columns
-        return columns
+        return {"instruction": True, "structured_output": True, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> StructuredInput:
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -159,18 +154,10 @@ class StructuredGeneration(Task):
             )
 
         messages = [{"role": "user", "content": input["instruction"]}]
-        if self.use_system_prompt:
-            if "system_prompt" in input:
-                messages.insert(
-                    0, {"role": "system", "content": input["system_prompt"]}
-                )
-            else:
-                warnings.warn(
-                    "`use_system_prompt` is set to `True`, but no `system_prompt` in input batch, so it will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
-
+        if "system_prompt" in input:
+            messages.insert(0, {"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.insert(0, {"role": "system", "content": self.system_prompt})
         return (messages, input.get("structured_output", None))  # type: ignore
 
     @property

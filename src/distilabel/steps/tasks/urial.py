@@ -30,10 +30,14 @@ class URIAL(Task):
     model. This task is used to generate a response based on the conversation provided as
     input.
 
+    Attributes:
+        - system_prompt (`str`, optional): The system prompt to use in the generation.
+
     Input columns:
         - instruction (`str`, optional): The instruction to generate a response from.
         - conversation (`List[Dict[str, str]]`, optional): The conversation to generate
             a response from (the last message must be from the user).
+        - system_prompt (`str`, optional): The system prompt to use in the generation.
 
     Output columns:
         - generation (`str`): The generated response.
@@ -91,19 +95,28 @@ class URIAL(Task):
 
     @property
     def inputs(self) -> "StepColumns":
-        return {"instruction": False, "conversation": False}
+        return {"instruction": False, "conversation": False, "system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        messages = (
+        non_system_messages = (
             [{"role": "user", "content": input["instruction"]}]
             if "instruction" in input
             else input["conversation"]
         )
 
-        if messages[-1]["role"] != "user":
+        if non_system_messages[-1]["role"] != "user":
             raise ValueError("The last message must be from the user.")
-
-        return [{"role": "user", "content": self._template.render(messages=messages)}]
+        messages = [
+            {
+                "role": "user",
+                "content": self._template.render(messages=non_system_messages),
+            }
+        ]
+        if "system_prompt" in input:
+            messages.insert(0, {"role": "system", "content": input["system_prompt"]})
+        elif self.system_prompt:
+            messages.insert(0, {"role": "system", "content": self.system_prompt})
+        return messages
 
     @property
     def outputs(self) -> "StepColumns":

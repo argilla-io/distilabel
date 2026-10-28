@@ -32,10 +32,12 @@ class GenerateEmbeddings(Step):
 
     Attributes:
         llm: The `LLM` to use to generate the embeddings.
+        system_prompt: The system prompt for the embedding generation task.
 
     Input columns:
         - text (`str`, `List[Dict[str, str]]`): The input text or conversation to generate
             embeddings for.
+        - system_prompt (`Optional[str]`): The system prompt for the embedding generation task.
 
     Output columns:
         - embedding (`List[float]`): The embedding of the input text or conversation.
@@ -100,7 +102,7 @@ class GenerateEmbeddings(Step):
     def inputs(self) -> "StepColumns":
         """The inputs for the task is a `text` column containing either a string or a
         list of dictionaries in OpenAI chat-like format."""
-        return ["text"]
+        return {"text": True, "system_prompt": False}
 
     @property
     def outputs(self) -> "StepColumns":
@@ -119,14 +121,26 @@ class GenerateEmbeddings(Step):
         Returns:
             The OpenAI chat-like format of the input.
         """
-        text = input["text"] = input["text"]
+        text = input["text"]
 
         # input is in `ChatType` format
         if isinstance(text, str):
-            return [{"role": "user", "content": text}]
+            messages = []
+            if "system_prompt" in input:
+                messages.append({"role": "system", "content": input["system_prompt"]})
+            elif self.system_prompt:
+                messages.append({"role": "system", "content": self.system_prompt})
+            messages.append({"role": "user", "content": text})
+            return messages
 
         if is_openai_format(text):
-            return text
+            messages = []
+            if "system_prompt" in input:
+                messages.append({"role": "system", "content": input["system_prompt"]})
+            elif self.system_prompt:
+                messages.append({"role": "system", "content": self.system_prompt})
+            messages.append({"role": "user", "content": text})
+            return messages
 
         raise DistilabelUserError(
             f"Couldn't format input for step {self.name}. The `text` input column has to"
