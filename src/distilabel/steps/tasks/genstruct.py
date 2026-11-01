@@ -33,6 +33,10 @@ if TYPE_CHECKING:
 
 _PARSE_GENSTRUCT_OUTPUT_REGEX = r"(.+?)\[\[\[Assistant\]\]\](.+)$"
 
+_GENSTRUCT_CHAT_TEMPLATE = (
+    "{% for message in messages %}{{ message['content'] }}{% endfor %}"
+)
+
 
 class Genstruct(Task):
     """Generate a pair of instruction-response from a document using an `LLM`.
@@ -120,8 +124,23 @@ class Genstruct(Task):
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Loads the Jinja2 template."""
+        """Loads the Jinja2 template and configures the LLM's chat template if needed."""
+        if hasattr(self.llm, "chat_template") and self.llm.chat_template is None:
+            self.llm.chat_template = _GENSTRUCT_CHAT_TEMPLATE
+
         super().load()
+
+        tokenizer = getattr(self.llm, "_tokenizer", None)
+        if tokenizer is None and hasattr(self.llm, "_pipeline"):
+            tokenizer = getattr(self.llm._pipeline, "tokenizer", None)
+
+        if (
+            tokenizer is not None
+            and getattr(tokenizer, "chat_template", None) is not None
+            and "title" in tokenizer.chat_template
+            and _GENSTRUCT_CHAT_TEMPLATE not in tokenizer.chat_template
+        ):
+            tokenizer.chat_template = _GENSTRUCT_CHAT_TEMPLATE
 
         _path = str(
             importlib_resources.files("distilabel")
@@ -131,7 +150,8 @@ class Genstruct(Task):
             / "genstruct.jinja2"
         )
 
-        self._template = Template(open(_path).read())
+        with open(_path, encoding="utf-8") as f:
+            self._template = Template(f.read())
 
     @property
     def inputs(self) -> List[str]:
