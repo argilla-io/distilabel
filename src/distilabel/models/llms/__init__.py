@@ -16,6 +16,7 @@ from distilabel.models.llms.anthropic import AnthropicLLM
 from distilabel.models.llms.anyscale import AnyscaleLLM
 from distilabel.models.llms.azure import AzureOpenAILLM
 from distilabel.models.llms.base import LLM, AsyncLLM
+from distilabel.models.llms.cheaperinference import CheaperInferenceLLM
 from distilabel.models.llms.cohere import CohereLLM
 from distilabel.models.llms.groq import GroqLLM
 from distilabel.models.llms.huggingface import InferenceEndpointsLLM, TransformersLLM
@@ -40,6 +41,7 @@ __all__ = [
     "AnyscaleLLM",
     "AsyncLLM",
     "AzureOpenAILLM",
+    "CheaperInferenceLLM",
     "ClientSGLang",
     "ClientvLLM",
     "CohereLLM",
