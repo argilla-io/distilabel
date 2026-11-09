@@ -66,7 +66,7 @@ class _JSONFormatter(ABC):
             A Python dictionary with the parsed output based on the `keys` property.
         """
         if output is None:
-            return {key: None for key in self.keys}
+            return dict.fromkeys(self.keys)
 
         def escape_backslashes_in_values(s):
             # Regular expression to match the key-value pairs in the dictionary
@@ -100,7 +100,7 @@ class _JSONFormatter(ABC):
             pass
 
         if not isinstance(output, dict):
-            return {key: None for key in self.keys}
+            return dict.fromkeys(self.keys)
 
         return {key: output.get(key, None) for key in self.keys}
 
