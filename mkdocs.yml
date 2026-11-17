@@ -218,6 +218,7 @@ nav:
           - CLAIR: "sections/pipeline_samples/papers/clair.md"
           - Math Shepherd: "sections/pipeline_samples/papers/math_shepherd.md"
       - Examples:
+          - Review claims against cited documentation: "sections/pipeline_samples/examples/source_grounded_review.md"
           - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
           - Structured generation with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"
           - Structured generation with instructor: "sections/pipeline_samples/examples/mistralai_with_instructor.md"
