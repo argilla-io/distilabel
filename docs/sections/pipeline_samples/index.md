@@ -121,6 +121,14 @@ hide: toc
 
 <div class="grid cards" markdown>
 
+-   __Review claims against cited documentation__
+
+    ---
+
+    Preserve public documentation evidence through generation and citation-support feedback, with optional live retrieval.
+
+    [:octicons-arrow-right-24: Example](examples/source_grounded_review.md)
+
 -   __Benchmarking with distilabel__
 
     ---
