@@ -93,7 +93,7 @@ def setup_logging(
         )
         log_level = "INFO"
 
-    root_logger = logging.getLogger()
+    root_logger = logging.getLogger("distilabel.root")
     root_logger.handlers.clear()
 
     if log_queue is not None:
