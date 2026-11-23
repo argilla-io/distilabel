@@ -229,7 +229,7 @@ class TextGeneration(Task):
     @property
     def inputs(self) -> "StepColumns":
         """The input for the task is the `instruction` by default, or the `columns` given as input."""
-        columns = {column: True for column in self.columns}
+        columns = dict.fromkeys(self.columns, True)
         columns["system_prompt"] = False
         return columns
 
