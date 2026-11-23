@@ -176,11 +176,11 @@ class ImageGeneration(ImageTask):
 
                     self.save_artifact(
                         name="images",
-                        write_function=lambda path,
-                        prompt_hash=prompt_hash,
-                        img=image: img.save(
-                            path / f"{prompt_hash}.{self.image_format.lower()}",
-                            format=self.image_format,
+                        write_function=lambda path, prompt_hash=prompt_hash, img=image: (
+                            img.save(
+                                path / f"{prompt_hash}.{self.image_format.lower()}",
+                                format=self.image_format,
+                            )
                         ),
                         metadata={"type": "image"},
                     )

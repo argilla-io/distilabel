@@ -17,6 +17,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any, Dict, List, Optional, Union
 
+from distilabel.steps.tasks.typing import ChatType
 from jinja2 import Template
 from pydantic import PrivateAttr
 from typing_extensions import override
@@ -25,7 +26,6 @@ from distilabel.models import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import ChatType
 
 _PARSE_DEEPSEEK_PROVER_AUTOFORMAL_REGEX = r"```lean4(.*?)```"
 

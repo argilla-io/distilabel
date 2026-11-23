@@ -509,9 +509,9 @@ class Distiset(dict):
         )
         dest_distiset_path = distiset_path
 
-        assert fs.isdir(
-            original_distiset_path
-        ), "`distiset_path` must be a `PathLike` object pointing to a folder or a URI of a remote filesystem."
+        assert fs.isdir(original_distiset_path), (
+            "`distiset_path` must be a `PathLike` object pointing to a folder or a URI of a remote filesystem."
+        )
 
         has_config = False
         has_artifacts = False
