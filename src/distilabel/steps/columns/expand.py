@@ -30,7 +30,9 @@ class ExpandColumns(Step):
 
     `ExpandColumns` is a `Step` that takes a list of columns and expands them into multiple
     rows. The new rows will have the same data as the original row, except for the expanded
-    column, which will contain a single item from the original list.
+    column, which will contain a single item from the original list. All selected
+    columns in a row must have the same length; unequal lengths raise `ValueError`
+    instead of producing misaligned data. Rows with empty lists produce no output rows.
 
     Attributes:
         columns: A dictionary that maps the column to be expanded to the new column name
@@ -218,7 +220,15 @@ class ExpandColumns(Step):
         expanded_rows = []
         # Update the columns here to avoid doing the validation on the `inputs`, as the
         # `distilabel_metadata` is not defined on Pipeline creation on the DAG.
-        columns = self.columns
+        columns = self.columns.copy()
+        lengths = {column: len(input[column]) for column in columns}
+        if len(set(lengths.values())) > 1:
+            raise ValueError(
+                "Columns selected for expansion must have the same length. "
+                f"Received lengths: {lengths}"
+            )
+        if not lengths or next(iter(lengths.values())) == 0:
+            return []
         if self.split_statistics:
             columns["distilabel_metadata"] = "distilabel_metadata"
 
