@@ -271,7 +271,20 @@ class DeitaFiltering(GlobalStep):
         Returns:
             The manhattan distance between the embeddings.
         """
-        manhattan_distance = np.abs(embeddings[:, None] - embeddings).sum(-1)
-        # Ignore self-distance
-        np.fill_diagonal(manhattan_distance, np.inf)
-        return np.min(manhattan_distance, axis=1)
+        # Bound the temporary pairwise tensor independently of dataset size.
+        # Keep NumPy's original subtraction/sum dtype and reduction order.
+        block_size = 32
+        nearest = np.full(len(embeddings), np.inf, dtype=embeddings.dtype)
+        for start in range(0, len(embeddings), block_size):
+            stop = min(start + block_size, len(embeddings))
+            for other in range(0, len(embeddings), block_size):
+                distances = np.abs(
+                    embeddings[start:stop, None]
+                    - embeddings[other : other + block_size]
+                ).sum(-1)
+                if start == other:
+                    np.fill_diagonal(distances, np.inf)
+                nearest[start:stop] = np.minimum(
+                    nearest[start:stop], np.min(distances, axis=1)
+                )
+        return nearest
