@@ -256,11 +256,37 @@ class DeitaFiltering(GlobalStep):
         Returns:
             The cosine distance between the embeddings.
         """
-        cosine_similarity = np.dot(embeddings, embeddings.T)
-        cosine_distance = 1 - cosine_similarity
-        # Ignore self-distance
-        np.fill_diagonal(cosine_distance, np.inf)
-        return np.min(cosine_distance, axis=1)
+        # Keep the original reduction for small inputs. Larger pools only need
+        # per-row minima, not two full N x N similarity/distance matrices.
+        block_size = 512
+        if len(embeddings) <= block_size:
+            cosine_similarity = np.dot(embeddings, embeddings.T)
+            cosine_distance = 1 - cosine_similarity
+            np.fill_diagonal(cosine_distance, np.inf)
+            return np.min(cosine_distance, axis=1)
+
+        nearest = np.full(len(embeddings), np.inf, dtype=embeddings.dtype)
+        for start in range(0, len(embeddings), block_size):
+            stop = min(start + block_size, len(embeddings))
+            for other_start in range(start, len(embeddings), block_size):
+                other_stop = min(other_start + block_size, len(embeddings))
+                distances = np.dot(
+                    embeddings[start:stop], embeddings[other_start:other_stop].T
+                )
+                np.subtract(1, distances, out=distances)
+                if start == other_start:
+                    np.fill_diagonal(distances, np.inf)
+                nearest[start:stop] = np.minimum(
+                    nearest[start:stop], distances.min(axis=1)
+                )
+                if start != other_start:
+                    # Each off-diagonal tile serves both halves of the symmetric
+                    # distance matrix, avoiding a second matrix multiplication.
+                    nearest[other_start:other_stop] = np.minimum(
+                        nearest[other_start:other_stop], distances.min(axis=0)
+                    )
+                del distances
+        return nearest
 
     def _manhattan_distance(self, embeddings: np.array) -> np.array:  # type: ignore
         """Computes the manhattan distance between the embeddings.
