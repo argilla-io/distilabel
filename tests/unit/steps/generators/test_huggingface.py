@@ -74,6 +74,43 @@ class TestLoadDataFromHub:
         assert dataset_loader.outputs == ["prompt", "completion", "meta"]
 
 
+class TestLoadDataFromHubLocal:
+    @pytest.mark.parametrize("streaming", [False, True])
+    @pytest.mark.parametrize("offset", [0, 1, 3, 4, 6, 7, 10])
+    @pytest.mark.parametrize("limit", [6, 7, 10])
+    def test_resume_and_limit(self, streaming: bool, offset: int, limit: int):
+        dataset = Dataset.from_dict({"id": list(range(10))})
+        loader = LoadDataFromHub(repo_id="unused", batch_size=3, num_examples=limit)
+        loader._dataset = dataset.to_iterable_dataset() if streaming else dataset
+
+        batches = list(loader.process(offset=offset))
+
+        expected = list(range(offset, limit))
+        assert [row["id"] for batch, _ in batches for row in batch] == expected
+        assert [last for _, last in batches] == (
+            [False] * (len(batches) - 1) + [True] if batches else []
+        )
+        assert all(0 < len(batch) <= 3 for batch, _ in batches)
+        # Repeated calls must not consume or replace the stored dataset.
+        assert list(loader.process(offset=offset)) == batches
+
+    def test_streaming_stops_at_limit(self):
+        consumed = []
+
+        def rows():
+            for i in range(20):
+                consumed.append(i)
+                yield {"id": i}
+
+        loader = LoadDataFromHub(repo_id="unused", batch_size=3, num_examples=5)
+        loader._dataset = IterableDataset.from_generator(rows)
+        batches = list(loader.process(offset=1))
+        assert [row["id"] for batch, _ in batches for row in batch] == [1, 2, 3, 4]
+        # Hugging Face streaming may read one lookahead row when taking a prefix.
+        assert consumed[:5] == list(range(5))
+        assert len(consumed) <= 6
+
+
 class TestLoadDataFromFileSystem:
     @pytest.mark.parametrize("filetype", ["json", None])
     @pytest.mark.parametrize("streaming", [True, False])
