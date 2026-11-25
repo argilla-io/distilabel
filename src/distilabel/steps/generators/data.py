@@ -68,21 +68,20 @@ class LoadDataFromDicts(GeneratorStep):
 
         Args:
             offset: The offset to start the generation from. Defaults to `0`.
+                Processing does not consume or modify the configured data, so offsets
+                always refer to the original input on repeated calls.
 
         Yields:
             A list of Python dictionaries as read from the inputs (propagated in batches)
             and a flag indicating whether the yield batch is the last one.
         """
-        if offset:
-            self.data = self.data[offset:]
-
-        while self.data:
-            batch = self.data[: self.batch_size]
-            self.data = self.data[self.batch_size :]
-            yield (
-                batch,
-                True if len(self.data) == 0 else False,
-            )
+        # Copy only the current batch, not the entire remaining input each time.
+        # Keeping data intact also makes repeated runs and resume offsets stable.
+        length = len(self.data)
+        first = max(length + offset, 0) if offset < 0 else offset
+        for start in range(first, length, self.batch_size):
+            end = start + self.batch_size
+            yield self.data[start:end], end >= length
 
     @property
     def outputs(self) -> List[str]:
