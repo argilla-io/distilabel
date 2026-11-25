@@ -29,6 +29,46 @@ from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
 
 class TestBatchManagerStep:
+    @pytest.mark.parametrize(
+        "sequence_numbers",
+        [list(range(100)), list(reversed(range(100))), [4, 0, 2, 2, 5, 1, 4, 0]],
+    )
+    def test_add_batch_preserves_stable_order(self, sequence_numbers) -> None:
+        existing = _Batch(seq_no=2, step_name="step1", last_batch=False)
+        manager = _BatchManagerStep(
+            step_name="sink", accumulate=True, data={"step1": [existing], "step2": []}
+        )
+        received = [existing]
+        for seq_no in sequence_numbers:
+            batch = _Batch(seq_no=seq_no, step_name="step1", last_batch=False)
+            received.append(batch)
+            manager.add_batch(batch)
+            assert [id(item) for item in manager.data["step1"]] == [
+                id(item) for item in sorted(received, key=lambda item: item.seq_no)
+            ]
+        assert manager.data["step2"] == []
+
+    def test_accumulate_out_of_order_predecessors(self) -> None:
+        manager = _BatchManagerStep(
+            step_name="sink",
+            accumulate=True,
+            data={"step1": [], "step2": []},
+            step_offset={"step1": (0, 0), "step2": (0, 0)},
+        )
+        for step in ("step1", "step2"):
+            for seq_no in (3, 1, 0, 2):
+                batch = _Batch(seq_no=seq_no, step_name=step, last_batch=seq_no == 3)
+                batch.set_data([[{"step": step, "value": seq_no}]])
+                manager.add_batch(batch)
+        result = manager.get_batch()
+        assert result is not None
+        assert result.last_batch
+        assert result.data == [
+            [{"step": step, "value": seq_no} for seq_no in range(4)]
+            for step in ("step1", "step2")
+        ]
+        assert manager.data == {"step1": [], "step2": []}
+
     def test_add_batch(self) -> None:
         batch_manager_step = _BatchManagerStep(
             step_name="step2", accumulate=False, input_batch_size=10, data={"step1": []}
