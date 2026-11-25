@@ -176,15 +176,20 @@ class LoadDataFromHub(GeneratorStep):
             A tuple containing a batch of rows and a boolean indicating if the batch is
             the last one.
         """
-        num_returned_rows = 0
-        for batch_num, batch in enumerate(
-            self._dataset.iter(batch_size=self.batch_size)  # type: ignore
-        ):
-            if batch_num * self.batch_size < offset:
-                continue
+        if offset >= self.num_examples:
+            return
+
+        # Slice before batching so offsets need not align with batch boundaries.
+        # Streaming datasets must also stop at the configured total row limit.
+        if isinstance(self._dataset, IterableDataset):
+            dataset = self._dataset.skip(offset).take(self.num_examples - offset)
+        else:
+            dataset = self._dataset.select(range(offset, self.num_examples))
+
+        num_returned_rows = offset
+        for batch in dataset.iter(batch_size=self.batch_size):
             transformed_batch = self._transform_batch(batch)
-            batch_size = len(transformed_batch)
-            num_returned_rows += batch_size
+            num_returned_rows += len(transformed_batch)
             yield transformed_batch, num_returned_rows >= self.num_examples
 
     @property
