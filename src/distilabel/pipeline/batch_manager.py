@@ -114,8 +114,21 @@ class _BatchManagerStep(_Serializable):
         if prepend:
             self.built_batches.append(batch)
         else:
-            self.data[from_step].append(batch)
-            self.data[from_step].sort(key=lambda batch: batch.seq_no)
+            batches = self.data[from_step]
+            if not batches or batches[-1].seq_no <= batch.seq_no:
+                # Ordered arrivals need no scan of the accumulated buffer.
+                batches.append(batch)
+            else:
+                # Right-biased insertion preserves the stable order of equal
+                # sequence numbers. Avoid bisect's key argument (Python 3.10+).
+                lo, hi = 0, len(batches)
+                while lo < hi:
+                    mid = (lo + hi) // 2
+                    if batch.seq_no < batches[mid].seq_no:
+                        hi = mid
+                    else:
+                        lo = mid + 1
+                batches.insert(lo, batch)
 
         if batch.last_batch:
             self.last_batch_received.append(from_step)
