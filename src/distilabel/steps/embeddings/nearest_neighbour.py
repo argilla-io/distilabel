@@ -16,7 +16,7 @@ import importlib.util
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import numpy as np
-from datasets import Dataset
+from datasets import Dataset, concatenate_datasets
 from pydantic import Field
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -230,12 +230,36 @@ class FaissNearestNeighbour(GlobalStep):
                 queries=queries,
                 k=self.k + 1,  # type: ignore
             )
-            examples["nn_indices"] = [indices[1:] for indices in results.total_indices]
-            examples["nn_scores"] = [scores[1:] for scores in results.total_scores]
-            return examples
+            return {
+                "nn_indices": [indices[1:] for indices in results.total_indices],
+                "nn_scores": [scores[1:] for scores in results.total_scores],
+            }
 
-        return dataset.map(
-            add_search_results, batched=True, batch_size=self.search_batch_size
+        if not len(dataset):
+            return dataset
+
+        # Map only the query and existing output columns, retaining output feature
+        # types when replacing them. Unrelated payload columns need no decoding or
+        # rewriting; horizontal concatenation reuses their Arrow buffers.
+        search_columns = [
+            column
+            for column in dataset.column_names
+            if column == "embedding" or column in self.outputs
+        ]
+        results = dataset.select_columns(search_columns).map(
+            add_search_results,
+            batched=True,
+            batch_size=self.search_batch_size,
+            remove_columns=["embedding"],
+        )
+        inputs = dataset.remove_columns(
+            [column for column in self.outputs if column in dataset.column_names]
+        )
+        column_order = dataset.column_names + [
+            column for column in self.outputs if column not in dataset.column_names
+        ]
+        return concatenate_datasets([inputs, results], axis=1).select_columns(
+            column_order
         )
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
