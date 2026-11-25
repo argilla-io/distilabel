@@ -165,6 +165,12 @@ class MinHashLSH(_MinHashLSH):
             storage_config["type"] == "redis" if not prepickle else prepickle
         )
 
+        # datasketch 2.x checks this flag when inserting keys. Our disk storage,
+        # like dict storage, accepts Python keys without pre-serialization.
+        self._require_bytes_keys = (
+            storage_config["type"] not in {"dict", "disk"} and not self.prepickle
+        )
+
         self.hashfunc = hashfunc
         if hashfunc:
             self._H = self._hashed_byteswap
