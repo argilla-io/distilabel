@@ -223,19 +223,32 @@ class FaissNearestNeighbour(GlobalStep):
             as well as the score or distance.
         """
 
-        def add_search_results(examples: Dict[str, List[Any]]) -> Dict[str, List[Any]]:
+        def add_search_results(
+            examples: Dict[str, List[Any]], row_indices: List[int]
+        ) -> Dict[str, List[Any]]:
             queries = np.array(examples["embedding"])
             results = dataset.search_batch(
                 index_name="embedding",
                 queries=queries,
                 k=self.k + 1,  # type: ignore
             )
-            examples["nn_indices"] = [indices[1:] for indices in results.total_indices]
-            examples["nn_scores"] = [scores[1:] for scores in results.total_scores]
+            examples["nn_indices"] = []
+            examples["nn_scores"] = []
+            for row_index, indices, scores in zip(
+                row_indices, results.total_indices, results.total_scores
+            ):
+                # Ties and inner-product search can rank other rows before self.
+                # FAISS uses -1 when there are not enough neighbors available.
+                valid = (indices != row_index) & (indices >= 0)
+                examples["nn_indices"].append(indices[valid][: self.k])
+                examples["nn_scores"].append(scores[valid][: self.k])
             return examples
 
         return dataset.map(
-            add_search_results, batched=True, batch_size=self.search_batch_size
+            add_search_results,
+            batched=True,
+            batch_size=self.search_batch_size,
+            with_indices=True,
         )
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
