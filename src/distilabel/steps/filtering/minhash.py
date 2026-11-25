@@ -182,7 +182,7 @@ class MinHashDedup(Step):
 
         from distilabel.steps.filtering._datasketch import MinHashLSH
 
-        self._hasher = MinHash.bulk
+        self._hasher = MinHash.generator
         self._lsh = MinHashLSH(
             num_perm=self.num_perm,
             threshold=self.threshold,
@@ -214,9 +214,10 @@ class MinHashDedup(Step):
         return ["keep_row_after_minhash_filtering"]
 
     def process(self, inputs: StepInput) -> "StepOutput":
-        tokenized_texts = []
-        for input in inputs:
-            tokenized_texts.append(self._tokenizer([input[self.inputs[0]]])[0])
+        # Retain only one document's tokens and signature at a time.
+        tokenized_texts = (
+            self._tokenizer([input[self.inputs[0]]])[0] for input in inputs
+        )
 
         minhashes = self._hasher(
             tokenized_texts, num_perm=self.num_perm, seed=self.seed
