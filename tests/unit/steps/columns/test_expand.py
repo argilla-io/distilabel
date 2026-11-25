@@ -276,3 +276,57 @@ class TestExpandColumns:
                 "distilabel_metadata": stats[2],
             },
         ]
+
+    @pytest.mark.parametrize("left,right", [(2, 1), (1, 2), (0, 2), (2, 0)])
+    @pytest.mark.parametrize("encoded", [False, True])
+    def test_reject_unequal_lengths(self, left, right, encoded):
+        step = ExpandColumns(
+            columns={"answers": "answer", "scores": "score"}, encoded=encoded
+        )
+        row = {"answers": list(range(left)), "scores": list(range(right))}
+        if encoded:
+            row = {key: json.dumps(value) for key, value in row.items()}
+        with pytest.raises(ValueError, match="same length") as error:
+            next(step.process([row]))
+        assert "answers" in str(error.value)
+        assert "scores" in str(error.value)
+
+    @pytest.mark.parametrize("split_statistics", [False, True])
+    def test_empty_lists_produce_no_rows(self, split_statistics):
+        step = ExpandColumns(
+            columns=["answers", "scores"], split_statistics=split_statistics
+        )
+        row = {
+            "answers": [],
+            "scores": [],
+            "distilabel_metadata": {
+                "statistics_task": {"input_tokens": [12], "output_tokens": [6]}
+            },
+        }
+        assert next(step.process([row])) == []
+
+    def test_split_statistics_keeps_config_across_rows_and_calls(self):
+        from copy import deepcopy
+
+        step = ExpandColumns(
+            columns={"answers": "answer", "scores": "score"}, split_statistics=True
+        )
+        configured = dict(step.columns)
+        inputs = step.inputs
+        row = {
+            "answers": ["a", "b"],
+            "scores": [1, 2],
+            "distilabel_metadata": {
+                "statistics_task": {"input_tokens": [12], "output_tokens": [6]}
+            },
+        }
+        result = next(step.process([deepcopy(row), deepcopy(row)]))
+        assert [(r["answer"], r["score"]) for r in result] == [("a", 1), ("b", 2)] * 2
+        assert all(
+            r["distilabel_metadata"]["statistics_task"]
+            == {"input_tokens": [6], "output_tokens": [3]}
+            for r in result
+        )
+        assert step.columns == configured
+        assert step.inputs == inputs
+        assert next(step.process([deepcopy(row)])) == result[:2]
