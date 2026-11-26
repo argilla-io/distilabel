@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import ast
 import importlib.resources as importlib_resources
 import random
 import re
@@ -87,7 +88,7 @@ class _JSONFormatter(ABC):
 
         try:
             output = escape_backslashes_in_values(output)
-            output = eval(output)
+            output = ast.literal_eval(output)
         except Exception:
             pass
 
@@ -95,7 +96,7 @@ class _JSONFormatter(ABC):
             pattern = r"```json\n(.*?)```"
             matches = re.findall(pattern, output, re.DOTALL)  # type: ignore
             if matches:
-                output = eval(matches[0])
+                output = ast.literal_eval(matches[0])
         except Exception:
             pass
 
@@ -395,7 +396,7 @@ class EmbeddingTaskGenerator(GeneratorTask):
         """
         try:
             if output is not None:
-                output = eval(output)
+                output = ast.literal_eval(output)
         except Exception:
             pass
         return {"tasks": output}
