@@ -520,3 +520,72 @@ class TestGenerateTextRetrievalData:
                 },
             }
         ]
+
+
+class TestFormatOutputDoesNotExecuteGenerations:
+    @staticmethod
+    def _task() -> GenerateTextRetrievalData:
+        return GenerateTextRetrievalData(
+            name="generate_text_retrieval_data",
+            language="English",
+            add_raw_output=False,
+            llm=MockLLM(output="unused"),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+
+    def test_json_object_is_parsed(self) -> None:
+        output = json.dumps(
+            {
+                "user_query": "q",
+                "positive_document": "p",
+                "hard_negative_document": "n",
+            }
+        )
+
+        assert self._task().format_output(output) == {
+            "user_query": "q",
+            "positive_document": "p",
+            "hard_negative_document": "n",
+        }
+
+    def test_fenced_json_object_is_parsed(self) -> None:
+        output = '```json\n{"user_query": "q", "positive_document": "p"}\n```'
+
+        assert self._task().format_output(output) == {
+            "user_query": "q",
+            "positive_document": "p",
+            "hard_negative_document": None,
+        }
+
+    def test_expression_in_a_value_is_not_executed(self, tmp_path: Any) -> None:
+        marker = tmp_path / "executed.txt"
+        output = (
+            '{"user_query": "q", "positive_document": "p", '
+            f'"hard_negative_document": open({str(marker)!r}, "w").write("x")}}'
+        )
+
+        assert self._task().format_output(output) == {
+            "user_query": None,
+            "positive_document": None,
+            "hard_negative_document": None,
+        }
+        assert not marker.exists()
+
+    def test_embedding_task_generator_does_not_execute_output(
+        self, tmp_path: Any
+    ) -> None:
+        marker = tmp_path / "executed.txt"
+        task = EmbeddingTaskGenerator(
+            name="embedding_task_generator",
+            category="text-retrieval",
+            flatten_tasks=False,
+            add_raw_output=False,
+            llm=MockLLM(output="unused"),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+
+        output = f'[open({str(marker)!r}, "w").write("x")]'
+
+        assert task.format_output(output) == {"tasks": output}
+        assert not marker.exists()
+        assert task.format_output('["a", "b"]') == {"tasks": ["a", "b"]}
