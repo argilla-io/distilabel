@@ -181,12 +181,19 @@ class _WriteBuffer:
             if self._buffers[step_name]:
                 self._write(step_name)
 
-            # We need to read the parquet files and write them again to ensure the schema
-            # is correct. Otherwise, the first parquets won't have the last schema and
-            # then we will have issues when reading them.
+            schema = self._buffer_last_schema.get(step_name)
+            if schema is None:
+                continue
+
+            # Parquet normalizes some types, e.g. list child names. Compare with
+            # the footer schema that writing the final Arrow schema would produce.
+            footer = pa.BufferOutputStream()
+            pq.write_metadata(schema, footer)
+            parquet_schema = pq.read_schema(pa.BufferReader(footer.getvalue()))
+            # Earlier shards may need aligning if the schema changed during the run.
+            # Inspect the footer before decoding and rewriting any row data.
             for file in list_files_in_dir(self._path / step_name):
-                if step_name in self._buffer_last_schema:
-                    table = pq.read_table(
-                        file, schema=self._buffer_last_schema[step_name]
-                    )
-                    pq.write_table(table, file)
+                if pq.read_schema(file).equals(parquet_schema, check_metadata=True):
+                    continue
+                table = pq.read_table(file, schema=schema)
+                pq.write_table(table, file)
