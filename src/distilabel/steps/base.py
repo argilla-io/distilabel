@@ -101,7 +101,7 @@ def _infer_step_name(
         base_name = "_".join(parts[:-1])
         while name in step_names:
             idx = int(name.split("_")[-1])
-            name = f"{base_name}_{idx+1}"
+            name = f"{base_name}_{idx + 1}"
     return name
 
 
@@ -670,15 +670,28 @@ class Step(_Step, ABC):
 
         for output_rows in generator:
             restored = []
+            num_inputs = len(overriden_inputs)
+            # Steps that expand each input into several rows (e.g. `ExpandColumns`, or
+            # tasks with `num_generations>1` and `group_generations=False`) emit the
+            # rows derived from the same input consecutively. If the number of output
+            # rows is a multiple of the number of inputs, every input produced the
+            # same number of rows, so the overriden values of the `i`-th input must be
+            # restored on rows `i * n` to `(i + 1) * n - 1`.
+            rows_per_input = (
+                len(output_rows) // num_inputs
+                if num_inputs and len(output_rows) % num_inputs == 0
+                else None
+            )
             for i, row in enumerate(output_rows):
-                # Correct the index here because we don't know the num_generations from the llm
-                # ahead of time. For example, if we have `len(overriden_inputs)==5` and `len(row)==10`,
-                # from `num_generations==2` and `group_generations=False` in the LLM:
-                # The loop will use indices 0, 1, 2, 3, 4, 0, 1, 2, 3, 4
-                ntimes_i = i % len(overriden_inputs)
+                if rows_per_input:
+                    input_idx = i // rows_per_input
+                else:
+                    # The number of rows can't be mapped back to the inputs, so fall
+                    # back to cycling through the overriden values.
+                    input_idx = i % num_inputs
                 restored.append(
                     self._apply_mappings_and_restore_overriden(
-                        row, overriden_inputs[ntimes_i]
+                        row, overriden_inputs[input_idx]
                     )
                 )
             yield restored

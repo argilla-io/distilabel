@@ -302,6 +302,49 @@ class TestStep:
             },
         ]
 
+    def test_process_applying_mappings_restores_overriden_on_expanded_rows(
+        self,
+    ) -> None:
+        class ExpandStep(Step):
+            @property
+            def inputs(self) -> List[str]:
+                return ["candidates"]
+
+            @property
+            def outputs(self) -> List[str]:
+                return ["candidates"]
+
+            def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+                yield [
+                    {**row, "candidates": candidate}
+                    for row in inputs
+                    for candidate in row["candidates"]
+                ]
+
+        step = ExpandStep(
+            name="expand",
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            input_mappings={"candidates": "generation"},
+        )
+
+        outputs = next(
+            step.process_applying_mappings(
+                [
+                    {"id": 0, "generation": ["a0", "b0"], "candidates": "best-0"},
+                    {"id": 1, "generation": ["a1", "b1"], "candidates": "best-1"},
+                ]
+            )
+        )
+
+        assert [
+            (row["id"], row["generation"], row["candidates"]) for row in outputs
+        ] == [
+            (0, "a0", "best-0"),
+            (0, "b0", "best-0"),
+            (1, "a1", "best-1"),
+            (1, "b1", "best-1"),
+        ]
+
     def test_connect(self) -> None:
         @step(inputs=["instruction"], outputs=["generation"])
         def GenerationStep(input: StepInput):
