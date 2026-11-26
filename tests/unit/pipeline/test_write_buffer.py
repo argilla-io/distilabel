@@ -14,9 +14,13 @@
 
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
+
+import pyarrow.parquet as pq
 
 from distilabel.constants import STEPS_OUTPUTS_PATH
 from distilabel.distiset import Distiset, create_distiset
+from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from tests.unit.pipeline.utils import (
@@ -28,6 +32,26 @@ from tests.unit.pipeline.utils import (
 
 
 class TestWriteBuffer:
+    def test_close_rewrites_only_shards_needing_schema_alignment(self, tmp_path):
+        path = tmp_path / STEPS_OUTPUTS_PATH
+        buffer = _WriteBuffer(path, {"leaf"})
+        first = {"text": "first", "tokens": [1]}
+        last = {"text": "last", "tokens": [2], "score": 0.5}
+        for seq_no, row in enumerate((first, last)):
+            buffer.add_batch(_Batch(seq_no, "leaf", seq_no == 1, data=[[row] * 50]))
+
+        with patch.object(pq, "write_table", wraps=pq.write_table) as write:
+            buffer.close()
+
+        old_shard = path / "leaf" / "00001.parquet"
+        new_shard = path / "leaf" / "00002.parquet"
+        assert [call.args[1] for call in write.call_args_list] == [old_shard]
+        assert pq.read_schema(old_shard).equals(
+            pq.read_schema(new_shard), check_metadata=True
+        )
+        assert pq.read_table(old_shard).to_pylist() == [{**first, "score": None}] * 50
+        assert pq.read_table(new_shard).to_pylist() == [last] * 50
+
     def test_create(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdirname:
             folder = Path(tmpdirname) / "data" / STEPS_OUTPUTS_PATH
